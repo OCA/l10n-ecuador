@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+<!-- Base Config Settings Form View -->
+<record id="l10n_ec_config_view_form" model="ir.ui.view">
+    <field name="name">opt_ec_config.view.form</field>
+    <field name="model">opt_ec_config.config.settings</field>
+    <field name="arch" type="xml">
+        <form string="Configuraciones Ecuatorianas"
+              class="oe_form_configuration">
+            <header>
+                <button string="Aplicar"
+                        type="object"
+                        name="execute"
+                        class="oe_highlight"/>
+                o
+                <button string="Cancelar"
+                        type="object"
+                        name="cancel"
+                        class="oe_link"/>
+            </header>
+            <separator string="Configuraciones de la localización ecuatoriana"/>
+            <div>
+                <p>
+                    <label
+                        string="Te permite configurar los módulos y configuraciones de la localización ecuatoriana que deseas utilizar."/>
+                </p>
+            </div>
+
+            <group string="Obligaciones con el Estado">
+                <label for="id" string="Impuestos"/>
+                <div name="impuestos">
+                    <div name='module_l10n_ec_sri_16'>
+                        <field name="module_l10n_ec_sri_16"
+                               class="oe_inline"/>
+                        <label for="module_l10n_ec_sri_16"/>
+                    </div>
+                    <div name='module_l10n_ec_sri_ce_16'>
+                        <field name="module_l10n_ec_sri_ce_16"
+                               class="oe_inline"/>
+                        <label for="module_l10n_ec_sri_ce_16"/>
+                    </div>
+                    <div name='module_l10n_ec_sri_ats_16'>
+                        <field name="module_l10n_ec_sri_ats_16"
+                               class="oe_inline"/>
+                        <label for="module_l10n_ec_sri_ats_16"/>
+                    </div>
+                </div>
+            </group>
+
+            <group string="Contabilidad y finanzas">
+                <label for="id" string="N.I.I.F."/>
+                <div name="niif">
+                    <div name='module_l10n_ec_niif_base'>
+                        <field name="module_l10n_ec_niif_base"
+                               class="oe_inline"/>
+                        <label for="module_l10n_ec_niif_base"/>
+                    </div>
+                    <div name='module_l10n_ec_niif_sri'>
+                        <field name="module_l10n_ec_niif_sri"
+                               class="oe_inline"/>
+                        <label for="module_l10n_ec_niif_sri"/>
+                    </div>
+                </div>
+            </group>
+            
+            <group string="Herramientas y utilidades">
+                <label for="id" string="Utilidades"/>
+                <div name="utilidades">
+                    <div name='module_l10n_ec_ote'>
+                        <field name="module_l10n_ec_ote"
+                               class="oe_inline"/>
+                        <label for="module_l10n_ec_ote"/>
+                    </div>
+                    <div name='module_opc_ec_id_unico'>
+                        <field name="module_opc_ec_id_unico"
+                               class="oe_inline"/>
+                        <label for="module_opc_ec_id_unico"/>
+                    </div>
+                    <div name='module_opc_ec_tradename'>
+                        <field name="module_opc_ec_tradename"
+                               class="oe_inline"/>
+                        <label for="module_opc_ec_tradename"/>
+                    </div>
+                </div>
+            </group>
+
+            <group string="Base">
+                <label for="id" string="Módulos base"/>
+                
+            </group>            
+            
+        </form>
+    </field>
+</record>
+
+<!-- Base Config Settings Action -->
+<record id="action_opt_ec_config" model="ir.actions.act_window">
+    <field name="name">Configuraciones Ecuatorianas</field>
+    <field name="type">ir.actions.act_window</field>
+    <field name="res_model">opt_ec_config.config.settings</field>
+    <field name="view_mode">form</field>
+    <field name="target">inline</field>
+</record>
+
+<!-- Base Config Settings Menu -->
+<menuitem id="menu_opt_ec_config" action="action_opt_ec_config"
+    name="Para Ecuador" parent="base.menu_config" sequence="110"/>
+
+    </data>
+</openerp>

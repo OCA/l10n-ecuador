@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+  <data>
+      
+<record id="view_ats_form" model="ir.ui.view">
+  <field name="name">view.ats.form</field>
+  <field name="model">l10n_ec_report_ats_16.ats</field>
+  <field name="arch" type="xml">
+      <form string="Anexos Transaccionales.">
+          <sheet>
+              <group string="Anexo Transaccional">
+                  <field name="name" invisible="1" />
+                  <field name="month" />
+                  <field name="year" />
+              </group>
+              <div>
+                  <p> Puede descargar su archivo con la declaración aquí: <field name="file_save" filename="name"/></p>
+              </div>
+              <footer>
+                  <group>
+                      <button name="create_xml" string="Generar XML" type="object" default_focus="1" class="btn-primary"/>
+                  </group>
+              </footer>
+          </sheet>
+      </form>
+  </field>
+</record>
+
+        <record model="ir.actions.act_window" id="action_ats_ats">
+            <field name="name">Anexo Transaccional 2016</field>
+            <field name="res_model">l10n_ec_report_ats_16.ats</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">Creación del Anexo Transaccional.
+                </p>
+            </field>
+        </record>
+
+        <menuitem
+            name="Reportes de Ecuador"
+            parent="account.menu_finance_reports"
+            sequence="1"
+            id="account_reports_ec_menu"
+            groups="account.group_account_user" />
+
+        <menuitem
+            name="Anexo Transaccional"
+            parent="account_reports_ec_menu"
+            action="action_ats_ats"
+            id="l10n_ec_sri_ats_16_ats_menu"
+            groups="account.group_account_manager" />
+  </data>
+</openerp>

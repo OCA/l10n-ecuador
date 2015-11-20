@@ -1,0 +1,3 @@
+# Fábrica de Software Libre (desarrollo@libre.com.ec)
+# - Definición del método para validar la cédula de identidad.
+# - Definición del método para validar el R.U.C.

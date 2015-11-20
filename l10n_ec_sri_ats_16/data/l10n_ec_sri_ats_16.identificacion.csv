@@ -1,0 +1,6 @@
+"id","name","code","description","tpidprov","tpidcliente"
+"__export__.l10n_ec_sri_ats_16_identificacion_ruc","R.U.C.","R","Registro único de contribuyentes","01","04"
+"__export__.l10n_ec_sri_ats_16_identificacion_ci","C.I.","C","Cédula de identidad (ecuatorianos)","02","05"
+"__export__.l10n_ec_sri_ats_16_identificacion_pas","Pasaporte","P","Pasaporte","03","06"
+"__export__.l10n_ec_sri_ats_16_identificacion_ext","Identificación fiscal del exterior","P","Identificación fiscal del exterior","03","06"
+"__export__.l10n_ec_sri_ats_16_identificacion_fin","Consumidor final","F","Consumidor final",,"07"

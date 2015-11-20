@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+  <data>
+      
+<record id="view_invoice_supplier_form_ec" model="ir.ui.view">
+  <field name="name">view.invoice.supplier.form.ec</field>
+  <field name="model">account.invoice</field>
+  <field name="inherit_id" ref="account.invoice_supplier_form"/>
+  <field name="arch" type="xml">
+    <xpath expr="//field[@name='partner_id']" position="after">
+      <field name="comprobante_id"
+             attrs="{'invisible':[('partner_id', '==', False)]}"/>
+    </xpath>
+  </field>
+</record>
+
+<record id="view_invoice_form_ec" model="ir.ui.view">
+  <field name="name">view.invoice.form.ec</field>
+  <field name="model">account.invoice</field>
+  <field name="inherit_id" ref="account.invoice_form"/>
+  <field name="arch" type="xml">
+    <xpath expr="sheet/group/group/field[@name='partner_id']" position="after">
+      <field name="comprobante_id"
+             attrs="{'invisible':[('partner_id', '==', False)]}"/>
+    </xpath>
+  </field>
+</record>
+
+  </data>
+</openerp>
