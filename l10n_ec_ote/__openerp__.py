@@ -22,10 +22,10 @@ Organizacion territorial del Ecuador.
     """,
 
     'author': 'Fabrica de Software Libre',
-    'website': '',
+    'website': 'www.libre.ec',
 
     'category': 'Tools',
-    'version': '0.02',
+    'version': '9.0.1.0.0',
 
     # any module necessary for this one to work correctly
     'depends': [
@@ -38,8 +38,5 @@ Organizacion territorial del Ecuador.
         'data/res.country.state.csv',
         'data/l10n_ec_ote.canton.csv',
         'data/l10n_ec_ote.parroquia.csv',
-    ],
-    # only loaded in demonstration mode
-    'demo': [
     ],
 }
