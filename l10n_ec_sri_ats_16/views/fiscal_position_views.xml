@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+  <data>
+
+<record id="view_account_position_form_ec" model="ir.ui.view">
+  <field name="name">view.account.position.form.ec</field>
+  <field name="model">account.fiscal.position</field>
+  <field name="inherit_id" ref="account.view_account_position_form"/>
+  <field name="arch" type="xml">
+    <xpath expr="//field[@name='active']" position="before">
+      <field name="persona_id"
+             placeholder="Tipo de persona"
+             />
+      <field name="identificacion_id"
+             placeholder="Tipo de identificación"
+             />
+    </xpath>
+  </field>
+</record>
+
+  </data>
+</openerp>
