@@ -1,0 +1,5 @@
+"id","name"
+"__export__.account_tax_group_ivacompras","IvaCompras"
+"__export__.account_tax_group_retivacompras","RetIvaCompras"
+"__export__.account_tax_group_ivaventas","IvaVentas"
+"__export__.account_tax_group_retivaventas","RetIvaVentas"
