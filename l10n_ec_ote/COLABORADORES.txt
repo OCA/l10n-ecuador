@@ -1,0 +1,3 @@
+# Fábrica de Software Libre (desarrollo@libre.com.ec)
+# - Creación de los modelos básicos para cantones y parroquias.
+# - Ingreso de datos base para provincias, cantones y parroquias.
