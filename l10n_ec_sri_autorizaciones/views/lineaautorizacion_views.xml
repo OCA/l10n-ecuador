@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+  <data>
+
+<record id="view_lineaautorizacion_tree" model="ir.ui.view">
+    <field name="name">view.lineaautorizacion.tree</field>
+    <field name="model">l10n_ec_sri_autorizaciones.lineaautorizacion</field>
+    <field name="arch" type="xml">
+        <tree editable="bottom">
+            <field name="comprobante_id"/>
+            <field name="secuencia_inicial"/>
+            <field name="secuencia_final"/>
+            <field name="secuencia_siguiente"/>
+        </tree>
+    </field>
+</record>
+
+  </data>
+</openerp>
