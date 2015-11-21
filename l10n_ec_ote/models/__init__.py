@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
-import ote
-import res_partner
+from . import ote
+from . import res_partner
