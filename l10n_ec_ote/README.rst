@@ -9,6 +9,16 @@ In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us smashing it by providing a detailed and welcomed feedback
 `here <https://github.com/OCA/l10n-ecuador/issues/new?body=module:%20admin_technical_features%0Aversion:%208.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
 
+Ecuador's Geopolitical Information
+===================================
+
+This module adds the information requiered to select partner's location in states, canton and parish.
+
+Infomación Geopolitica de Ecuador
+=================================
+
+Este módulo agrega la información necesaria para agregar la información de provincias, cantones
+y parroquias en la ubicación de clientes y proveedores.
 
 Credits
 =======
