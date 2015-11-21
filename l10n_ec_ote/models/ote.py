@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from openerp import models, fields
 
+
 class Canton(models.Model):
     _name = 'l10n_ec_ote.canton'
-
 
     state_id = fields.Many2one('res.country.state',
                                ondelete='restrict',
@@ -11,9 +11,9 @@ class Canton(models.Model):
     name = fields.Char(string="Cantón")
     code = fields.Char(string="Código")
 
+
 class Parroquia(models.Model):
     _name = 'l10n_ec_ote.parroquia'
-
 
     canton_id = fields.Many2one('l10n_ec_ote.canton',
                                 ondelete='restrict',
