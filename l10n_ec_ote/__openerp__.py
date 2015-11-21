@@ -16,6 +16,7 @@
         'data/res.country.state.csv',
         'data/l10n_ec_ote.canton.csv',
         'data/l10n_ec_ote.parroquia.csv',
+        'security/ir.model.access.csv',
     ],
     'demo': [],
     'test': [],
