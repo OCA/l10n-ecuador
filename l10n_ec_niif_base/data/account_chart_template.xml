@@ -34,7 +34,7 @@
             <field name="spoken_languages" eval="'es_ES'"/>
         </record>
 
-        <record id="trans" model="account.account.template">
+        <record id="l10n_ec_niif_base_10101" model="account.account.template">
             <field name="chart_template_id" ref="l10n_ec_niif_base"/>
         </record>
 
