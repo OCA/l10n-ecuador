@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from openerp import models, fields
+from openerp import models, fields, api
 
 
 class AccountInvoice(models.Model):
@@ -20,28 +20,24 @@ class AccountInvoice(models.Model):
 
     @api.onchange('autorizacion_id')
     def _onchange_autorizacion_id(self):
-        self.numero_comprobante = (
-                                str(self.autorizacion_id.establecimiento) + "-" +
-                                str(self.autorizacion_id.punto_impresion) + "-00000000"
-                                )
+        e = self.autorizacion_id.establecimiento
+        pi = self.autorizacion_id.punto_impresion
+        self.numero_comprobante = str(e) + "-" + str(pi) + "-00000000"
 
     @api.onchange('detercero_id')
     def _onchange_detercero_id(self):
-        self.numero_comprobante = (
-                                str(self.detercero_id.establecimiento) + "-" + 
-                                str(self.detercero_id.punto_impresion) + "-00000000"
-                                )
+        e = self.detercero_id.establecimiento
+        pi = self.detercero_id.punto_impresion
+        self.numero_comprobante = str(e) + "-" + str(pi) + "-00000000"
 
     @api.onchange('ret_autorizacion_id')
-    def _onchange_ret_autorizacion_id(self):
-        self.numero_retencion = (
-            str(self.autorizacion_id.establecimiento) + "-" +
-                            str(self.autorizacion_id.punto_impresion) + "-00000000"
-                            )
+    def _onchange_autorizacion_id(self):
+        e = self.ret_autorizacion_id.establecimiento
+        pi = self.ret_autorizacion_id.punto_impresion
+        self.numero_retencion = str(e) + "-" + str(pi) + "-00000000"
 
     @api.onchange('ret_detercero_id')
-    def _onchange_ret_detercero_id(self):
-        self.numero_retencion = (
-                            str(self.detercero_id.establecimiento) + "-" +
-                            str(self.detercero_id.punto_impresion) + "-00000000"
-                            )
+    def _onchange_autorizacion_id(self):
+        e = self.ret_detercero_id.establecimiento
+        pi = self.ret_detercero_id.punto_impresion
+        self.numero_retencion = str(e) + "-" + str(pi) + "-00000000"
