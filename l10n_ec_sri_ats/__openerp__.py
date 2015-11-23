@@ -17,6 +17,8 @@
         'views/comprobante.xml',
         'views/persona.xml',
         'views/identificacion.xml',
+        'views/lineaautorizacion.xml',
+        'views/autorizacion.xml',
         'views/sustento.xml',
         'views/res_partner.xml',
         'views/res_company.xml',
