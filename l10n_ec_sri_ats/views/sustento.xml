@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <data>
+    <record id="view_sustento_form" model="ir.ui.view">
+      <field name="name">view.sustento.form</field>
+      <field name="model">l10n_ec_sri_ats.sustento</field>
+      <field name="arch" type="xml">
+        <form string="Sustento Tributario.">
+          <sheet>
+            <group>
+              <field name="name"/>
+              <field name="code"/>
+              <field name="description"/>
+            </group>
+            <group string="Comprobantes aplicables">
+              <field name="comprobante_ids" nolabel="1"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+  </data>
+</odoo>
