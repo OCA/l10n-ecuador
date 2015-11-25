@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <data>
+    <record id="view_comprobante_form" model="ir.ui.view">
+      <field name="name">view.comprobante.form</field>
+      <field name="model">l10n_ec_sri_ats.comprobante</field>
+      <field name="arch" type="xml">
+        <form string="Tipos de comprobante autorizados.">
+          <sheet>
+            <group string="Información general">
+              <field name="name"/>
+              <field name="code"/>
+              <field name="active"/>
+            </group>
+            <group string="Sustentos tributarios aplicables">
+              <field name="sustento_ids" nolabel="1"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+  </data>
+</odoo>
