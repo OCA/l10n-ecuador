@@ -1,0 +1,18 @@
+"id","name","code","description"
+"sustento_01","01","01","Debe ser utilizado para todas aquellas prestaciones de servicios o adquisiciones de bienes distintos de inventarios y activos fijos gravadas con derecho a crédito tributario que constan en la declaración de IVA  y que no aplican en los códigos 03 y 06. "
+"sustento_02","02","02","Debe ser utilizado para todas aquellas prestaciones de servicios o adquisiciones de bienes gravados, distintos de inventarios y activos fijos, que no dan derecho a crédito tributario y en consecuencia el IVA pagado se contabiliza directamente en costos o gastos y se refleja en la declaración de Impuesto a la Renta."
+"sustento_03","03","03","Debe ser utilizado para todas aquellas adquisiciones de activos fijos, gravadas, con derecho a crédito tributario que constan en la declaración de IVA."
+"sustento_04","04","04","Debe ser utilizado para todas aquellas adquisiciones de activos fijos que no dan derecho a crédito tributario y en consecuencia el IVA pagado se contabiliza directamente en costos o gastos y se refleja en la declaración de Impuesto a la Renta."
+"sustento_05","05","05","Debe ser utilizado para registrar gastos relacionados a viaje, hospedaje y alimentación cuyos comprobantes de venta están a nombre de los funcionarios de la empresa y no a nombre de la misma, pero que si constituyen gastos deducibles para Impuesto a la Renta."
+"sustento_06","06","06","Debe ser utilizado para todas aquellas adquisiciones de inventario gravadas con derecho a crédito tributario que constan en la declaración de IVA."
+"sustento_07","07","07","Debe ser utilizado para todas aquellas adquisiciones de inventario que no dan derecho a crédito tributario y en consecuencia el IVA pagado se contabiliza directamente en costos o gastos y se refleja en la declaración de Impuesto a la Renta."
+"sustento_08","08","08","Debe ser utilizado para todas aquellas adquisiciones de bienes o prestaciones de servicios gravadas pagadas para solicitar reembolso de gastos.  Este sustento es usado para reportar el intermediario."
+"sustento_09","09","09","Debe ser utilizado para todas aquellas adquisiciones de gastos médicos y medicina prepagada que constan en la declaración de IVA, realizadas a través de la figura de reembolso de gasto."
+"sustento_10","10","10","Las sociedades nacionales o extranjeras residentes en el Ecuador, para reportar los dividendos y utilidades distribuidos."
+"sustento_00","00","00","Las instituciones financieras, para reportar los pagos de adquisiciones de bienes o prestaciones de servicio que se efectúan por convenio de débito o recaudación, donde la institución financiera actuó como agente de retención.
+
+Los editores de periódicos y revistas, para reportar las retenciones presuntivas de periódicos, donde los editores actúen como agentes de retención presuntiva.
+
+Los agentes de retención presuntiva, para reportar las retenciones efectuadas por la comercialización de combustibles derivados del Petróleo. 
+
+Los productores de banano en aquellos casos que sean también exportadores del producto, para reportar el impuesto presuntivo liquidado y pagado."

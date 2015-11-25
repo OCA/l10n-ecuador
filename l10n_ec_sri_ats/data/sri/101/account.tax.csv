@@ -1,0 +1,5 @@
+"id","description","name","type_tax_use","amount_type","amount","tax_group_id:id","tag_ids:id"
+"tax_10184501","RETENCIONES EN LA FUENTE QUE LE REALIZARON | 1%","845 1%","sale","percent",-1,"tax_group_retirventas","account_tag_101845"
+"tax_10184502","RETENCIONES EN LA FUENTE QUE LE REALIZARON | 2%","845 2%","sale","percent",-2,"tax_group_retirventas","account_tag_101845"
+"tax_10184508","RETENCIONES EN LA FUENTE QUE LE REALIZARON | 8%","845 8%","sale","percent",-8,"tax_group_retirventas","account_tag_101845"
+"tax_10184510","RETENCIONES EN LA FUENTE QUE LE REALIZARON | 10%","845 10%","sale","percent",-10,"tax_group_retirventas","account_tag_101845"

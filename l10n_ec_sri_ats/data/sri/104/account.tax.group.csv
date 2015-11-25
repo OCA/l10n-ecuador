@@ -1,0 +1,5 @@
+"id","name"
+"tax_group_ivacompras","IvaCompras"
+"tax_group_retivacompras","RetIvaCompras"
+"tax_group_ivaventas","IvaVentas"
+"tax_group_retivaventas","RetIvaVentas"
