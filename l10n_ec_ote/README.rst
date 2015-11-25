@@ -96,12 +96,7 @@ Images
 Contributors
 ------------
 
-* Daniel Alejandro Mendieta <desarrollo@libre.ec>
-
-Colaboradores
--------------
-
-* Daniel Alejandro Mendieta <desarrollo@libre.ec>
+* Fábrica de Software Libre <desarrollo@libre.ec>
 
 Maintainer
 ----------
