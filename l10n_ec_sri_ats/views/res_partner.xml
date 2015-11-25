@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <data>
+    <record id="view_partner_property_form_ec" model="ir.ui.view">
+      <field name="name">res.partner.property.form.ec</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="account.view_partner_property_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='property_account_position_id']" position="replace">
+          <field name="parterel"/>
+        </xpath>
+        <xpath expr="//field[@name='name']" position="after">
+          <field name="property_account_position_id" placeholder="Posición Fiscal" options="{'no_quick_create':True,'no_create_edit':True}"/>
+        </xpath>
+        <xpath expr="//field[@name='parent_id']" position="before">
+          <group>
+            <field name="vat" placeholder="Nro. de identificación"/>
+          </group>
+        </xpath>
+      </field>
+    </record>
+    <record id="view_partner_form_ec" model="ir.ui.view">
+      <field name="name">res.partner.form.ec</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="base.view_partner_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='is_company']" position="after">
+          <group>
+
+          </group>
+        </xpath>
+      </field>
+    </record>
+  </data>
+</odoo>
