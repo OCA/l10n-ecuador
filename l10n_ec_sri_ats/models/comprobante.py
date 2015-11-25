@@ -7,7 +7,8 @@ class Comprobante(models.Model):
 
     name = fields.Char('Comprobantes autorizados')
     code = fields.Char('Código', size=2)
-    active = fields.Boolean('Activo')
+    requiere_autorizacion = fields.Boolean(
+        '¿Requiere autorización del S.R.I.?')
     sustento_ids = fields.Many2many('l10n_ec_sri_ats.sustento',
                                     'sustento_comprobante_relacion',
                                     'comprobante_ids',

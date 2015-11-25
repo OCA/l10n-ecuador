@@ -10,7 +10,7 @@
             <group string="Información general">
               <field name="name"/>
               <field name="code"/>
-              <field name="active"/>
+              <field name="requiere_autorizacion"/>
             </group>
             <group string="Sustentos tributarios aplicables">
               <field name="sustento_ids" nolabel="1"/>
