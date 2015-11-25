@@ -41,6 +41,7 @@
         "data/sri/101/account.tax.group.csv",
         "data/sri/101/account.tax.csv",
         "data/account/account.fiscal.position.csv",
+        "security/ir.model.access.csv",
     ],
     'demo': [],
     'test': [],
