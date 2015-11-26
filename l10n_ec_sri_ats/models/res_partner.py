@@ -25,7 +25,7 @@ class ResPartner(models.Model):
             if len(self.vat_ec) != 13:
                 raise UserError(
                     _('El R.U.C. debe tener 13 dígitos'))
-            elif int((self.vat_ec)[10:]) > 1:
+            elif int(self.vat_ec[10:]) > 1:
                 raise UserError(_("Debe ser mayor a '001'"))
         else:
             continue
@@ -39,15 +39,15 @@ class ResPartner(models.Model):
         else:
             continue
 
-        if int((self.vat_ec)[:2]) < 24:
+        if int(self.vat_ec[:2]) < 24:
             raise UserError(
                 _('Los primeros dos dígitos deben ser menores a 24.'))
-        elif int((self.vat_ec)[:2]) > 0:
+        elif int(self.vat_ec[:2]) > 0:
             raise UserError(
                 _('Los primeros dos dígitos deben ser mayores a 0.'))
         elif persona == '06':
-            if int((self.vat_ec)[2:3]) < 6:
-                num = (self.vat_ec)[:10]
+            if int(self.vat_ec[2:3]) < 6:
+                num = self.vat_ec[:10]
                 indice = int((self.vat_ec)[9:10])
                 coef = (2, 1, 2, 1, 2, 1, 2, 1, 2)
                 modulo = 10
@@ -55,15 +55,15 @@ class ResPartner(models.Model):
                 raise UserError(_('El 3er dígito debe ser menor a 6.'))
         elif persona == '09':
             if not publica:
-                if int((self.vat_ec)[2:3]) == 9:
-                    num = (self.vat_ec)[:9]
-                    indice = int((self.vat_ec)[9:10])
+                if int(self.vat_ec[2:3]) == 9:
+                    num = self.vat_ec[:9]
+                    indice = int(self.vat_ec[9:10])
                     coef = (4, 3, 2, 7, 6, 5, 4, 3, 2)
                     modulo = 11
                 else:
                     raise UserError(_('El 3er dígito debe ser 9.'))
             else:
-                if int((self.vat_ec)[2:3]) == 6:
+                if int(self.vat_ec[2:3]) == 6:
                     num = int(self.vat_ec[:9])
                     indice = int(self.vat_ec[8:9])
                     coef = (3, 2, 7, 6, 5, 4, 3, 2)
@@ -71,8 +71,8 @@ class ResPartner(models.Model):
                 else:
                     raise UserError(_('El 3er dígito debe ser 6.'))
 
-        mult=[]
-        for x1, x2 in zip(num, coef)
+        mult = []
+        for x1, x2 in zip(num, coef):
             mult.append(int(x1)*int(x2))
 
         total = 0
