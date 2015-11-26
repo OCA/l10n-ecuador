@@ -27,8 +27,6 @@ class ResPartner(models.Model):
                     _('El R.U.C. debe tener 13 dígitos'))
             elif int(self.vat_ec[10:]) > 1:
                 raise UserError(_("Debe ser mayor a '001'"))
-        else:
-            continue
 
         if identificacion == 'C':
             if len(self.vat_ec) != 10:
@@ -36,8 +34,6 @@ class ResPartner(models.Model):
                     _('La C.I. debe tener 10 dígitos'))
             elif persona == '09':
                 raise UserError(_("La C.I. es solo para personas naturales"))
-        else:
-            continue
 
         if int(self.vat_ec[:2]) < 24:
             raise UserError(
