@@ -12,4 +12,4 @@ class AccountFiscalPosition(models.Model):
                                  ondelete='restrict',
                                  string="Tipo de persona")
     es_publica = fields.Boolean('¿Es una Institución pública')
-    obligada_contabilidad = fields.Boolean('¿Está obligada a llevar contabilidad')
+    obligada_contabilidad = fields.Boolean('¿Obligada a llevar contabilidad')
