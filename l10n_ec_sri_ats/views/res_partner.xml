@@ -14,7 +14,7 @@
         </xpath>
         <xpath expr="//field[@name='parent_id']" position="before">
           <group>
-            <field name="vat" placeholder="Nro. de identificación"/>
+            <field name="vat_ec" placeholder="R.U.C / C.I. / Pasaporte"/>
           </group>
         </xpath>
       </field>

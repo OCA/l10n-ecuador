@@ -1,4 +1,4 @@
-"id","name","persona_id:id","es_gobierno","obligada_contabilidad","identificacion_id:id"
+"id","name","persona_id:id","es_publica","obligada_contabilidad","identificacion_id:id"
 "fiscal_position_consumidor","Consumidor (persona natural con cédula)","persona_06","False","False","identificacion_ci"
 "fiscal_position_natural","Persona natural (no obligada a llevar contabilidad)","persona_06","False","False","identificacion_ruc"
 "fiscal_position_obligada","Persona natural (obligada a llevar contabilidad)","persona_06","False","True","identificacion_ruc"

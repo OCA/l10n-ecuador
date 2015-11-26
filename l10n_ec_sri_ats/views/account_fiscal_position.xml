@@ -9,7 +9,7 @@
         <xpath expr="//field[@name='active']" position="before">
           <field name="persona_id" placeholder="Tipo de persona"/>
           <field name="identificacion_id" placeholder="Tipo de identificación"/>
-          <field name="es_gobierno"/>
+          <field name="es_publica"/>
           <field name="obligada_contabilidad"/>
           </xpath>
       </field>

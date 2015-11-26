@@ -11,5 +11,5 @@ class AccountFiscalPosition(models.Model):
     persona_id = fields.Many2one('l10n_ec_sri_ats.persona',
                                  ondelete='restrict',
                                  string="Tipo de persona")
-    es_gobierno = fields.Boolean('¿Es uan Institución Gubernamental')
+    es_publica = fields.Boolean('¿Es una Institución pública')
     obligada_contabilidad = fields.Boolean('¿Está obligada a llevar contabilidad')
