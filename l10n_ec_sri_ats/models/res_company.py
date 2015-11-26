@@ -9,3 +9,4 @@ class ResCompany(models.Model):
         string='Establecimientos activos', size=3,
         help="""Ingrese el número de establecimientos activos
                 inscritos en el R.U.C.""")
+    vat_ec = fields.Char('Idenfificación fiscal')
