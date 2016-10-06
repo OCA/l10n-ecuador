@@ -1,6 +1,6 @@
-[![Runbot Status](https://runbot.odoo-community.org/runbot/badge/flat/211/9.0.svg)](https://runbot.odoo-community.org/runbot/repo/github-com-oca-l10n-ecuador-211)
-[![Build Status](https://travis-ci.org/OCA/l10n-ecuador.svg?branch=9.0)](https://travis-ci.org/OCA/l10n-ecuador)
-[![Coverage Status](https://coveralls.io/repos/OCA/l10n-ecuador/badge.svg?branch=9.0&service=github)](https://coveralls.io/github/OCA/l10n-ecuador?branch=9.0)
+[![Runbot Status](https://runbot.odoo-community.org/runbot/badge/flat/211/10.0.svg)](https://runbot.odoo-community.org/runbot/repo/github-com-oca-l10n-ecuador-211)
+[![Build Status](https://travis-ci.org/OCA/l10n-ecuador.svg?branch=10.0)](https://travis-ci.org/OCA/l10n-ecuador)
+[![Coverage Status](https://coveralls.io/repos/OCA/l10n-ecuador/badge.svg?branch=10.0&service=github)](https://coveralls.io/github/OCA/l10n-ecuador?branch=10.0)
 [![Code Climate](https://codeclimate.com/github/OCA/l10n-ecuadot/badges/gpa.svg)](https://codeclimate.com/github/OCA/l10n-ecuador)
 # Localización Ecuatoriana
 
@@ -30,7 +30,7 @@ All the modules you need to run Odoo in Ecuador.
 
 Translation Status
 ------------------
-[![Transifex Status](https://www.transifex.com/projects/p/OCA-l10n-ecuador-9-0/chart/image_png)](https://www.transifex.com/projects/p/OCA-l10n-ecuador-9-0)
+[![Transifex Status](https://www.transifex.com/projects/p/OCA-l10n-ecuador-10-0/chart/image_png)](https://www.transifex.com/projects/p/OCA-l10n-ecuador-10-0)
 
 ----
 
