@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <!--  Partners inherited form -->
+        <record id="partner_view_form_info" model="ir.ui.view">
+            <field name="name">partner.view.info.form.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='city']" position="replace">
+                </xpath>
+                <xpath expr="//field[@name='state_id']" position="replace">  
+                </xpath>
+                <xpath expr="//field[@name='zip']" position="replace">  
+                </xpath>
+                <xpath expr="//field[@name='country_id']" position="after">  
+                    <field name="state_id"
+                           domain="[('country_id', '=', country_id)]"
+                           class="oe_no_button"
+                           placeholder="State"
+                           options="{'no_quick_create':True,'no_create_edit':True}"/>
+                    <field name="canton_id"
+                           domain="[('state_id', '=', state_id)]"
+                           class="oe_no_button"
+                           placeholder="Canton"
+                           options="{'no_quick_create':True,'no_create_edit':True}"/>
+                    <field name="parish_id"
+                           domain="[('canton_id', '=', canton_id)]"
+                           class="oe_no_button"
+                           placeholder="Parish"
+                           options="{'no_quick_create':True,'no_create_edit':True}"/>
+                    <field name="city" placeholder="City" />
+                    <field name="zip" placeholder="ZIP" />
+                </xpath>
+            </field>
+        </record>
+   </data>
+</odoo>
