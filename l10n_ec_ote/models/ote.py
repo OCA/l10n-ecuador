@@ -7,8 +7,8 @@ class Canton(models.Model):
 
     state_id = fields.Many2one(
         'res.country.state', ondelete='restrict', string="State", )
-    name = fields.Char(string="Canton")
-    code = fields.Char(string="Code")
+    name = fields.Char(string="Canton", )
+    code = fields.Char(string="Code", )
 
 
 class Parish(models.Model):
@@ -16,5 +16,5 @@ class Parish(models.Model):
 
     canton_id = fields.Many2one(
         'l10n_ec_ote.canton', ondelete='restrict', string="Canton", )
-    name = fields.Char(string="Parish")
-    code = fields.Char(string="Code")
+    name = fields.Char(string="Parish", )
+    code = fields.Char(string="Code", )

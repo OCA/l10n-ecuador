@@ -5,9 +5,12 @@ from openerp import models, fields, api
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
+    @api.multi
     @api.onchange("canton_id")
     def _onchange_canton_id(self):
-        self.city = self.canton_id.name or ""
+        for r in self:
+            if not r.city:
+                r.city = r.canton_id.name.capitalize() or ''
 
     country_id = fields.Many2one(default="base.ec", )
     canton_id = fields.Many2one(
