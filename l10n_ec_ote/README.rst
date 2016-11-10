@@ -2,11 +2,13 @@
    :target: http://www.gnu.org/licenses/agpl-3.0-standalone.html
    :alt: License: AGPL-3
 
-===================================
+==================================
 Ecuador's Geopolitical Information
-===================================
+==================================
 
 This module adds the information requiered to select partner's location in states, canton and parish.
+
+Tested on 9.0c-20160726
 
 Installation
 ============
