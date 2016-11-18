@@ -8,12 +8,24 @@ Ecuador's Geopolitical Information
 
 This module adds the information required to select partner's location in states, canton and parish.
 
-Tested on 9.0c-20160726
+Información geopolítica de Ecuador
+==================================
+
+Este módulo agrega la información de provincias, cantones y parroquias del Ecuador.
+
+Tested on version / Probado en la versión
+=========================================
+9.0c-20160726
 
 Usage
 =====
 
-This module changes the structure in partner views to give you the options to select the cantons and parish, just use them.
+This module changes the structure in partner views to give you the options to select the cantons and parish.
+
+Instrucciones de uso
+====================
+
+Este módulo cambia la vista de clientes, proveedores y la empresa matriz para permitir la selección de provincias, cantones y parroquias.
 
 Demonstration in runbot
 =======================
@@ -30,6 +42,9 @@ Known issues / Roadmap
 
 Bug Tracker
 ===========
+Los errores son rastreados en Github Issues, en caso de problemas por favor revisa si ya han sido reportados.
+Si los has detectado primero, por favor reportalos con la informacion debida, al menos debes indicar la versión,
+los pasos para reproducir, el comportamiento actual y el comportamiento esperado.
 
 Bugs are tracked on `GitHub Issues <https://github.com/OCA/l10n-ecuador/issues>`_.
 In case of trouble, please check there if your issue has already been reported.
