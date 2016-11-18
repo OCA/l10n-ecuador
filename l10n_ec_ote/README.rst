@@ -6,30 +6,17 @@
 Ecuador's Geopolitical Information
 ==================================
 
-This module adds the information requiered to select partner's location in states, canton and parish.
+This module adds the information required to select partner's location in states, canton and parish.
 
 Tested on 9.0c-20160726
-
-Installation
-============
-
-To install this module, you need to:
-
-* Add the module to your addons path.
-* Install the module as usual.
-
-Configuration
-=============
-
-This module doesn't requiere any configuration.
 
 Usage
 =====
 
 This module changes the structure in partner views to give you the options to select the cantons and parish, just use them.
 
-Demostración en runbot
-======================
+Demonstration in runbot
+=======================
 
 .. image:: https://odoo-community.org/website/image/ir.attachment/5784_f2813bd/datas
    :alt: Try me on Runbot
@@ -61,6 +48,7 @@ Contributors
 ------------
 
 * Fábrica de Software Libre <desarrollo@libre.ec>
+* Daniel Alejandro Mendieta <damendieta@gmail.com>
 
 Maintainer
 ----------
