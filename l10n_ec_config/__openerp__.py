@@ -5,6 +5,7 @@
     'version': '9.0.1.0.0',
     'summary': "Ecuador's localization config settings",
     'author': "Fabrica de Software Libre,Odoo Community Association (OCA)",
+    'license': 'AGPL-3',
     'website': "www.libre.ec",
     'category': 'Tools',
     'images': [
