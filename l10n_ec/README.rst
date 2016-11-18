@@ -7,29 +7,31 @@ Ecuador's Account Chart
 =======================
 
 This module adds the basic chart of account of Ecuador.
-    * Works with the specifications of the Superintendencia de Compañías.
+   * Works with the specifications of the Superintendencia de Compañías (SUPERCIAS).
+   * It follows the requirements for SMEs.
 
-Plan de Cuentas NIIF Pymes para Ecuador
-=======================================
+Plan de cuentas para Ecuador
+============================
 
 Agrega el plan de cuentas para Ecuador.
-    * Utiliza la clasificación de la Superintendencia de Compañías.
+   * Utiliza la clasificación de la Superintendencia de Compañías.
+   * Sigue los requerimientos para las PYMEs
 
 Installation
 ============
 
 To install this module, you need to:
-
-* Add the module to your addons path.
-* Install the module as usual.
+    * Delete the standard l10n_ec module from Odoo addons directory.
+    * Copy this module on the same folder, replacing the deleted one.
+    * Install this module, no need to install account first as this module will install and configure it properly.
 
 Instalación
 ===========
 
 Para instalar este módulo se debe:
-
-* Agregar el módulo al directorio de addons.
-* Instalarlo de manera regular.
+    * Elimina el módulo l10n_ec de los addons de Odoo.
+    * Copia este módulo en el mismo directorio, reemplazando el anterior.
+    * Instalarlo de manera regular, no es necesario instalar account primero, este módulo lo instalará y configurará.
 
 Configuration
 =============
@@ -37,7 +39,8 @@ Configuration
 This module adds all the accounts as said by the Supercias but:
     * You should delete the accounts that don't apply to your company.
     * You should add the accounts that are not mandatory but you need.
-    * Keen in mind that you should use the standar coding, if you don't reports will fail.
+    * As Odoo doesn't use total accounts, you need to use the correct coding to group your accounts correctly,
+    for example, if you need a bank account, and put it inside 10101 account, you should code it as 10101xx.
 
 Configuración
 =============
@@ -45,21 +48,11 @@ Configuración
 Este módulo agrega las cuentas contables según la clasificación de la Supercias, sin embargo:
     * Es conveniente eliminar las cuentas contables que no vayan a ser utilizadas por su compañía.
     * Debe agregar las cuentas que no son obligatorias, pero desea utilizar.
-    * Al crear una cuenta, tenga presente la codificación estándar, si no lo hace, los reportes fallarán.
+    * Debido a que Odoo no usa cuentas de total, al crear una cuenta, tenga presente la codificación estándar,
+    por ejemplo, si requiere una cuenta de bancos y colocarla dentro de 10101, su código debe ser 10101xx.
 
-Usage
-=====
-
-This module doesn't have any special usage guide lines. 
-
-Instrucciones de uso
-====================
-
-- Before install odoo's account, replace the default one with this.
-- Do not install the account module directly, install this one and it will install the required dependencies.
-
-Demostración en runbot
-======================
+Demonstration in runbot
+=======================
 
 .. image:: https://odoo-community.org/website/image/ir.attachment/5784_f2813bd/datas
    :alt: Try me on Runbot
@@ -68,28 +61,30 @@ Demostración en runbot
 Known issues / Roadmap
 ======================
 
-* The odoo default journals are been createn in English and they also create their respective
+    * The odoo default journals are been created in English and they also create their respective
     accounts, delete or edit them.
-* The default transfer account is 1010199, it's not part of Supercias's specification.
-* It's better if you remove the account 10101 and create new ones with codes 10101xx for your bank and cash accounts.
+    * The default transfer account is 1010199, it's not part of Supercias's specification.
+    * It's better if you remove the account 10101 and create new ones with codes 10101xx for your bank and cash accounts.
 
 Problemas conocidos y planificación
 ===================================
 
-* Los diarios por defecto de odoo se crean en inglés y crean sus respectivas cuentas contables
+    * Los diarios por defecto de odoo se crean en inglés y crean sus respectivas cuentas contables,
     es necesario editarlas o eliminarlas.
-* La cuenta de transferencias por defecto usada  es la 1010199, la cual no forma parte del plan de cuentas de la Supercias.
-* Se recomienda eliminar la cuenta 10101 y crear individuales con códigos 10101xx para las cuesnats de bancos y efectivo.
+    * La cuenta de transferencias por defecto usada  es la 1010199, la cual no forma parte de la especificación de la Supercias.
+    * Tendrá mejores resultados si elimina la cuenta 10101 y crea cuentas individuales con códigos 10101xx para las cuentas de bancos y efectivo.
 
 Bug Tracker / Rastreo de Fallos
 ===============================
 
-Los errores son rastreados en Github, por favor reportalos con la informacion debida, al menos debes indicar la versión, los pasos para reproducir y el comportamiento esperado.
+Los errores son rastreados en Github, en caso de problemas por favor revisa si ya han sido reportados en el apartado de issues,
+si los has detectado primero, por favor reportalos con la informacion debida, al menos debes indicar la versión,
+los pasos para reproducir y el comportamiento esperado.
 
 Bugs are tracked on `GitHub Issues <https://github.com/OCA/l10n-ecuador/issues>`_.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us smashing it by providing a detailed and welcomed feedback
-`here <https://github.com/OCA/l10n-ecuador/issues/new?body=module:%20l10n_ec_femd%0Aversion:%209.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
+`here <https://github.com/OCA/l10n-ecuador/issues/new?body=module:%20l10n_ec%0Aversion:%209.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
 
 Credits
 =======
@@ -102,7 +97,8 @@ Images
 Contributors
 ------------
 
-* Fábrica de Software Libre <desarrollo@libre.ec>
+    * Fábrica de Software Libre <desarrollo@libre.ec>
+    * Daniel Alejandro Mendieta <damendieta@gmail.com>
 
 Maintainer
 ----------
