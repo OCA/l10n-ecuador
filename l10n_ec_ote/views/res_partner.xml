@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record id="partner_view_form_info" model="ir.ui.view">
+            <field name="name">partner.view.info.form.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='street2']" position="after">
+                    <field name="country_id" class="oe_no_button" placeholder="Country"
+                           options="{'no_quick_create':True,'no_create_edit':True}"/>
+                </xpath>
+                <xpath expr="//field[@name='city']" position="replace">
+                    <field name="state_id" class="oe_no_button" placeholder="State"
+                           domain="[('country_id', '=', country_id)]"
+                           options="{'no_quick_create':True,'no_create_edit':True}"/>
+                </xpath>
+                <xpath expr="//field[@name='state_id']" position="replace">
+                    <field name="canton_id"
+                           domain="[('state_id', '=', state_id)]"
+                           class="oe_no_button"
+                           placeholder="Canton"
+                           options="{'no_quick_create':True,'no_create_edit':True}"/>
+                </xpath>
+                <xpath expr="//field[@name='zip']" position="replace">
+                    <field name="parish_id" class="oe_no_button" placeholder="Parish"
+                           domain="[('canton_id', '=', canton_id)]"
+                           options="{'no_quick_create':True,'no_create_edit':True}"/>
+                </xpath>
+            </field>
+        </record>
+   </data>
+</odoo>
