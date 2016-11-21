@@ -15,7 +15,7 @@ Este módulo agrega la información de provincias, cantones y parroquias del Ecu
 
 Tested on version / Probado en la versión
 =========================================
-9.0c-20160726
+10.0-20161103
 
 Usage
 =====

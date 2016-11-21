@@ -13,7 +13,6 @@
     ],
     'data': [
         'views/res_partner.xml',
-        'views/res_company.xml',
         'data/res.country.state.csv',
         'data/l10n_ec_ote.canton.csv',
         'data/l10n_ec_ote.parish.csv',
