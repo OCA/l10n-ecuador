@@ -9,7 +9,7 @@ class ResCompany(models.Model):
     @api.onchange("canton_id")
     def _onchange_canton_id(self):
         for r in self:
-            if not r.city:
+            if r.canton_id and not r.city:
                 r.city = r.canton_id.name.capitalize() or ''
 
     country_id = fields.Many2one(default="base.ec", )
