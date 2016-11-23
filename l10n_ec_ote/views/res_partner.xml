@@ -4,6 +4,7 @@
         <record id="partner_form_view_ec" model="ir.ui.view">
             <field name="name">OTE view_partner_form inherit</field>
             <field name="model">res.partner</field>
+            <field name="priority">1000</field>
             <field name="inherit_id" ref="base.view_partner_form"/>
             <field name="arch" type="xml">
                 <!-- partner view -->
