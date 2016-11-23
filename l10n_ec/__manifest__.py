@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Ecuador - Niif Pymes - Base",
-    'summary': """Chart of Accounts Using S.""",
+    'name': "Ecuador - NIIF SUPERCIAS",
+    'summary': """NIIF SUPERCIAS Accounts.""",
     'version': '10.0.1.0.0',
     'author': "Fabrica de Software Libre,Odoo Community Association (OCA)",
     'maintainer': 'Fabrica de Software Libre',
