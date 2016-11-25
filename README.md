@@ -30,8 +30,8 @@ Available addons
 ----------------
 addon | version | summary
 --- | --- | ---
-[l10n_ec](l10n_ec/) | 9.0.1.0.0 | Agrega el plan de cuentas de la Supercias.
-[l10n_ec_ote](l10n_ec_ote/) | 9.0.1.0.0 | Ecuador's Geopolitical Information.
+[l10n_ec](l10n_ec/) | 10.0.1.0.0 | NIIF SUPERCIAS Accounts.
+[l10n_ec_ote](l10n_ec_ote/) | 10.0.1.0.0 | Ecuador's Geopolitical Information.
 
 [//]: # (end addons)
 
