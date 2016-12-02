@@ -8,14 +8,9 @@ Ecuador's Localization configurator
 
 This module helps in the Ecuador's localization installation process.
 
-Configurador de la localización ecuatoriana
-===========================================
-
-Este módulo facilita la instalación de la localización ecuatoriana.
-
-Tested on version / Probado en la versión
-=========================================
-9.0c-20160726
+Tested on version
+=================
+10.0-20161103
 
 Usage
 =====
@@ -23,13 +18,6 @@ Usage
 * Install this module.
 * Go to Settings --> Ecuatorianas menu.
 * Clic on the options as you need.
-
-Instrucciones de uso
-====================
-
-* Instala el módulo.
-* Dirígete al menú Configuraciones --> Ecuatorianas.
-* Selecciona las opciones según tus necesidades.
 
 Demonstration in runbot
 =======================
@@ -46,9 +34,6 @@ Known issues / Roadmap
 
 Bug Tracker
 ===========
-Los errores son rastreados en Github Issues, en caso de problemas por favor revisa si ya han sido reportados.
-Si los has detectado primero, por favor reportalos con la informacion debida, al menos debes indicar la versión,
-los pasos para reproducir, el comportamiento actual y el comportamiento esperado.
 
 Bugs are tracked on `GitHub Issues <https://github.com/OCA/l10n-ecuador/issues>`_.
 In case of trouble, please check there if your issue has already been reported.

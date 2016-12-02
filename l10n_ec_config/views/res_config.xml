@@ -8,12 +8,12 @@
                 <form string="Ecuador's Configuration"
                     class="oe_form_configuration">
                     <header>
-                        <button string="Aplicar"
+                        <button string="Apply"
                                 type="object"
                                 name="execute"
                                 class="oe_highlight"/>
                         o
-                        <button string="Cancelar"
+                        <button string="Cancel"
                                 type="object"
                                 name="cancel"
                                 class="oe_link"/>
@@ -50,6 +50,6 @@
             <field name="target">inline</field>
         </record>
         <menuitem id="menu_l10n_ec_config" action="action_l10n_ec_config"
-            name="Ecuatorianas" parent="base.menu_config" sequence="110"/>
+            name="Ecuador's configurations" parent="base.menu_administration" sequence="110"/>
     </data>
 </odoo>
