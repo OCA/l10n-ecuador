@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 {
-    'name': 'Ecuador Easy Install',
-    'version': '9.0.1.0.0',
+    'name': "Ecuador's localization Install",
+    'version': '10.0.1.0.0',
     'summary': "Ecuador's localization config settings",
     'author': "Fabrica de Software Libre,Odoo Community Association (OCA)",
     'license': 'AGPL-3',
