@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="config_form_view" model="ir.ui.view">
+            <field name="name">Ecuador's config form view</field>
+            <field name="model">l10n_ec_config.config.settings</field>
+            <field name="arch" type="xml">
+                <form string="Ecuador's Configuration"
+                    class="oe_form_configuration">
+                    <header>
+                        <button string="Apply"
+                                type="object"
+                                name="execute"
+                                class="oe_highlight"/>
+                        o
+                        <button string="Cancel"
+                                type="object"
+                                name="cancel"
+                                class="oe_link"/>
+                    </header>
+                    <group string="Accounting">
+                        <label for="id" string="SUPERCIAS"/>
+                        <div name="supercias">
+                            <div name='module_l10n_ec'>
+                                <field name="module_l10n_ec"
+                                    class="oe_inline"/>
+                                <label for="module_l10n_ec"/>
+                            </div>
+                        </div>
+                    </group>
+                    <group string="Geopolitical configurations">
+                        <label for="id" string="GEOPOLITICAL"/>
+                        <div name="geo">
+                            <div name='module_l10n_ec_ote'>
+                                <field name="module_l10n_ec_ote"
+                                    class="oe_inline"/>
+                                <label for="module_l10n_ec_ote"/>
+                            </div>
+                        </div>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_l10n_ec_config" model="ir.actions.act_window">
+            <field name="name">Ecuador's configuration</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">l10n_ec_config.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="target">inline</field>
+        </record>
+        <menuitem id="menu_l10n_ec_config" action="action_l10n_ec_config"
+            name="Ecuador's configurations" parent="base.menu_administration" sequence="110"/>
+    </data>
+</odoo>
