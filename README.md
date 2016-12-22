@@ -31,6 +31,7 @@ Available addons
 addon | version | summary
 --- | --- | ---
 [l10n_ec](l10n_ec/) | 10.0.1.0.0 | NIIF SUPERCIAS Accounts.
+[l10n_ec_config](l10n_ec_config/) | 10.0.1.0.0 | Ecuador's localization config settings
 [l10n_ec_ote](l10n_ec_ote/) | 10.0.1.0.0 | Ecuador's Geopolitical Information.
 
 [//]: # (end addons)
