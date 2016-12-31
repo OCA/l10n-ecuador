@@ -44,7 +44,7 @@ msgstr "Şirketler"
 #: model:ir.ui.view,arch_db:l10n_ec_ote.company_view_form_info
 #: model:ir.ui.view,arch_db:l10n_ec_ote.partner_view_form_info
 msgid "Country"
-msgstr ""
+msgstr "Ülke"
 
 #. module: l10n_ec_ote
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton_create_uid
@@ -62,7 +62,7 @@ msgstr "Oluşturuldu"
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton_display_name
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_parish_display_name
 msgid "Display Name"
-msgstr ""
+msgstr "Görünen İsim"
 
 #. module: l10n_ec_ote
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton_id
@@ -74,7 +74,7 @@ msgstr "ID"
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton___last_update
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_parish___last_update
 msgid "Last Modified on"
-msgstr ""
+msgstr "Son değişiklik"
 
 #. module: l10n_ec_ote
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton_write_uid
