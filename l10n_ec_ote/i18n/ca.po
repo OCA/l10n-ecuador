@@ -62,7 +62,7 @@ msgstr "Creat el"
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton_display_name
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_parish_display_name
 msgid "Display Name"
-msgstr ""
+msgstr "Veure el nom"
 
 #. module: l10n_ec_ote
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton_id
@@ -74,7 +74,7 @@ msgstr "ID"
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton___last_update
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_parish___last_update
 msgid "Last Modified on"
-msgstr ""
+msgstr "Darrera modificació el"
 
 #. module: l10n_ec_ote
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton_write_uid
