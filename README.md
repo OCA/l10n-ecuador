@@ -26,6 +26,7 @@ La presente localización pretende implementar las siguienes soluciones:
 All the modules you need to run Odoo in Ecuador.
 
 [//]: # (addons)
+
 Available addons
 ----------------
 addon | version | summary
