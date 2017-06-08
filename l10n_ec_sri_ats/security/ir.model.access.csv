@@ -1,0 +1,10 @@
+"id","name","model_id:id","group_id:id","perm_read","perm_write","perm_create","perm_unlink"
+"access_l10n_ec_sri_ats_tipopago_account_user","l10n_ec_sri_ats.tipopago account user","model_l10n_ec_sri_ats_tipopago","account.group_account_user",1,1,1,1
+"access_l10n_ec_sri_ats_formapago_account_user","l10n_ec_sri_ats.formapago account user","model_l10n_ec_sri_ats_formapago","account.group_account_user",1,1,1,1
+"access_l10n_ec_sri_ats_comprobante_account_user","l10n_ec_sri_ats.comprobante account user","model_l10n_ec_sri_ats_comprobante","account.group_account_user",1,1,1,1
+"access_l10n_ec_sri_ats_sustento_account_user","l10n_ec_sri_ats.sustento account user","model_l10n_ec_sri_ats_sustento","account.group_account_user",1,1,1,1
+"access_l10n_ec_sri_ats_identificacion_account_user","l10n_ec_sri_ats.identificacion account user","model_l10n_ec_sri_ats_identificacion","account.group_account_user",1,1,1,1
+"access_l10n_ec_sri_ats_persona_account_user","l10n_ec_sri_ats.persona account user","model_l10n_ec_sri_ats_persona","account.group_account_user",1,1,1,1
+"access_l10n_ec_sri_ats_lineaautorizacion_account_user","l10n_ec_sri_ats.lineaautorizacion account user","model_l10n_ec_sri_ats_lineaautorizacion","account.group_account_user",1,1,1,1
+"access_l10n_ec_sri_ats_autorizacion_account_user","l10n_ec_sri_ats.autorizacion account user","model_l10n_ec_sri_ats_autorizacion","account.group_account_user",1,1,1,1
+"access_l10n_ec_sri_ats_detercero_account_user","l10n_ec_sri_ats.detercero account user","model_l10n_ec_sri_ats_detercero","account.group_account_user",1,1,1,1
