@@ -50,13 +50,13 @@ msgstr "Land"
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton_create_uid
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_parish_create_uid
 msgid "Created by"
-msgstr ""
+msgstr "Aangemaakt door"
 
 #. module: l10n_ec_ote
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton_create_date
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_parish_create_date
 msgid "Created on"
-msgstr ""
+msgstr "Aangemaakt op"
 
 #. module: l10n_ec_ote
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton_display_name
@@ -80,13 +80,13 @@ msgstr "Laatst gewijzigd op"
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton_write_uid
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_parish_write_uid
 msgid "Last Updated by"
-msgstr ""
+msgstr "Laatst bijgewerkt door"
 
 #. module: l10n_ec_ote
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton_write_date
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_parish_write_date
 msgid "Last Updated on"
-msgstr ""
+msgstr "Laatst bijgewerkt op"
 
 #. module: l10n_ec_ote
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_parish_name
