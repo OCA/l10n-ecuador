@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 9.0c\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-28 05:01+0000\n"
-"PO-Revision-Date: 2017-10-28 05:01+0000\n"
+"POT-Creation-Date: 2017-11-11 04:17+0000\n"
+"PO-Revision-Date: 2017-11-11 04:17+0000\n"
 "Last-Translator: Wahyu Setiawan <wahyusetiaaa@gmail.com>, 2017\n"
 "Language-Team: Indonesian (https://www.transifex.com/oca/teams/23907/id/)\n"
 "MIME-Version: 1.0\n"
@@ -100,7 +100,7 @@ msgstr ""
 #. module: l10n_ec_ote
 #: model:ir.model,name:l10n_ec_ote.model_res_partner
 msgid "Partner"
-msgstr ""
+msgstr "Mitra"
 
 #. module: l10n_ec_ote
 #: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton_state_id
