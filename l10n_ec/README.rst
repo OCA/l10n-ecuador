@@ -7,49 +7,55 @@ Ecuador's Account Chart
 =======================
 
 This module adds the basic chart of account of Ecuador.
-   * Works with the specifications of the Superintendencia de Compañías (SUPERCIAS).
-   * It follows the requirements for SMEs.
+
+* Works with the specifications of the Superintendencia de Compañías (SUPERCIAS).
+* It follows the requirements for SMEs.
 
 Plan de cuentas para Ecuador
 ============================
 
 Agrega el plan de cuentas para Ecuador.
-   * Utiliza la clasificación de la Superintendencia de Compañías.
-   * Sigue los requerimientos para las PYMEs
+
+* Utiliza la clasificación de la Superintendencia de Compañías.
+* Sigue los requerimientos para las PYMEs
 
 Installation
 ============
 
 To install this module, you need to:
-    * Delete the standard l10n_ec module from Odoo addons directory.
-    * Copy this module on the same folder, replacing the deleted one.
-    * Install this module, no need to install account first as this module will install and configure it properly.
+
+* Delete the standard l10n_ec module from Odoo addons directory.
+* Copy this module on the same folder, replacing the deleted one.
+* Install this module, no need to install account first as this module will install and configure it properly.
 
 Instalación
 ===========
 
 Para instalar este módulo se debe:
-    * Elimina el módulo l10n_ec de los addons de Odoo.
-    * Copia este módulo en el mismo directorio, reemplazando el anterior.
-    * Instalarlo de manera regular, no es necesario instalar account primero, este módulo lo instalará y configurará.
+
+* Elimina el módulo l10n_ec de los addons de Odoo.
+* Copia este módulo en el mismo directorio, reemplazando el anterior.
+* Instalarlo de manera regular, no es necesario instalar account primero, este módulo lo instalará y configurará.
 
 Configuration
 =============
 
 This module adds all the accounts as said by the Supercias but:
-    * You should delete the accounts that don't apply to your company.
-    * You should add the accounts that are not mandatory but you need.
-    * As Odoo doesn't use total accounts, you need to use the correct coding to group your accounts correctly,
-    for example, if you need a bank account, and put it inside 10101 account, you should code it as 10101xx.
+
+* You should delete the accounts that don't apply to your company.
+* You should add the accounts that are not mandatory but you need.
+* As Odoo doesn't use total accounts, you need to use the correct coding to group your accounts correctly,
+  for example, if you need a bank account, and put it inside 10101 account, you should code it as 10101xx.
 
 Configuración
 =============
 
 Este módulo agrega las cuentas contables según la clasificación de la Supercias, sin embargo:
-    * Es conveniente eliminar las cuentas contables que no vayan a ser utilizadas por su compañía.
-    * Debe agregar las cuentas que no son obligatorias, pero desea utilizar.
-    * Debido a que Odoo no usa cuentas de total, al crear una cuenta, tenga presente la codificación estándar,
-    por ejemplo, si requiere una cuenta de bancos y colocarla dentro de 10101, su código debe ser 10101xx.
+
+* Es conveniente eliminar las cuentas contables que no vayan a ser utilizadas por su compañía.
+* Debe agregar las cuentas que no son obligatorias, pero desea utilizar.
+* Debido a que Odoo no usa cuentas de total, al crear una cuenta, tenga presente la codificación estándar,
+  por ejemplo, si requiere una cuenta de bancos y colocarla dentro de 10101, su código debe ser 10101xx.
 
 Demonstration in runbot
 =======================
@@ -61,18 +67,18 @@ Demonstration in runbot
 Known issues / Roadmap
 ======================
 
-    * The odoo default journals are been created in English and they also create their respective
-    accounts, delete or edit them.
-    * The default transfer account is 1010199, it's not part of Supercias's specification.
-    * It's better if you remove the account 10101 and create new ones with codes 10101xx for your bank and cash accounts.
+* The odoo default journals are been created in English and they also create their respective
+  accounts, delete or edit them.
+* The default transfer account is 1010199, it's not part of Supercias's specification.
+* It's better if you remove the account 10101 and create new ones with codes 10101xx for your bank and cash accounts.
 
 Problemas conocidos y planificación
 ===================================
 
-    * Los diarios por defecto de odoo se crean en inglés y crean sus respectivas cuentas contables,
-    es necesario editarlas o eliminarlas.
-    * La cuenta de transferencias por defecto usada  es la 1010199, la cual no forma parte de la especificación de la Supercias.
-    * Tendrá mejores resultados si elimina la cuenta 10101 y crea cuentas individuales con códigos 10101xx para las cuentas de bancos y efectivo.
+* Los diarios por defecto de odoo se crean en inglés y crean sus respectivas cuentas contables,
+  es necesario editarlas o eliminarlas.
+* La cuenta de transferencias por defecto usada  es la 1010199, la cual no forma parte de la especificación de la Supercias.
+* Tendrá mejores resultados si elimina la cuenta 10101 y crea cuentas individuales con códigos 10101xx para las cuentas de bancos y efectivo.
 
 Bug Tracker / Rastreo de Fallos
 ===============================
@@ -97,8 +103,8 @@ Images
 Contributors
 ------------
 
-    * Fábrica de Software Libre <desarrollo@libre.ec>
-    * Daniel Alejandro Mendieta <damendieta@gmail.com>
+* Fábrica de Software Libre <desarrollo@libre.ec>
+* Daniel Alejandro Mendieta <damendieta@gmail.com>
 
 Maintainer
 ----------
