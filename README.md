@@ -29,11 +29,11 @@ All the modules you need to run Odoo in Ecuador.
 
 Available addons
 ----------------
-addon | version | summary
---- | --- | ---
-[l10n_ec](l10n_ec/) | 9.0.1.0.0 | Agrega el plan de cuentas de la Supercias.
-[l10n_ec_config](l10n_ec_config/) | 9.0.1.0.0 | Ecuador's localization config settings
-[l10n_ec_ote](l10n_ec_ote/) | 9.0.1.0.0 | Ecuador's Geopolitical Information.
+addon | version | maintainers | summary
+--- | --- | --- | ---
+[l10n_ec](l10n_ec/) | 9.0.1.0.0 |  | Agrega el plan de cuentas de la Supercias.
+[l10n_ec_config](l10n_ec_config/) | 9.0.1.0.0 |  | Ecuador's localization config settings
+[l10n_ec_ote](l10n_ec_ote/) | 9.0.1.0.0 |  | Ecuador's Geopolitical Information.
 
 [//]: # (end addons)
 
