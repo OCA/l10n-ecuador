@@ -1,0 +1,120 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_ec_ote
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-02-23 20:19+0000\n"
+"PO-Revision-Date: 2022-02-23 20:19+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_ec_ote
+#: model:ir.model,name:l10n_ec_ote.model_l10n_ec_ote_canton
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_parish__canton_id
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_res_company__canton_id
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_res_partner__canton_id
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_res_users__canton_id
+#: model_terms:ir.ui.view,arch_db:l10n_ec_ote.company_view_form_info
+#: model_terms:ir.ui.view,arch_db:l10n_ec_ote.partner_view_form_info
+msgid "Canton"
+msgstr "Cantón"
+
+#. module: l10n_ec_ote
+#: model_terms:ir.ui.view,arch_db:l10n_ec_ote.company_view_form_info
+#: model_terms:ir.ui.view,arch_db:l10n_ec_ote.partner_view_form_info
+msgid "City"
+msgstr "Ciudad"
+
+#. module: l10n_ec_ote
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton__code
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_parish__code
+msgid "Code"
+msgstr "Código"
+
+#. module: l10n_ec_ote
+#: model:ir.model,name:l10n_ec_ote.model_res_company
+msgid "Companies"
+msgstr "Compañias"
+
+#. module: l10n_ec_ote
+#: model:ir.model,name:l10n_ec_ote.model_res_partner
+msgid "Contact"
+msgstr "Contacto"
+
+#. module: l10n_ec_ote
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_parish__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: l10n_ec_ote
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton__create_date
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_parish__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: l10n_ec_ote
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton__display_name
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_parish__display_name
+msgid "Display Name"
+msgstr "Nombre"
+
+#. module: l10n_ec_ote
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton__id
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_parish__id
+msgid "ID"
+msgstr "ID"
+
+#. module: l10n_ec_ote
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton____last_update
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_parish____last_update
+msgid "Last Modified on"
+msgstr "Última modificación"
+
+#. module: l10n_ec_ote
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_parish__write_uid
+msgid "Last Updated by"
+msgstr "Modificado por"
+
+#. module: l10n_ec_ote
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton__write_date
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_parish__write_date
+msgid "Last Updated on"
+msgstr "Modificado el"
+
+#. module: l10n_ec_ote
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton__name
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_parish__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: l10n_ec_ote
+#: model:ir.model,name:l10n_ec_ote.model_l10n_ec_ote_parish
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_res_company__parish_id
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_res_partner__parish_id
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_res_users__parish_id
+#: model_terms:ir.ui.view,arch_db:l10n_ec_ote.company_view_form_info
+#: model_terms:ir.ui.view,arch_db:l10n_ec_ote.partner_view_form_info
+msgid "Parish"
+msgstr "Parroquia"
+
+#. module: l10n_ec_ote
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_ote_canton__state_id
+#: model_terms:ir.ui.view,arch_db:l10n_ec_ote.company_view_form_info
+#: model_terms:ir.ui.view,arch_db:l10n_ec_ote.partner_view_form_info
+msgid "State"
+msgstr "Provincia"
+
+#. module: l10n_ec_ote
+#: model_terms:ir.ui.view,arch_db:l10n_ec_ote.company_view_form_info
+#: model_terms:ir.ui.view,arch_db:l10n_ec_ote.partner_view_form_info
+msgid "ZIP"
+msgstr "ZIP"
