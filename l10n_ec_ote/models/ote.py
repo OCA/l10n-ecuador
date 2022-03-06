@@ -1,9 +1,9 @@
 from odoo import fields, models
 
 
-class Canton(models.Model):
+class City(models.Model):
     _name = "l10n_ec_ote.canton"
-    _description = "Canton"
+    _description = "City"
 
     state_id = fields.Many2one(
         "res.country.state",
