@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="sri_key_type_tree_view" model="ir.ui.view">
+        <field name="name">sri.key.type.tree</field>
+        <field name="model">sri.key.type</field>
+        <field name="arch" type="xml">
+            <tree
+                decoration-info="state == 'unverified'"
+                decoration-success="state == 'valid'"
+                decoration-warning="state == 'expired'"
+            >
+                <field name="name" />
+                <field name="state" />
+            </tree>
+        </field>
+    </record>
+    <record id="sri_key_type_form_view" model="ir.ui.view">
+        <field name="name">sri.key.type.form</field>
+        <field name="model">sri.key.type</field>
+        <field name="arch" type="xml">
+            <form duplicate="0">
+                <header>
+                    <button
+                        name="action_validate_and_load"
+                        string="Validate Cert"
+                        type="object"
+                        class="oe_highlight"
+                        states="unverified"
+                    />
+                    <field name="state" widget="statusbar" />
+                </header>
+                <sheet>
+                    <widget
+                        name="web_ribbon"
+                        text="Archived"
+                        bg_color="bg-danger"
+                        attrs="{'invisible': [('active', '=', True)]}"
+                    />
+                    <field name="active" invisible="1" />
+                    <group>
+                        <group>
+                            <field name="name" required="1" />
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                            />
+                            <field name="file_name" invisible="1" force_save="1" />
+                        </group>
+                        <group>
+                            <field
+                                name="file_content"
+                                required="1"
+                                filename="file_name"
+                            />
+                            <field name="password" required="1" password="True" />
+                        </group>
+                    </group>
+                    <notebook colspan="2">
+                        <page string="Cert Info">
+                            <group>
+                                <group>
+                                    <field name="issue_date" />
+                                    <field name="subject_common_name" />
+                                    <field
+                                        name="subject_serial_number"
+                                        groups="base.group_system"
+                                    />
+                                </group>
+                                <group>
+                                    <field name="expire_date" />
+                                    <field name="issuer_common_name" />
+                                    <field
+                                        name="cert_serial_number"
+                                        groups="base.group_system"
+                                    />
+                                    <field
+                                        name="cert_version"
+                                        groups="base.group_system"
+                                    />
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="sri_key_type_search_view" model="ir.ui.view">
+        <field name="name">sri.key.type.search</field>
+        <field name="model">sri.key.type</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="state" />
+            </search>
+        </field>
+    </record>
+    <record id="sri_key_type_action" model="ir.actions.act_window">
+        <field name="name">Electronic Signature Certs</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">sri.key.type</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="sri_key_type_tree_view" />
+        <field name="search_view_id" ref="sri_key_type_search_view" />
+    </record>
+</odoo>
