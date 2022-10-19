@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Agregar campos de edi document en la vista del documento-->
+    <record id="account_move_edi_form" model="ir.ui.view">
+        <field name="name">l10n_ec_edi.account.move.form</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account_edi.view_move_form_inherit" />
+        <field name="arch" type="xml">
+            <xpath
+                expr="//field[@name='edi_document_ids']/tree//field[@name='state']"
+                position="before"
+            >
+                <field name="l10n_ec_xml_access_key" optional="hide" />
+                <field name="l10n_ec_authorization_date" optional="hide" />
+                <field name="l10n_ec_last_sent_date" optional="hide" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="account_edi_document_view_tree" model="ir.ui.view">
+        <field name="name">account.edi.document.view.tree</field>
+        <field name="model">account.edi.document</field>
+        <field name="arch" type="xml">
+            <tree
+                create="false"
+                edit="false"
+                delete="false"
+                duplicate="false"
+                decoration-success="state== 'sent'"
+                decoration-info="state == 'to_send'"
+                decoration-warning="state == 'to_cancel'"
+                decoration-danger="state=='cancelled'"
+            >
+                <field name="l10n_ec_xml_access_key" />
+                <field name="l10n_ec_document_number" />
+                <field name="l10n_ec_document_date" />
+                <field name="l10n_ec_partner_id" />
+                <field name="state" />
+                <field name="l10n_ec_authorization_date" />
+                <field name="l10n_ec_last_sent_date" />
+                <field name="error" string="Last Error Message" />
+                <field name="create_date" optional="hide" />
+                <field name="create_uid" optional="hide" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="account_edi_document_view_form" model="ir.ui.view">
+        <field name="name">account.edi.document.view.form</field>
+        <field name="model">account.edi.document</field>
+        <field name="arch" type="xml">
+            <form create="false" edit="false" delete="false" duplicate="false">
+                <sheet>
+                    <div class="oe_title">
+                        <span class="o_form_label">XML Electronic Document</span>
+                            <h1 class="mt0">
+                                <span><field name="l10n_ec_document_number" /></span>
+                            </h1>
+                        </div>
+                    <group>
+                        <field name="l10n_ec_xml_access_key" />
+                        <field name="move_id" string="Related Document" />
+                        <field name="l10n_ec_partner_id" />
+                        <field name="l10n_ec_document_date" />
+                        <field name="state" />
+                        <field name="l10n_ec_authorization_date" />
+                        <field name="l10n_ec_last_sent_date" />
+                        <field name="create_date" />
+                        <field name="create_uid" />
+                        <field name="error" string="Last Error Message" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="account_edi_document_action" model="ir.actions.act_window">
+        <field name="name">XML Electronic Documents</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">account.edi.document</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="account_edi_document_view_tree" />
+    </record>
+    <menuitem
+        id="account_edi_document_menu_action"
+        name="XML Electronic Documents"
+        sequence="5"
+        parent="sri_electronic_documents_menu"
+        action="account_edi_document_action"
+    />
+
+</odoo>

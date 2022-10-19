@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="edi_format_ec_sri" model="account.edi.format">
+        <field name="name">EDI Ecuadorian SRI</field>
+        <field name="code">l10n_ec_format_sri</field>
+    </record>
+</odoo>

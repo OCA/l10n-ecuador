@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<odoo>
+    <template id="ec_edi_invoice">
+        <factura id="comprobante" t-att-version="company.l10n_ec_invoice_version">
+            <t t-call="l10n_ec_account_edi.ec_edi_info_tributaria" />
+            <infoFactura>
+                <fechaEmision t-out="fechaEmision" />
+                <dirEstablecimiento t-out="dirEstablecimiento" />
+                <t t-if="contribuyenteEspecial">
+                    <contribuyenteEspecial t-out="contribuyenteEspecial" />
+                </t>
+                <obligadoContabilidad t-out="obligadoContabilidad" />
+                <tipoIdentificacionComprador t-out="tipoIdentificacionComprador" />
+                <razonSocialComprador t-out="razonSocialComprador" />
+                <identificacionComprador t-out="identificacionComprador" />
+                <direccionComprador t-out="direccionComprador" />
+                <totalSinImpuestos t-out="totalSinImpuestos" />
+                <totalDescuento t-out="totalDescuento" />
+                <totalConImpuestos t-if="totalConImpuestos">
+                    <totalImpuesto t-as="totalImpuesto" t-foreach="totalConImpuestos">
+                        <codigo t-out="totalImpuesto.get('codigo')" />
+                        <codigoPorcentaje
+                            t-out="totalImpuesto.get('codigoPorcentaje')"
+                        />
+                        <baseImponible t-out="totalImpuesto.get('baseImponible')" />
+                        <tarifa t-out="totalImpuesto.get('tarifa')" />
+                        <valor t-out="totalImpuesto.get('valor')" />
+                    </totalImpuesto>
+                </totalConImpuestos>
+                <importeTotal t-out="importeTotal" />
+                <moneda t-out="moneda" />
+                <pagos t-if="pagos">
+                    <pago t-as="pago" t-foreach="pagos">
+                        <formaPago t-out="pago.get('formaPago')" />
+                        <total t-out="pago.get('total')" />
+                        <plazo t-out="pago.get('plazo', False)" />
+                        <unidadTiempo t-out="pago.get('unidadTiempo', False)" />
+                    </pago>
+                </pagos>
+                <valorRetIva t-out="valorRetIva" />
+                <valorRetRenta t-out="valorRetRenta" />
+            </infoFactura>
+            <detalles t-if="detalles">
+                <detalle t-foreach="detalles" t-as="detalle">
+                    <codigoPrincipal t-out="detalle.get('codigoPrincipal')" />
+                    <codigoAuxiliar t-out="detalle.get('codigoAuxiliar')" />
+                    <descripcion t-out="detalle.get('descripcion')" />
+                    <unidadMedida t-out="detalle.get('unidadMedida')" />
+                    <cantidad t-out="detalle.get('cantidad')" />
+                    <precioUnitario t-out="detalle.get('precioUnitario')" />
+                    <precioSinSubsidio t-out="detalle.get('precioSinSubsidio')" />
+                    <descuento t-out="detalle.get('descuento')" />
+                    <precioTotalSinImpuesto
+                        t-out="detalle.get('precioTotalSinImpuesto')"
+                    />
+                    <detallesAdicionales t-if="detalle.get('detallesAdicionales')">
+                        <detAdicional
+                            t-as="detAdicional"
+                            t-foreach="detalle.get('detallesAdicionales')"
+                            t-att-nombre="detAdicional.get('nombre')"
+                            t-att-valor="detAdicional.get('valor')"
+                        />
+                    </detallesAdicionales>
+                    <impuestos t-if="detalle.get('impuestos')">
+                        <impuesto t-foreach="detalle.get('impuestos')" t-as="impuesto">
+                            <codigo t-out="impuesto.get('codigo')" />
+                            <codigoPorcentaje
+                                t-out="impuesto.get('codigoPorcentaje')"
+                            />
+                            <tarifa t-out="impuesto.get('tarifa')" />
+                            <baseImponible t-out="impuesto.get('baseImponible')" />
+                            <valor t-out="impuesto.get('valor')" />
+                        </impuesto>
+                    </impuestos>
+                </detalle>
+            </detalles>
+            <t t-call="l10n_ec_account_edi.ec_edi_info_adicional" />
+        </factura>
+    </template>
+</odoo>
