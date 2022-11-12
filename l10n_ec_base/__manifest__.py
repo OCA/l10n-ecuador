@@ -1,0 +1,21 @@
+{
+    "name": "Ecuadorian Localization",
+    "summary": "Ecuadorian Localization",
+    "category": "Account",
+    "author": "Odoo Community Association (OCA), Renan Nazate, Gabriel, Leonardo",
+    "website": "https://github.com/OCA/l10n-ecuador",
+    "license": "AGPL-3",
+    "version": "15.0.1.0.0",
+    "depends": ["l10n_ec"],
+    "data": [
+        "data/account_tax_group_data.xml",
+        "data/account_tax_template_data.xml",
+        "wizard/account_payment_register_views.xml",
+        "views/account_tax_view.xml",
+        "views/account_journal_view.xml",
+        "views/account_payment_view.xml",
+        "views/account_fiscal_position_view.xml",
+    ],
+    "installable": True,
+    "auto_install": False,
+}
