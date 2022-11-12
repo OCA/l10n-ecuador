@@ -1,11 +1,14 @@
 import logging
+import subprocess
 from base64 import b64decode
 from random import randrange
+from tempfile import NamedTemporaryFile
 
 import xmlsig  # pylint: disable=W7936
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.serialization import pkcs12
-from cryptography.x509.oid import NameOID
+from cryptography.hazmat.primitives import serialization  # pylint: disable=W7936
+from cryptography.hazmat.primitives.serialization import pkcs12  # pylint: disable=W7936
+from cryptography.x509 import ExtensionNotFound  # pylint: disable=W7936
+from cryptography.x509.oid import ExtensionOID, NameOID  # pylint: disable=W7936
 from lxml import etree
 from xades import XAdESContext, template  # pylint: disable=W7936
 from xades.policy import ImpliedPolicy  # pylint: disable=W7936
@@ -16,11 +19,30 @@ from odoo.tools.translate import _
 
 _logger = logging.getLogger(__name__)
 
+KEY_TO_PEM_CMD = (
+    "openssl pkcs12 -nocerts -in %s -out %s -passin pass:%s -passout pass:%s"
+)
+
 STATES = {
     "unverified": [
         ("readonly", False),
     ]
 }
+
+
+def convert_key_cer_to_pem(key, password):
+    # TODO compute it from a python way
+    with NamedTemporaryFile(
+        "wb", suffix=".key", prefix="edi.ec.tmp."
+    ) as key_file, NamedTemporaryFile(
+        "rb", suffix=".key", prefix="edi.ec.tmp."
+    ) as keypem_file:
+        key_file.write(key)
+        key_file.flush()
+        command = KEY_TO_PEM_CMD % (key_file.name, keypem_file.name, password, password)
+        subprocess.call(command.split())
+        key_pem = keypem_file.read().decode()
+    return key_pem
 
 
 class SriKeyType(models.Model):
@@ -62,16 +84,9 @@ class SriKeyType(models.Model):
         self.ensure_one()
         if not self.password:
             return None, None, None
+        file_content = b64decode(self.file_content)
         try:
-            (
-                private_key,
-                certificate,
-                _additional_certificates,
-            ) = pkcs12.load_key_and_certificates(
-                b64decode(self.file_content),
-                self.password.encode(),
-                backend=default_backend(),
-            )
+            p12 = pkcs12.load_pkcs12(file_content, self.password.encode())
         except Exception as ex:
             _logger.warning(tools.ustr(ex))
             raise UserError(
@@ -81,14 +96,51 @@ class SriKeyType(models.Model):
                 )
                 % (tools.ustr(ex))
             ) from None
-        return private_key, certificate, _additional_certificates
+        certificate = p12.cert.certificate
+        # revisar si el certificado tiene la extension digital_signature activada
+        # caso contrario tomar del listado de certificados el primero que tengan esta extension
+        is_digital_signature = True
+        try:
+            extension = certificate.extensions.get_extension_for_oid(
+                ExtensionOID.KEY_USAGE
+            )
+            is_digital_signature = extension.value.digital_signature
+        except ExtensionNotFound as ex:
+            _logger.debug(tools.ustr(ex))
+        if not is_digital_signature:
+            # cuando hay mas de un certificado, tomar el certificado correcto
+            # este deberia tener entre las extensiones digital_signature = True
+            # pero si el certificado solo tiene uno, devolvera None
+            for other_cert in p12.additional_certs:
+                try:
+                    extension = other_cert.certificate.extensions.get_extension_for_oid(
+                        ExtensionOID.KEY_USAGE
+                    )
+                except ExtensionNotFound as ex:
+                    _logger.debug(tools.ustr(ex))
+                if extension.value.digital_signature:
+                    certificate = other_cert.certificate
+                    break
+        private_key_str = convert_key_cer_to_pem(file_content, self.password)
+        start_index = private_key_str.find("Signing Key")
+        # cuando el archivo tiene mas de una firma electronica
+        # viene varias secciones con BEGIN ENCRYPTED PRIVATE KEY
+        # diferenciandose por:
+        # * Decryption Key
+        # * Signing Key
+        # asi que tomar desde Signing Key en caso de existir
+        if start_index >= 0:
+            private_key_str = private_key_str[start_index:]
+        start_index = private_key_str.find("-----BEGIN ENCRYPTED PRIVATE KEY-----")
+        private_key_str = private_key_str[start_index:]
+        private_key = serialization.load_pem_private_key(
+            private_key_str.encode(),
+            self.password.encode(),
+        )
+        return private_key, certificate
 
     def action_validate_and_load(self):
-        (
-            _private_key,
-            cert,
-            _additional_certificates,
-        ) = self._decode_certificate()
+        _private_key, cert = self._decode_certificate()
         issuer = cert.issuer
         subject = cert.subject
         subject_common_name = (
@@ -127,7 +179,7 @@ class SriKeyType(models.Model):
         def new_range():
             return randrange(100000, 999999)
 
-        pkcs12 = self._decode_certificate()
+        p12 = self._decode_certificate()
         doc = etree.fromstring(xml_string_data)
         signature_id = f"Signature{new_range()}"
         signature_property_id = f"{signature_id}-SignedPropertiesID{new_range()}"
@@ -172,7 +224,7 @@ class SriKeyType(models.Model):
         )
         doc.append(signature)
         ctx = XAdESContext(ImpliedPolicy(xmlsig.constants.TransformSha1))
-        ctx.load_pkcs12(pkcs12)
+        ctx.load_pkcs12(p12)
         ctx.sign(signature)
         ctx.verify(signature)
         return etree.tostring(doc, encoding="UTF-8", pretty_print=True).decode()
