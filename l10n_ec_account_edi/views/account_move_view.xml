@@ -14,4 +14,90 @@
             </xpath>
         </field>
     </record>
+        <!--Modifica Dominio y Contexto de Facturas de Proveedor para separar Facturas de Liquidacion de Compras-->
+    <record id="account.action_move_in_invoice_type" model="ir.actions.act_window">
+            <field
+            name="domain"
+        >[('move_type', '=', 'in_invoice'), ('l10n_latam_internal_type', '=', 'invoice')]</field>
+            <field
+            name="context"
+        >{'default_move_type': 'in_invoice', 'internal_type': 'invoice'}</field>
+    </record>
+    <!--Crear vista principal para liquidacion de compras-->
+    <record id="account_invoice_liquidation_purchase_form_view" model="ir.ui.view">
+            <field name="name">account.invoice.liquidation.form</field>
+            <field name="model">account.move</field>
+            <field name="priority" eval="50" />
+            <field name="mode">primary</field>
+            <field name="inherit_id" ref="account.view_move_form" />
+            <field name="arch" type="xml">
+                <xpath
+                expr="//field[@name='l10n_ec_electronic_authorization']"
+                position="attributes"
+            >
+                    <attribute name="attrs">
+                        {'invisible': True,
+                         'required': False}
+                    </attribute>
+                </xpath>
+            </field>
+    </record>
+    <record
+        id="action_move_liquidation_of_purchases_type"
+        model="ir.actions.act_window"
+    >
+            <field name="name">Liquidation of Purchase</field>
+            <field name="res_model">account.move</field>
+            <field name="view_mode">tree,kanban,form</field>
+            <field name="view_id" ref="account.view_invoice_tree" />
+            <field name="search_view_id" ref="account.view_account_invoice_filter" />
+            <field
+            name="domain"
+        >[('move_type', '=', 'in_invoice'), ('l10n_latam_internal_type', '=', 'purchase_liquidation')]</field>
+            <field
+            name="context"
+        >{'default_move_type': 'in_invoice', 'internal_type': 'purchase_liquidation'}</field>
+            <field name="help" type="html">
+                <p
+                class="o_view_nocontent_smiling_face"
+            >Create a vendor liquidation of purchases</p>
+                <p>
+                    Create liquidation of purchases, register payments and keep track of the discussions with your
+                    vendors.
+                </p>
+            </field>
+    </record>
+    <record
+        id="action_move_liquidation_purchase_tree"
+        model="ir.actions.act_window.view"
+    >
+            <field name="sequence" eval="1" />
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="account.view_invoice_tree" />
+            <field
+            name="act_window_id"
+            ref="action_move_liquidation_of_purchases_type"
+        />
+    </record>
+    <record
+        id="action_move_liquidation_purchase_form"
+        model="ir.actions.act_window.view"
+    >
+            <field name="sequence" eval="4" />
+            <field name="view_mode">form</field>
+            <field
+            name="view_id"
+            ref="account_invoice_liquidation_purchase_form_view"
+        />
+            <field
+            name="act_window_id"
+            ref="action_move_liquidation_of_purchases_type"
+        />
+    </record>
+    <menuitem
+        id="menu_action_move_liquidation_of_purchases_type"
+        action="action_move_liquidation_of_purchases_type"
+        sequence="6"
+        parent="account.menu_finance_payables"
+    />
 </odoo>
