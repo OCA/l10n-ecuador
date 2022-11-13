@@ -227,3 +227,63 @@ class AccountMove(models.Model):
                     )
                 if error_list:
                     raise UserError("\n".join(error_list))
+
+    def _get_l10n_latam_documents_domain(self):
+        self.ensure_one()
+        if (
+            self.journal_id.company_id.account_fiscal_country_id
+            != self.env.ref("base.ec")
+            or not self.journal_id.l10n_latam_use_documents
+        ):
+            return super()._get_l10n_latam_documents_domain()
+        domain = [
+            ("country_id.code", "=", "EC"),
+            (
+                "internal_type",
+                "in",
+                [
+                    "invoice",
+                    "debit_note",
+                    "credit_note",
+                    "invoice_in",
+                    "purchase_liquidation",
+                ],
+            ),
+        ]
+        internal_type = self._get_l10n_ec_internal_type()
+        allowed_documents = self._get_l10n_ec_documents_allowed(
+            self._get_l10n_ec_identification_type()
+        )
+        if internal_type and allowed_documents:
+            domain.append(
+                (
+                    "id",
+                    "in",
+                    allowed_documents.filtered(
+                        lambda x: x.internal_type == internal_type
+                    ).ids,
+                )
+            )
+        return domain
+
+    def l10n_ec_get_identification_type(self):
+        # codigos son tomados de la ficha tecnica del SRI, tabla 6
+        identification_type = self._get_l10n_ec_identification_type()
+        if identification_type == "01":  # Ruc
+            return "04"
+        elif identification_type == "02":  # Dni
+            return "05"
+        elif identification_type == "03":  # Passapot
+            if self.partner_id.commercial_partner_id.country_id.code != "EC":
+                return "08"
+            return "06"
+        elif identification_type in ("21", "20", "19"):
+            return "08"
+        return identification_type
+
+    def _is_manual_document_number(self):
+        is_purchase = super()._is_manual_document_number()
+        if is_purchase:
+            if self.l10n_latam_document_type_id.internal_type == "purchase_liquidation":
+                return False
+        return is_purchase
