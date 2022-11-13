@@ -147,6 +147,7 @@ class TestL10nECCommon(AccountTestInvoicingCommon):
         journal=None,
         latam_document_type=None,
         use_payment_term=False,
+        form_id=None,
     ):
         """Método base con datos genericos para crear formulario de:
          Faturas, notas de crédito,debito, liquidaciones y retenciones de venta
@@ -162,6 +163,8 @@ class TestL10nECCommon(AccountTestInvoicingCommon):
          coloca uno según el partner y journal; campo requerido
         :param use_payment_term: Si es True, colocará un término de pago en el documento,
           por defecto False
+        :param form_id: ID del formulario si fuese diferente al de la factura,
+          por defecto None
         """
         products = products or self.product_a
         move_form = Form(
@@ -169,7 +172,8 @@ class TestL10nECCommon(AccountTestInvoicingCommon):
                 default_move_type=move_type,
                 internal_type=internal_type,
                 mail_create_nosubscribe=True,
-            )
+            ),
+            form_id,
         )
         move_form.invoice_date = fields.Date.context_today(self.AccountMove)
         move_form.partner_id = partner
