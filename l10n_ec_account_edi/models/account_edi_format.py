@@ -44,7 +44,11 @@ class AccountEdiFormat(models.Model):
             or invoice.journal_id.l10n_ec_emission_type != "electronic"
         ):
             return super()._is_required_for_invoice(invoice)
-        if self.code in ("l10n_ec_format_sri",) and invoice.is_sale_document():
+        if (
+            self.code in ("l10n_ec_format_sri",)
+            and invoice.is_sale_document()
+            or (invoice.l10n_latam_internal_type == "purchase_liquidation")
+        ):
             return True
         return False
 
@@ -86,6 +90,17 @@ class AccountEdiFormat(models.Model):
                     errors.append(
                         _(
                             "You must set XML Version for Invoice into company %s",
+                            company.display_name,
+                        )
+                    )
+            if (
+                document_type == "purchase_liquidation"
+                and document.move_type == "in_invoice"
+            ):
+                if not company.l10n_ec_liquidation_version:
+                    errors.append(
+                        _(
+                            "You must set XML Version for Purchae Liquidation into company %s",
                             company.display_name,
                         )
                     )

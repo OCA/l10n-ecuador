@@ -83,6 +83,13 @@
                                     class="oe_in_line"
                                 />
                             </div>
+                            <div class="row col-12">
+                                <label
+                                    for="l10n_ec_liquidation_version"
+                                    string="Purchase Liquidation"
+                                />
+                                <field name="l10n_ec_liquidation_version" />
+                            </div>
                         </div>
                     </div>
                 </div>
