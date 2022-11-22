@@ -104,6 +104,15 @@ class AccountEdiFormat(models.Model):
                             company.display_name,
                         )
                     )
+            if document_type == "credit_note" and document.move_type == "out_refund":
+                # TODO YRO credit note add more validations
+                if not company.l10n_ec_credit_note_version:
+                    errors.append(
+                        _(
+                            "You must set XML Version for Credit Note into company %s",
+                            company.display_name,
+                        )
+                    )
             # TODO: agregar logica para demas tipos de documento
             errors.extend(self._l10n_ec_check_edi_configuration(journal, company))
         return errors
