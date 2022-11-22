@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- RIDE de credit note -->
+    <template id="e_credit_note_document_body">
+        <div class="div-bordered">
+            <table class="table table-sm table-no-border small">
+                <tbody>
+                    <tr>
+                        <td style="width: 60%">
+                            <strong>Razón social / Nombres y Apellidos:</strong>
+                            <span t-field="partner.name" />
+                        </td>
+                        <td>
+                            <strong>Identificación:</strong>
+                            <span t-field="partner.vat" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Fecha de Emisión:</strong>
+                            <span t-field="o.invoice_date" />
+                        </td>
+                        <td>
+                            <strong>Guia de remisión:</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Comprobante que modifica:</strong>
+                            FACTURA
+                            <span t-field="o.l10n_ec_legacy_document_number" />
+                        </td>
+                        <td>
+                            <strong>Razón de modificación:</strong>
+                            <span t-field="o.l10n_ec_reason" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Fecha Emisión(Comprobante a modificar):</strong>
+                            <span t-field="o.l10n_ec_legacy_document_date" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <br />
+        <table class="table table-sm table-bordered-black">
+            <thead>
+                <tr style="font-size: 10px;">
+                    <th name="th_cprincipal" class="amount-md">Código Principal</th>
+                    <th name="th_cant" class="amount-sm">Cantidad</th>
+                    <th name="th_descrip" class="">Descripción</th>
+                    <th name="th_punit" class="amount-sm">Precio Unitario</th>
+                    <th name="th_dscto" class="amount-sm">Descuento</th>
+                    <th name="th_ptotal" class="amount-md">Precio Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <t t-foreach="ordered_lines" t-as="line">
+                    <tr style="font-size: 9px;" t-if="not line.display_type">
+                        <td>
+                            <span
+                                t-out="line.product_id and line.product_id.default_code or 'S/N'"
+                            />
+                        </td>
+                        <td class="text-right">
+                            <span t-field="line.quantity" />
+                        </td>
+                        <td>
+                            <span t-field="line.name" />
+                        </td>
+                        <td class="text-right">
+                            <span
+                                t-field="line.price_unit"
+                                t-options='{"widget": "monetary", "display_currency": res_company.currency_id}'
+                            />
+                        </td>
+                        <td class="text-right">
+                            <span
+                                t-out="line.discount"
+                                t-options='{"widget": "monetary", "display_currency": res_company.currency_id}'
+                            />
+                        </td>
+                        <td class="text-right">
+                            <span
+                                t-out="line.price_subtotal"
+                                t-options='{"widget": "monetary", "display_currency": res_company.currency_id}'
+                            />
+                        </td>
+                    </tr>
+                    <t t-if="line.display_type == 'line_section'">
+                        <td name="td_section_line" colspan="99">
+                            <span t-field="line.name" />
+                        </td>
+                        <t t-set="current_section" t-value="line" />
+                        <t t-set="current_subtotal" t-value="0" />
+                    </t>
+                    <t t-if="line.display_type == 'line_note'">
+                        <td name="td_note_line" colspan="99">
+                            <span t-field="line.name" />
+                        </td>
+                    </t>
+                </t>
+            </tbody>
+        </table>
+    </template>
+</odoo>

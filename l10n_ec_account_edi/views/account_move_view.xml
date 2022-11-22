@@ -12,6 +12,36 @@
                     attrs="{'invisible':[('move_type', 'not in', ('in_invoice', 'in_refund'))], 'required': [('move_type', 'in', ('in_invoice', 'in_refund'))]}"
                 />
             </xpath>
+                         <xpath expr="//page[@id='other_tab']" position="before">
+                <page
+                    string="Invoice Refund"
+                    name="l10n_ec_reembolso"
+                    attrs="{'invisible': [('move_type', 'not in', ('out_refund','in_refund'))]}"
+                >
+                    <group string="Invoice">
+                        <field
+                            name="l10n_ec_legacy_document_number"
+                            attrs="{'required': [('move_type', 'in', ('out_refund','in_refund'))],
+                                'readonly': [('state', '!=', 'draft')]}"
+                        />
+                        <field
+                            name="l10n_ec_legacy_document_date"
+                            attrs="{'required': [('move_type', 'in', ('out_refund','in_refund'))],
+                                'readonly': [('state', '!=', 'draft')]}"
+                        />
+                        <field
+                            name="l10n_ec_legacy_document_authorization"
+                            attrs="{'required': [('move_type', 'in', ('out_refund','in_refund'))],
+                                'readonly': [('state', '!=', 'draft')]}"
+                        />
+                        <field
+                            name="l10n_ec_reason"
+                            attrs="{'required': [('move_type', 'in', ('out_refund','in_refund'))],
+                                'readonly': [('state', '!=', 'draft')]}"
+                        />
+                    </group>
+                </page>
+            </xpath>
         </field>
     </record>
         <!--Modifica Dominio y Contexto de Facturas de Proveedor para separar Facturas de Liquidacion de Compras-->

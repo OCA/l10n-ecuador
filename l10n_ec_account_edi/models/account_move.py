@@ -40,6 +40,12 @@ class AccountMove(models.Model):
     l10n_ec_is_edi_doc = fields.Boolean(
         string="Is Ecuadorian Electronic Document", default=False, copy=False
     )
+    l10n_ec_legacy_document_date = fields.Date(string="External Document Date")
+    l10n_ec_legacy_document_number = fields.Char(string="External Document Number")
+    l10n_ec_legacy_document_authorization = fields.Char(
+        string="External Authorization Number", size=49
+    )
+    l10n_ec_reason = fields.Char(string="Refund Reason", size=300)
 
     @api.depends("invoice_date", "invoice_date_due")
     def _compute_l10n_ec_credit_days(self):
@@ -287,3 +293,12 @@ class AccountMove(models.Model):
             if self.l10n_latam_document_type_id.internal_type == "purchase_liquidation":
                 return False
         return is_purchase
+
+    def _reverse_move_vals(self, default_values, cancel=True):
+        move_vals = super()._reverse_move_vals(default_values, cancel)
+        move_vals.update(
+            l10n_ec_legacy_document_number=self.l10n_latam_document_number,
+            l10n_ec_legacy_document_date=self.invoice_date,
+            l10n_ec_legacy_document_authorization=self.l10n_ec_xml_access_key,
+        )
+        return move_vals

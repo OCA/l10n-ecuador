@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<odoo>
+    <template id="ec_edi_credit_note">
+        <notaCredito
+            id="comprobante"
+            t-att-version="company.l10n_ec_credit_note_version"
+        >
+            <t t-call="l10n_ec_account_edi.ec_edi_info_tributaria" />
+            <infoNotaCredito>
+               <fechaEmision t-out="fechaEmision" />
+               <dirEstablecimiento t-out="dirEstablecimiento" />
+               <tipoIdentificacionComprador t-out="tipoIdentificacionComprador" />
+               <razonSocialComprador t-out="razonSocialComprador" />
+               <identificacionComprador t-out="identificacionComprador" />
+               <t t-if="contribuyenteEspecial">
+                   <contribuyenteEspecial t-out="contribuyenteEspecial" />
+               </t>
+               <obligadoContabilidad t-out="obligadoContabilidad" />
+               <rise t-out="rise" />
+               <codDocModificado t-out="codDocModificado" />
+               <numDocModificado t-out="numDocModificado" />
+               <fechaEmisionDocSustento t-out="fechaEmisionDocSustento" />
+               <totalSinImpuestos t-out="totalSinImpuestos" />
+               <valorModificacion t-out="valorModificacion" />
+               <moneda t-out="moneda" />
+               <totalConImpuestos t-if="totalConImpuestos">
+                   <totalImpuesto t-as="totalImpuesto" t-foreach="totalConImpuestos">
+                       <codigo t-out="totalImpuesto.get('codigo')" />
+                       <codigoPorcentaje
+                            t-out="totalImpuesto.get('codigoPorcentaje')"
+                        />
+                       <baseImponible t-out="totalImpuesto.get('baseImponible')" />
+                       <valor t-out="totalImpuesto.get('valor')" />
+                   </totalImpuesto>
+               </totalConImpuestos>
+               <motivo t-out="motivo" />
+            </infoNotaCredito>
+            <detalles t-if="detalles">
+                <detalle t-foreach="detalles" t-as="detalle">
+                    <codigoInterno t-out="detalle.get('codigoInterno')" />
+                    <codigoAuxiliar t-out="detalle.get('codigoAuxiliar')" />
+                    <descripcion t-out="detalle.get('descripcion')" />
+                    <cantidad t-out="detalle.get('cantidad')" />
+                    <precioUnitario t-out="detalle.get('precioUnitario')" />
+                    <descuento t-out="detalle.get('descuento')" />
+                    <precioTotalSinImpuesto
+                        t-out="detalle.get('precioTotalSinImpuesto')"
+                    />
+                    <detallesAdicionales t-if="detalle.get('detallesAdicionales')">
+                        <detAdicional
+                            t-as="detAdicional"
+                            t-foreach="detalle.get('detallesAdicionales')"
+                            t-att-nombre="detAdicional.get('nombre')"
+                            t-att-valor="detAdicional.get('valor')"
+                        />
+                    </detallesAdicionales>
+                    <impuestos t-if="detalle.get('impuestos')">
+                        <impuesto t-foreach="detalle.get('impuestos')" t-as="impuesto">
+                            <codigo t-out="impuesto.get('codigo')" />
+                            <codigoPorcentaje
+                                t-out="impuesto.get('codigoPorcentaje')"
+                            />
+                            <tarifa t-out="impuesto.get('tarifa')" />
+                            <baseImponible t-out="impuesto.get('baseImponible')" />
+                            <valor t-out="impuesto.get('valor')" />
+                        </impuesto>
+                    </impuestos>
+                </detalle>
+            </detalles>
+            <t t-call="l10n_ec_account_edi.ec_edi_info_adicional" />
+        </notaCredito>
+    </template>
+</odoo>
