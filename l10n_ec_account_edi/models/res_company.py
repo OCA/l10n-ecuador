@@ -37,6 +37,14 @@ class ResCompany(models.Model):
         default="1.1.0",
     )
 
+    l10n_ec_credit_note_version = fields.Selection(
+        [
+            ("1.1.0", "1.1.0"),
+        ],
+        string="Credit Note Version xml",
+        default="1.1.0",
+    )
+
     @api.model
     def l10n_ec_get_resolution_data(self, date=None):
         # TODO: implementar logica para devolver numero de resolucion
