@@ -87,6 +87,11 @@
                 <t t-call="l10n_ec_account_edi.e_liquidation_document_body" />
             </t>
 
+            <t
+                t-if="o.l10n_latam_document_type_id.internal_type == 'credit_note' and o.move_type == 'out_refund'"
+            >
+                <t t-call="l10n_ec_account_edi.e_credit_note_document_body" />
+            </t>
             <!-- TODO: agregar logica para demas tipos de documento -->
             <table class="table table-sm table-no-border">
                 <tbody>

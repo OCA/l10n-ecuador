@@ -75,6 +75,8 @@ class AccountEdiDocument(models.Model):
                 res.append(doc_line.l10n_ec_get_invoice_edi_data(line_tax_data))
             if document_type == "purchase_liquidation":
                 res.append(doc_line.l10n_ec_get_invoice_edi_data(line_tax_data))
+            if document_type == "credit_note":
+                res.append(doc_line.l10n_ec_get_credit_note_edi_data(line_tax_data))
             # TODO: agregar logica para demas tipos de documento
         return res
 
@@ -165,6 +167,8 @@ class AccountEdiDocument(models.Model):
             filename = f"factura_V{company.l10n_ec_invoice_version}"
         if document_type == "purchase_liquidation":
             filename = f"LiquidacionCompra_V{company.l10n_ec_liquidation_version}"
+        if document_type == "credit_note":
+            filename = f"credit_note_V{company.l10n_ec_credit_note_version}"
         # TODO: agregar logica para demas tipos de documento
         return path.join(base_path, f"{filename}.xsd")
 
@@ -330,6 +334,11 @@ class AccountEdiDocument(models.Model):
                 "l10n_ec_account_edi.ec_edi_liquidation",
                 self._l10n_ec_get_info_liquidation(),
             )
+        if document_type == "credit_note":
+            xml_file = ViewModel._render_template(
+                "l10n_ec_account_edi.ec_edi_credit_note",
+                self._l10n_ec_get_info_credit_note(),
+            )
         # TODO: agregar logica para demas tipos de documento
         return xml_file
 
@@ -432,6 +441,62 @@ class AccountEdiDocument(models.Model):
         }
         invoice_data.update(self._l10n_ec_get_info_tributaria(invoice))
         return invoice_data
+
+    def _l10n_ec_get_info_credit_note(self):
+        self.ensure_one()
+        credit_note = self.move_id
+        date_invoice = credit_note.invoice_date
+        company = credit_note.company_id or self.env.company
+        taxes_data = credit_note._l10n_ec_get_taxes_grouped_by_tax_group()
+        amount_total = abs(taxes_data.get("base_amount") + taxes_data.get("tax_amount"))
+        currency = credit_note.currency_id
+        currency_name = currency.name or "DOLAR"
+        credit_note_data = {
+            "fechaEmision": (date_invoice).strftime(EDI_DATE_FORMAT),
+            "dirEstablecimiento": self._l10n_ec_clean_str(
+                credit_note.journal_id.l10n_ec_emission_address_id.street or ""
+            )[:300],
+            "contribuyenteEspecial": company.l10n_ec_get_resolution_data(date_invoice),
+            "obligadoContabilidad": self._l10n_ec_get_required_accounting(
+                company.partner_id.property_account_position_id
+            ),
+            "codDocModificado": "01",
+            "numDocModificado": credit_note.l10n_ec_legacy_document_number,
+            "fechaEmisionDocSustento": (
+                credit_note.l10n_ec_legacy_document_date
+            ).strftime(EDI_DATE_FORMAT),
+            "motivo": credit_note.l10n_ec_reason,
+            "tipoIdentificacionComprador": credit_note._get_l10n_ec_identification_type(),
+            "razonSocialComprador": self._l10n_ec_clean_str(
+                credit_note.commercial_partner_id.name
+            )[:300],
+            "identificacionComprador": credit_note.commercial_partner_id.vat,
+            # TODO YRO revisar en ficha tecnica no lo esta pidiendo
+            "direccionComprador": self._l10n_ec_clean_str(
+                credit_note.commercial_partner_id.street or "NA"
+            )[:300],
+            "totalSinImpuestos": self._l10n_ec_number_format(
+                credit_note.amount_untaxed, 6
+            ),
+            "totalDescuento": self._l10n_ec_number_format(
+                self._l10n_ec_compute_amount_discount(), 6
+            ),
+            "totalConImpuestos": self.l10n_ec_header_get_total_with_taxes(taxes_data),
+            "compensaciones": [],
+            "propina": False,
+            "importeTotal": self._l10n_ec_number_format(amount_total, 6),
+            "valorModificacion": self._l10n_ec_number_format(amount_total, 6),
+            "moneda": currency_name,
+            "pagos": credit_note._l10n_ec_get_payment_data(),
+            "valorRetIva": False,
+            "valorRetRenta": False,
+            "detalles": self._l10n_ec_header_get_document_lines_edi_data(taxes_data),
+            "retenciones": False,
+            "infoSustitutivaGuiaRemision": False,
+            "infoAdicional": self._l10n_ec_get_info_aditional(),
+        }
+        credit_note_data.update(self._l10n_ec_get_info_tributaria(credit_note))
+        return credit_note_data
 
     def _l10n_ec_edi_send_xml(self, client_ws, xml_file):
         """
