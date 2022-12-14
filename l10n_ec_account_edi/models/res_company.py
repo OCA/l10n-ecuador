@@ -45,6 +45,14 @@ class ResCompany(models.Model):
         default="1.1.0",
     )
 
+    l10n_ec_debit_note_version = fields.Selection(
+        [
+            ("1.0.0", "1.0.0"),
+        ],
+        string="Debit Note Version xml",
+        default="1.0.0",
+    )
+
     @api.model
     def l10n_ec_get_resolution_data(self, date=None):
         # TODO: implementar logica para devolver numero de resolucion
