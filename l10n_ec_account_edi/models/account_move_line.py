@@ -82,3 +82,16 @@ class AccountMoveLine(models.Model):
         for tax_data in taxes_data.get("tax_details", {}).values():
             tax_values.append(EdiDocument._l10n_ec_prepare_tax_vals_edi(tax_data))
         return tax_values
+
+    def l10n_ec_get_debit_note_edi_data(self, taxes_data):
+        self.ensure_one()
+        EdiDocument = self.env["account.edi.document"]
+        detail_dict = {
+            "descripcion": EdiDocument._l10n_ec_clean_str(
+                (self.product_id.name or self.name or "NA")[:300]
+            ),
+            "precioUnitario": EdiDocument._l10n_ec_number_format(
+                self.price_unit, decimals=6
+            ),
+        }
+        return detail_dict

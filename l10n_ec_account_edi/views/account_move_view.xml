@@ -11,33 +11,30 @@
                     name="l10n_ec_electronic_authorization"
                     attrs="{'invisible':[('move_type', 'not in', ('in_invoice', 'in_refund'))], 'required': [('move_type', 'in', ('in_invoice', 'in_refund'))]}"
                 />
+                <field name="l10n_latam_internal_type" invisible="1" />
             </xpath>
-                         <xpath expr="//page[@id='other_tab']" position="before">
+            <xpath expr="//page[@id='other_tab']" position="before">
                 <page
                     string="Invoice Refund"
-                    name="l10n_ec_reembolso"
-                    attrs="{'invisible': [('move_type', 'not in', ('out_refund','in_refund'))]}"
+                    name="l10n_ec_external_data"
+                    attrs="{'invisible': [('l10n_latam_internal_type', 'not in', ('credit_note', 'debit_note'))]}"
                 >
                     <group string="Invoice">
                         <field
                             name="l10n_ec_legacy_document_number"
-                            attrs="{'required': [('move_type', 'in', ('out_refund','in_refund'))],
-                                'readonly': [('state', '!=', 'draft')]}"
+                            attrs="{'required': [('l10n_latam_internal_type', 'in', ('credit_note', 'debit_note'))], 'readonly': [('state', '!=', 'draft')]}"
                         />
                         <field
                             name="l10n_ec_legacy_document_date"
-                            attrs="{'required': [('move_type', 'in', ('out_refund','in_refund'))],
-                                'readonly': [('state', '!=', 'draft')]}"
+                            attrs="{'required': [('l10n_latam_internal_type', 'in', ('credit_note', 'debit_note'))], 'readonly': [('state', '!=', 'draft')]}"
                         />
                         <field
                             name="l10n_ec_legacy_document_authorization"
-                            attrs="{'required': [('move_type', 'in', ('out_refund','in_refund'))],
-                                'readonly': [('state', '!=', 'draft')]}"
+                            attrs="{'required': [('l10n_latam_internal_type', 'in', ('credit_note', 'debit_note'))], 'readonly': [('state', '!=', 'draft')]}"
                         />
                         <field
                             name="l10n_ec_reason"
-                            attrs="{'required': [('move_type', 'in', ('out_refund','in_refund'))],
-                                'readonly': [('state', '!=', 'draft')]}"
+                            attrs="{'required': [('l10n_latam_internal_type', 'in', ('credit_note', 'debit_note'))], 'readonly': [('state', '!=', 'draft')]}"
                         />
                     </group>
                 </page>
@@ -130,4 +127,53 @@
         sequence="6"
         parent="account.menu_finance_payables"
     />
+    <!-- action for customer invoice, filter debit notes-->
+    <record id="account.action_move_out_invoice_type" model="ir.actions.act_window">
+            <field
+            name="domain"
+        >[('move_type', '=', 'out_invoice'), ('l10n_latam_internal_type', '=', 'invoice')]</field>
+            <field
+            name="context"
+        >{'default_move_type': 'out_invoice', 'internal_type': 'invoice'}</field>
+    </record>
+    <!--menu and actions for debit note-->
+    <record id="action_move_debit_note_type" model="ir.actions.act_window">
+            <field name="name">Debit Notes</field>
+            <field name="res_model">account.move</field>
+            <field name="view_mode">tree,kanban,form</field>
+            <field name="view_id" ref="account.view_invoice_tree" />
+            <field name="search_view_id" ref="account.view_account_invoice_filter" />
+            <field
+            name="domain"
+        >[('move_type', '=', 'out_invoice'), ('l10n_latam_internal_type', '=', 'debit_note')]</field>
+            <field
+            name="context"
+        >{'default_move_type': 'out_invoice', 'internal_type': 'debit_note'}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">Create a debit note</p>
+                <p>
+                    Create debit note, register payments and keep track of the discussions with your
+                    vendors.
+                </p>
+            </field>
+    </record>
+    <record id="action_move_debit_note_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1" />
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="account.view_invoice_tree" />
+            <field name="act_window_id" ref="action_move_debit_note_type" />
+    </record>
+    <record id="action_move_debit_note_form" model="ir.actions.act_window.view">
+            <field name="sequence" eval="4" />
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="account.view_move_form" />
+            <field name="act_window_id" ref="action_move_debit_note_type" />
+    </record>
+    <menuitem
+        id="menu_action_move_debit_note_type"
+        action="action_move_debit_note_type"
+        sequence="6"
+        parent="account.menu_finance_receivables"
+    />
+
 </odoo>

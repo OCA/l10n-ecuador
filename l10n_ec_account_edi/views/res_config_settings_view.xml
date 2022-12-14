@@ -90,7 +90,7 @@
                                 />
                                 <field name="l10n_ec_liquidation_version" />
                             </div>
-                                <div class="row col-12">
+                            <div class="row col-12">
                                 <label
                                     for="l10n_ec_credit_note_version"
                                     string="Credit Note"
@@ -104,6 +104,16 @@
                                 <ul>
                                     <li>Versions 1.1.0 to 6 decimals</li>
                                 </ul>
+                            </div>
+                            <div class="row col-12">
+                                <label
+                                    for="l10n_ec_debit_note_version"
+                                    string="Debit Note"
+                                />
+                                <field
+                                    name="l10n_ec_debit_note_version"
+                                    class="oe_in_line"
+                                />
                             </div>
                         </div>
                     </div>
