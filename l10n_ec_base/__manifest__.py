@@ -18,4 +18,5 @@
     ],
     "installable": True,
     "auto_install": False,
+    "post_init_hook": "_l10n_ec_base_post_init",
 }
