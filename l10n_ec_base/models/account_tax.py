@@ -28,6 +28,12 @@ class AccountTaxTemplate(models.Model):
         "If field is empty, description field are used instead",
     )
 
+    def _l10n_ec_get_tax_vals(self):
+        # funcion generica para devolver datos adicionales de impuestos
+        # para ser llamada al momento de cargar el plan contable
+        # o desde la instalacion del modulo(se ejecuta desde un post_init)
+        return {"l10n_ec_xml_fe_code": self.l10n_ec_xml_fe_code}
+
     def _get_tax_vals(self, company, tax_template_to_tax):
         """This method generates a dictionnary of all the values for the tax that
         will be created."""
@@ -35,5 +41,5 @@ class AccountTaxTemplate(models.Model):
         val = super(AccountTaxTemplate, self)._get_tax_vals(
             company, tax_template_to_tax
         )
-        val.update({"l10n_ec_xml_fe_code": self.l10n_ec_xml_fe_code})
+        val.update(self._l10n_ec_get_tax_vals())
         return val
