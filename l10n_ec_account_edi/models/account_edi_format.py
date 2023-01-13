@@ -6,6 +6,7 @@ from zeep import Client
 from zeep.transports import Transport
 
 from odoo import _, api, models, tools
+from odoo.tools import float_compare, formatLang
 
 _logger = logging.getLogger(__name__)
 
@@ -55,6 +56,11 @@ class AccountEdiFormat(models.Model):
     def _check_move_configuration(self, document):
         errors = super()._check_move_configuration(document)
         if document.country_code == "EC":
+            l10n_ec_final_consumer_limit = float(
+                self.env["ir.config_parameter"]
+                .sudo()
+                .get_param("l10n_ec_final_consumer_limit", 50)
+            )
             company = document.company_id or self.env.company
             journal = document.journal_id
             document_type = document.l10n_latam_document_type_id.internal_type
@@ -93,6 +99,35 @@ class AccountEdiFormat(models.Model):
                             company.display_name,
                         )
                     )
+                # Validación de monto limite para Consumidor Final
+                final_consumer = self.env.ref("l10n_ec.ec_final_consumer")
+                if (
+                    document.commercial_partner_id == final_consumer
+                    and float_compare(
+                        document.amount_total,
+                        l10n_ec_final_consumer_limit,
+                        precision_digits=2,
+                    )
+                    == 1
+                ):
+                    errors.append(
+                        _(
+                            "The amount total %(Total)s is bigger than "
+                            "%(Limit)s for final customer"
+                        )
+                        % {
+                            "Total": formatLang(
+                                self.env,
+                                document.amount_total,
+                                currency_obj=company.currency_id,
+                            ),
+                            "Limit": formatLang(
+                                self.env,
+                                l10n_ec_final_consumer_limit,
+                                currency_obj=company.currency_id,
+                            ),
+                        }
+                    )
             if (
                 document_type == "purchase_liquidation"
                 and document.move_type == "in_invoice"
@@ -100,7 +135,7 @@ class AccountEdiFormat(models.Model):
                 if not company.l10n_ec_liquidation_version:
                     errors.append(
                         _(
-                            "You must set XML Version for Purchae Liquidation into company %s",
+                            "You must set XML Version for Purchase Liquidation into company %s",
                             company.display_name,
                         )
                     )
