@@ -179,6 +179,32 @@ class TestL10nClDte(TestL10nECEdiCommon):
         with self.assertRaises(UserError):
             Form(invoice_model)
 
+    def test_l10n_ec_out_invoice_final_consumer_limit_amount(self):
+        """Test prueba monto maximo en Factura de cliente
+        emitida a consumidor final"""
+        self._setup_edi_company_ec()
+        self.env["ir.config_parameter"].sudo().set_param(
+            "l10n_ec_final_consumer_limit", 50
+        )
+        self.product_a.list_price = 51
+        form = self._l10n_ec_create_form_move(
+            move_type="out_invoice",
+            internal_type="invoice",
+            partner=self.env.ref("l10n_ec.ec_final_consumer"),
+        )
+        invoice = form.save()
+        with self.assertRaises(UserError):
+            invoice.action_post()
+        self.product_a.list_price = 40
+        form = self._l10n_ec_create_form_move(
+            move_type="out_invoice",
+            internal_type="invoice",
+            partner=self.env.ref("l10n_ec.ec_final_consumer"),
+        )
+        invoice = form.save()
+        invoice.action_post()
+        self.assertEqual(invoice.state, "posted")
+
     def test_l10n_ec_validate_lines_invoice(self):
         """Validaciones de cantidad y valor total en 0 en lineas de facturas"""
         self._setup_edi_company_ec()
