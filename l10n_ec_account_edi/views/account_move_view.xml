@@ -13,6 +13,17 @@
                 />
                 <field name="l10n_latam_internal_type" invisible="1" />
             </xpath>
+            <xpath expr="//field[@name='payment_reference']" position="after">
+                <!-- Forma de Pago SRI -->
+                <field
+                    name="l10n_ec_sri_payment_id"
+                    options="{'no_create': True}"
+                    attrs="{'invisible': ['|',('country_code', '!=', 'EC'),
+                                              ('l10n_latam_use_documents', '=', False)],
+                             'required': [('country_code', '=', 'EC'),
+                                          ('l10n_latam_use_documents', '=', True)]}"
+                />
+            </xpath>
             <xpath expr="//page[@id='other_tab']" position="before">
                 <page
                     string="Invoice Refund"
