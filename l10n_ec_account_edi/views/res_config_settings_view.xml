@@ -66,7 +66,30 @@
                             </div>
                         </div>
                     </div>
-                     <div class="col-12 col-lg-6 o_setting_box">
+<!--                    Configurar Limite del valor de factura a Consumidor Final -->
+                    <div class="col-12 col-lg-6 o_setting_box" title="Final Consumer">
+                        <div class="o_setting_left_pane" />
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Final Consumer</span>
+                            <div class="text-muted">
+                                 Limit for billing in sales for final consumer, total amount
+                            </div>
+                            <div class="content-group">
+                                <div class="row">
+                                    <label
+                                        string="Limit Amount"
+                                        for="l10n_ec_final_consumer_limit"
+                                        class="col-lg-4 o_light_label"
+                                    />
+                                    <field
+                                        name="l10n_ec_final_consumer_limit"
+                                        class="o_light_label"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 o_setting_box">
                         <div class="o_setting_left_pane" />
                         <div class="o_setting_right_pane">
                             <span class="o_form_label">XML Document Version</span>
@@ -85,10 +108,13 @@
                             </div>
                             <div class="row col-12">
                                 <label
-                                    for="l10n_ec_liquidation_version"
-                                    string="Purchase Liquidation"
+                                    for="l10n_ec_debit_note_version"
+                                    string="Debit Note"
                                 />
-                                <field name="l10n_ec_liquidation_version" />
+                                <field
+                                    name="l10n_ec_debit_note_version"
+                                    class="oe_in_line"
+                                />
                             </div>
                             <div class="row col-12">
                                 <label
@@ -100,18 +126,13 @@
                                     class="oe_in_line"
                                 />
                             </div>
-                             <div class="row col-12 oe_grey">
-                                <ul>
-                                    <li>Versions 1.1.0 to 6 decimals</li>
-                                </ul>
-                            </div>
                             <div class="row col-12">
                                 <label
-                                    for="l10n_ec_debit_note_version"
-                                    string="Debit Note"
+                                    for="l10n_ec_liquidation_version"
+                                    string="Purchase Liquidation"
                                 />
                                 <field
-                                    name="l10n_ec_debit_note_version"
+                                    name="l10n_ec_liquidation_version"
                                     class="oe_in_line"
                                 />
                             </div>
