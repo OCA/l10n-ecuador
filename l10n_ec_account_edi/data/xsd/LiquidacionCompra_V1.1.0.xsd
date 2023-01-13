@@ -25,22 +25,6 @@
 			<xsd:pattern value="[^\n]*"/>
 		</xsd:restriction>
 	</xsd:simpleType>
-	<xsd:simpleType name="regimenMicroempresas">
-		<xsd:restriction base="xsd:string">
-			<xsd:minLength value="1"/>
-			<xsd:maxLength value="50"/>
-			<xsd:whiteSpace value="preserve"/>
-			<xsd:pattern value="([A-Z]|[a-z]|[0-9]|ñ|Ñ)+([\w]|[\S]|[^\n])*"/>
-		</xsd:restriction>
-	</xsd:simpleType>
-	<xsd:simpleType name="agenteRetencion">
-		<xsd:restriction base="xsd:string">
-			<xsd:minLength value="1"/>
-			<xsd:maxLength value="20"/>
-			<xsd:whiteSpace value="preserve"/>
-			<xsd:pattern value="([A-Z]|[a-z]|[0-9]|ñ|Ñ)+([\w]|[\S]|[^\n])*"/>
-		</xsd:restriction>
-	</xsd:simpleType>
 	<xsd:simpleType name="nombreComercial">
 		<xsd:restriction base="xsd:string">
 			<xsd:minLength value="1"/>
@@ -64,8 +48,8 @@
 			<xsd:element name="ptoEmi" type="puntoEmision"/>
 			<xsd:element name="secuencial" type="secuencial"/>
 			<xsd:element name="dirMatriz" type="dirMatriz"/>
-			<xsd:element name="regimenMicroempresas" type="regimenMicroempresas" minOccurs="0"> </xsd:element>
-			<xsd:element name="agenteRetencion" type="agenteRetencion" minOccurs="0"> </xsd:element>
+			<xsd:element name="agenteRetencion" minOccurs="0"	type="agenteRetencion"/>
+			<xsd:element name="contribuyenteRimpe" minOccurs="0"	type="contribuyenteRimpe"/>
 		</xsd:sequence>
 	</xsd:complexType>
 	<xsd:simpleType name="numeroRuc">
@@ -214,9 +198,21 @@
 			<xsd:enumeration value="NO"/>
 		</xsd:restriction>
 	</xsd:simpleType>
+
+	<xsd:simpleType name="agenteRetencion">
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="[0-9]+"/>
+			<xsd:maxLength value="8"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="contribuyenteRimpe">
+		<xsd:restriction base="xsd:string">
+		  <xsd:pattern value="CONTRIBUYENTE (NEGOCIO POPULAR - )?RÉGIMEN RIMPE"/>
+	    </xsd:restriction>
+	</xsd:simpleType>
 	<xsd:simpleType name="tipoIdentificacionProveedor">
 		<xsd:restriction base="xsd:string">
-			<xsd:pattern value="[0][4-9]"/>
+			<xsd:pattern value="[0][4-8]"/>
 		</xsd:restriction>
 	</xsd:simpleType>
 	<xsd:simpleType name="razonSocialProveedor">
@@ -494,7 +490,7 @@
 	</xsd:simpleType>
 	<xsd:simpleType name="tipoIdentificacionProveedorReembolso">
 		<xsd:restriction base="xsd:string">
-			<xsd:pattern value="[0][4-9]"/>
+			<xsd:pattern value="[0][4-8]"/>
 		</xsd:restriction>
 	</xsd:simpleType>
 	<xsd:simpleType name="identificacionProveedorReembolso">
@@ -557,11 +553,6 @@
 			<xsd:pattern value="[0-9]{1,4}"/>
 		</xsd:restriction>
 	</xsd:simpleType>
-	<xsd:simpleType name="tarifaReembolso">
-		<xsd:restriction base="xsd:string">
-			<xsd:pattern value="[0-9]{1,4}"/>
-		</xsd:restriction>
-	</xsd:simpleType>
 	<xsd:simpleType name="baseImponibleReembolso">
 		<xsd:restriction base="xsd:decimal">
 			<xsd:totalDigits value="14"/>
@@ -583,7 +574,7 @@
 					<xsd:sequence>
 						<xsd:element name="codigo" minOccurs="1" type="codigoReembolso"/>
 						<xsd:element name="codigoPorcentaje" minOccurs="1" type="codigoPorcentajeReembolso"/>
-						<xsd:element name="tarifa" minOccurs="1" type="tarifaReembolso"/>
+						<xsd:element name="tarifa" minOccurs="1" type="tarifa"/>
 						<xsd:element name="baseImponibleReembolso" minOccurs="1" type="baseImponibleReembolso"/>
 						<xsd:element name="impuestoReembolso" minOccurs="1" type="impuestoReembolso"/>
 					</xsd:sequence>
