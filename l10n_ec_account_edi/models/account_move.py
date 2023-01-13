@@ -11,6 +11,10 @@ _logger = logging.getLogger(__name__)
 class AccountMove(models.Model):
     _inherit = "account.move"
 
+    l10n_ec_sri_payment_id = fields.Many2one(
+        default=lambda self: self.env.ref("l10n_ec.P1")
+    )
+
     l10n_ec_credit_days = fields.Integer(
         string="Credit days", compute="_compute_l10n_ec_credit_days", store=True
     )
