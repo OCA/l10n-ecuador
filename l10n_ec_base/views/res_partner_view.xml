@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+        <record id="l10n_ec_res_partner_view_form_inh" model="ir.ui.view">
+            <field name="name">l10n_ec.res.partner.form</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form" />
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <field name="parent_id" position="before">
+                    <field name="l10n_ec_business_name" placeholder="Business Name" />
+                </field>
+            </field>
+        </record>
+</odoo>
