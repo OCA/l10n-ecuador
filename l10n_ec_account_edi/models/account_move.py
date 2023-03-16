@@ -310,3 +310,14 @@ class AccountMove(models.Model):
             l10n_ec_legacy_document_authorization=self.l10n_ec_xml_access_key,
         )
         return move_vals
+
+    def l10n_ec_send_email(self):
+        WizardInvoiceSent = self.env["account.invoice.send"]
+        self.ensure_one()
+        res = self.with_context(discard_logo_check=True).action_invoice_sent()
+        context = res["context"]
+        send_mail = WizardInvoiceSent.with_context(**context).create({})
+        # enviar factura automaticamente por correo
+        # simular onchange y accion
+        send_mail.onchange_template_id()
+        send_mail.send_and_print_action()
