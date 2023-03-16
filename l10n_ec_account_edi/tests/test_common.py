@@ -70,7 +70,15 @@ class TestL10nECCommon(AccountTestInvoicingCommon):
                 "country_id": cls.env.ref("base.co").id,
             }
         )
-
+        cls.partner_with_email = cls.Partner.create(
+            {
+                "name": "SERVICIO DE RENTAS INTERNAS",
+                "vat": "1760013210001",
+                "l10n_latam_identification_type_id": cls.env.ref("l10n_ec.ec_ruc").id,
+                "country_id": cls.env.ref("base.ec").id,
+                "email": "my_email@test.com.ec",
+            }
+        )
         # Impuestos
         cls.tax_group_vat = cls.TaxGroup.search(
             [("l10n_ec_type", "=", "vat12")], limit=1
