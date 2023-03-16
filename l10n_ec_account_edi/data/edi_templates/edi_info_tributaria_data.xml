@@ -24,9 +24,9 @@
     <template id="ec_edi_info_adicional">
         <infoAdicional t-if="infoAdicional">
             <t t-foreach="infoAdicional" t-as="campoAdicional">
-                <campoAdicional t-att-nombre="campoAdicional.get('name')">
-                    <t t-out="campoAdicional.get('description')" />
-                </campoAdicional>
+                <campoAdicional t-att-nombre="campoAdicional.get('name')"><t
+                        t-out="campoAdicional.get('description')"
+                    /></campoAdicional>
             </t>
         </infoAdicional>
     </template>
