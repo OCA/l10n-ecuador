@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <record
+        forcecreate="True"
+        id="ir_cron_send_email_electronic_documents"
+        model="ir.cron"
+    >
+        <field
+            name="name"
+        >Send email with authorized electronic documents(Ecuador)</field>
+        <field name="interval_number">10</field>
+        <field name="interval_type">minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="doall" eval="False" />
+        <field name="priority" eval="20" />
+        <field name="model_id" ref="account_edi.model_account_edi_document" />
+        <field
+            name="nextcall"
+            eval="(DateTime.now().replace(minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')"
+        />
+        <field name="state">code</field>
+        <field name="code">model.l10n_ec_send_mail_to_partners()</field>
+    </record>
+</odoo>
