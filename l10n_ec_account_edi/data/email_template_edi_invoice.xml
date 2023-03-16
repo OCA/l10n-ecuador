@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<odoo noupdate="1">
+    <record id="account.email_template_edi_invoice" model="mail.template">
+        <field name="email_from">{{ (object.company_id.email) }}</field>
+    </record>
+</odoo>
