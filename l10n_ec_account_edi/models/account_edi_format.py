@@ -83,10 +83,13 @@ class AccountEdiFormat(models.Model):
                             )
                         )
             # forma de pago por defecto
-            if not journal.l10n_ec_sri_payment_id:
+            if (
+                not document.l10n_ec_sri_payment_id
+                and not journal.l10n_ec_sri_payment_id
+            ):
                 errors.append(
                     _(
-                        "You must set Payment Method SRI on Journal: %s",
+                        "You must set Payment Method SRI on Current document or Journal: %s",
                         journal.display_name,
                     )
                 )
@@ -176,20 +179,14 @@ class AccountEdiFormat(models.Model):
                     journal.display_name,
                 )
             )
-        # direccion matriz
-        if not contact_address.commercial_partner_id.street:
-            errors.append(
-                _(
-                    "You must set Street into Company: %s",
-                    contact_address.commercial_partner_id.display_name,
-                )
-            )
         # direccion de establecimiento
-        if not contact_address.street:
+        elif not contact_address.street:
             errors.append(
                 _(
-                    "You must set Street into Contact: %s",
-                    contact_address.display_name,
+                    "You must set street into Emission Address: %(concact_name)s "
+                    "for Journal: %(journal_name)s",
+                    concact_name=contact_address.display_name,
+                    journal_name=journal.display_name,
                 )
             )
         return errors

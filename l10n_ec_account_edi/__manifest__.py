@@ -25,6 +25,7 @@
         "report/report_edi_credit_note.xml",
         "report/report_invoice.xml",
         "report/report_edi_debit_note.xml",
+        "wizard/account_move_reversal_view.xml",
         "views/sri_key_type_view.xml",
         "views/menu_root.xml",
         "views/account_move_view.xml",
