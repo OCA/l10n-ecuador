@@ -38,6 +38,8 @@ class AccountChartTemplate(models.Model):
             self.env["account.journal"].create(
                 self._l10n_ec_prepare_all_journals(company)
             )
+            # set SRI payment for records exist
+            self._l10n_ec_set_default_sri_payment(company)
         return True
 
     def _prepare_all_journals(self, acc_template_ref, company, journals_dict=None):
@@ -63,3 +65,17 @@ class AccountChartTemplate(models.Model):
                 },
             ]
         return journals
+
+    def _l10n_ec_set_default_sri_payment(self, company):
+        default_payment = self.env.ref("l10n_ec.P1", False)
+        if not default_payment:
+            return False
+        invoices = self.env["account.move"].search(
+            [
+                ("company_id", "=", company.id),
+                ("l10n_ec_sri_payment_id", "=", False),
+                ("move_type", "!=", "entry"),
+            ]
+        )
+        invoices.write({"l10n_ec_sri_payment_id": default_payment.id})
+        return True
