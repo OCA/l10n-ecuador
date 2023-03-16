@@ -185,10 +185,13 @@
                 />
                 <br />
             </t>
-            <t t-if="'l10n_ec_info_aditional_ids' in o">
-                <t t-foreach="o.l10n_ec_info_aditional_ids" t-as="info_aditional">
-                    <strong t-field="info_aditional.name" />:
-                    <span t-field="info_aditional.description" />
+            <t t-if="'l10n_ec_additional_information_move_ids' in o">
+                <t
+                    t-foreach="o.l10n_ec_additional_information_move_ids"
+                    t-as="info_additional"
+                >
+                    <strong t-field="info_additional.name" />:
+                    <span t-field="info_additional.description" />
                         <br />
                 </t>
             </t>
