@@ -264,3 +264,21 @@ class TestL10nClDte(TestL10nECEdiCommon):
                 line.quantity = 0
         with self.assertRaises(UserError):
             invoice.action_post()
+
+    def test_l10n_ec_out_invoice_with_additional_info(self):
+        """Crear factura electronica con informacion adicional"""
+        self._setup_edi_company_ec()
+        invoice = self._l10n_ec_prepare_edi_out_invoice(auto_post=False)
+        with Form(invoice) as form:
+            with form.l10n_ec_additional_information_move_ids.new() as line:
+                line.name = "Test"
+                line.description = "ABC"
+        invoice.action_post()
+        edi_doc = invoice._get_edi_document(self.edi_format)
+        edi_doc._process_documents_web_services(with_commit=False)
+        self.assertEqual(invoice.state, "posted")
+        self.assertTrue(edi_doc.l10n_ec_xml_access_key)
+        self.assertEqual(len(invoice.l10n_ec_additional_information_move_ids), 1)
+        self.assertEqual(
+            invoice.l10n_ec_additional_information_move_ids[0].name, "Test"
+        )
