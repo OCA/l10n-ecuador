@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="res_config_settings_l10n_ec_edi" model="ir.ui.view">
+        <field name="name">res.config.settings.l10n.ec.edi</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='invoicing_settings']" position="after">
+                <div
+                    id="l10n_ec_title"
+                    attrs="{'invisible': [('country_code', '!=', 'EC')]}"
+                >
+                    <h2>Ecuadorian Localization</h2>
+                </div>
+                <div
+                    id="l10n_ec_section"
+                    class="row mt16 o_settings_container"
+                    attrs="{'invisible': [('country_code', '!=', 'EC')]}"
+                >
+                    <div
+                        class="col-12 col-lg-6 o_setting_box"
+                        title="Electronic Invoicing Connection Parameters"
+                    >
+                        <div class="o_setting_left_pane" />
+                        <div class="o_setting_right_pane">
+                            <span
+                                class="o_form_label"
+                            >Electronic Invoicing Connection Parameters</span>
+                            <div class="content-group">
+                                <div class="row">
+                                    <label
+                                        for="l10n_ec_type_environment"
+                                        string="Enviroment"
+                                        class="col-lg-4 o_light_label"
+                                    />
+                                    <field
+                                        name="l10n_ec_type_environment"
+                                        widget="radio"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="col-12 col-lg-6 o_setting_box"
+                        title="Electronic Certificate File"
+                    >
+                        <div class="o_setting_left_pane" />
+                        <div class="o_setting_right_pane">
+                            <span
+                                class="o_form_label"
+                            >Electronic Certificate File</span>
+                            <div class="content-group">
+                                <div class="row">
+                                    <label
+                                        for="l10n_ec_key_type_id"
+                                        class="col-lg-4 o_light_label"
+                                    />
+                                    <field
+                                        name="l10n_ec_key_type_id"
+                                        domain="[('state', '=', 'valid')]"
+                                        options="{'no_create': True}"
+                                        class="o_light_label"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+<!--                    Configurar Limite del valor de factura a Consumidor Final -->
+                    <div class="col-12 col-lg-6 o_setting_box" title="Final Consumer">
+                        <div class="o_setting_left_pane" />
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Final Consumer</span>
+                            <div class="text-muted">
+                                 Limit for billing in sales for final consumer, total amount
+                            </div>
+                            <div class="content-group">
+                                <div class="row">
+                                    <label
+                                        string="Limit Amount"
+                                        for="l10n_ec_final_consumer_limit"
+                                        class="col-lg-4 o_light_label"
+                                    />
+                                    <field
+                                        name="l10n_ec_final_consumer_limit"
+                                        class="o_light_label"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane" />
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">XML Document Version</span>
+                            <div class="row col-12 oe_grey">
+                                <ul>
+                                    <li>Versions 1.0.0 to 2 decimals</li>
+                                    <li>Versions 1.1.0 to 6 decimals</li>
+                                </ul>
+                            </div>
+                            <div class="row col-12">
+                                <label for="l10n_ec_invoice_version" string="Invoice" />
+                                <field
+                                    name="l10n_ec_invoice_version"
+                                    class="oe_in_line"
+                                />
+                            </div>
+                            <div class="row col-12">
+                                <label
+                                    for="l10n_ec_debit_note_version"
+                                    string="Debit Note"
+                                />
+                                <field
+                                    name="l10n_ec_debit_note_version"
+                                    class="oe_in_line"
+                                />
+                            </div>
+                            <div class="row col-12">
+                                <label
+                                    for="l10n_ec_credit_note_version"
+                                    string="Credit Note"
+                                />
+                                <field
+                                    name="l10n_ec_credit_note_version"
+                                    class="oe_in_line"
+                                />
+                            </div>
+                            <div class="row col-12">
+                                <label
+                                    for="l10n_ec_liquidation_version"
+                                    string="Purchase Liquidation"
+                                />
+                                <field
+                                    name="l10n_ec_liquidation_version"
+                                    class="oe_in_line"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

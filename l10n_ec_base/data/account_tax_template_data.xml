@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="l10n_ec.tax_vat_411" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">2</field>
+    </record>
+    <record id="l10n_ec.tax_vat_412" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">2</field>
+    </record>
+    <record id="l10n_ec.tax_vat_413" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">0</field>
+    </record>
+    <record id="l10n_ec.tax_vat_414" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">0</field>
+    </record>
+    <record id="l10n_ec.tax_vat_415" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">0</field>
+    </record>
+    <record id="l10n_ec.tax_vat_416" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">0</field>
+    </record>
+    <record id="l10n_ec.tax_vat_417" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">0</field>
+    </record>
+    <record id="l10n_ec.tax_vat_418" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">0</field>
+    </record>
+    <record id="l10n_ec.tax_vat_419" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">0</field>
+    </record>
+    <record id="l10n_ec.tax_vat_444" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">2</field>
+    </record>
+    <record id="l10n_ec.tax_vat_510" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">2</field>
+    </record>
+    <record id="l10n_ec.tax_vat_511" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">2</field>
+    </record>
+    <record id="l10n_ec.tax_vat_512" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">2</field>
+    </record>
+    <record id="l10n_ec.tax_vat_513" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">2</field>
+    </record>
+    <record id="l10n_ec.tax_vat_514" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">2</field>
+    </record>
+    <record id="l10n_ec.tax_vat_515" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">2</field>
+    </record>
+    <record id="l10n_ec.tax_vat_516" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">0</field>
+    </record>
+    <record id="l10n_ec.tax_vat_517" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">0</field>
+    </record>
+    <record id="l10n_ec.tax_vat_518" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">6</field>
+    </record>
+    <record id="l10n_ec.tax_vat_541" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">6</field>
+    </record>
+    <record id="l10n_ec.tax_vat_542" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">7</field>
+    </record>
+    <record id="l10n_ec.tax_vat_545" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">2</field>
+    </record>
+
+    <record id="l10n_ec.tax_withhold_vat_10" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">9</field>
+    </record>
+    <record id="l10n_ec.tax_withhold_vat_20" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">10</field>
+    </record>
+    <record id="l10n_ec.tax_withhold_vat_30" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">1</field>
+    </record>
+    <record id="l10n_ec.tax_withhold_vat_50" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">11</field>
+    </record>
+    <record id="l10n_ec.tax_withhold_vat_70" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">2</field>
+    </record>
+    <record id="l10n_ec.tax_withhold_vat_100" model="account.tax.template">
+        <field name="l10n_ec_xml_fe_code">3</field>
+    </record>
+    <record id="tax_withhold_vat_0" model="account.tax.template">
+        <field name="name">Retencion iva 0%</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount_type">percent</field>
+        <field name="sequence">50</field>
+        <field name="amount">0.0</field>
+        <field name="description">RET IVA 0%</field>
+        <field name="l10n_ec_xml_fe_code">7</field>
+        <field name="chart_template_id" ref="l10n_ec.l10n_ec_ifrs" />
+        <field name="tax_group_id" ref="l10n_ec.tax_group_withhold_vat" />
+        <field
+            name="invoice_repartition_line_ids"
+            eval="[(5, 0, 0),
+            (0,0, {
+            'factor_percent': 100,
+            'repartition_type': 'base',
+            }),
+            (0,0, {
+            'factor_percent': 12,
+            'repartition_type': 'tax',
+            }),]"
+        />
+        <field
+            name="refund_repartition_line_ids"
+            eval="[(5, 0, 0),
+            (0,0, {
+            'factor_percent': 100,
+            'repartition_type': 'base',
+            }),
+            (0,0, {
+            'factor_percent': 12,
+            'repartition_type': 'tax',
+            }),]"
+        />
+    </record>
+    <record id="tax_withhold_vat_exempt" model="account.tax.template">
+        <field name="name">No procede Retención</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="amount_type">percent</field>
+        <field name="sequence">50</field>
+        <field name="amount">0.0</field>
+        <field name="description">No Ret.</field>
+        <field name="l10n_ec_xml_fe_code">8</field>
+        <field name="chart_template_id" ref="l10n_ec.l10n_ec_ifrs" />
+        <field name="tax_group_id" ref="l10n_ec.tax_group_withhold_vat" />
+        <field
+            name="invoice_repartition_line_ids"
+            eval="[(5, 0, 0),
+            (0,0, {
+            'factor_percent': 100,
+            'repartition_type': 'base',
+            }),
+            (0,0, {
+            'factor_percent': 12,
+            'repartition_type': 'tax',
+            }),]"
+        />
+        <field
+            name="refund_repartition_line_ids"
+            eval="[(5, 0, 0),
+            (0,0, {
+            'factor_percent': 100,
+            'repartition_type': 'base',
+            }),
+            (0,0, {
+            'factor_percent': 12,
+            'repartition_type': 'tax',
+            }),]"
+        />
+    </record>
+</odoo>

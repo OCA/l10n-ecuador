@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="report_invoice" inherit_id="account.report_invoice">
+        <t t-call="web.html_container" position="before">
+            <t
+                t-if="docs.mapped('edi_document_ids').filtered(lambda x: x.edi_format_id.code == 'l10n_ec_format_sri')"
+            >
+                <t t-set="data_report_margin_top">5</t>
+            </t>
+        </t>
+        <xpath expr='//t[@t-call="account.report_invoice_document"]' position="after">
+            <t
+                t-if="o._get_name_invoice_report() == 'l10n_ec_account_edi.report_invoice_document'"
+                t-call="l10n_ec_account_edi.report_invoice_document"
+                t-lang="lang"
+            />
+        </xpath>
+    </template>
+
+    <template
+        id="report_invoice_with_payments"
+        inherit_id="account.report_invoice_with_payments"
+    >
+        <t t-call="web.html_container" position="before">
+            <t
+                t-if="docs.mapped('edi_document_ids').filtered(lambda x: x.edi_format_id.code == 'l10n_ec_format_sri')"
+            >
+                <t t-set="data_report_margin_top">5</t>
+            </t>
+        </t>
+        <xpath expr='//t[@t-call="account.report_invoice_document"]' position="after">
+            <t
+                t-if="o._get_name_invoice_report() == 'l10n_ec_account_edi.report_invoice_document'"
+                t-call="l10n_ec_account_edi.report_invoice_document"
+                t-lang="lang"
+            />
+        </xpath>
+    </template>
+    <!-- plantillas principal para documentos pero separados por tipo de documento -->
+    <template id="report_invoice_document">
+        <t t-set="o" t-value="o.with_context(lang=lang)" />
+        <!-- Multicompany -->
+        <t t-if="o and 'company_id' in o">
+            <t t-set="company" t-value="o.company_id.sudo()" />
+        </t>
+        <t t-if="not o or not 'company_id' in o">
+            <t t-set="company" t-value="res_company" />
+        </t>
+        <t
+            t-set="edi_doc"
+            t-value="o.edi_document_ids.filtered(lambda x:
+             x.edi_format_id.code == 'l10n_ec_format_sri')"
+        />
+
+        <t
+            t-set="emission_address"
+            t-value="o.journal_id.l10n_ec_emission_address_id "
+        />
+        <t t-set="partner" t-value="o.commercial_partner_id" />
+        <t
+            t-set="document_string"
+            t-value="o.l10n_latam_document_type_id.report_name"
+        />
+        <t t-set="document_number" t-value="o.l10n_latam_document_number" />
+        <t t-set="document_date" t-value="o.invoice_date" />
+        <t t-set="payments_info" t-value="o._l10n_ec_get_payment_data()" />
+        <t
+            t-set="ordered_lines"
+            t-value="o.invoice_line_ids.sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)"
+        />
+        <div
+            class="article"
+            t-att-data-oe-model="o and o._name"
+            t-att-data-oe-id="o and o.id"
+            t-att-data-oe-lang="o and o.env.context.get('lang')"
+        >
+            <t t-call="l10n_ec_account_edi.electronic_report_common_head" />
+            <!-- renderizar segun el tipo de documento -->
+            <t
+                t-if="o.l10n_latam_document_type_id.internal_type == 'invoice' and o.move_type == 'out_invoice'"
+            >
+                <t t-call="l10n_ec_account_edi.e_invoice_document_body" />
+            </t>
+            <t
+                t-if="o.l10n_latam_document_type_id.internal_type == 'purchase_liquidation' and o.move_type == 'in_invoice'"
+            >
+                <t t-call="l10n_ec_account_edi.e_liquidation_document_body" />
+            </t>
+
+            <t
+                t-if="o.l10n_latam_document_type_id.internal_type == 'credit_note' and o.move_type == 'out_refund'"
+            >
+                <t t-call="l10n_ec_account_edi.e_credit_note_document_body" />
+            </t>
+
+            <t
+                t-if="o.l10n_latam_document_type_id.internal_type == 'debit_note' and o.move_type == 'out_invoice'"
+            >
+                <t t-call="l10n_ec_account_edi.e_debit_note_document_body" />
+            </t>
+
+            <!-- TODO: agregar logica para demas tipos de documento -->
+            <table class="table table-sm table-no-border">
+                <tbody>
+                    <tr>
+                        <td style="width: 50%">
+                            <t
+                                t-call="l10n_ec_account_edi.electronic_report_common_info_aditional"
+                            />
+                            <br />
+                            <t
+                                t-if="o.move_type in ('out_invoice', 'in_invoice')"
+                                t-call="l10n_ec_account_edi.electronic_report_common_payment_info"
+                            />
+                        </td>
+                        <td style="width: 40%">
+                            <t
+                                t-call="l10n_ec_account_edi.electronic_report_common_total_info"
+                            />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <t t-call="l10n_ec_account_edi.electronic_report_page_footer" />
+    </template>
+</odoo>
