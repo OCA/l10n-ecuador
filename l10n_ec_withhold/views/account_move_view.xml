@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record model="ir.actions.server" id="action_sale_withhold">
+        <field name="name">Create withholding</field>
+        <field name="model_id" ref="account.model_account_move" />
+        <field name="groups_id" eval="[(4, ref('account.group_account_invoice'))]" />
+        <field name="binding_model_id" ref="account.model_account_move" />
+        <field name="state">code</field>
+        <field name="binding_view_types">form,list</field>
+        <field
+            name="code"
+        >action = records.action_try_create_ecuadorian_withhold()</field>
+    </record>
+    <record model="ir.ui.view" id="account_invoice_custom_view">
+        <field name="name">Facturas con retencion</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='preview_invoice']" position="before">
+                <button
+                    name="action_try_create_ecuadorian_withhold"
+                    string="Add Withholding"
+                    type="object"
+                    class="btn-primary"
+                    invisible="payment_state not in ('not_paid', 'partial') or not l10n_ec_withhold_active"
+                />
+            </xpath>
+            <xpath expr="//button[@name='action_view_debit_notes']" position="after">
+                <button
+                    name="action_show_l10n_ec_withholds"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-list-alt"
+                    invisible="l10n_ec_withhold_count == 0"
+                >
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="l10n_ec_withhold_count" />
+                        </span>
+                        <span class="o_stat_text">Withholding</span>
+                    </div>
+                </button>
+            </xpath>
+            <xpath expr="//field[@name='reversed_entry_id']" position="after">
+                <field name="l10n_latam_internal_type" invisible="1" />
+                <field name="l10n_ec_withhold_active" invisible="1" />
+            </xpath>
+            <xpath expr="//group[@id='header_right_group']" position="inside">
+                <field
+                    name='l10n_ec_tax_support'
+                    readonly="state != 'draft'"
+                    invisible="move_type != 'in_invoice'"
+                />
+            </xpath>
+            <xpath
+                expr="//field[@name='line_ids']//field[@name='name']"
+                position="after"
+            >
+                <field name='l10n_ec_tax_support' force_save="1" optional='hidden' />
+            </xpath>
+            <xpath
+                expr="//field[@name='invoice_line_ids']/tree//field[@name='account_id']"
+                position="after"
+            >
+                <field
+                    name="l10n_ec_tax_support"
+                    force_save="1"
+                    column_invisible="parent.move_type != 'in_invoice'"
+                />
+            </xpath>
+            <xpath
+                expr="//field[@name='invoice_line_ids']/form//field[@name='account_id']"
+                position="after"
+            >
+                <field
+                    name="l10n_ec_tax_support"
+                    invisible="parent.move_type != 'in_invoice'"
+                />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_account_move_withhold_tree" model="ir.ui.view">
+        <field name="name">account.move.withhold.tree</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_tree" />
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="attributes">
+                <attribute name="create">0</attribute>
+                <attribute name="duplicate">0</attribute>
+                <attribute name="decoration-muted">state=='cancel'</attribute>
+            </xpath>
+            <xpath expr="//field[@name='amount_total_signed']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='state']" position="after">
+                <field name="l10n_ec_withholding_type" optional="hide" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_account_move_withhold_form" model="ir.ui.view">
+        <field name="name">account.move.form.withhold</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="l10n_ec_account_edi.view_move_form" />
+        <field name="mode">primary</field>
+        <field name="priority" eval="50" />
+        <field name="arch" type="xml">
+            <xpath expr="/form" position="attributes">
+                <attribute name="create">0</attribute>
+                <attribute name="edit">0</attribute>
+            </xpath>
+            <xpath expr="//field[@name='fiscal_position_id']" position="before">
+                <field name="l10n_ec_withholding_type" invisible="1" />
+                <field name="is_move_sent" invisible="1" />
+            </xpath>
+            <xpath
+                expr="//button[@name='%(account.action_view_account_move_reversal)d']"
+                position="attributes"
+            >
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='move_type']" position="before">
+                <span class="o_form_label">
+                    <field
+                        name="l10n_ec_withholding_type"
+                        invisible="l10n_latam_internal_type != 'withhold'"
+                        readonly="1"
+                        nolabel="1"
+                    />
+                </span>
+            </xpath>
+            <xpath expr="//button[@name='action_post']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_post'][last()]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_invoice_sent']" position="attributes">
+                <attribute
+                    name="invisible"
+                >state != 'posted' or is_being_sent or invoice_pdf_report_id</attribute>
+            </xpath>
+            <xpath
+                expr="//button[@name='action_invoice_sent'][last()]"
+                position="attributes"
+            >
+                <attribute
+                    name="invisible"
+                >state != 'posted' or not is_being_sent and not invoice_pdf_report_id</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="before">
+                <label
+                    for="partner_id"
+                    string="Customer"
+                    style="font-weight:bold;"
+                    invisible="l10n_ec_withholding_type != 'sale'"
+                />
+                <label
+                    for="partner_id"
+                    string="Vendor"
+                    style="font-weight:bold;"
+                    invisible="l10n_ec_withholding_type != 'purchase'"
+                />
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+            <xpath
+                expr="//field[@name='l10n_ec_electronic_authorization']"
+                position="attributes"
+            >
+                <attribute name="invisible">True</attribute>
+                <attribute name="required">False</attribute>
+            </xpath>
+            <xpath expr="//field[@name='ref'][last()]" position="attributes">
+                <attribute name="readonly">state != 'draft'</attribute>
+            </xpath>
+            <xpath expr="//field[@name='ref']" position="after">
+                <field
+                    name="l10n_ec_electronic_authorization"
+                    invisible="l10n_latam_internal_type != 'withhold'"
+                    readonly="state != 'draft'"
+                />
+                <field
+                    name="l10n_ec_xml_access_key"
+                    invisible="l10n_latam_internal_type != 'withhold'"
+                />
+            </xpath>
+
+            <xpath expr="//page[@id='aml_tab']" position="before">
+                <page
+                    id="withhold_tab"
+                    string="Withhold Lines"
+                    invisible="l10n_latam_internal_type != 'withhold'"
+                >
+                    <field name="l10n_ec_withhold_line_ids" mode="tree,kanban">
+                        <tree editable="bottom">
+                            <field name="company_id" column_invisible='1' />
+                            <field
+                                name="l10n_ec_invoice_withhold_id"
+                                widget="many2one"
+                            />
+                            <field name="l10n_ec_tax_support" />
+                            <field name="tax_ids" widget="many2many_tags" />
+                            <field
+                                name="balance"
+                                string="Withhold Basis"
+                                sum="Total Basis"
+                            />
+                            <field
+                                name="l10n_ec_withhold_tax_amount"
+                                string="Withhold Amount"
+                                sum="Total Amount"
+                            />
+                            <field name="currency_id" column_invisible="1" />
+                            <field name="company_currency_id" column_invisible="1" />
+                        </tree>
+                    </field>
+                    <field
+                        name="narration"
+                        placeholder="Add an internal note..."
+                        nolabel="1"
+                        height="50"
+                    />
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+
+    <record id="action_account_move_purchase_withhold" model="ir.actions.act_window">
+        <field name="name">Purchase Withholds</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">tree,form</field>
+        <field
+            name="view_ids"
+            eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('l10n_ec_withhold.view_account_move_withhold_tree')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('l10n_ec_withhold.view_account_move_withhold_form')})]"
+        />
+        <field name="domain">[('l10n_ec_withholding_type', '=', 'purchase')]</field>
+    </record>
+
+    <record id="action_account_move_sale_withhold" model="ir.actions.act_window">
+        <field name="name">Sale Withholds</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">tree,form</field>
+        <field
+            name="view_ids"
+            eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('l10n_ec_withhold.view_account_move_withhold_tree')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('l10n_ec_withhold.view_account_move_withhold_form')})]"
+        />
+        <field name="domain">[('l10n_ec_withholding_type', '=', 'sale')]</field>
+    </record>
+</odoo>

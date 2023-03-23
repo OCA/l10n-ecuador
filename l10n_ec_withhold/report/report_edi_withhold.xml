@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- RIDE Withhold -->
+    <template id="e_withhold_document_body">
+        <div class="div-bordered">
+            <table class="table table-sm table-no-border small">
+                <tbody>
+                    <tr>
+                        <td style="width: 60%">
+                            <strong>Razón social / Nombres y Apellidos:</strong>
+                            <span t-field="partner.name" />
+                        </td>
+                        <td>
+                            <strong>Identificación:</strong>
+                            <span t-field="partner.vat" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Fecha de Emisión:</strong>
+                            <span t-field="o.date" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <br />
+        <table class="table table-sm table-bordered-black">
+            <thead>
+                <tr style="font-size: 10px;">
+                    <th name="th_document" style="width: 10%">Comprobante</th>
+                    <th name="th_number" style="width: 15%">Número</th>
+                    <th name="th_date" style="width: 10%">Fecha emisión</th>
+                    <th name="th_year" style="width: 10%">Ejercicio Fiscal</th>
+                    <th
+                        name="th_base"
+                        style="width: 15%"
+                    >Base Imponible para la Retención</th>
+                    <th name="th_tax">Impuesto</th>
+                    <th name="th_percentage">Porcentaje Retención</th>
+                    <th name="th_amount">Valor Retenido</th>
+                </tr>
+            </thead>
+            <tbody>
+                <t t-foreach="o.l10n_ec_withhold_line_ids" t-as="line">
+                    <tr style="font-size: 10px;">
+                        <td>
+                            <span
+                                t-field="line.l10n_ec_invoice_withhold_id.l10n_latam_document_type_id.report_name"
+                            />
+                        </td>
+                        <td>
+                            <span
+                                t-field="line.l10n_ec_invoice_withhold_id.l10n_latam_document_number"
+                            />
+                        </td>
+                        <td>
+                            <span t-field="o.date" />
+                        </td>
+                        <td>
+                            <span t-out="o.date.strftime('%m/%Y')" />
+                        </td>
+                        <td class="text-end">
+                            <span
+                                t-out="line.balance"
+                                t-options='{"widget": "monetary", "display_currency": res_company.currency_id}'
+                            />
+                        </td>
+                        <td class="text-end">
+                            <span
+                                t-out="line.tax_ids.tax_group_id.preceding_subtotal or line.tax_ids.tax_group_id.name"
+                            />
+                        </td>
+                        <td class="text-end">
+                            <span
+                                t-out="abs(line.tax_ids.amount)"
+                                t-options='{"widget": "float", "precision": 2}'
+                            />
+                        </td>
+                        <td class="text-end">
+                            <span
+                                t-out="line.l10n_ec_withhold_tax_amount"
+                                t-options='{"widget": "monetary", "display_currency": res_company.currency_id}'
+                            />
+                        </td>
+                    </tr>
+                </t>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="7" class="text-end">
+                        <strong>Total</strong>
+                    </td>
+                    <td class="text-end">
+                        <strong
+                            t-out="sum([line.l10n_ec_withhold_tax_amount for line in o.l10n_ec_withhold_line_ids])"
+                            t-options='{"widget": "monetary", "display_currency": res_company.currency_id}'
+                        />
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </template>
+</odoo>
