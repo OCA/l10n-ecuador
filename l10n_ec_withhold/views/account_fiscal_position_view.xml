@@ -1,0 +1,12 @@
+<odoo>
+    <record model="ir.ui.view" id="account_fiscal_position_form">
+        <field name="name">account.fiscal.position.form</field>
+        <field name="model">account.fiscal.position</field>
+        <field name="inherit_id" ref="l10n_ec_base.account_fiscal_position_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='company_id']" position="after">
+                <field name="l10n_ec_avoid_withhold" />
+            </xpath>
+        </field>
+    </record>
+</odoo>

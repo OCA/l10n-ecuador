@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <template
+        id="report_withhold_document_ec"
+        inherit_id="l10n_ec_account_edi.report_invoice_document"
+        primary="True"
+        priority="100"
+    >
+        <xpath
+            expr='//t[@t-call="l10n_ec_account_edi.electronic_report_common_head"]'
+            position="after"
+        >
+            <t t-if="o.l10n_latam_document_type_id.internal_type == 'withhold'">
+                <t t-call="l10n_ec_withhold.e_withhold_document_body" />
+            </t>
+        </xpath>
+        <!-- remove the total section because field tax_totals is None for entry-->
+        <xpath
+            expr='//t[@t-call="l10n_ec_account_edi.electronic_report_common_total_info"]'
+            position="replace"
+        />
+    </template>
+
+    <template id="report_withhold_ec">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="lang" t-value="o.partner_id.lang" />
+                <t
+                    t-call="l10n_ec_withhold.report_withhold_document_ec"
+                    t-lang="lang"
+                />
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_withholding_ec" model="ir.actions.report">
+        <field name="name">Withholding EC</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">l10n_ec_withhold.report_withhold_ec</field>
+        <field name="report_file">l10n_ec_withhold.report_withhold_ec</field>
+        <field name="print_report_name">(object._get_report_base_filename())</field>
+        <field name="attachment" />
+        <field name="binding_model_id" ref="account.model_account_move" />
+        <field name="binding_type">report</field>
+        <field
+            name="groups_id"
+            eval="[(4, ref('account.group_account_invoice')), (4, ref('account.group_account_readonly'))]"
+        />
+    </record>
+</odoo>
