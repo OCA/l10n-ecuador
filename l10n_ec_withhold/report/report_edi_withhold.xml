@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- RIDE Withhold -->
+    <template id="e_withhold_document_body">
+        <div class="div-bordered">
+            <table class="table table-sm table-no-border small">
+                <tbody>
+                    <tr>
+                        <td style="width: 60%">
+                            <strong>Razón social / Nombres y Apellidos:</strong>
+                            <span t-field="partner.name" />
+                        </td>
+                        <td>
+                            <strong>Identificación:</strong>
+                            <span t-field="partner.vat" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Fecha de Emisión:</strong>
+                            <span t-field="o.date" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <br />
+        <table class="table table-sm table-bordered-black">
+            <thead>
+                <tr style="font-size: 10px;">
+                    <th name="th_cprincipal" class="amount-md">Comprobante</th>
+                    <th name="th_cant" class="amount-sm">Número</th>
+                    <th name="th_descrip" class="">Fecha emisión</th>
+                    <th name="th_descrip" class="">Ejercicio Fiscal</th>
+                    <th
+                        name="th_punit"
+                        class="amount-sm"
+                    >Base Imponible para la Retención</th>
+                    <th name="th_dscto" class="amount-sm">IMPUESTO</th>
+                    <th name="th_ptotal" class="amount-md">Porcentaje Retención</th>
+                    <th name="th_ptotal" class="amount-md">Valor Retenido</th>
+                </tr>
+            </thead>
+            <tbody>
+                <t t-foreach="o.l10n_ec_withhold_line_ids" t-as="line">
+                    <tr style="font-size: 9px;">
+                        <td>
+                            <span
+                                t-field="line.l10n_ec_invoice_withhold_id.l10n_latam_document_type_id.report_name"
+                            />
+                        </td>
+                        <td>
+                            <span
+                                t-field="line.l10n_ec_invoice_withhold_id.l10n_latam_document_number"
+                            />
+                        </td>
+                        <td>
+                            <span t-field="o.date" />
+                        </td>
+                        <td>
+                            <span t-out="o.date.strftime('%m/%Y')" />
+                        </td>
+                        <td class="text-right">
+                            <span
+                                t-out="line.tax_base_amount"
+                                t-options='{"widget": "monetary", "display_currency": res_company.currency_id}'
+                            />
+                        </td>
+                        <td class="text-right">
+                            <span
+                                t-field="line.tax_line_id.tax_group_id.l10n_ec_type"
+                            />
+                        </td>
+                        <td class="text-right">
+                            <span t-out="abs(line.tax_line_id.amount)" />%
+                        </td>
+                        <td class="text-right">
+                            <span t-out="abs(line.balance)" />
+                        </td>
+                    </tr>
+                </t>
+            </tbody>
+        </table>
+    </template>
+</odoo>
