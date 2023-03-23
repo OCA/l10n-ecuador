@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="account_journal_form_view" model="ir.ui.view">
+        <field name="name">account.journal.form</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.view_account_journal_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='type']" position="after">
+                <field
+                    name="l10n_ec_withholding_type"
+                    invisible="country_code != 'EC' or type != 'general'"
+                />
+            </xpath>
+        </field>
+    </record>
+    <record id="account_journal_latam_form_view" model="ir.ui.view">
+        <field name="name">account.journal.form</field>
+        <field name="model">account.journal</field>
+        <field
+            name="inherit_id"
+            ref="l10n_latam_invoice_document.view_account_journal_form"
+        />
+        <field name="arch" type="xml">
+            <xpath
+                expr="//field[@name='l10n_latam_use_documents']"
+                position="attributes"
+            >
+                <attribute
+                    name="invisible"
+                >not l10n_latam_company_use_documents or not (type in ['purchase', 'sale'] or (type == 'general' and l10n_ec_withholding_type == 'purchase'))</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

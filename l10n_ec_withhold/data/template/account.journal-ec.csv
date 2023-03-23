@@ -1,0 +1,3 @@
+"id","name","type","code","show_on_dashboard","l10n_latam_use_documents","l10n_ec_withholding_type","l10n_ec_entity","l10n_ec_emission"
+"purchase_withhold_ec","001-001 Purchases Withholding","general","RET-P","0","1","purchase","001","001"
+"sale_withhold_ec","Sale Withholding","general","RET-C","0","0","sale","",""
