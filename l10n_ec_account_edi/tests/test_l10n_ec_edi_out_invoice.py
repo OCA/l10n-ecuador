@@ -1,9 +1,14 @@
 import logging
 from datetime import timedelta
+from unittest.mock import patch
 
 from odoo import _
 from odoo.exceptions import UserError
 from odoo.tests import Form, tagged
+
+from odoo.addons.l10n_ec_account_edi.models.account_edi_document import (
+    AccountEdiDocument,
+)
 
 from .test_edi_common import TestL10nECEdiCommon
 
@@ -68,6 +73,51 @@ class TestL10nClDte(TestL10nECEdiCommon):
             mail_sended = False
         self.assertTrue(mail_sended)
         # TODO: validar que se autorice en el SRI con una firma válida
+
+    def test_l10n_ec_out_invoice_sri_without_response(self):
+        """
+        Crear factura electrónica, simular no respuesta del SRI,
+        intentar enviar nuevamente y ahi si autorizar
+        """
+
+        def mock_l10n_ec_edi_send_xml_with_auth(edi_doc_instance, client_ws):
+            return self._get_response_with_auth(edi_doc_instance)
+
+        def mock_l10n_ec_edi_send_xml_without_auth(edi_doc_instance, client_ws):
+            return self._get_response_without_auth(edi_doc_instance)
+
+        # Configurar los datos previamente
+        self._setup_edi_company_ec()
+        invoice = self._l10n_ec_prepare_edi_out_invoice(
+            use_payment_term=False, auto_post=True
+        )
+        edi_doc = invoice._get_edi_document(self.edi_format)
+        # simular respuesta del SRI donde no se tenga autorizaciones
+        with patch.object(
+            AccountEdiDocument,
+            "_l10n_ec_edi_send_xml_auth",
+            mock_l10n_ec_edi_send_xml_without_auth,
+        ):
+            edi_doc._process_documents_web_services(with_commit=False)
+        # comprobar que la factura este validada,
+        # pero documento edi se quede en estado to_send
+        self.assertEqual(invoice.state, "posted")
+        self.assertEqual(edi_doc.state, "to_send")
+        self.assertTrue(edi_doc.l10n_ec_xml_access_key)
+        # intentar enviar nuevamente al SRI,
+        # como ya hubo un intento previo,
+        # debe consultar el documento antes de volver a enviarlo
+        with patch.object(
+            AccountEdiDocument,
+            "_l10n_ec_edi_send_xml_auth",
+            mock_l10n_ec_edi_send_xml_with_auth,
+        ):
+            edi_doc._process_documents_web_services(with_commit=False)
+        self.assertEqual(edi_doc.state, "sent")
+        self.assertEqual(invoice.l10n_ec_xml_access_key, edi_doc.l10n_ec_xml_access_key)
+        self.assertEqual(
+            invoice.l10n_ec_authorization_date, edi_doc.l10n_ec_authorization_date
+        )
 
     def test_l10n_ec_out_invoice_back_sri(self):
         # Crear factura con una fecha superior a la actual

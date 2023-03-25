@@ -210,6 +210,7 @@ class AccountEdiFormat(models.Model):
             if edi_docs:
                 document.write({"l10n_ec_is_edi_doc": True})
             errors = []
+            is_auth = False
             try:
                 for edi_doc in edi_docs:
                     attachment = edi_doc.attachment_id
@@ -252,8 +253,7 @@ class AccountEdiFormat(models.Model):
                         )
                         continue
                     # intentar consultar el documento previamente autorizado
-                    is_auth = False
-                    ok = False
+                    is_sent = False
                     msj = []
                     if edi_doc.l10n_ec_last_sent_date:
                         sri_res = edi_doc._l10n_ec_edi_send_xml_auth(auth_client)
@@ -263,15 +263,19 @@ class AccountEdiFormat(models.Model):
                         errors.extend(msj)
                     if not is_auth:
                         sri_res = edi_doc._l10n_ec_edi_send_xml(client_send, xml_signed)
-                        ok, msj = edi_doc._l10n_ec_edi_process_response_send(sri_res)
+                        is_sent, msj = edi_doc._l10n_ec_edi_process_response_send(
+                            sri_res
+                        )
                         errors.extend(msj)
-                    if not is_auth and ok and not msj:
+                    if not is_auth and is_sent and not msj:
                         # guardar la fecha de envio al SRI
                         # en caso de errores, poder saber si hubo un intento o no
                         # para antes de volver a enviarlo, consultar si se autorizo
                         edi_doc.write({"l10n_ec_last_sent_date": datetime.now()})
                         sri_res = edi_doc._l10n_ec_edi_send_xml_auth(auth_client)
-                        ok, msj = edi_doc._l10n_ec_edi_process_response_auth(sri_res)
+                        is_auth, msj = edi_doc._l10n_ec_edi_process_response_auth(
+                            sri_res
+                        )
                         errors.extend(msj)
             except Exception as ex:
                 _logger.error(tools.ustr(traceback.format_exc()))
@@ -287,7 +291,7 @@ class AccountEdiFormat(models.Model):
             res.update(
                 {
                     document: {
-                        "success": not errors and True or False,
+                        "success": True if not errors and is_auth else False,
                         "error": "".join(errors),
                         "attachment": attachment,
                         "blocking_level": blocking_level,
