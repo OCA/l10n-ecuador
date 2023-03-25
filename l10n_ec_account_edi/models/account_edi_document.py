@@ -596,12 +596,12 @@ class AccountEdiDocument(models.Model):
         si fue devuelta, devolver False los mensajes
         si fue recibida, devolver True y los mensajes
         """
-        ok = False
+        is_auth = False
         msj_list = []
         response_data = serialize_object(response, dict)
         if not response_data or not response_data.get("autorizaciones"):
             _logger.warning("Authorization response error, No Autorizacion in response")
-            return ok, msj_list
+            return is_auth, msj_list
         # a veces el SRI devulve varias autorizaciones, unas como no autorizadas
         # pero otra si autorizada, si pasa eso, tomar la que fue autorizada
         # las demas ignorarlas
@@ -620,9 +620,9 @@ class AccountEdiDocument(models.Model):
                 msj_list.append(msj_str)
             estado = doc.get("estado")
             if estado != "AUTORIZADO":
-                ok = False
+                is_auth = False
                 continue
-            ok = True
+            is_auth = True
             msj_list = []
             # tomar la fecha de autorizacion que envia el SRI
             l10n_ec_authorization_date = doc.get("fechaAutorizacion")
@@ -642,7 +642,7 @@ class AccountEdiDocument(models.Model):
                 {"l10n_ec_authorization_date": l10n_ec_authorization_date.strftime(DTF)}
             )
             break
-        return ok, msj_list
+        return is_auth, msj_list
 
     def _l10n_ec_get_info_debit_note(self):
         self.ensure_one()
