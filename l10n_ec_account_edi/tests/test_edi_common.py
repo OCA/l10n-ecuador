@@ -1,4 +1,7 @@
 import base64
+from datetime import datetime
+
+import pytz
 
 from odoo.tests import tagged
 from odoo.tools import misc, os
@@ -145,3 +148,47 @@ class TestL10nECEdiCommon(AccountEdiTestCommon, TestL10nECCommon):
             company=self.company,
         )
         return access_key
+
+    def _get_response_with_auth(self, edi_doc):
+        """
+        simular la respuesta del SRI como si el documento se haya autorizado
+        """
+        # mandar a generar el xml para poder adjuntarlo a la respuesta del SRI
+        xml_file = edi_doc._l10n_ec_render_xml_edi()
+        xml_signed = self.company.l10n_ec_key_type_id.action_sign(xml_file)
+        return {
+            "claveAccesoConsultada": edi_doc.l10n_ec_xml_access_key,
+            "numeroComprobantes": 1,
+            "autorizaciones": {
+                "autorizacion": [
+                    self._get_default_response_auth(
+                        edi_doc.l10n_ec_xml_access_key, xml_signed
+                    )
+                ]
+            },
+        }
+
+    def _get_response_without_auth(self, edi_doc):
+        """
+        simular la respuesta del SRI donde no se obtenga autorizacion
+        """
+        # mandar a generar el xml para poder adjuntarlo a la respuesta del SRI
+        xml_file = edi_doc._l10n_ec_render_xml_edi()
+        self.company.l10n_ec_key_type_id.action_sign(xml_file)
+        return {
+            "claveAccesoConsultada": edi_doc.l10n_ec_xml_access_key,
+            "numeroComprobantes": 1,
+            "autorizaciones": {},
+        }
+
+    def _get_default_response_auth(self, access_key, xml_file):
+        return {
+            "ambiente": "PRUEBAS"
+            if self.company.l10n_ec_type_environment == "test"
+            else "PRODUCCION",
+            "estado": "AUTORIZADO",
+            "numeroAutorizacion": access_key,
+            "fechaAutorizacion": datetime.now(pytz.timezone("America/Guayaquil")),
+            "mensajes": None,
+            "comprobante": xml_file,
+        }
