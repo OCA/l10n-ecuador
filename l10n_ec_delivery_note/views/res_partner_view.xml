@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record model="ir.ui.view" id="res_partner_carrier_contact_form_view">
+        <field name="name">res.partner.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form" />
+        <field name="arch" type="xml">
+            <xpath
+                expr="//field[@name='child_ids']/form//field[@name='mobile']"
+                position="after"
+            >
+                <field
+                    name="l10n_ec_is_carrier"
+                    attrs="{'invisible':  [('type','!=','contact')]}"
+                />
+                <label
+                    for="l10n_latam_identification_type_id"
+                    string="Identification Number"
+                    attrs="{'invisible':  ['|',('l10n_ec_is_carrier','=',False), ('type','!=','contact')]}"
+                />
+                <div>
+                    <field
+                        name="l10n_latam_identification_type_id"
+                        options="{'no_open': True, 'no_create': True}"
+                        placeholder="Type"
+                        attrs="{'invisible':  ['|',('l10n_ec_is_carrier','=',False), ('type','!=','contact')], 'readonly': [('parent_id', '!=', False), ('l10n_ec_is_carrier', '=', False)]}"
+                        class="oe_inline"
+                        domain="country_id and ['|', ('country_id', '=', False), ('country_id', '=', country_id)] or []"
+                    />
+                    <span class="oe_read_only">-</span>
+                    <field
+                        name="vat"
+                        placeholder="Number"
+                        class="oe_inline"
+                        attrs="{'invisible':  ['|',('l10n_ec_is_carrier','=',False),('type','!=','contact')], 'readonly': [('parent_id', '!=', False), ('l10n_ec_is_carrier', '=', False)]}"
+                    />
+                </div>
+                <field
+                    name="l10n_ec_car_plate"
+                    attrs="{'invisible':  ['|',('l10n_ec_is_carrier','=',False),('type','!=','contact')]}"
+                />
+            </xpath>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="res_partner_carrier_form_view">
+        <field name="name">res.partner.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='category_id']" position="after">
+                <field name="l10n_ec_is_carrier" />
+                <field
+                    name="l10n_ec_car_plate"
+                    attrs="{'invisible':  [('l10n_ec_is_carrier','=',False)]}"
+                />
+            </xpath>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="res_partner_carrier_latam_form_view">
+        <field name="name">res.partner.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="l10n_latam_base.view_partner_latam_form" />
+        <field name="arch" type="xml">
+
+            <field name='l10n_latam_identification_type_id' position="attributes">
+                <!--<field name="l10n_ec_is_carrier" invisible="1"/>-->
+                <attribute name="attrs">
+                    {
+                    'readonly': [('parent_id', '!=', False), ('l10n_ec_is_carrier', '=', False)]}
+                </attribute>
+            </field>
+            <xpath
+                expr="//field[@name='l10n_latam_identification_type_id']/../field[@name='vat']"
+                position="attributes"
+            >
+                <attribute name="attrs">
+                    {
+                    'readonly': [('parent_id', '!=', False), ('l10n_ec_is_carrier', '=', False)]}
+                </attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

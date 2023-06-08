@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record model="ir.ui.view" id="sale_order_tree_view_remission">
+        <field name="name">sale.order.tree</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form" />
+        <field name="arch" type="xml">
+            <button name="action_view_invoice" position="after">
+                <button
+                    name="action_view_l10n_ec_delivery_note"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-pencil-square-o"
+                    attrs="{'invisible': [('l10n_ec_delivery_note_count', '=', 0)]}"
+                >
+                    <field
+                        name="l10n_ec_delivery_note_count"
+                        widget="statinfo"
+                        string="Delivery Notes"
+                    />
+                </button>
+            </button>
+        </field>
+    </record>
+</odoo>
