@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<odoo>
+    <template id="l10n_ec_delivery_note">
+        <guiaRemision
+            id="comprobante"
+            t-att-version="company.l10n_ec_delivery_note_version"
+        >
+            <t t-call="l10n_ec_account_edi.ec_edi_info_tributaria" />
+            <infoGuiaRemision>
+                <dirEstablecimiento t-esc="dirEstablecimiento" />
+                <dirPartida t-esc="dirPartida" />
+                <razonSocialTransportista t-esc="razonSocialTransportista" />
+                <tipoIdentificacionTransportista
+                    t-esc="tipoIdentificacionTransportista"
+                />
+                <rucTransportista t-esc="rucTransportista" />
+                <t t-if="rise">
+                    <rise t-esc="rise" />
+                </t>
+                <obligadoContabilidad t-esc="obligadoContabilidad" />
+                <t t-if="contribuyenteEspecial">
+                    <contribuyenteEspecial t-esc="contribuyenteEspecial" />
+                </t>
+                <fechaIniTransporte t-esc="fechaIniTransporte" />
+                <fechaFinTransporte t-esc="fechaFinTransporte" />
+                <placa t-esc="placa" />
+            </infoGuiaRemision>
+            <destinatarios>
+                <destinatario>
+                    <identificacionDestinatario t-esc="identificacionDestinatario" />
+                    <razonSocialDestinatario t-esc="razonSocialDestinatario" />
+                    <dirDestinatario t-esc="dirDestinatario" />
+                    <motivoTraslado t-esc="motivoTraslado" />
+                    <codEstabDestino t-esc="codEstabDestino" />
+                    <ruta t-esc="ruta" />
+                    <codDocSustento t-esc="codDocSustento" />
+                    <numDocSustento t-esc="numDocSustento" />
+                    <numAutDocSustento t-esc="numAutDocSustento" />
+                    <fechaEmisionDocSustento t-esc="fechaEmisionDocSustento" />
+                    <t t-if="docAduaneroUnico">
+                        <docAduaneroUnico t-esc="docAduaneroUnico" />
+                    </t>
+                    <detalles t-if="detalles">
+                        <detalle t-foreach="detalles" t-as="detalle">
+                            <codigoInterno t-esc="detalle.get('codigoInterno')" />
+                            <codigoAdicional t-esc="detalle.get('codigoAdicional')" />
+                            <descripcion t-esc="detalle.get('descripcion')" />
+                            <cantidad t-esc="detalle.get('cantidad')" />
+                            <detallesAdicionales
+                                t-if="detalle.get('detallesAdicionales')"
+                            >
+                                <detAdicional
+                                    t-as="detAdicional"
+                                    t-foreach="detalle.get('detallesAdicionales')"
+                                    t-att-nombre="detAdicional.get('nombre')"
+                                    t-att-valor="detAdicional.get('valor')"
+                                />
+                            </detallesAdicionales>
+                        </detalle>
+                    </detalles>
+                </destinatario>
+            </destinatarios>
+            <t t-call="l10n_ec_account_edi.ec_edi_info_adicional" />
+        </guiaRemision>
+    </template>
+</odoo>

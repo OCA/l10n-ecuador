@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record model="ir.ui.view" id="stock_picking_form_view">
+        <field name="name">stock.picking.form</field>
+        <field name="model">stock.picking</field>
+        <field name="priority" eval="20" />
+        <field name="inherit_id" ref="stock.view_picking_form" />
+        <field name="arch" type="xml">
+            <button name="do_print_picking" position="after">
+                <button
+                    name="l10n_ec_do_print_delivery_notes"
+                    string="Print Delivery Note"
+                    groups="stock.group_stock_user"
+                    type="object"
+                    attrs="{'invisible': ['|', ('l10n_ec_delivery_note_ids', '=', []), ('l10n_ec_create_delivery_note', '=', False)]}"
+                />
+            </button>
+            <field name="origin" position="after">
+                <field
+                    name="l10n_ec_create_delivery_note"
+                    attrs="{'invisible':[('picking_type_code','=','incoming')]}"
+                />
+            </field>
+            <field name="partner_id" position="after">
+                <field
+                    name="l10n_ec_delivery_carrier_id"
+                    context="{'default_l10n_ec_is_carrier': True}"
+                    attrs="{'required': [('l10n_ec_create_delivery_note','=', True), ('picking_type_code','!=','incoming')], 'readonly': [('state','in',('done','cancel'))], 'invisible':['|', ('picking_type_code','=','incoming'), ('l10n_ec_create_delivery_note','=', False)]}"
+                />
+                <field
+                    name="l10n_ec_car_plate"
+                    attrs="{'required': [('l10n_ec_create_delivery_note','=', True), ('picking_type_code','!=','incoming')], 'invisible':['|', ('picking_type_code','=','incoming'), ('l10n_ec_create_delivery_note','=', False)]}"
+                />
+                <field
+                    name="l10n_ec_delivery_note_journal_id"
+                    attrs="{'invisible': [('picking_type_code','=','incoming')], 'required': [('l10n_ec_create_delivery_note', '=', True), ('picking_type_code','!=','incoming')]}"
+                    options="{'no_open':True, 'no_create': True}"
+                />
+                <field
+                    name="l10n_latam_internal_type"
+                    attrs="{'invisible': [('picking_type_code','=','incoming')], 'required': [('l10n_ec_create_delivery_note', '=', True), ('picking_type_code','!=','incoming')], 'readonly': [('state','in',('done','cancel'))]}"
+                    options="{'no_open':True, 'no_create': True}"
+                />
+            </field>
+            <xpath expr="/form/sheet/notebook/page[last()]" position="after">
+                <page string="Delivery Note">
+                    <label for="l10n_ec_delivery_note_ids" invisible="1" />
+                    <field
+                        name="l10n_ec_delivery_note_ids"
+                        options="{'no_create': True}"
+                    />
+                </page>
+            </xpath>
+            <field name="partner_id" position="attributes">
+                <attribute
+                    name="attrs"
+                >{'required': [('l10n_ec_create_delivery_note', '=', True)]}</attribute>
+            </field>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="stock_picking_tree_view">
+        <field name="name">stock.picking.tree</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.vpicktree" />
+        <field name="arch" type="xml">
+            <field name="partner_id" position="after">
+                <field name="l10n_ec_delivery_note_number" />
+            </field>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="stock_picking_search_view">
+        <field name="name">stock.picking.search</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_internal_search" />
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="l10n_ec_delivery_note_number" />
+            </field>
+        </field>
+    </record>
+    <record id="stock_picking_type_form_view" model="ir.ui.view">
+        <field name="name">stock.picking.type.form</field>
+        <field name="model">stock.picking.type</field>
+        <field name="inherit_id" ref="stock.view_picking_type_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='show_reserved']" position="after">
+                <field name="l10n_ec_default_delivery_note" />
+            </xpath>
+        </field>
+    </record>
+</odoo>

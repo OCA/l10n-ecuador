@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record model="ir.ui.view" id="wizard_create_delivery_note_form_view">
+        <field name="name">wizard.create.delivery_note.form</field>
+        <field name="model">wizard.create.delivery.note</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_grey">
+                        <h4>
+                            The Delivery notes will be created with the selected records, the records with status
+                            canceled or draft will not be shown
+                        </h4>
+                    </div>
+                    <notebook colspan="4">
+                        <page string="Delivery Note details">
+                            <field name="line_ids" colspan="4">
+                                <tree>
+                                    <field name="name" />
+                                    <field name="picking_id" invisible="1" />
+                                    <field name="partner_id" />
+                                    <field name="location_id" />
+                                    <field name="location_dest_id" />
+                                    <field name="scheduled_date" />
+                                    <field name="date" />
+                                    <field name="origin" />
+                                </tree>
+                                <form>
+                                    <group>
+                                        <group>
+                                            <field name="name" />
+                                            <field name="picking_id" invisible="1" />
+                                            <field name="partner_id" />
+                                            <field name="origin" />
+                                        </group>
+                                        <group>
+                                            <field name="location_id" />
+                                            <field name="location_dest_id" />
+                                            <field name="scheduled_date" />
+                                            <field name="date" />
+                                        </group>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <footer>
+                    <div class="oe_left">
+                        <button
+                            string='Create Delivery Notes'
+                            icon="fa-gear"
+                            name="action_create_delivery_note"
+                            type="object"
+                            class="oe_highlight"
+                        />
+                        <button
+                            string="Close"
+                            special="cancel"
+                            type="object"
+                            icon="fa-close"
+                            class="oe_link"
+                        />
+                    </div>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="wizard_generate_multi_delivery_notes" model="ir.actions.act_window">
+        <field name="name">Create Delivery Notes</field>
+        <field name="res_model">wizard.create.delivery.note</field>
+        <field name="binding_model_id" ref="stock.model_stock_picking" />
+        <field name="binding_view_types">list,form</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="wizard_create_delivery_note_form_view" />
+        <field name="target">new</field>
+    </record>
+</odoo>
