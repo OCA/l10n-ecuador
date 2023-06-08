@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <record id="email_template_e_delivery_note" model="mail.template">
+        <field name="name">Delivery Note Electronic</field>
+        <field name="email_from">{{ object.company_id.email_formatted }}</field>
+        <field
+            name="subject"
+        >{{ object.company_id.name }}, Nuevo Documento Electrónico (GR {{ object.display_name or 'n/a' }})</field>
+        <field name="partner_to">{{ object.partner_id.id }}</field>
+        <field
+            name="model_id"
+            ref="l10n_ec_delivery_note.model_l10n_ec_delivery_note"
+        />
+        <field name="auto_delete" eval="True" />
+        <field
+            name="report_template"
+            ref="l10n_ec_delivery_note.action_report_delivery_note"
+        />
+        <field name="report_name">{{ object._l10n_ec_get_document_name() }}</field>
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="body_html" type="xml">
+            <div>
+                <p>
+                    Estimado(a) <strong t-out="object.partner_id.name" />
+                    <t t-if="object.partner_id.parent_id">
+                        (<i><span t-out="object.partner_id.parent_id.name" /></i>)
+                    </t>
+                    ,
+                </p>
+                <br />
+                <p>
+                    Reciba un cordial saludo de quienes hacemos
+                    <strong t-out="object.company_id.name" />
+                    .
+                    Nos complace informarle que su documento electrónico ha sido generado
+                    con el siguiente detalle:
+                    <ul>
+                        <li>
+                            <strong>Tipo de Documento:</strong>
+                            <span>Guia de Remisión</span>
+                        </li>
+                        <li>
+                            <strong>Número de Documento:</strong>
+                            <span t-out="object.document_number" />
+                        </li>
+                        <li>
+                            <strong>Clave de acceso:</strong>
+                            <span t-out="object.l10n_ec_xml_access_key" />
+                        </li>
+                        <li t-if="object.origin">
+                            <strong>Referencia:</strong>
+                            <span t-out="object.origin" />
+                        </li>
+                    </ul>
+                </p>
+                <br />
+                <br />
+                <t t-if="object.partner_id.user_ids and object.partner_id.signup_url">
+                    Para ver todos sus documentos visite
+                    <a
+                        href="object.partner_id.signup_url"
+                        class="btn btn-primary"
+                        role="button"
+                    >nuestro portal</a>
+                    <br />
+                </t>
+                <p>Gracias por Preferirnos,</p>
+            </div>
+        </field>
+    </record>
+</odoo>
