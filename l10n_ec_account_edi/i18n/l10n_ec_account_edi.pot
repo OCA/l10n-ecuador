@@ -265,6 +265,11 @@ msgid "Access Key(EC)"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_l10n_ec_additional_information__move_id
+msgid "Account Move"
+msgstr ""
+
+#. module: l10n_ec_account_edi
 #: model:ir.model,name:l10n_ec_account_edi.model_account_move_reversal
 msgid "Account Move Reversal"
 msgstr ""
@@ -277,6 +282,18 @@ msgstr ""
 #. module: l10n_ec_account_edi
 #: model:ir.model,name:l10n_ec_account_edi.model_account_debit_note
 msgid "Add Debit Note wizard"
+msgstr ""
+
+#. module: l10n_ec_account_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.view_move_form_additional_information_extend
+msgid "Additional Info"
+msgstr ""
+
+#. module: l10n_ec_account_edi
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_bank_statement_line__l10n_ec_additional_information_move_ids
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_move__l10n_ec_additional_information_move_ids
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_payment__l10n_ec_additional_information_move_ids
+msgid "Additional Information"
 msgstr ""
 
 #. module: l10n_ec_account_edi
@@ -358,22 +375,24 @@ msgstr ""
 #: model_terms:ir.actions.act_window,help:l10n_ec_account_edi.action_move_debit_note_type
 msgid ""
 "Create debit note, register payments and keep track of the discussions with your\n"
-"                    vendors."
+"                vendors."
 msgstr ""
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.actions.act_window,help:l10n_ec_account_edi.action_move_liquidation_of_purchases_type
 msgid ""
 "Create liquidation of purchases, register payments and keep track of the discussions with your\n"
-"                    vendors."
+"                vendors."
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_l10n_ec_additional_information__create_uid
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type__create_uid
 msgid "Created by"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_l10n_ec_additional_information__create_date
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type__create_date
 msgid "Created on"
 msgstr ""
@@ -447,6 +466,11 @@ msgid "Descripción"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_l10n_ec_additional_information__description
+msgid "Description"
+msgstr ""
+
+#. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.e_credit_note_document_body
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.e_invoice_document_body
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.e_liquidation_document_body
@@ -454,6 +478,7 @@ msgid "Descuento"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_l10n_ec_additional_information__display_name
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type__display_name
 msgid "Display Name"
 msgstr ""
@@ -591,6 +616,7 @@ msgid "Forma de Pago"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_l10n_ec_additional_information__id
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type__id
 msgid "ID"
 msgstr ""
@@ -631,6 +657,11 @@ msgid "Is Ecuadorian Electronic Document"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#: model:ir.model,name:l10n_ec_account_edi.model_l10n_ec_additional_information
+msgid "Is optional for electronic documents"
+msgstr ""
+
+#. module: l10n_ec_account_edi
 #: model:ir.model,name:l10n_ec_account_edi.model_account_move
 msgid "Journal Entry"
 msgstr ""
@@ -661,6 +692,7 @@ msgid "Last Error Message"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_l10n_ec_additional_information____last_update
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type____last_update
 msgid "Last Modified on"
 msgstr ""
@@ -671,11 +703,13 @@ msgid "Last Sent Date"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_l10n_ec_additional_information__write_uid
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type__write_uid
 msgid "Last Updated by"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_l10n_ec_additional_information__write_date
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type__write_date
 msgid "Last Updated on"
 msgstr ""
@@ -697,6 +731,7 @@ msgid "Liquidation of Purchase"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_l10n_ec_additional_information__name
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type__name
 msgid "Name"
 msgstr ""
@@ -797,6 +832,13 @@ msgid ""
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#: model:ir.actions.server,name:l10n_ec_account_edi.ir_cron_send_email_electronic_documents_ir_actions_server
+#: model:ir.cron,cron_name:l10n_ec_account_edi.ir_cron_send_email_electronic_documents
+#: model:ir.cron,name:l10n_ec_account_edi.ir_cron_send_email_electronic_documents
+msgid "Send email with authorized electronic documents(Ecuador)"
+msgstr ""
+
+#. module: l10n_ec_account_edi
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type__subject_serial_number
 msgid "Serial Number(Subject)"
 msgstr ""
@@ -835,6 +877,18 @@ msgstr ""
 #: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
 #, python-format
 msgid "The amount total %(Total)s is bigger than %(Limit)s for final customer"
+msgstr ""
+
+#. module: l10n_ec_account_edi
+#: code:addons/l10n_ec_account_edi/models/account_move.py:0
+#, python-format
+msgid "The connection to the SRI service is not possible. Please check later."
+msgstr ""
+
+#. module: l10n_ec_account_edi
+#: code:addons/l10n_ec_account_edi/models/account_move.py:0
+#, python-format
+msgid "The receipt is authorized. It cannot be cancelled."
 msgstr ""
 
 #. module: l10n_ec_account_edi
