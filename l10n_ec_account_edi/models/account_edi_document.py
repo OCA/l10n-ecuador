@@ -352,14 +352,17 @@ class AccountEdiDocument(models.Model):
         # TODO: agregar logica para demas tipos de documento
         return xml_file
 
-    def _l10n_ec_get_info_aditional(self):
-        info_data = [
-            {
-                "name": "OtroCampo",
-                "description": "Otra Informacion",
-            }
-        ]
-        # TODO: agregar logica para informacion adicional
+    def _l10n_ec_get_info_additional(self):
+        additional_information = self.move_id.l10n_ec_additional_information_move_ids
+        info_data = []
+
+        for line in additional_information:
+            info_data.append(
+                {
+                    "name": line.name,
+                    "description": line.description,
+                }
+            )
         return info_data
 
     def _l10n_ec_get_info_invoice(self):
@@ -403,7 +406,7 @@ class AccountEdiDocument(models.Model):
             "detalles": self._l10n_ec_header_get_document_lines_edi_data(taxes_data),
             "retenciones": False,
             "infoSustitutivaGuiaRemision": False,
-            "infoAdicional": self._l10n_ec_get_info_aditional(),
+            "infoAdicional": self._l10n_ec_get_info_additional(),
         }
         invoice_data.update(self._l10n_ec_get_info_tributaria(invoice))
         return invoice_data
@@ -447,7 +450,7 @@ class AccountEdiDocument(models.Model):
             "valorRetRenta": False,
             "detalles": self._l10n_ec_header_get_document_lines_edi_data(taxes_data),
             "retenciones": False,
-            "infoAdicional": self._l10n_ec_get_info_aditional(),
+            "infoAdicional": self._l10n_ec_get_info_additional(),
         }
         invoice_data.update(self._l10n_ec_get_info_tributaria(invoice))
         return invoice_data
@@ -503,7 +506,7 @@ class AccountEdiDocument(models.Model):
             "detalles": self._l10n_ec_header_get_document_lines_edi_data(taxes_data),
             "retenciones": False,
             "infoSustitutivaGuiaRemision": False,
-            "infoAdicional": self._l10n_ec_get_info_aditional(),
+            "infoAdicional": self._l10n_ec_get_info_additional(),
         }
         credit_note_data.update(self._l10n_ec_get_info_tributaria(credit_note))
         return credit_note_data
@@ -680,8 +683,45 @@ class AccountEdiDocument(models.Model):
             "importeTotal": self._l10n_ec_number_format(amount_total, 6),
             "pagos": debit_note._l10n_ec_get_payment_data(),
             "detalles": self._l10n_ec_header_get_document_lines_edi_data(taxes_data),
-            "infoAdicional": self._l10n_ec_get_info_aditional(),
+            "infoAdicional": self._l10n_ec_get_info_additional(),
         }
 
         debit_note_dict.update(self._l10n_ec_get_info_tributaria(debit_note))
         return debit_note_dict
+
+    @api.model
+    def l10n_ec_send_mail_to_partners(self):
+        all_companies = self.env["res.company"].search(
+            [
+                ("partner_id.country_id.code", "=", "EC"),
+                ("l10n_ec_type_environment", "=", "production"),
+            ]
+        )
+        for company in all_companies:
+            self.with_company(company).l10n_ec_send_mail_to_partner()
+        return True
+
+    @api.model
+    def l10n_ec_send_mail_to_partner(self):
+        commom_domain = [
+            ("state", "=", "posted"),
+            ("is_move_sent", "=", False),
+            ("l10n_ec_authorization_date", "!=", False),
+        ]
+        account_moves = self.env["account.move"].search(
+            commom_domain
+            + [
+                ("partner_id.vat", "not in", ["9999999999999", "9999999999"]),
+            ]
+        )
+        for account_move in account_moves:
+            account_move.l10n_ec_send_email()
+
+        # Update documents with final consumer
+        account_moves_with_final_consumer = self.env["account.move"].search(
+            commom_domain
+            + [
+                ("partner_id.vat", "in", ["9999999999999", "9999999999"]),
+            ]
+        )
+        account_moves_with_final_consumer.write({"is_move_sent": True})

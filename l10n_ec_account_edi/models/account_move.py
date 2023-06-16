@@ -51,6 +51,10 @@ class AccountMove(models.Model):
     )
     l10n_ec_reason = fields.Char(string="Refund Reason", size=300)
 
+    l10n_ec_additional_information_move_ids = fields.One2many(
+        "l10n.ec.additional.information", "move_id", string="Additional Information"
+    )
+
     @api.depends("invoice_date", "invoice_date_due")
     def _compute_l10n_ec_credit_days(self):
         now = fields.Date.context_today(self)
@@ -306,3 +310,14 @@ class AccountMove(models.Model):
             l10n_ec_legacy_document_authorization=self.l10n_ec_xml_access_key,
         )
         return move_vals
+
+    def l10n_ec_send_email(self):
+        WizardInvoiceSent = self.env["account.invoice.send"]
+        self.ensure_one()
+        res = self.with_context(discard_logo_check=True).action_invoice_sent()
+        context = res["context"]
+        send_mail = WizardInvoiceSent.with_context(**context).create({})
+        # enviar factura automaticamente por correo
+        # simular onchange y accion
+        send_mail.onchange_template_id()
+        send_mail.send_and_print_action()
