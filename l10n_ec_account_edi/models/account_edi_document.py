@@ -516,7 +516,7 @@ class AccountEdiDocument(models.Model):
         Enviar a validar el comprobante con la clave de acceso
         :param client_ws: instancia del webservice para realizar el proceso
         """
-        response = False
+        response = {}
         try:
             # el parametro xml del webservice espera recibir xs:base64Binary
             # con suds nosotros haciamos la conversion
@@ -546,11 +546,12 @@ class AccountEdiDocument(models.Model):
         """
         msj_list = []
         response_data = serialize_object(response, dict)
-        ok = response_data.get("estado", "") == "RECIBIDA"
-        if response_data.get("estado", "") == "DEVUELTA":
-            # si fue devuelta intentar nuevamente
-            ok = False
+
         try:
+            ok = response_data.get("estado", "") == "RECIBIDA"
+            if response_data.get("estado", "") == "DEVUELTA":
+                # si fue devuelta intentar nuevamente
+                ok = False
             comprobantes = (response_data.get("comprobantes") or {}).get(
                 "comprobante"
             ) or []
@@ -569,7 +570,7 @@ class AccountEdiDocument(models.Model):
         except Exception as e:
             msj_list.append(tools.ustr(e))
             _logger.info(
-                "can't validate document, claveAcceso %s. ERROR: %s TRACEBACK: %s",
+                "can't validate document, clave de acceso %s. ERROR: %s TRACEBACK: %s",
                 self.l10n_ec_xml_access_key,
                 tools.ustr(e),
                 tools.ustr(traceback.format_exc()),
