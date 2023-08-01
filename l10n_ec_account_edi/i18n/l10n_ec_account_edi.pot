@@ -880,6 +880,18 @@ msgid "The amount total %(Total)s is bigger than %(Limit)s for final customer"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#: code:addons/l10n_ec_account_edi/models/account_move.py:0
+#, python-format
+msgid "The connection to the SRI service is not possible. Please check later."
+msgstr ""
+
+#. module: l10n_ec_account_edi
+#: code:addons/l10n_ec_account_edi/models/account_move.py:0
+#, python-format
+msgid "The receipt is authorized. It cannot be cancelled."
+msgstr ""
+
+#. module: l10n_ec_account_edi
 #: model:ir.model,name:l10n_ec_account_edi.model_sri_key_type
 msgid "Type of electronic key"
 msgstr ""
