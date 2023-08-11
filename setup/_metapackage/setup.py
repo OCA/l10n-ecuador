@@ -10,6 +10,7 @@ setuptools.setup(
     install_requires=[
         'odoo-addon-l10n_ec_account_edi>=15.0dev,<15.1dev',
         'odoo-addon-l10n_ec_base>=15.0dev,<15.1dev',
+        'odoo-addon-l10n_ec_ote>=15.0dev,<15.1dev',
     ],
     classifiers=[
         'Programming Language :: Python',
