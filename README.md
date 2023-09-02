@@ -21,7 +21,7 @@ Available addons
 ----------------
 addon | version | maintainers | summary
 --- | --- | --- | ---
-[l10n_ec_account_edi](l10n_ec_account_edi/) | 15.0.1.2.0 |  | Electronic data interchange adapted Ecuadorian localization
+[l10n_ec_account_edi](l10n_ec_account_edi/) | 15.0.1.2.1 |  | Electronic data interchange adapted Ecuadorian localization
 [l10n_ec_base](l10n_ec_base/) | 15.0.1.0.0 |  | Ecuadorian Localization
 [l10n_ec_ote](l10n_ec_ote/) | 15.0.1.0.0 |  | OTE for Ecuador
 
