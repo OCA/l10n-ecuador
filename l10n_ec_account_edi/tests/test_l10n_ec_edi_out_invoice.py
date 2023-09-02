@@ -156,6 +156,7 @@ class TestL10nClDte(TestL10nECEdiCommon):
         # Enviar contexto para presentar clave de acceso de xml erroneo
         invoice.button_draft()
         invoice.action_post()
+        edi_doc = invoice._get_edi_document(self.edi_format)
         with self.assertLogs(
             "odoo.addons.l10n_ec_account_edi.models.account_edi_document",
             level=logging.ERROR,
