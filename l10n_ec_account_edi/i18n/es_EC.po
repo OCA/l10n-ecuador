@@ -6,13 +6,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.0\n"
 "Report-Msgid-Bugs-To: \n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2023-09-08 07:37+0000\n"
+"Last-Translator: lojanet <lojanet@gmail.com>\n"
 "Language-Team: none\n"
 "Language: es_EC\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.17\n"
 
 #. module: l10n_ec_account_edi
 #: model:ir.model.fields.selection,name:l10n_ec_account_edi.selection__res_company__l10n_ec_debit_note_version__1_0_0
@@ -31,12 +33,12 @@ msgstr ""
 #. module: l10n_ec_account_edi
 #: model:ir.model.fields.selection,name:l10n_ec_account_edi.selection__res_company__l10n_ec_invoice_version__2_0_0
 msgid "2.0.0(Third Party Items)"
-msgstr ""
+msgstr "2.0.0(Items de Terceros)"
 
 #. module: l10n_ec_account_edi
 #: model:ir.model.fields.selection,name:l10n_ec_account_edi.selection__res_company__l10n_ec_invoice_version__2_1_0
 msgid "2.1.0(Third Party Items)"
-msgstr ""
+msgstr "2.1.0(Items de Terceros)"
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.electronic_report_common_head
@@ -146,7 +148,7 @@ msgstr ""
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.res_config_settings_l10n_ec_edi
 msgid "<span class=\"o_form_label\">Electronic Certificate File</span>"
-msgstr ""
+msgstr "<span class=\"o_form_label\">Archivo Firma Electrónica</span>"
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.res_config_settings_l10n_ec_edi
@@ -154,21 +156,23 @@ msgid ""
 "<span class=\"o_form_label\">Electronic Invoicing Connection "
 "Parameters</span>"
 msgstr ""
+"<span class=\"o_form_label\">Parametros Conección Facturación "
+"Electrónica</span>"
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.res_config_settings_l10n_ec_edi
 msgid "<span class=\"o_form_label\">Final Consumer</span>"
-msgstr ""
+msgstr "<span class=\"o_form_label\">Consumidor Final</span>"
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.res_config_settings_l10n_ec_edi
 msgid "<span class=\"o_form_label\">XML Document Version</span>"
-msgstr ""
+msgstr "<span class=\"o_form_label\">Versión Documento XML</span>"
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.account_edi_document_view_form
 msgid "<span class=\"o_form_label\">XML Electronic Document</span>"
-msgstr ""
+msgstr "<span class=\"o_form_label\">Documento Electrónico XML</span>"
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.e_credit_note_document_body
@@ -263,39 +267,39 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_move__l10n_ec_authorization_date
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_payment__l10n_ec_authorization_date
 msgid "Access Key(EC)"
-msgstr ""
+msgstr "Clave de Acceso(EC)"
 
 #. module: l10n_ec_account_edi
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_l10n_ec_additional_information__move_id
 msgid "Account Move"
-msgstr ""
+msgstr "Asiento Contable"
 
 #. module: l10n_ec_account_edi
 #: model:ir.model,name:l10n_ec_account_edi.model_account_move_reversal
 msgid "Account Move Reversal"
-msgstr ""
+msgstr "Reversión de Asiento Contable"
 
 #. module: l10n_ec_account_edi
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type__active
 msgid "Active?"
-msgstr ""
+msgstr "Activo?"
 
 #. module: l10n_ec_account_edi
 #: model:ir.model,name:l10n_ec_account_edi.model_account_debit_note
 msgid "Add Debit Note wizard"
-msgstr ""
+msgstr "Asistente para agregar Nota Débito"
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.view_move_form_additional_information_extend
 msgid "Additional Info"
-msgstr ""
+msgstr "Información Adicional"
 
 #. module: l10n_ec_account_edi
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_bank_statement_line__l10n_ec_additional_information_move_ids
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_move__l10n_ec_additional_information_move_ids
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_payment__l10n_ec_additional_information_move_ids
 msgid "Additional Information"
-msgstr ""
+msgstr "Información Adicional"
 
 #. module: l10n_ec_account_edi
 #: model:ir.model.fields,help:l10n_ec_account_edi.field_account_bank_statement_line__l10n_latam_internal_type
@@ -306,17 +310,21 @@ msgid ""
 "identify the kind of document we are working with. (not only related to "
 "account.move, could be for documents of other models like stock.picking)"
 msgstr ""
+"Análogo a account.move.move_type pero con más opciones que "
+"permitenidentificar el tipo de documento con el que estamos trabajando. (no "
+"solo relacionado con account.move, podría ser para documentos de otros "
+"modelos como stock.picking)"
 
 #. module: l10n_ec_account_edi
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_edi_document__l10n_ec_authorization_date
 msgid "Authorization Date"
-msgstr ""
+msgstr "Fecha de Autorización"
 
 #. module: l10n_ec_account_edi
 #: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
 #, python-format
 msgid "Can't connect to SRI Webservice, try in few minutes"
-msgstr ""
+msgstr "No hay conexión a WebService del SRI, Intente en unos minutos"
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.e_credit_note_document_body
@@ -329,13 +337,13 @@ msgstr ""
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.sri_key_type_form_view
 msgid "Cert Info"
-msgstr ""
+msgstr "Información del Certificado"
 
 #. module: l10n_ec_account_edi
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_res_company__l10n_ec_key_type_id
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_res_config_settings__l10n_ec_key_type_id
 msgid "Certificate File"
-msgstr ""
+msgstr "Archivo P12"
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.electronic_report_common_head
@@ -345,32 +353,32 @@ msgstr ""
 #. module: l10n_ec_account_edi
 #: model:ir.model,name:l10n_ec_account_edi.model_res_company
 msgid "Companies"
-msgstr ""
+msgstr "Compañías"
 
 #. module: l10n_ec_account_edi
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type__company_id
 msgid "Company"
-msgstr ""
+msgstr "Compañia"
 
 #. module: l10n_ec_account_edi
 #: model:ir.model,name:l10n_ec_account_edi.model_res_config_settings
 msgid "Config Settings"
-msgstr ""
+msgstr "Opciones de Configuración"
 
 #. module: l10n_ec_account_edi
 #: model:ir.ui.menu,name:l10n_ec_account_edi.sri_config_menu
 msgid "Configurations"
-msgstr ""
+msgstr "Configuraciones"
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.actions.act_window,help:l10n_ec_account_edi.action_move_debit_note_type
 msgid "Create a debit note"
-msgstr ""
+msgstr "Crear Nota Débito"
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.actions.act_window,help:l10n_ec_account_edi.action_move_liquidation_of_purchases_type
 msgid "Create a vendor liquidation of purchases"
-msgstr ""
+msgstr "Crear una Liquidación de Compra (Proveedor)"
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.actions.act_window,help:l10n_ec_account_edi.action_move_debit_note_type
