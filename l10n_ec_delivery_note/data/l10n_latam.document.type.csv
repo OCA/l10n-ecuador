@@ -1,0 +1,2 @@
+"id","sequence","code","name","report_name","internal_type","doc_code_prefix","country_id/id","active","l10n_ec_check_format"
+"ec_dt_06",6,"06","Delivery Note","Delivery Note","delivery_note","DN","base.ec",1,1

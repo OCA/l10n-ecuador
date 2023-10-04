@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record model="ir.ui.view" id="view_delivery_note_line_tree">
+        <field name="name">l10n_ec.delivery.note.line.tree</field>
+        <field name="model">l10n_ec.delivery.note.line</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="product_id" options="{'no_create': True}" />
+                <field name="description" required="1" />
+                <field name="product_qty" />
+                <field
+                    name="product_uom_id"
+                    options="{'no_create': True}"
+                    groups="uom.group_uom"
+                />
+                <field
+                    name="production_lot_id"
+                    options="{'no_create': True}"
+                    groups="stock.group_production_lot"
+                />
+                <field name="move_id" invisible="1" />
+                <field name="move_line_id" invisible="1" />
+                <field name="product_uom_category_id" invisible="1" />
+            </tree>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="view_delivery_note_form">
+        <field name="name">l10n_ec.delivery.note.form</field>
+        <field name="model">l10n_ec.delivery.note</field>
+        <field name="priority" eval="17" />
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="action_confirm"
+                        states="draft"
+                        string="Confirm"
+                        icon="fa-check"
+                        type="object"
+                        class="oe_highlight"
+                        groups="stock.group_stock_user"
+                    />
+                    <button
+                        name="action_sent_mail_electronic"
+                        type="object"
+                        string="Send by email"
+                        class="oe_highlight"
+                        attrs="{'invisible': [('state', '!=', 'done')]}"
+                        groups="stock.group_stock_user"
+                    />
+                    <button
+                        name="action_cancel"
+                        states="done"
+                        string="Cancel"
+                        icon="fa-close"
+                        type="object"
+                        confirm="Are you sure to cancel this record?"
+                        groups="stock.group_stock_user"
+                    />
+                    <button
+                        name="action_set_draft"
+                        states="cancel"
+                        string="Back to draft"
+                        icon="fa-undo"
+                        type="object"
+                        groups="stock.group_stock_user"
+                    />
+                    <field name="state" widget="statusbar" />
+                </header>
+                <field name="edi_blocking_level" invisible="1" />
+                <field name="edi_error_count" invisible="1" />
+                <div
+                    class="alert alert-info"
+                    role="alert"
+                    style="margin-bottom:0px;"
+                    attrs="{'invisible': ['|', ('edi_web_services_to_process', 'in', ['', False]), ('state', '=', 'draft')]}"
+                >
+                    <div
+                    >The invoice will be processed asynchronously by the following E-invoicing service :
+                        <field name="edi_web_services_to_process" class="oe_inline" />
+                    </div>
+                    <button
+                        name="action_process_edi_web_services"
+                        type="object"
+                        class="oe_link"
+                        string="Process now"
+                    />
+                </div>
+                <div
+                    class="alert alert-danger"
+                    role="alert"
+                    style="margin-bottom:0px;"
+                    attrs="{'invisible': ['|', ('edi_error_count', '=', 0), ('edi_blocking_level', '!=', 'error')]}"
+                >
+                    <div class="o_row">
+                        <field name="edi_error_message" />
+                        <button
+                            name="%(account_edi.action_open_edi_documents)d"
+                            string="⇒ See errors"
+                            type="action"
+                            class="oe_link"
+                            attrs="{'invisible': [('edi_error_count', '=', 1)]}"
+                        />
+                        <button
+                            name="action_retry_edi_documents_error"
+                            type="object"
+                            class="oe_link oe_inline"
+                            string="Retry"
+                        />
+                    </div>
+                </div>
+                <div
+                    class="alert alert-warning"
+                    role="alert"
+                    style="margin-bottom:0px;"
+                    attrs="{'invisible': ['|', ('edi_error_count', '=', 0), ('edi_blocking_level', '!=', 'warning')]}"
+                >
+                    <div class="o_row">
+                        <field name="edi_error_message" />
+                        <button
+                            name="%(account_edi.action_open_edi_documents)d"
+                            string="⇒ See errors"
+                            type="action"
+                            class="oe_link"
+                            attrs="{'invisible': [('edi_error_count', '=', 1)]}"
+                        />
+                    </div>
+                </div>
+                <div
+                    class="alert alert-info"
+                    role="alert"
+                    style="margin-bottom:0px;"
+                    attrs="{'invisible': ['|', ('edi_error_count', '=', 0), ('edi_blocking_level', '!=', 'info')]}"
+                >
+                    <div class="o_row">
+                        <field name="edi_error_message" />
+                        <button
+                            name="%(account_edi.action_open_edi_documents)d"
+                            string="⇒ See errors"
+                            type="action"
+                            class="oe_link"
+                            attrs="{'invisible': [('edi_error_count', '=', 1)]}"
+                        />
+                    </div>
+                </div>
+                <sheet>
+                    <h1>
+                        <label for="document_number" string="Delivery note number" />
+                        <div style="width: 50%">
+                            GR
+                            <field
+                                attrs="{'invisible': [('document_number', '=', '/')]}"
+                                name="document_number"
+                                force_save="1"
+                            />
+                            <span
+                                attrs="{'invisible': ['|', ('state', '!=', 'draft'), ('document_number', '!=', '/')]}"
+                            >
+                                Draft
+                            </span>
+                        </div>
+                    </h1>
+                    <group>
+                        <group>
+                            <field
+                                name="journal_id"
+                                required="1"
+                                options="{'no_open':True, 'no_create': True}"
+                            />
+                            <field name="delivery_note_type" required="1" />
+                            <field
+                                name="l10n_latam_internal_type"
+                                required="1"
+                                attrs="{'readonly': [('state','in',('done','cancel'))]}"
+                                options="{'no_open':True, 'no_create': True}"
+                            />
+                        </group>
+                        <group>
+                            <field
+                                name="company_id"
+                                options="{'no_create': True}"
+                                groups="base.group_multi_company"
+                            />
+                        </group>
+                    </group>
+                    <notebook colspan="2">
+                        <page string="Transfer information">
+                            <group>
+                                <group>
+                                    <field name="commercial_partner_id" invisible="1" />
+                                    <field
+                                        name="partner_id"
+                                        required="1"
+                                        options="{'no_quick_create': True}"
+                                    />
+                                    <field
+                                        name="delivery_address_id"
+                                        required="1"
+                                        domain="[('commercial_partner_id', '=', partner_id)]"
+                                        options="{'no_quick_create': True}"
+                                        context="{'default_parent_id': partner_id, 'default_type': 'delivery','show_address': 1}"
+                                    />
+                                    <field
+                                        name="delivery_carrier_id"
+                                        required="1"
+                                        options="{'no_quick_create': True}"
+                                        context="{'default_l10n_ec_is_carrier': True}"
+                                    />
+                                    <field name="l10n_ec_car_plate" required="1" />
+                                </group>
+                                <group>
+                                    <field name="transfer_date" required="1" />
+                                    <field name="delivery_date" required="1" />
+                                    <field
+                                        name="stock_picking_ids"
+                                        widget="many2many_tags"
+                                        class="oe_inline"
+                                        options="{'no_create': True}"
+                                        domain="[('partner_id.commercial_partner_id', '=', commercial_partner_id),
+                                                ('picking_type_id.code','in',('internal','outgoing')), ('state','=','done'),
+                                                ('l10n_ec_delivery_note_ids', '=', False)]"
+                                    />
+                                    <field
+                                        name="invoice_id"
+                                        options="{'no_create': True}"
+                                        domain="[('move_type', '=', 'out_invoice'), ('partner_id.commercial_partner_id', '=', commercial_partner_id), ('state', '=', 'posted')]"
+                                    />
+                                    <field name="rise" />
+                                    <field name="dau" />
+                                </group>
+                            </group>
+                            <separator string="Delivery Note detail" colspan="4" />
+                            <field name="delivery_line_ids" colspan="4" nolabel="1">
+                                <tree editable="bottom">
+                                    <field
+                                        name="product_id"
+                                        required="1"
+                                        domain="[('type','!=','service')]"
+                                        options="{'no_create': True}"
+                                    />
+                                    <field
+                                        name="description"
+                                        required="1"
+                                        optional="show"
+                                    />
+                                    <field name="product_qty" required="1" />
+                                    <field
+                                        name="product_uom_id"
+                                        required="1"
+                                        options="{'no_create': True}"
+                                        groups="uom.group_uom"
+                                    />
+                                    <field
+                                        name="production_lot_id"
+                                        options="{'no_create': True}"
+                                        groups="stock.group_production_lot"
+                                    />
+                                    <field name="move_id" invisible="1" />
+                                    <field name="move_line_id" invisible="1" />
+                                    <field
+                                        name="product_uom_category_id"
+                                        invisible="1"
+                                    />
+                                </tree>
+                            </field>
+                        </page>
+                        <page
+                            id="edi_documents"
+                            string="EDI Documents"
+                            groups="base.group_no_one"
+                            attrs="{'invisible': [('edi_document_ids', '=', [])]}"
+                        >
+                            <field name="edi_document_ids" options="{'no_open': '1'}">
+                                <tree
+                                    create="false"
+                                    delete="false"
+                                    edit="false"
+                                    decoration-danger="error"
+                                >
+                                    <field name="name" />
+                                    <field name="edi_format_name" />
+                                    <field
+                                        name="l10n_ec_xml_access_key"
+                                        optional="hide"
+                                    />
+                                    <field
+                                        name="l10n_ec_authorization_date"
+                                        optional="hide"
+                                    />
+                                    <field
+                                        name="l10n_ec_last_sent_date"
+                                        optional="hide"
+                                    />
+                                    <field name="state" />
+                                    <field name="error" invisible="1" />
+                                    <field name="blocking_level" invisible="1" />
+                                    <button
+                                        name="action_export_xml"
+                                        type="object"
+                                        class="oe_link oe_inline"
+                                        string="Download"
+                                        groups="base.group_no_one"
+                                        attrs="{'invisible': ['|', ('error', '=', False), ('blocking_level', '=', 'info')]}"
+                                    />
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Transfer Motive">
+                            <field name="motive" colspan="2" />
+                        </page>
+                        <page string="Note">
+                            <field name="note" colspan="2" />
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" groups="base.group_user" />
+                    <field name="activity_ids" />
+                    <field name="message_ids" />
+                </div>
+            </form>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="view_delivery_note_tree">
+        <field name="name">l10n_ec.delivery.note.tree</field>
+        <field name="model">l10n_ec.delivery.note</field>
+        <field name="arch" type="xml">
+            <tree decoration-warning="state=='cancel'" decoration-info="state=='draft'">
+                <field name="document_number" />
+                <field name="partner_id" />
+                <field name="transfer_date" />
+                <field name="delivery_date" />
+                <field name="delivery_address_id" />
+                <field name="delivery_carrier_id" />
+                <field name="delivery_note_type" />
+                <field name="company_id" groups="base.group_multi_company" />
+                <field name="state" />
+            </tree>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="delivery_note_search_view">
+        <field name="name">l10n_ec.delivery.note.search</field>
+        <field name="model">l10n_ec.delivery.note</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="document_number" />
+                <field name="partner_id" />
+                <field name="transfer_date" />
+                <field name="delivery_date" />
+                <field name="delivery_address_id" />
+                <field name="delivery_carrier_id" />
+                <field name="state" />
+                <group name="filter_by" string="Filters">
+                    <filter
+                        name="filter_by_transfer_date"
+                        string="Transfer Date"
+                        date="transfer_date"
+                    />
+                    <filter
+                        name="filter_by_delivery_date"
+                        string="Delivery Date"
+                        date="delivery_date"
+                    />
+                </group>
+                <group name="group_by" string="Group by">
+                    <filter
+                        name="group_by_partner_id"
+                        string="Partner"
+                        context="{'group_by': 'partner_id'}"
+                    />
+                    <filter
+                        name="group_by_company_id"
+                        string="Company"
+                        context="{'group_by': 'company_id'}"
+                        groups="base.group_multi_company"
+                    />
+                    <separator />
+                    <filter
+                        name="group_by_transfer_date"
+                        string="Transfer Date"
+                        context="{'group_by': 'transfer_date'}"
+                    />
+                    <separator />
+                    <filter
+                        name="group_by_state"
+                        string="State"
+                        context="{'group_by': 'state'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+    <record model="ir.actions.act_window" id="action_delivery_note">
+        <field name="name">Delivery Notes</field>
+        <field name="res_model">l10n_ec.delivery.note</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="delivery_note_search_view" />
+        <field name="view_id" ref="view_delivery_note_tree" />
+    </record>
+    <record id="action_delivery_note_tree" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="view_delivery_note_tree" />
+        <field name="act_window_id" ref="action_delivery_note" />
+    </record>
+    <record id="action_delivery_note_form" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2" />
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_delivery_note_form" />
+        <field name="act_window_id" ref="action_delivery_note" />
+    </record>
+</odoo>
