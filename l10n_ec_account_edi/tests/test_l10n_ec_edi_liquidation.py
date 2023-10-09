@@ -1,10 +1,10 @@
 import logging
 from datetime import timedelta
 
-from odoo import _
 from odoo.exceptions import UserError
 from odoo.tests import Form, tagged
 
+from .sri_response import patch_service_sri, validation_sri_response_returned
 from .test_edi_common import TestL10nECEdiCommon
 
 _logger = logging.getLogger(__name__)
@@ -60,6 +60,7 @@ class TestL10nClDte(TestL10nECEdiCommon):
             invoice.action_post()
         return invoice
 
+    @patch_service_sri(validation_response=validation_sri_response_returned)
     def test_l10n_ec_liquidation_wrong_certificate(self):
         """Test para firmar una liquidación de compra con un certificado inválido"""
         self._setup_edi_company_ec()
@@ -76,6 +77,7 @@ class TestL10nClDte(TestL10nECEdiCommon):
         self.assertFalse(edi_doc.edi_content)
         self.assertTrue(edi_doc.error)
 
+    @patch_service_sri
     def test_l10n_ec_liquidation_sri(self):
         """Crear liquidación de compra electrónica, con la configuración correcta"""
         # Configurar los datos previamente
@@ -93,11 +95,7 @@ class TestL10nClDte(TestL10nECEdiCommon):
         self.assertEqual(invoice.state, "posted")
         self.assertTrue(edi_doc.l10n_ec_xml_access_key)
         self.assertEqual(invoice.l10n_ec_xml_access_key, edi_doc.l10n_ec_xml_access_key)
-        self.assertEqual(invoice.l10n_ec_authorization_date, False)
-        # Agregar fecha de autorización y cambiar de estado
-        edi_doc.write(
-            {"l10n_ec_authorization_date": self.current_date, "state": "sent"}
-        )
+        self.assertEqual(edi_doc.state, "sent")
         self.assertEqual(
             invoice.l10n_ec_authorization_date, edi_doc.l10n_ec_authorization_date
         )
@@ -111,6 +109,7 @@ class TestL10nClDte(TestL10nECEdiCommon):
         self.assertTrue(mail_sended)
         # TODO: validar que se autorice en el SRI con una firma válida
 
+    @patch_service_sri(validation_response=validation_sri_response_returned)
     def test_l10n_ec_liquidation_back_sri(self):
         # Crear liquidación de compra con una fecha superior a la actual
         # para que el sri me la devuelva y no se autoriza
@@ -121,16 +120,13 @@ class TestL10nClDte(TestL10nECEdiCommon):
         edi_doc = invoice._get_edi_document(self.edi_format)
         # Asignar el archivo xml básico para que lo encuentre y lo actualice
         edi_doc.attachment_id = self.attachment.id
-        with self.assertLogs(
-            "odoo.addons.l10n_ec_account_edi.models.account_edi_document",
-            level=logging.INFO,
-        ) as cm:
-            edi_doc._process_documents_web_services(with_commit=False)
-        self.assertEqual(cm.records[0].args[1], _("DEVUELTA"))
+        edi_doc._process_documents_web_services(with_commit=False)
         self.assertEqual(invoice.state, "posted")
         self.assertTrue(edi_doc.l10n_ec_xml_access_key)
-        self.assertTrue(edi_doc.error)
+        self.assertIn("ERROR [65] FECHA EMISIÓN EXTEMPORANEA", edi_doc.error)
+        self.assertEqual(edi_doc.blocking_level, "error")
 
+    @patch_service_sri
     def test_l10n_ec_liquidation_with_foreign_client(self):
         # Liquidación de compras con cliente extrangero sin identificación
         self._setup_edi_company_ec()
@@ -147,11 +143,7 @@ class TestL10nClDte(TestL10nECEdiCommon):
         self.assertEqual(invoice.state, "posted")
         self.assertTrue(edi_doc.l10n_ec_xml_access_key)
         self.assertEqual(invoice.l10n_ec_xml_access_key, edi_doc.l10n_ec_xml_access_key)
-        self.assertEqual(invoice.l10n_ec_authorization_date, False)
-        # Agregar fecha de autorización y cambiar de estado
-        edi_doc.write(
-            {"l10n_ec_authorization_date": self.current_date, "state": "sent"}
-        )
+        self.assertEqual(edi_doc.state, "sent")
         self.assertEqual(
             invoice.l10n_ec_authorization_date, edi_doc.l10n_ec_authorization_date
         )
@@ -164,6 +156,7 @@ class TestL10nClDte(TestL10nECEdiCommon):
             mail_sended = False
         self.assertTrue(mail_sended)
 
+    @patch_service_sri
     def test_l10n_ec_liquidation_with_payments(self):
         """Crear liquidación de compras electrónica con 2 pagos"""
         self._setup_edi_company_ec()

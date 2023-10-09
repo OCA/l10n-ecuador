@@ -6,25 +6,18 @@ from odoo.tests import tagged
 from odoo.addons.l10n_ec_account_edi.models.account_edi_document import (
     AccountEdiDocument,
 )
-from odoo.addons.l10n_ec_account_edi.models.account_edi_format import AccountEdiFormat
 
+from .sri_response import patch_service_sri
 from .test_edi_common import TestL10nECEdiCommon
 
 
 @tagged("post_install_l10n", "post_install", "-at_install", "cancelled")
 class TestL10nCancelled(TestL10nECEdiCommon):
+    @patch_service_sri
     def test_l10n_ec_authorized_to_cancelled_ok(self):
         """
         Create invoice, send to the SRI for authorize and successful cancelled
         """
-
-        def mock_l10n_ec_edi_zeep_client(edi_doc_instance, environment, url_type):
-            return self._zeep_client_ws_sri()
-
-        def mock_l10n_ec_response_reception_received(
-            edi_doc_instance, client_ws, xml_signed
-        ):
-            return self._get_response_reception_received()
 
         def mock_l10n_ec_edi_send_xml_with_auth(edi_doc_instance, client_ws):
             return self._get_response_with_auth(edi_doc_instance)
@@ -44,25 +37,13 @@ class TestL10nCancelled(TestL10nECEdiCommon):
 
         # for authorize
         with patch.object(
-            AccountEdiFormat,
-            "_l10n_ec_get_edi_ws_client",
-            mock_l10n_ec_edi_zeep_client,
-        ), patch.object(
             AccountEdiDocument,
             "_l10n_ec_edi_send_xml_auth",
             mock_l10n_ec_edi_send_xml_with_auth,
-        ), patch.object(
-            AccountEdiDocument,
-            "_l10n_ec_edi_send_xml",
-            mock_l10n_ec_response_reception_received,
         ):
             edi_doc._process_documents_web_services(with_commit=False)
 
         with patch.object(
-            AccountEdiFormat,
-            "_l10n_ec_get_edi_ws_client",
-            mock_l10n_ec_edi_zeep_client,
-        ), patch.object(
             AccountEdiDocument,
             "_l10n_ec_edi_send_xml_auth",
             mock_l10n_ec_edi_send_xml_with_auth,
@@ -81,18 +62,11 @@ class TestL10nCancelled(TestL10nECEdiCommon):
         cron_tasks.method_direct_trigger()
         self.assertEqual(invoice.state, "cancel")
 
+    @patch_service_sri
     def test_l10n_ec_authorized_to_cancelled_fail(self):
         """
         Create invoice, send to the SRI for authorize and unsuccessful cancelled
         """
-
-        def mock_l10n_ec_edi_zeep_client(edi_doc_instance, environment, url_type):
-            return self._zeep_client_ws_sri()
-
-        def mock_l10n_ec_response_reception_received(
-            edi_doc_instance, client_ws, xml_signed
-        ):
-            return self._get_response_reception_received()
 
         def mock_l10n_ec_edi_send_xml_with_auth(edi_doc_instance, client_ws):
             return self._get_response_with_auth(edi_doc_instance)
@@ -107,30 +81,16 @@ class TestL10nCancelled(TestL10nECEdiCommon):
 
         # for authorize
         with patch.object(
-            AccountEdiFormat,
-            "_l10n_ec_get_edi_ws_client",
-            mock_l10n_ec_edi_zeep_client,
-        ), patch.object(
             AccountEdiDocument,
             "_l10n_ec_edi_send_xml_auth",
             mock_l10n_ec_edi_send_xml_with_auth,
-        ), patch.object(
-            AccountEdiDocument,
-            "_l10n_ec_edi_send_xml",
-            mock_l10n_ec_response_reception_received,
         ):
             edi_doc._process_documents_web_services(with_commit=False)
 
         # Receipt is authorized
         with patch.object(
-            AccountEdiFormat,
-            "_l10n_ec_get_edi_ws_client",
-            mock_l10n_ec_edi_zeep_client,
-        ), patch.object(
             AccountEdiDocument,
             "_l10n_ec_edi_send_xml_auth",
             mock_l10n_ec_edi_send_xml_with_auth,
-        ), self.assertRaises(
-            ValidationError
-        ):
+        ), self.assertRaises(ValidationError):
             invoice.button_cancel_posted_moves()
