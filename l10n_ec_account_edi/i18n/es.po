@@ -58,7 +58,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.electronic_report_common_head
 msgid ""
 "<br/>\n"
-"                                <strong>Agente Retención Resolución No</strong>"
+"                                <strong>Agente Retención Resolución No</"
+"strong>"
 msgstr ""
 
 #. module: l10n_ec_account_edi
@@ -153,11 +154,11 @@ msgstr "<span class=\"o_form_label\">Archivo de Firma Electrónica</span>"
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.res_config_settings_l10n_ec_edi
 msgid ""
-"<span class=\"o_form_label\">Electronic Invoicing Connection "
-"Parameters</span>"
+"<span class=\"o_form_label\">Electronic Invoicing Connection Parameters</"
+"span>"
 msgstr ""
-"<span class=\"o_form_label\">Parámetros de Conección WebService del "
-"SRI</span>"
+"<span class=\"o_form_label\">Parámetros de Conección WebService del SRI</"
+"span>"
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.res_config_settings_l10n_ec_edi
@@ -383,7 +384,8 @@ msgstr "Crear una Liquidación de Compra (Proveedor)"
 #. module: l10n_ec_account_edi
 #: model_terms:ir.actions.act_window,help:l10n_ec_account_edi.action_move_debit_note_type
 msgid ""
-"Create debit note, register payments and keep track of the discussions with your\n"
+"Create debit note, register payments and keep track of the discussions with "
+"your\n"
 "                vendors."
 msgstr ""
 "Cree notas de débito, registre pagos y realice un seguimiento de las "
@@ -393,7 +395,8 @@ msgstr ""
 #. module: l10n_ec_account_edi
 #: model_terms:ir.actions.act_window,help:l10n_ec_account_edi.action_move_liquidation_of_purchases_type
 msgid ""
-"Create liquidation of purchases, register payments and keep track of the discussions with your\n"
+"Create liquidation of purchases, register payments and keep track of the "
+"discussions with your\n"
 "                vendors."
 msgstr ""
 "Crea Liquidación de Compras, registra pagos y realiza un seguimiento de las "
@@ -440,15 +443,6 @@ msgstr "Cliente"
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.e_invoice_document_body
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.e_liquidation_document_body
 msgid "Código Principal"
-msgstr ""
-
-#. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/tests/test_l10n_ec_edi_credit_note.py:0
-#: code:addons/l10n_ec_account_edi/tests/test_l10n_ec_edi_debit_note.py:0
-#: code:addons/l10n_ec_account_edi/tests/test_l10n_ec_edi_liquidation.py:0
-#: code:addons/l10n_ec_account_edi/tests/test_l10n_ec_edi_out_invoice.py:0
-#, python-format
-msgid "DEVUELTA"
 msgstr ""
 
 #. module: l10n_ec_account_edi
@@ -585,7 +579,8 @@ msgstr "Tipo de Ambiente para Documentos Electrónicos"
 #: code:addons/l10n_ec_account_edi/models/sri_key_type.py:0
 #, python-format
 msgid ""
-"Error opening the signature, possibly the signature key has been entered incorrectly or the file is not supported. \n"
+"Error opening the signature, possibly the signature key has been entered "
+"incorrectly or the file is not supported. \n"
 "%s"
 msgstr ""
 "Error al abrir la Firma, posiblemente la Clave de la Firma se haya ingresado "
@@ -845,7 +840,8 @@ msgstr ""
 msgid ""
 "Select 'Sale' for customer invoices journals.\n"
 "Select 'Purchase' for vendor bills journals.\n"
-"Select 'Cash' or 'Bank' for journals that are used in customer or vendor payments.\n"
+"Select 'Cash' or 'Bank' for journals that are used in customer or vendor "
+"payments.\n"
 "Select 'General' for miscellaneous operations journals."
 msgstr ""
 "Seleccione 'Venta' para Diarios de Facturas de Clientes.\n"
@@ -976,7 +972,8 @@ msgstr "XML Documentos Electrónicos"
 #: code:addons/l10n_ec_account_edi/models/account_move.py:0
 #, python-format
 msgid ""
-"You cannot validate an invoice with zero quantity. Please review the following items:\n"
+"You cannot validate an invoice with zero quantity. Please review the "
+"following items:\n"
 "%s"
 msgstr ""
 "No se puede Validar una Factura con Cantidad Cero. Revise los siguientes "
