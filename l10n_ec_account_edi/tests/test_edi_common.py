@@ -1,9 +1,7 @@
 import base64
 from datetime import datetime
 
-import mock.mock
 import pytz
-from zeep import Client
 
 from odoo.tests import tagged
 from odoo.tools import misc, os
@@ -194,12 +192,3 @@ class TestL10nECEdiCommon(AccountEdiTestCommon, TestL10nECCommon):
             "mensajes": None,
             "comprobante": xml_file,
         }
-
-    def _get_response_reception_received(self):
-        return {"estado": "RECIBIDA", "comprobantes": None}
-
-    def _zeep_client_ws_sri(self):
-        mock_client = mock.mock.create_autospec(Client)
-        mock_service = mock_client.service
-        mock_service.some_method.return_value = "Mocked response"
-        return mock_client
