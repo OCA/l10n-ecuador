@@ -428,15 +428,6 @@ msgid "Código Principal"
 msgstr ""
 
 #. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/tests/test_l10n_ec_edi_credit_note.py:0
-#: code:addons/l10n_ec_account_edi/tests/test_l10n_ec_edi_debit_note.py:0
-#: code:addons/l10n_ec_account_edi/tests/test_l10n_ec_edi_liquidation.py:0
-#: code:addons/l10n_ec_account_edi/tests/test_l10n_ec_edi_out_invoice.py:0
-#, python-format
-msgid "DEVUELTA"
-msgstr ""
-
-#. module: l10n_ec_account_edi
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type__issue_date
 msgid "Date of issue"
 msgstr ""
