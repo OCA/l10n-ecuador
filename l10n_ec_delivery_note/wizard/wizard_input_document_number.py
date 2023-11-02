@@ -137,9 +137,15 @@ class StockImmediateTransfer(models.TransientModel):
             ):
                 raise UserError(
                     _(
-                        "{} The delivery note cannot be processed in internal "
-                        "transfers created from the sales order {}"
-                    ).format(self.picking_id.name, self.picking_id.sale_id.name)
+                        "The delivery note: %(picking_name)s cannot be processed in internal "
+                        "transfers created from the sales order: %(sale_name)s"
+                    )
+                    % (
+                        {
+                            "picking_name": self.picking_id.name,
+                            "sale_name": self.picking_id.sale_id.name,
+                        }
+                    )
                 )
             self.create_delivery_note()
         return res
