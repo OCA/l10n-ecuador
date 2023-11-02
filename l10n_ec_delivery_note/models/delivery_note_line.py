@@ -62,12 +62,13 @@ class DeliveryNoteLine(models.Model):
                 raise ValidationError(
                     _(
                         "You cannot perform the move "
-                        "because the unit of measure: {} has a different category "
-                        "as the product unit of measure: {}."
-                    ).format(
-                        line.product_uom_id.display_name,
-                        line.product_id.uom_id.category_id.display_name,
+                        "because the unit of measure: %(unit_name)s has a different category "
+                        "as the product unit of measure: %(categ_name)s."
                     )
+                    % {
+                        "unit_name": line.product_uom_id.display_name,
+                        "categ_name": line.product_id.uom_id.category_id.display_name,
+                    }
                 )
 
     @api.model

@@ -23,7 +23,7 @@ addon | version | maintainers | summary
 --- | --- | --- | ---
 [l10n_ec_account_edi](l10n_ec_account_edi/) | 19.0.1.0.0 |  | Electronic data interchange adapted Ecuadorian localization
 [l10n_ec_base](l10n_ec_base/) | 19.0.1.0.0 |  | Ecuadorian Localization
-[l10n_ec_delivery_note](l10n_ec_delivery_note/) | 19.0.1.0.0 |  | Delivery Notes
+[l10n_ec_delivery_note](l10n_ec_delivery_note/) | 19.0.1.0.1 |  | Delivery Notes
 
 [//]: # (end addons)
 

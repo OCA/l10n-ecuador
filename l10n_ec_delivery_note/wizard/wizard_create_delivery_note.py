@@ -71,9 +71,10 @@ class WizardCreateDeliveryNote(models.TransientModel):
             ):
                 raise UserError(
                     _(
-                        "{} The delivery note cannot be processed in internal "
-                        "transfers created from the sales order {}"
-                    ).format(pick.name, pick.sale_id.name)
+                        "The delivery note: %(picking_name)s cannot be processed in internal "
+                        "transfers created from the sales order: %(sale_name)s"
+                    )
+                    % {"picking_name": pick.name, "sale_name": pick.sale_id.name}
                 )
 
         if self.env.company.l10n_ec_validate_invoice_exist:
