@@ -1180,6 +1180,15 @@ msgid ""
 msgstr ""
 
 #. module: l10n_ec_delivery_note
+#: code:addons/l10n_ec_delivery_note/wizard/wizard_create_delivery_note.py:0
+#: code:addons/l10n_ec_delivery_note/wizard/wizard_input_document_number.py:0
+#, python-format
+msgid ""
+"The delivery note: %(picking_name)s cannot be processed in internal "
+"transfers created from the sales order: %(sale_name)s"
+msgstr ""
+
+#. module: l10n_ec_delivery_note
 #: model_terms:ir.ui.view,arch_db:l10n_ec_delivery_note.view_delivery_note_form
 msgid ""
 "The invoice will be processed asynchronously by the following E-invoicing "
@@ -1322,8 +1331,8 @@ msgstr ""
 #: code:addons/l10n_ec_delivery_note/models/delivery_note_line.py:0
 #, python-format
 msgid ""
-"You cannot perform the move because the unit of measure: {} has a different "
-"category as the product unit of measure: {}."
+"You cannot perform the move because the unit of measure: %(unit_name)s has a"
+" different category as the product unit of measure: %(categ_name)s."
 msgstr ""
 
 #. module: l10n_ec_delivery_note
@@ -1382,15 +1391,6 @@ msgstr ""
 msgid ""
 "{{ object.company_id.name }}, Nuevo Documento Electrónico (GR {{ "
 "object.display_name or 'n/a' }})"
-msgstr ""
-
-#. module: l10n_ec_delivery_note
-#: code:addons/l10n_ec_delivery_note/wizard/wizard_create_delivery_note.py:0
-#: code:addons/l10n_ec_delivery_note/wizard/wizard_input_document_number.py:0
-#, python-format
-msgid ""
-"{} The delivery note cannot be processed in internal transfers created from "
-"the sales order {}"
 msgstr ""
 
 #. module: l10n_ec_delivery_note
