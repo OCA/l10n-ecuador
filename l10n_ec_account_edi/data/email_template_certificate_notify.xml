@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+<odoo noupdate="1">
+    <record id="email_template_notify" model="mail.template">
+        <field name="name">The certificate is next to expire</field>
+        <field name="model_id" ref="model_sri_key_type" />
+        <field name="subject">The certificate {{ object.name }} is next to expire
+        </field>
+        <field name="email_to">somebody@odoo.ec</field>
+        <field name="body_html" type="html">
+            <div>
+                Dear,
+                <br />
+                This email is to notify you that the certificate
+                <t t-out="object.name" /> is next to expire on <t
+                    t-out="object.expire_date"
+                />.
+                <br />
+                If this certificate is not renewed, the system will not be able
+                to sign documents.
+                <br />
+                Thanks for your attention.
+            </div>
+        </field>
+        <field name="auto_delete" eval="True" />
+    </record>
+</odoo>
