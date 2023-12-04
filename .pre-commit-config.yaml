@@ -110,7 +110,7 @@ repos:
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
   - repo: https://github.com/OCA/pylint-odoo
-    rev: v8.0.19
+    rev: v9.0.4
     hooks:
       - id: pylint_odoo
         name: pylint with optional checks
