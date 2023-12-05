@@ -7,11 +7,16 @@ class AccountPayment(models.Model):
     l10n_ec_sri_payment_id = fields.Many2one(
         "l10n_ec.sri.payment",
         "SRI Payment Method",
+        compute="_compute_l10n_ec_sri_payment_id",
+        store=True,
+        readonly=False,
+        precompute=True,
     )
 
-    @api.onchange("journal_id")
-    def _onchange_journal(self):
-        res = super(AccountPayment, self)._onchange_journal()
-        if self.journal_id and self.journal_id.l10n_ec_sri_payment_id:
-            self.l10n_ec_sri_payment_id = self.journal_id.l10n_ec_sri_payment_id.id
-        return res
+    @api.depends("journal_id")
+    def _compute_l10n_ec_sri_payment_id(self):
+        for payment in self:
+            if payment.journal_id and payment.journal_id.l10n_ec_sri_payment_id:
+                payment.l10n_ec_sri_payment_id = (
+                    payment.journal_id.l10n_ec_sri_payment_id.id
+                )
