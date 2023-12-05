@@ -3,7 +3,7 @@ from odoo.tests import common
 
 
 class TestModelA(common.TransactionCase):
-    def test_some_action(self):
+    def test_valid_l10n_ec_entity(self):
         record = self.env["account.journal"].create(
             {
                 "name": "nametest",
