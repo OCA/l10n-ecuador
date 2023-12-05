@@ -7,28 +7,25 @@
         <field name="inherit_id" ref="base.view_company_form" />
         <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="after">
-                   <field
+                <field
                     name="l10n_ec_business_name"
                     placeholder="Business Name"
-                    attrs="{'invisible':[('country_code', '!=', 'EC')]}"
+                    invisible="country_code != 'EC'"
                 />
             </xpath>
             <xpath expr="//field[@name='vat']" position="replace">
                 <field name="vat" string="RUC" />
                 <field
                     name="property_account_position_id"
-                    widget="selection"
-                    attrs="{'invisible':[('country_code', '!=', 'EC')]}"
+                    options="{'no_create': True}"
+                    invisible="country_code != 'EC'"
                 />
                 <field
                     name="l10n_ec_retention_agent"
                     placeholder="Empty if Not"
-                    attrs="{'invisible':[('country_code', '!=', 'EC')]}"
+                    invisible="country_code != 'EC'"
                 />
-                <field
-                    name="l10n_ec_regimen"
-                    attrs="{'invisible':[('country_code', '!=', 'EC')]}"
-                />
+                <field name="l10n_ec_regimen" invisible="country_code != 'EC'" />
             </xpath>
         </field>
     </record>

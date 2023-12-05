@@ -13,7 +13,7 @@ class AccountPaymentRegister(models.TransientModel):
         if self.journal_id and self.journal_id.l10n_ec_sri_payment_id:
             self.l10n_ec_sri_payment_id = self.journal_id.l10n_ec_sri_payment_id.id
 
-    def _create_payment_vals_from_wizard(self):
-        res = super(AccountPaymentRegister, self)._create_payment_vals_from_wizard()
+    def _create_payment_vals_from_wizard(self, batch_result):
+        res = super()._create_payment_vals_from_wizard(batch_result)
         res.update({"l10n_ec_sri_payment_id": self.l10n_ec_sri_payment_id.id})
         return res
