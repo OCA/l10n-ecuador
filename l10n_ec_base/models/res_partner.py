@@ -7,9 +7,6 @@ class ResPartner(models.Model):
 
     l10n_ec_business_name = fields.Char(
         "Business Name",
-        required=False,
-        readonly=False,
-        help="",
     )
 
     # No valida RUCs Sociedades Juridicas (S.A.S.) ej: 1793189549001
@@ -39,10 +36,10 @@ class ResPartner(models.Model):
                 )
             ):
                 raise UserError(_("You cannot modify record of final consumer"))
-        return super(ResPartner, self).write(values)
+        return super().write(values)
 
     def unlink(self):
         for partner in self:
             if partner.vat in ["9999999999", "9999999999999"]:
                 raise UserError(_("You cannot unlink final consumer"))
-        return super(ResPartner, self).unlink()
+        return super().unlink()

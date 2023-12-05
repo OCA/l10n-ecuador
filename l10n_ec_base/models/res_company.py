@@ -18,9 +18,6 @@ class ResCompany(models.Model):
 
     l10n_ec_retention_agent = fields.Char(
         "Retention Agent Nro",
-        required=False,
-        readonly=False,
-        help="",
     )
     property_account_position_id = fields.Many2one(
         "account.fiscal.position",
