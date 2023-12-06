@@ -9,3 +9,4 @@ from . import test_l10n_ec_edi_credit_note
 from . import test_l10n_ec_edi_debit_note
 from . import test_l10n_ec_mail
 from . import test_l10n_ec_cancelled
+from . import test_l10n_ec_check_certificate

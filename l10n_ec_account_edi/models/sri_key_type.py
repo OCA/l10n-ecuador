@@ -48,6 +48,7 @@ def convert_key_cer_to_pem(key, password):
 class SriKeyType(models.Model):
     _name = "sri.key.type"
     _description = "Type of electronic key"
+    _inherit = ["mail.thread", "mail.activity.mixin"]
 
     name = fields.Char(size=255, required=True, readonly=False)
     file_content = fields.Binary(string="Signature File", readonly=True, states=STATES)
@@ -78,6 +79,7 @@ class SriKeyType(models.Model):
         string="Serial number (certificate)", readonly=True
     )
     cert_version = fields.Char(string="Version", readonly=True)
+    days_for_notification = fields.Integer(string="Days for notification", default=30)
 
     @tools.ormcache("self.file_content", "self.password", "self.state")
     def _decode_certificate(self):
@@ -228,3 +230,22 @@ class SriKeyType(models.Model):
         ctx.sign(signature)
         ctx.verify(signature)
         return etree.tostring(doc, encoding="UTF-8", pretty_print=True).decode()
+
+    def days_to_expire(self):
+        if self.expire_date:
+            return (self.expire_date - fields.Date.context_today(self)).days
+        return 0
+
+    def action_email_notification(self):
+        certificates = self.env["sri.key.type"].search([("state", "=", "valid")])
+        email_template = self.env.ref(
+            "l10n_ec_account_edi.email_template_notify", False
+        )
+        is_send = False
+
+        for cert in certificates:
+            if cert.days_to_expire() <= cert.days_for_notification:
+                cert.message_post_with_template(template_id=email_template.id)
+                is_send = True
+
+        return is_send

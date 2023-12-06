@@ -80,6 +80,11 @@
                                 </group>
                             </group>
                         </page>
+                        <page string="Notification">
+                            <group>
+                                <field name="days_for_notification" required="1" />
+                            </group>
+                        </page>
                     </notebook>
                 </sheet>
             </form>
