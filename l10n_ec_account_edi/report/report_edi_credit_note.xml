@@ -58,7 +58,7 @@
             </thead>
             <tbody>
                 <t t-foreach="ordered_lines" t-as="line">
-                    <tr style="font-size: 9px;" t-if="not line.display_type">
+                    <tr style="font-size: 9px;" t-if="line.display_type=='product'">
                         <td>
                             <span
                                 t-out="line.product_id and line.product_id.default_code or 'S/N'"
