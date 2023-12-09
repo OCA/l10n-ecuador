@@ -2,6 +2,9 @@ import logging
 from datetime import timedelta
 from unittest.mock import patch
 
+import requests
+from requests import PreparedRequest, Session
+
 from odoo import _
 from odoo.exceptions import UserError
 from odoo.tests import Form, tagged
@@ -9,19 +12,35 @@ from odoo.tests import Form, tagged
 from odoo.addons.l10n_ec_account_edi.models.account_edi_document import (
     AccountEdiDocument,
 )
+from odoo.addons.l10n_ec_account_edi.models.account_edi_format import TEST_URL
 
 from .sri_response import patch_service_sri, validation_sri_response_returned
 from .test_edi_common import TestL10nECEdiCommon
 
 _logger = logging.getLogger(__name__)
+_super_send = requests.Session.send
 
 
 @tagged("post_install_l10n", "post_install", "-at_install")
-class TestL10nClDte(TestL10nECEdiCommon):
+class TestL10nOutInvoice(TestL10nECEdiCommon):
+    @classmethod
+    def _request_handler(cls, s: Session, r: PreparedRequest, /, **kw):
+        # allow SRI requests
+        if r.url in TEST_URL["reception"] or r.url in TEST_URL["authorization"]:
+            return _super_send(s, r, **kw)
+        return super()._request_handler(s, r, **kw)
+
     def test_l10n_ec_out_invoice_configuration(self):
         # intentar validar una factura sin tener configurado correctamente los datos
         invoice = self._l10n_ec_prepare_edi_out_invoice()
         with self.assertRaises(UserError):
+            invoice.action_post()
+        self._setup_edi_company_ec()
+        invoice = self._l10n_ec_prepare_edi_out_invoice()
+        invoice.company_id.l10n_ec_invoice_version = False
+        with self.assertRaisesRegex(
+            UserError, "You must set XML Version for Invoice into company"
+        ):
             invoice.action_post()
 
     @patch_service_sri(validation_response=validation_sri_response_returned)
@@ -139,6 +158,7 @@ class TestL10nClDte(TestL10nECEdiCommon):
     def test_l10n_ec_out_invoice_with_foreign_client(self):
         # Factura con cliente sin identificación para que no se valide el XML
         self._setup_edi_company_ec()
+        self.partner_passport.vat = False
         invoice = self._l10n_ec_prepare_edi_out_invoice(
             partner=self.partner_passport, auto_post=True
         )
@@ -282,3 +302,37 @@ class TestL10nClDte(TestL10nECEdiCommon):
         self.assertEqual(
             invoice.l10n_ec_additional_information_move_ids[0].name, "Test"
         )
+
+    @patch_service_sri
+    def test_l10n_ec_out_invoice_test(self):
+        self._setup_edi_company_ec()
+        self.company.write(
+            {
+                "l10n_ec_type_environment": "test",
+            }
+        )
+        invoice = self._l10n_ec_prepare_edi_out_invoice(auto_post=True)
+        edi_doc = invoice._get_edi_document(self.edi_format)
+        edi_doc._process_documents_web_services(with_commit=False)
+        self.assertEqual(invoice.state, "posted")
+        # Enviroments
+        # 1 = test
+        # 2 = Production
+        self.assertEqual(edi_doc.l10n_ec_xml_access_key[23], "1")
+
+    @patch_service_sri
+    def test_l10n_ec_out_invoice_production(self):
+        self._setup_edi_company_ec()
+        self.company.write(
+            {
+                "l10n_ec_type_environment": "production",
+            }
+        )
+        invoice = self._l10n_ec_prepare_edi_out_invoice(auto_post=True)
+        edi_doc = invoice._get_edi_document(self.edi_format)
+        edi_doc._process_documents_web_services(with_commit=False)
+        self.assertEqual(invoice.state, "posted")
+        # Enviroments
+        # 1 = test
+        # 2 = Production
+        self.assertEqual(edi_doc.l10n_ec_xml_access_key[23], "2")

@@ -9,9 +9,10 @@
                 <field name="country_code" invisible="1" />
             </xpath>
             <xpath expr="//field[@name='reason']" position="attributes">
+                <attribute name="invisible">move_type == 'entry'</attribute>
                 <attribute
-                    name="attrs"
-                >{'invisible': [('move_type', '=', 'entry')], 'required': [('move_type', '=', 'out_invoice'), ('country_code', '=', 'EC')]}</attribute>
+                    name="required"
+                >move_type == 'out_invoice' and country_code == 'EC'</attribute>
             </xpath>
         </field>
     </record>

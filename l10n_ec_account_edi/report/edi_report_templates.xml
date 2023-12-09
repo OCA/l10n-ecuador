@@ -134,7 +134,7 @@
                             >
                                 <img
                                     class="barcode"
-                                    t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s&amp;' % ('Code128', edi_doc.l10n_ec_xml_access_key, 400, 100)"
+                                    t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s&amp;' % ('Code128', edi_doc.l10n_ec_xml_access_key, 400, 100)"
                                     alt="Clave de Acceso"
                                 />
                                 <br />
@@ -235,7 +235,7 @@
     </template>
     <template id="electronic_report_common_total_info">
         <table class="table table-sm table-bordered-black small">
-            <t t-set="tax_totals" t-value="json.loads(o.tax_totals_json)" />
+            <t t-set="tax_totals" t-value="o.tax_totals" />
             <t t-call="account.document_tax_totals" />
         </table>
     </template>

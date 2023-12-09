@@ -5,17 +5,14 @@
         <field name="model">res.config.settings</field>
         <field name="inherit_id" ref="account.res_config_settings_view_form" />
         <field name="arch" type="xml">
-            <xpath expr="//div[@id='invoicing_settings']" position="after">
-                <div
-                    id="l10n_ec_title"
-                    attrs="{'invisible': [('country_code', '!=', 'EC')]}"
-                >
+            <xpath expr="//block[@id='invoicing_settings']" position="after">
+                <div id="l10n_ec_title" invisible="country_code != 'EC'">
                     <h2>Ecuadorian Localization</h2>
                 </div>
                 <div
                     id="l10n_ec_section"
                     class="row mt16 o_settings_container"
-                    attrs="{'invisible': [('country_code', '!=', 'EC')]}"
+                    invisible="country_code != 'EC'"
                 >
                     <div
                         class="col-12 col-lg-6 o_setting_box"

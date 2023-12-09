@@ -25,7 +25,7 @@
                         string="Validate Cert"
                         type="object"
                         class="oe_highlight"
-                        states="unverified"
+                        invisible="state != 'unverified'"
                     />
                     <field name="state" widget="statusbar" />
                 </header>
@@ -34,7 +34,7 @@
                         name="web_ribbon"
                         text="Archived"
                         bg_color="bg-danger"
-                        attrs="{'invisible': [('active', '=', True)]}"
+                        invisible="active"
                     />
                     <field name="active" invisible="1" />
                     <group>
@@ -50,9 +50,15 @@
                             <field
                                 name="file_content"
                                 required="1"
+                                readonly="state != 'unverified'"
                                 filename="file_name"
                             />
-                            <field name="password" required="1" password="True" />
+                            <field
+                                name="password"
+                                required="1"
+                                readonly="state != 'unverified'"
+                                password="True"
+                            />
                         </group>
                     </group>
                     <notebook colspan="2">
