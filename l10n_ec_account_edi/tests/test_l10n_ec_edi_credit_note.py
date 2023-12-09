@@ -14,11 +14,18 @@ FORM_ID = "account.view_move_form"
 
 
 @tagged("post_install_l10n", "post_install", "-at_install")
-class TestL10nClDte(TestL10nECEdiCommon):
+class TestL10nEcCreditNote(TestL10nECEdiCommon):
     def test_l10n_ec_credit_note_configuration(self):
         # intentar validar una credit_note sin tener configurado correctamente los datos
         credit_note = self._l10n_ec_prepare_edi_credit_note()
         with self.assertRaises(UserError):
+            credit_note.action_post()
+        self._setup_edi_company_ec()
+        credit_note = self._l10n_ec_prepare_edi_credit_note()
+        credit_note.company_id.l10n_ec_credit_note_version = False
+        with self.assertRaisesRegex(
+            UserError, "You must set XML Version for Credit Note into company"
+        ):
             credit_note.action_post()
 
     def _l10n_ec_prepare_edi_credit_note(
@@ -57,12 +64,13 @@ class TestL10nClDte(TestL10nECEdiCommon):
             use_payment_term=use_payment_term,
             form_id=FORM_ID,
         )
-        form.l10n_ec_legacy_document_number = self.get_sequence_number()
-        form.l10n_ec_legacy_document_date = self.current_datetime
-        form.l10n_ec_legacy_document_authorization = (
-            self.number_authorization_electronic
-        )
-        form.l10n_ec_reason = "FA MOTIVO"
+        if form.l10n_latam_internal_type == "credit_note":
+            form.l10n_ec_legacy_document_number = self.get_sequence_number()
+            form.l10n_ec_legacy_document_date = self.current_datetime
+            form.l10n_ec_legacy_document_authorization = (
+                self.number_authorization_electronic
+            )
+            form.l10n_ec_reason = "FA MOTIVO"
         credit_note = form.save()
         if auto_post:
             credit_note.action_post()
@@ -200,3 +208,29 @@ class TestL10nClDte(TestL10nECEdiCommon):
                 line.quantity = 0
         with self.assertRaises(UserError):
             credit_note.action_post()
+
+    @patch_service_sri
+    def test_l10n_ec_refund_invoice(self):
+        self._setup_edi_company_ec()
+        invoice = self._l10n_ec_prepare_edi_out_invoice(auto_post=True)
+        ReversalMove = self.env["account.move.reversal"].with_context(
+            active_model="account.move", active_ids=invoice.ids
+        )
+        move_reversal = ReversalMove.create(
+            {
+                "date": invoice.invoice_date,
+                "reason": "TEST REASON",
+                "journal_id": invoice.journal_id.id,
+            }
+        )
+        reversal = move_reversal.refund_moves()
+        reverse_move = self.env["account.move"].browse(reversal["res_id"])
+        self.assertEqual(
+            reverse_move.l10n_ec_legacy_document_number,
+            invoice.l10n_latam_document_number,
+        )
+        self.assertEqual(
+            reverse_move.l10n_ec_legacy_document_authorization,
+            invoice.l10n_ec_xml_access_key,
+        )
+        self.assertEqual(reverse_move.l10n_ec_reason, "TEST REASON")

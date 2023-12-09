@@ -23,12 +23,6 @@ KEY_TO_PEM_CMD = (
     "openssl pkcs12 -nocerts -in %s -out %s -passin pass:%s -passout pass:%s"
 )
 
-STATES = {
-    "unverified": [
-        ("readonly", False),
-    ]
-}
-
 
 def convert_key_cer_to_pem(key, password):
     # TODO compute it from a python way
@@ -50,9 +44,9 @@ class SriKeyType(models.Model):
     _description = "Type of electronic key"
 
     name = fields.Char(size=255, required=True, readonly=False)
-    file_content = fields.Binary(string="Signature File", readonly=True, states=STATES)
+    file_content = fields.Binary(string="Signature File")
     file_name = fields.Char(string="Filename", readonly=True)
-    password = fields.Char(string="Signing key", readonly=True, states=STATES)
+    password = fields.Char(string="Signing key")
     active = fields.Boolean(string="Active?", default=True)
     company_id = fields.Many2one(
         comodel_name="res.company",

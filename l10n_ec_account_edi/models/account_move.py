@@ -5,6 +5,11 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import float_compare
 
+from odoo.addons.l10n_ec.models.res_partner import (
+    PartnerIdTypeEc,
+    verify_final_consumer,
+)
+
 _logger = logging.getLogger(__name__)
 
 
@@ -55,6 +60,26 @@ class AccountMove(models.Model):
         "l10n.ec.additional.information", "move_id", string="Additional Information"
     )
 
+    @api.depends("company_id", "invoice_filter_type_domain")
+    def _compute_suitable_journal_ids(self):
+        super()._compute_suitable_journal_ids()
+        Journal = self.env["account.journal"]
+        is_purchase_liquidation = (
+            self.env.context.get("internal_type", "") == "purchase_liquidation"
+        )
+        for move in self:
+            company = move.company_id or self.env.company
+            if company.account_fiscal_country_id.code != "EC":
+                continue
+            journal_type = move.invoice_filter_type_domain or "general"
+            move.suitable_journal_ids = Journal.search(
+                [
+                    *Journal._check_company_domain(company),
+                    ("type", "=", journal_type),
+                    ("l10n_ec_is_purchase_liquidation", "=", is_purchase_liquidation),
+                ]
+            )
+
     @api.depends("invoice_date", "invoice_date_due")
     def _compute_l10n_ec_credit_days(self):
         now = fields.Date.context_today(self)
@@ -90,11 +115,59 @@ class AccountMove(models.Model):
                     _("Invalid provider authorization number, must be numeric only")
                 )
 
+    def _search_default_journal(self):
+        is_purchase_liquidation = (
+            self.env.context.get("internal_type", "") == "purchase_liquidation"
+        )
+        company = self.company_id or self.env.company
+        if (
+            not is_purchase_liquidation
+            or company.account_fiscal_country_id.code != "EC"
+        ):
+            return super()._search_default_journal()
+        journal_types = self._get_valid_journal_types()
+        domain = [
+            *self.env["account.journal"]._check_company_domain(company),
+            ("type", "in", journal_types),
+            ("l10n_ec_is_purchase_liquidation", "=", is_purchase_liquidation),
+        ]
+
+        journal = None
+        # the currency is not a hard dependence, it triggers via manual add_to_compute
+        # avoid computing the currency before all it's dependences are set (like the journal...)
+        if self.env.cache.contains(self, self._fields["currency_id"]):
+            currency_id = self.currency_id.id or self._context.get(
+                "default_currency_id"
+            )
+            if currency_id and currency_id != company.currency_id.id:
+                currency_domain = domain + [("currency_id", "=", currency_id)]
+                journal = self.env["account.journal"].search(currency_domain, limit=1)
+
+        if not journal:
+            journal = self.env["account.journal"].search(domain, limit=1)
+
+        if not journal:
+            error_msg = _(
+                "No journal could be found in company %(company_name)s for any of those types: %(journal_types)s",
+                company_name=company.display_name,
+                journal_types=", ".join(journal_types),
+            )
+            raise UserError(error_msg)
+
+        return journal
+
     def action_post(self):
         for move in self:
-            if move.company_id.country_id.code == "EC":
+            if move.company_id.account_fiscal_country_id.code == "EC":
                 move._l10n_ec_validate_quantity_move_line()
-        return super(AccountMove, self).action_post()
+        return super().action_post()
+
+    def _is_l10n_ec_is_purchase_liquidation(self):
+        self.ensure_one()
+        return (
+            self.country_code == "EC"
+            and self.l10n_latam_internal_type == "purchase_liquidation"
+        )
 
     def _l10n_ec_get_payment_data(self):
         payment_data = []
@@ -105,7 +178,8 @@ class AccountMove(models.Model):
             else False
         )
         pay_term_line_ids = self.line_ids.filtered(
-            lambda line: line.account_id.user_type_id.type in ("receivable", "payable")
+            lambda line: line.account_id.account_type
+            in ("asset_receivable", "liability_payable")
         )
         partials = pay_term_line_ids.mapped(
             "matched_debit_ids"
@@ -163,7 +237,7 @@ class AccountMove(models.Model):
     def _l10n_ec_get_taxes_grouped_by_tax_group(self, exclude_withholding=True):
         self.ensure_one()
 
-        def filter_withholding_taxes(tax_values):
+        def filter_withholding_taxes(base_line, tax_values):
             withhold_group_ids = (
                 self.env["account.tax.group"]
                 .search(
@@ -171,7 +245,10 @@ class AccountMove(models.Model):
                 )
                 .ids
             )
-            return tax_values["tax_id"].tax_group_id.id not in withhold_group_ids
+            return (
+                tax_values["tax_repartition_line"].tax_id.tax_group_id.id
+                not in withhold_group_ids
+            )
 
         taxes_data = self._prepare_edi_tax_details(
             filter_to_apply=exclude_withholding and filter_withholding_taxes or None,
@@ -204,15 +281,6 @@ class AccountMove(models.Model):
             document_code_sri = "01"
         return document_code_sri
 
-    def _l10n_ec_get_edi_document(self, withhold=False):
-        """Retorna edi_document, donde edi_format contiene el código proporcionado,
-        todos los documentos usan el mismo edi_format a excepción de retenciones,
-        similar al método _get_edi_document; pero la búsqueda es por id de edi_format"""
-        code = "l10n_ec_format_sri"
-        if withhold:
-            code = "l10n_ec_withhold_format_sri"
-        return self.edi_document_ids.filtered(lambda d: d.edi_format_id.code == code)
-
     def _l10n_ec_validate_quantity_move_line(self):
         error_list, product_not_quantity = [], []
         for move in self:
@@ -223,7 +291,7 @@ class AccountMove(models.Model):
                 "out_refund",
             ):
                 for line in move.invoice_line_ids.filtered(
-                    lambda x: not x.display_type
+                    lambda x: x.display_type == "product"
                 ):
                     if float_compare(line.quantity, 0.0, precision_digits=2) <= 0:
                         product_not_quantity.append(
@@ -245,73 +313,48 @@ class AccountMove(models.Model):
                     raise UserError("\n".join(error_list))
 
     def _get_l10n_latam_documents_domain(self):
-        self.ensure_one()
-        if (
-            self.journal_id.company_id.account_fiscal_country_id
-            != self.env.ref("base.ec")
-            or not self.journal_id.l10n_latam_use_documents
-        ):
-            return super()._get_l10n_latam_documents_domain()
-        domain = [
-            ("country_id.code", "=", "EC"),
-            (
-                "internal_type",
-                "in",
-                [
-                    "invoice",
-                    "debit_note",
-                    "credit_note",
-                    "invoice_in",
-                    "purchase_liquidation",
-                ],
-            ),
-        ]
-        internal_type = self._get_l10n_ec_internal_type()
-        allowed_documents = self._get_l10n_ec_documents_allowed(
-            self._get_l10n_ec_identification_type()
+        # support to purchase liquidation and debit note
+        is_purchase_liquidation = (
+            self.env.context.get("internal_type") == "purchase_liquidation"
         )
-        if internal_type and allowed_documents:
-            domain.append(
-                (
-                    "id",
-                    "in",
-                    allowed_documents.filtered(
-                        lambda x: x.internal_type == internal_type
-                    ).ids,
-                )
-            )
-        return domain
+        is_debit_note = self.env.context.get("internal_type") == "debit_note"
+        internal_type = ""
+        if is_purchase_liquidation:
+            internal_type = "purchase_liquidation"
+        elif is_debit_note:
+            internal_type = "debit_note"
+        if (
+            self.l10n_latam_use_documents
+            and self.company_id.account_fiscal_country_id.code == "EC"
+            and internal_type
+        ):
+            return [
+                ("country_id.code", "=", "EC"),
+                ("internal_type", "=", internal_type),
+            ]
+        return super()._get_l10n_latam_documents_domain()
 
     def l10n_ec_get_identification_type(self):
         # codigos son tomados de la ficha tecnica del SRI, tabla 6
-        identification_type = self._get_l10n_ec_identification_type()
-        if identification_type == "01":  # Ruc
-            return "04"
-        elif identification_type == "02":  # Dni
-            return "05"
-        elif identification_type == "03":  # Passapot
-            if self.partner_id.commercial_partner_id.country_id.code != "EC":
-                return "08"
-            return "06"
-        elif identification_type in ("21", "20", "19"):
-            return "08"
-        return identification_type
+        partner = self.commercial_partner_id
+        partner_vat_type = partner._l10n_ec_get_identification_type()
+        if verify_final_consumer(partner.vat):
+            return PartnerIdTypeEc.FINAL_CONSUMER.value
+        elif partner_vat_type == "foreign":
+            return PartnerIdTypeEc.FOREIGN.value
+        else:
+            # para liquidacion de compras tomar como si fuera de ventas los codigos
+            # pasar out_ ya que solo evalua con que inicias el codigo
+            move_type = self.move_type
+            if self._is_l10n_ec_is_purchase_liquidation():
+                move_type = "out_"
+            return PartnerIdTypeEc.get_ats_code_for_partner(partner, move_type).value
 
     def _is_manual_document_number(self):
         is_purchase = super()._is_manual_document_number()
-        if is_purchase:
-            if self.l10n_latam_document_type_id.internal_type == "purchase_liquidation":
-                return False
+        if is_purchase and self._is_l10n_ec_is_purchase_liquidation():
+            return False
         return is_purchase
-
-    def _reverse_move_vals(self, default_values, cancel=True):
-        move_vals = super()._reverse_move_vals(default_values, cancel)
-        move_vals.update(
-            l10n_ec_legacy_document_number=self.l10n_latam_document_number,
-            l10n_ec_legacy_document_date=self.invoice_date,
-            l10n_ec_legacy_document_authorization=self.l10n_ec_xml_access_key,
-        )
-        return move_vals
 
     def _compute_show_reset_to_draft_button(self):
         """
@@ -326,23 +369,38 @@ class AccountMove(models.Model):
                     and doc.state == "cancelled"
                     and doc.l10n_ec_authorization_date
                     and move.is_invoice(include_receipts=True)
-                    and doc.edi_format_id._is_required_for_invoice(move)
+                    and doc.edi_format_id._get_move_applicability(move).get("cancel")
                 ):
                     move.show_reset_to_draft_button = False
                     break
 
         return response
 
+    def action_send_and_print(self):
+        if any(x._is_l10n_ec_is_purchase_liquidation() for x in self):
+            template = self.env.ref(self._get_mail_template(), raise_if_not_found=False)
+            return {
+                "name": _("Send"),
+                "type": "ir.actions.act_window",
+                "view_type": "form",
+                "view_mode": "form",
+                "res_model": "account.move.send",
+                "target": "new",
+                "context": {
+                    "active_ids": self.ids,
+                    "default_mail_template_id": template.id,
+                },
+            }
+        return super().action_send_and_print()
+
     def l10n_ec_send_email(self):
-        WizardInvoiceSent = self.env["account.invoice.send"]
+        WizardInvoiceSent = self.env["account.move.send"]
         self.ensure_one()
         res = self.with_context(discard_logo_check=True).action_invoice_sent()
         context = res["context"]
         send_mail = WizardInvoiceSent.with_context(**context).create({})
         # enviar factura automaticamente por correo
-        # simular onchange y accion
-        send_mail.onchange_template_id()
-        send_mail.send_and_print_action()
+        send_mail.action_send_and_print()
 
     def button_cancel_posted_moves(self):
         """

@@ -49,7 +49,7 @@
             </thead>
             <tbody>
                 <t t-foreach="ordered_lines" t-as="line">
-                    <tr style="font-size: 9px;" t-if="not line.display_type">
+                    <tr style="font-size: 9px;" t-if="line.display_type=='product'">
                         <td>
                             <span t-field="line.name" />
                         </td>

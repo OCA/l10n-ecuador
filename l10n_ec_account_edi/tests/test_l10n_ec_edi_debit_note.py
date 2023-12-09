@@ -14,11 +14,18 @@ FORM_ID = "account.view_move_form"
 
 
 @tagged("post_install_l10n", "post_install", "-at_install")
-class TestL10nClDte(TestL10nECEdiCommon):
+class TestL10nEcDebitNote(TestL10nECEdiCommon):
     def test_l10n_ec_debit_note_configuration(self):
         # intentar validar una debit_note sin tener configurado correctamente los datos
         debit_note = self._l10n_ec_prepare_edi_debit_note()
         with self.assertRaises(UserError):
+            debit_note.action_post()
+        self._setup_edi_company_ec()
+        debit_note = self._l10n_ec_prepare_edi_debit_note()
+        debit_note.company_id.l10n_ec_debit_note_version = False
+        with self.assertRaisesRegex(
+            UserError, "You must set XML Version for Debit Note into company"
+        ):
             debit_note.action_post()
 
     def _l10n_ec_prepare_edi_debit_note(
@@ -57,12 +64,13 @@ class TestL10nClDte(TestL10nECEdiCommon):
             use_payment_term=use_payment_term,
             form_id=FORM_ID,
         )
-        form.l10n_ec_legacy_document_number = self.get_sequence_number()
-        form.l10n_ec_legacy_document_date = self.current_datetime
-        form.l10n_ec_legacy_document_authorization = (
-            self.number_authorization_electronic
-        )
-        form.l10n_ec_reason = "Test debit note"
+        if form.l10n_latam_internal_type == "debit_note":
+            form.l10n_ec_legacy_document_number = self.get_sequence_number()
+            form.l10n_ec_legacy_document_date = self.current_datetime
+            form.l10n_ec_legacy_document_authorization = (
+                self.number_authorization_electronic
+            )
+            form.l10n_ec_reason = "Test debit note"
         debit_note = form.save()
         if auto_post:
             debit_note.action_post()
@@ -202,3 +210,32 @@ class TestL10nClDte(TestL10nECEdiCommon):
                 line.quantity = 0
         with self.assertRaises(UserError):
             debit_note.action_post()
+
+    @patch_service_sri
+    def test_l10n_ec_debit_note_invoice(self):
+        self._setup_edi_company_ec()
+        invoice = self._l10n_ec_prepare_edi_out_invoice(auto_post=True)
+        DebitNote = self.env["account.debit.note"].with_context(
+            active_model="account.move", active_ids=invoice.ids
+        )
+        debit_note_wizard = DebitNote.create(
+            {
+                "date": invoice.invoice_date,
+                "reason": "TEST REASON",
+                "copy_lines": True,
+            }
+        )
+        debit_note_wizard.create_debit()
+        # Search for the original invoice
+        debit_note = self.env["account.move"].search(
+            [("debit_origin_id", "=", invoice.id)]
+        )
+        self.assertEqual(
+            debit_note.l10n_ec_legacy_document_number,
+            invoice.l10n_latam_document_number,
+        )
+        self.assertEqual(
+            debit_note.l10n_ec_legacy_document_authorization,
+            invoice.l10n_ec_xml_access_key,
+        )
+        self.assertEqual(debit_note.l10n_ec_reason, "TEST REASON")

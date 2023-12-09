@@ -9,10 +9,7 @@ from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 @tagged("post_install_l10n", "post_install", "-at_install")
 class TestL10nECCommon(AccountTestInvoicingCommon):
     @classmethod
-    def setUpClass(
-        cls,
-        chart_template_ref="l10n_ec.l10n_ec_ifrs",
-    ):
+    def setUpClass(cls, chart_template_ref="ec"):
         super().setUpClass(chart_template_ref=chart_template_ref)
         cls.company = cls.company_data["company"]
         cls.company.write(
@@ -21,6 +18,7 @@ class TestL10nECCommon(AccountTestInvoicingCommon):
                 "country_id": cls.env.ref("base.ec").id,
             }
         )
+        ChartTemplate = cls.env["account.chart.template"].with_company(cls.company)
         # Models
         cls.Partner = cls.env["res.partner"].with_company(cls.company).sudo()
         cls.Journal = cls.env["account.journal"].with_company(cls.company)
@@ -65,7 +63,7 @@ class TestL10nECCommon(AccountTestInvoicingCommon):
                 "name": "Test Partner Passport",
                 "vat": "12345678",
                 "l10n_latam_identification_type_id": cls.env.ref(
-                    "l10n_ec.ec_passport"
+                    "l10n_latam_base.it_pass"
                 ).id,
                 "country_id": cls.env.ref("base.co").id,
             }
@@ -103,7 +101,7 @@ class TestL10nECCommon(AccountTestInvoicingCommon):
         )
         # Diarios
         cls.journal_sale = cls.company_data["default_journal_sale"]
-        cls.journal_purchase = cls.company_data["default_journal_purchase"]
+        cls.journal_purchase = ChartTemplate.ref("purchase_liquidation_ec")
         cls.journal_cash = cls.company_data["default_journal_cash"]
 
         # Number authorization
@@ -187,13 +185,13 @@ class TestL10nECCommon(AccountTestInvoicingCommon):
         move_form.partner_id = partner
         if journal:
             move_form.journal_id = journal
-        if latam_document_type:
+        if move_form.journal_id.l10n_latam_use_documents and latam_document_type:
             move_form.l10n_latam_document_type_id = latam_document_type
         if use_payment_term:
             move_form.invoice_payment_term_id = self.env.ref(
                 "account.account_payment_term_15days"
             )
-        move_form.l10n_latam_document_number = self.get_sequence_number()
+        # move_form.l10n_latam_document_number = self.get_sequence_number()
         for product in products or []:
             with move_form.invoice_line_ids.new() as line_form:
                 line_form.product_id = product

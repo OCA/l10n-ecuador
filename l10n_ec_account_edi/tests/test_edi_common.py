@@ -16,7 +16,7 @@ class TestL10nECEdiCommon(AccountEdiTestCommon, TestL10nECCommon):
     @classmethod
     def setUpClass(
         cls,
-        chart_template_ref="l10n_ec.l10n_ec_ifrs",
+        chart_template_ref="ec",
         edi_format_ref="l10n_ec_account_edi.edi_format_ec_sri",
     ):
         super().setUpClass(
@@ -71,7 +71,6 @@ class TestL10nECEdiCommon(AccountEdiTestCommon, TestL10nECCommon):
                 "l10n_latam_use_documents": True,
                 "l10n_ec_entity": "001",
                 "l10n_ec_emission": "001",
-                "l10n_ec_emission_type": "electronic",
             }
         )
         # diario para Liq. de compra
@@ -82,15 +81,16 @@ class TestL10nECEdiCommon(AccountEdiTestCommon, TestL10nECCommon):
                 "l10n_latam_use_documents": True,
                 "l10n_ec_entity": "001",
                 "l10n_ec_emission": "001",
-                "l10n_ec_emission_type": "electronic",
             }
         )
         # Diario efectivo, establecer tipo de pago SRI
         self.journal_cash.l10n_ec_sri_payment_id = self.env.ref("l10n_ec.P1").id
+        ChartTemplate = self.env["account.chart.template"].with_company(self.company)
+        tax_group = ChartTemplate.ref("tax_group_vat_12")
         self.tax_sale_a.write(
             {
                 "l10n_ec_xml_fe_code": "2",
-                "tax_group_id": self.env.ref("l10n_ec.tax_group_vat_12").id,
+                "tax_group_id": tax_group.id,
             }
         )
 

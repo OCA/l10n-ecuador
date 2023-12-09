@@ -9,6 +9,7 @@ class AccountJournal(models.Model):
         "l10n_ec.sri.payment",
         "SRI Payment Method",
     )
+    l10n_ec_is_purchase_liquidation = fields.Boolean(string="Is Purchase Liquidations?")
 
     @api.constrains("l10n_ec_entity", "l10n_ec_emission")
     def _constrains_l10n_ec_entity_emission(self):
@@ -33,3 +34,11 @@ class AccountJournal(models.Model):
                             "emission must contain only numbers"
                         )
                     )
+
+    @api.depends("type", "l10n_latam_use_documents", "l10n_ec_is_purchase_liquidation")
+    def _compute_l10n_ec_require_emission(self):
+        super()._compute_l10n_ec_require_emission()
+        # add support to purchase liquidation to show agency and printer point
+        for journal in self.filtered(lambda j: j.country_code == "EC"):
+            if journal.l10n_ec_is_purchase_liquidation:
+                journal.l10n_ec_require_emission = True
