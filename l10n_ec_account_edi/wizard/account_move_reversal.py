@@ -6,5 +6,10 @@ class AccountMoveReversal(models.TransientModel):
 
     def _prepare_default_reversal(self, move):
         res = super()._prepare_default_reversal(move)
-        move.update({"l10n_ec_reason": self.reason})
+        res.update(
+            l10n_ec_reason=self.reason,
+            l10n_ec_legacy_document_number=move.l10n_latam_document_number,
+            l10n_ec_legacy_document_date=move.invoice_date,
+            l10n_ec_legacy_document_authorization=move.l10n_ec_xml_access_key,
+        )
         return res

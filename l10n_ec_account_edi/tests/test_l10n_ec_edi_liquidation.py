@@ -13,11 +13,18 @@ FORM_ID = "l10n_ec_account_edi.account_invoice_liquidation_purchase_form_view"
 
 
 @tagged("post_install_l10n", "post_install", "-at_install")
-class TestL10nClDte(TestL10nECEdiCommon):
+class TestL10nEcPurchaseLiquidation(TestL10nECEdiCommon):
     def test_l10n_ec_liquidation_configuration(self):
         # Validar Liquidacion de compras sin tener configurado correctamente los datos
         invoice = self._l10n_ec_prepare_edi_liquidation()
         with self.assertRaises(UserError):
+            invoice.action_post()
+        self._setup_edi_company_ec()
+        invoice = self._l10n_ec_prepare_edi_liquidation()
+        invoice.company_id.l10n_ec_liquidation_version = False
+        with self.assertRaisesRegex(
+            UserError, "You must set XML Version for Purchase Liquidation into company"
+        ):
             invoice.action_post()
 
     def _l10n_ec_prepare_edi_liquidation(
@@ -103,8 +110,8 @@ class TestL10nClDte(TestL10nECEdiCommon):
         try:
             invoice.action_invoice_sent()
             mail_sended = True
-        except UserError as e:
-            _logger.warning(e.name)
+        except UserError:
+            _logger.warning("Error sending mail", exc_info=True)
             mail_sended = False
         self.assertTrue(mail_sended)
         # TODO: validar que se autorice en el SRI con una firma válida
@@ -194,6 +201,7 @@ class TestL10nClDte(TestL10nECEdiCommon):
                 {
                     "type": "purchase",
                     "l10n_latam_use_documents": True,
+                    "l10n_ec_is_purchase_liquidation": True,
                 }
             ],
         )
@@ -206,6 +214,7 @@ class TestL10nClDte(TestL10nECEdiCommon):
                     {
                         "type": "purchase",
                         "l10n_latam_use_documents": True,
+                        "l10n_ec_is_purchase_liquidation": True,
                     }
                 ],
             )

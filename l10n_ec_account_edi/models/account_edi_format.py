@@ -25,33 +25,32 @@ class AccountEdiFormat(models.Model):
     _inherit = "account.edi.format"
 
     def _needs_web_services(self):
-        if self.code in ("l10n_ec_format_sri",):
+        if self.code == "l10n_ec_format_sri":
             return True
         return super()._needs_web_services()
 
     def _is_compatible_with_journal(self, journal):
         if (
             journal.country_code == "EC"
-            and journal.l10n_ec_emission_type == "electronic"
             and journal.l10n_latam_use_documents
             and self.code == "l10n_ec_format_sri"
         ):
             return True
         return super()._is_compatible_with_journal(journal)
 
-    def _is_required_for_invoice(self, invoice):
-        if (
-            invoice.country_code != "EC"
-            or invoice.journal_id.l10n_ec_emission_type != "electronic"
+    def _get_move_applicability(self, move):
+        self.ensure_one()
+        if self.code != "l10n_ec_format_sri" or move.country_code != "EC":
+            return super()._get_move_applicability(move)
+
+        internal_type = move.l10n_latam_document_type_id.internal_type
+        if self.code == "l10n_ec_format_sri" and (
+            move.is_sale_document() or internal_type == "purchase_liquidation"
         ):
-            return super()._is_required_for_invoice(invoice)
-        if (
-            self.code in ("l10n_ec_format_sri",)
-            and invoice.is_sale_document()
-            or (invoice.l10n_latam_internal_type == "purchase_liquidation")
-        ):
-            return True
-        return False
+            return {
+                "post": self._l10n_ec_post_move_edi,
+                "cancel": self._l10n_ec_cancel_move_edi,
+            }
 
     def _check_move_configuration(self, document):
         errors = super()._check_move_configuration(document)
@@ -142,6 +141,14 @@ class AccountEdiFormat(models.Model):
                             company.display_name,
                         )
                     )
+            if document_type == "debit_note" and document.move_type == "out_invoice":
+                if not company.l10n_ec_debit_note_version:
+                    errors.append(
+                        _(
+                            "You must set XML Version for Debit Note into company %s",
+                            company.display_name,
+                        )
+                    )
             if document_type == "credit_note" and document.move_type == "out_refund":
                 # TODO YRO credit note add more validations
                 if not company.l10n_ec_credit_note_version:
@@ -191,10 +198,8 @@ class AccountEdiFormat(models.Model):
             )
         return errors
 
-    def _post_invoice_edi(self, documents):
+    def _l10n_ec_post_move_edi(self, documents):
         res = {}
-        if self.code not in ("l10n_ec_format_sri",):
-            return super()._post_invoice_edi(documents)
         # tomar la primer company, todos los documentos deben pertenecer a la misma company
         company = documents[0].company_id or self.env.company
         client_send = self._l10n_ec_get_edi_ws_client(
@@ -215,9 +220,9 @@ class AccountEdiFormat(models.Model):
                 for edi_doc in edi_docs:
                     attachment = edi_doc.attachment_id
                     xml_file = edi_doc._l10n_ec_render_xml_edi()
+                    _logger.debug(xml_file)
                     edi_doc._l10n_ec_action_check_xsd(xml_file)
                     xml_signed = company.l10n_ec_key_type_id.action_sign(xml_file)
-                    _logger.debug(xml_signed)
                     if not attachment:
                         attachment = self.env["ir.attachment"].create(
                             {
@@ -298,6 +303,18 @@ class AccountEdiFormat(models.Model):
                     }
                 }
             )
+        return res
+
+    def _l10n_ec_cancel_move_edi(self, moves):
+        res = {}
+        for move in moves:
+            errors = []
+            # TODO: implementar cancelacion de documentos
+            res[move] = {
+                "success": not errors,
+                "error": "<br/>".join(errors),
+                "blocking_level": "error" if errors else "warning",
+            }
         return res
 
     @api.model

@@ -61,6 +61,7 @@ class TestL10nCancelled(TestL10nECEdiCommon):
         # Execute cron for cancel receipt
         cron_tasks.method_direct_trigger()
         self.assertEqual(invoice.state, "cancel")
+        self.assertFalse(invoice.show_reset_to_draft_button)
 
     @patch_service_sri
     def test_l10n_ec_authorized_to_cancelled_fail(self):

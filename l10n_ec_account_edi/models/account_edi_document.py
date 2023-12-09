@@ -12,6 +12,7 @@ from zeep.helpers import serialize_object
 from odoo import _, api, fields, models, tools
 from odoo.exceptions import UserError
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
+from odoo.tools import float_repr
 from odoo.tools.misc import remove_accents
 
 _logger = logging.getLogger(__name__)
@@ -68,9 +69,9 @@ class AccountEdiDocument(models.Model):
         res = []
         document_type = self.move_id.l10n_latam_internal_type
         for doc_line in self.move_id.invoice_line_ids.filtered(
-            lambda x: not x.display_type
+            lambda x: x.display_type == "product"
         ).sorted("price_subtotal"):
-            line_tax_data = taxes_data.get("invoice_line_tax_details", {}).get(doc_line)
+            line_tax_data = taxes_data.get("tax_details_per_record", {}).get(doc_line)
             if document_type == "invoice":
                 res.append(doc_line.l10n_ec_get_invoice_edi_data(line_tax_data))
             if document_type == "purchase_liquidation":
@@ -274,8 +275,7 @@ class AccountEdiDocument(models.Model):
             format(0010010123456789)
         :param: environment: 1=test; 2=production. see _l10n_ec_get_environment
         """
-        if not company:
-            company = self.env.company
+        company = company or self.env.company
         emission = "1"  # emision normal, ya no se admite contingencia(2)
         now_date = date_document.strftime("%d%m%Y")
         code_numeric = randint(1, 99999999)
@@ -320,11 +320,7 @@ class AccountEdiDocument(models.Model):
 
     @api.model
     def _l10n_ec_number_format(self, value, decimals=2):
-        if isinstance(value, (int, float)):
-            str_format = "{:." + str(decimals) + "f}"
-            return str_format.format(value)
-        else:
-            return "0.00"
+        return float_repr(value or 0.0, precision_digits=decimals)
 
     def _l10n_ec_render_xml_edi(self):
         ViewModel = self.env["ir.ui.view"].sudo()
@@ -383,7 +379,7 @@ class AccountEdiDocument(models.Model):
             "obligadoContabilidad": self._l10n_ec_get_required_accounting(
                 company.partner_id.property_account_position_id
             ),
-            "tipoIdentificacionComprador": invoice._get_l10n_ec_identification_type(),
+            "tipoIdentificacionComprador": invoice.l10n_ec_get_identification_type(),
             "razonSocialComprador": self._l10n_ec_clean_str(
                 invoice.commercial_partner_id.name
             )[:300],
@@ -479,7 +475,7 @@ class AccountEdiDocument(models.Model):
                 credit_note.l10n_ec_legacy_document_date
             ).strftime(EDI_DATE_FORMAT),
             "motivo": credit_note.l10n_ec_reason,
-            "tipoIdentificacionComprador": credit_note._get_l10n_ec_identification_type(),
+            "tipoIdentificacionComprador": credit_note.l10n_ec_get_identification_type(),
             "razonSocialComprador": self._l10n_ec_clean_str(
                 credit_note.commercial_partner_id.name
             )[:300],
@@ -560,12 +556,11 @@ class AccountEdiDocument(models.Model):
                 for msj in mensajes:
                     if msj.get("tipo") == "ERROR":
                         ok = False
-                    msj_str = "%s [%s] %s %s" % (
-                        msj.get("tipo") or "",
-                        msj.get("identificador") or "",
-                        msj.get("mensaje") or "",
-                        msj.get("informacionAdicional") or "",
-                    )
+                    tipo = msj.get("tipo") or ""
+                    identificador = msj.get("identificador") or ""
+                    messaje = msj.get("mensaje") or ""
+                    additional_info = msj.get("informacionAdicional") or ""
+                    msj_str = f"{tipo} [{identificador}] {messaje} {additional_info}"
                     msj_list.append(msj_str)
         except Exception as e:
             msj_list.append(tools.ustr(e))
@@ -615,12 +610,11 @@ class AccountEdiDocument(models.Model):
         for doc in autorizacion_list:
             mensajes = (doc.get("mensajes") or {}).get("mensaje") or []
             for msj in mensajes:
-                msj_str = "%s [%s] %s %s" % (
-                    msj.get("tipo") or "",
-                    msj.get("identificador") or "",
-                    msj.get("mensaje") or "",
-                    msj.get("informacionAdicional") or "",
-                )
+                tipo = msj.get("tipo") or ""
+                identificador = msj.get("identificador") or ""
+                messaje = msj.get("mensaje") or ""
+                additional_info = msj.get("informacionAdicional") or ""
+                msj_str = f"{tipo} [{identificador}] {messaje} {additional_info}"
                 msj_list.append(msj_str)
             estado = doc.get("estado")
             if estado != "AUTORIZADO":
