@@ -4,7 +4,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 15.0\n"
+"Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -251,6 +251,7 @@ msgid "<strong>Telefono:</strong>"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/tests/test_l10n_ec_edi_out_invoice.py:0
 #, python-format
 msgid "ARCHIVO NO CUMPLE ESTRUCTURA XML"
@@ -312,6 +313,7 @@ msgid "Authorization Date"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
 #, python-format
 msgid "Can't connect to SRI Webservice, try in few minutes"
@@ -485,12 +487,14 @@ msgid "Document Number"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/tests/test_l10n_ec_edi_out_invoice.py:0
 #, python-format
 msgid "EDI Error creating xml file"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
 #, python-format
 msgid "EDI Error creating xml file: %s"
@@ -499,6 +503,12 @@ msgstr ""
 #. module: l10n_ec_account_edi
 #: model:ir.model,name:l10n_ec_account_edi.model_account_edi_format
 msgid "EDI format"
+msgstr ""
+
+#. module: l10n_ec_account_edi
+#: model:ir.model.fields,help:l10n_ec_account_edi.field_account_bank_statement_line__l10n_ec_sri_payment_id
+#: model:ir.model.fields,help:l10n_ec_account_edi.field_account_move__l10n_ec_sri_payment_id
+msgid "Ecuador: Payment Methods Defined by the SRI."
 msgstr ""
 
 #. module: l10n_ec_account_edi
@@ -558,6 +568,7 @@ msgid "Environment type for electronic documents"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/models/sri_key_type.py:0
 #, python-format
 msgid ""
@@ -613,6 +624,7 @@ msgid "ID"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/models/account_move.py:0
 #, python-format
 msgid "Invalid provider authorization number, must be numeric only"
@@ -683,12 +695,6 @@ msgid "Last Error Message"
 msgstr ""
 
 #. module: l10n_ec_account_edi
-#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_l10n_ec_additional_information____last_update
-#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type____last_update
-msgid "Last Modified on"
-msgstr ""
-
-#. module: l10n_ec_account_edi
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_edi_document__l10n_ec_last_sent_date
 msgid "Last Sent Date"
 msgstr ""
@@ -725,6 +731,15 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_l10n_ec_additional_information__name
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type__name
 msgid "Name"
+msgstr ""
+
+#. module: l10n_ec_account_edi
+#. odoo-python
+#: code:addons/l10n_ec_account_edi/models/account_move.py:0
+#, python-format
+msgid ""
+"No journal could be found in company %(company_name)s for any of those "
+"types: %(journal_types)s"
 msgstr ""
 
 #. module: l10n_ec_account_edi
@@ -823,9 +838,14 @@ msgid ""
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
+#: code:addons/l10n_ec_account_edi/models/account_move.py:0
+#, python-format
+msgid "Send"
+msgstr ""
+
+#. module: l10n_ec_account_edi
 #: model:ir.actions.server,name:l10n_ec_account_edi.ir_cron_send_email_electronic_documents_ir_actions_server
-#: model:ir.cron,cron_name:l10n_ec_account_edi.ir_cron_send_email_electronic_documents
-#: model:ir.cron,name:l10n_ec_account_edi.ir_cron_send_email_electronic_documents
 msgid "Send email with authorized electronic documents(Ecuador)"
 msgstr ""
 
@@ -865,18 +885,21 @@ msgid "Test"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
 #, python-format
 msgid "The amount total %(Total)s is bigger than %(Limit)s for final customer"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/models/account_move.py:0
 #, python-format
 msgid "The connection to the SRI service is not possible. Please check later."
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/models/account_move.py:0
 #, python-format
 msgid "The receipt is authorized. It cannot be cancelled."
@@ -923,6 +946,7 @@ msgid "Versions 1.1.0 to 6 decimals"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/models/account_edi_document.py:0
 #, python-format
 msgid ""
@@ -937,6 +961,7 @@ msgid "XML Electronic Documents"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/models/account_move.py:0
 #, python-format
 msgid ""
@@ -945,60 +970,77 @@ msgid ""
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/models/account_move.py:0
 #, python-format
 msgid "You cannot validate an invoice with zero value."
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
 #, python-format
 msgid "You must set Code Base into Tax: %s"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
 #, python-format
 msgid "You must set Electronic Certificate File into company: %s"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
 #, python-format
 msgid "You must set Emission address into Journal: %s"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
 #, python-format
 msgid "You must set Payment Method SRI on Current document or Journal: %s"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
 #, python-format
 msgid "You must set Tax Code for Electronic Documents into Tax: %s"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
 #, python-format
 msgid "You must set XML Version for Credit Note into company %s"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
+#: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
+#, python-format
+msgid "You must set XML Version for Debit Note into company %s"
+msgstr ""
+
+#. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
 #, python-format
 msgid "You must set XML Version for Invoice into company %s"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
 #, python-format
 msgid "You must set XML Version for Purchase Liquidation into company %s"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
 #, python-format
 msgid ""
@@ -1007,6 +1049,7 @@ msgid ""
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#. odoo-python
 #: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
 #, python-format
 msgid "You must set vat identification for company: %s"
