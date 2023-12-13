@@ -59,6 +59,11 @@ msgid "Fiscal Position"
 msgstr ""
 
 #. module: l10n_ec_base
+#: model:ir.model.fields,field_description:l10n_ec_base.field_account_journal__l10n_ec_is_purchase_liquidation
+msgid "Is Purchase Liquidations?"
+msgstr ""
+
+#. module: l10n_ec_base
 #: model:ir.model,name:l10n_ec_base.model_account_journal
 msgid "Journal"
 msgstr ""
