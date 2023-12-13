@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<odoo>
+    <template id="ec_edi_info_tributaria">
+        <infoTributaria>
+            <ambiente t-out="ambiente" />
+            <tipoEmision t-out="tipoEmision" />
+            <razonSocial t-out="razonSocial" />
+            <nombreComercial t-out="nombreComercial" />
+            <ruc t-out="ruc" />
+            <claveAcceso t-out="claveAcceso" />
+            <codDoc t-out="codDoc" />
+            <estab t-out="estab" />
+            <ptoEmi t-out="ptoEmi" />
+            <secuencial t-out="secuencial" />
+            <dirMatriz t-out="dirMatriz" />
+            <regimenMicroempresas
+                t-if="regimenMicroempresas"
+                t-out="regimenMicroempresas"
+            />
+            <agenteRetencion t-if="agenteRetencion" t-out="agenteRetencion" />
+            <contribuyenteRimpe t-if="contribuyenteRimpe" t-out="contribuyenteRimpe" />
+        </infoTributaria>
+    </template>
+    <template id="ec_edi_info_adicional">
+        <infoAdicional t-if="infoAdicional">
+            <t t-foreach="infoAdicional" t-as="campoAdicional">
+                <campoAdicional t-att-nombre="campoAdicional.get('name')"><t
+                        t-out="campoAdicional.get('description')"
+                    /></campoAdicional>
+            </t>
+        </infoAdicional>
+    </template>
+</odoo>

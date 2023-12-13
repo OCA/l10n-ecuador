@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_move_form" model="ir.ui.view">
+        <field name="name">account.move.form</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='ref']" position="after">
+                <!-- Campo para autorización electrónica en factura de compra -->
+                <field
+                    name="l10n_ec_electronic_authorization"
+                    invisible="move_type not in ('in_invoice', 'in_refund')"
+                    required="move_type in ('in_invoice', 'in_refund')"
+                />
+                <field name="l10n_latam_internal_type" invisible="1" />
+            </xpath>
+            <xpath expr="//field[@name='payment_reference']" position="after">
+                <!-- Forma de Pago SRI -->
+                <field
+                    name="l10n_ec_sri_payment_id"
+                    options="{'no_create': True}"
+                    invisible="country_code != 'EC' or not l10n_latam_use_documents"
+                    required="country_code == 'EC' and l10n_latam_use_documents"
+                />
+            </xpath>
+            <xpath expr="//page[@id='other_tab']" position="before">
+                <page
+                    string="Invoice Refund"
+                    name="l10n_ec_external_data"
+                    invisible="l10n_latam_internal_type not in ('credit_note', 'debit_note') or country_code != 'EC'"
+                >
+                    <group string="Invoice">
+                        <field
+                            name="l10n_ec_legacy_document_number"
+                            required="l10n_latam_internal_type in ('credit_note', 'debit_note') and country_code == 'EC'"
+                            readonly="state != 'draft'"
+                        />
+                        <field
+                            name="l10n_ec_legacy_document_date"
+                            required="l10n_latam_internal_type in ('credit_note', 'debit_note') and country_code == 'EC'"
+                            readonly="state != 'draft'"
+                        />
+                        <field
+                            name="l10n_ec_legacy_document_authorization"
+                            required="l10n_latam_internal_type in ('credit_note', 'debit_note') and country_code == 'EC'"
+                            readonly="state != 'draft'"
+                        />
+                        <field
+                            name="l10n_ec_reason"
+                            required="l10n_latam_internal_type in ('credit_note', 'debit_note') and country_code == 'EC'"
+                            readonly="state != 'draft'"
+                        />
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+    <!--Modifica Dominio y Contexto de Facturas de Proveedor para separar Facturas de Liquidacion de Compras-->
+    <record id="account.action_move_in_invoice_type" model="ir.actions.act_window">
+        <field name="domain">[('move_type', '=', 'in_invoice'),
+          ('l10n_latam_internal_type', '=', 'invoice')]</field>
+        <field name="context">{'default_move_type': 'in_invoice',
+          'internal_type': 'invoice'}</field>
+    </record>
+    <!-- Additional Information -->
+    <record id="view_move_form_additional_information_extend" model="ir.ui.view">
+        <field name="name">account.move.form</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//page[@id='other_tab']" position="before">
+                <page
+                    string="Additional Info"
+                    name="l10n_ec_additional_information"
+                    invisible="move_type not in ('out_invoice', 'out_refund')"
+                >
+                    <field
+                        name="l10n_ec_additional_information_move_ids"
+                        readonly="state != 'draft'"
+                    >
+                        <tree editable="bottom">
+                            <field name="name" />
+                            <field name="description" />
+                        </tree>
+                        <form>
+                            <group>
+                                <field name="name" />
+                                <field name="description" />
+                            </group>
+                        </form>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+    <!--Crear vista principal para liquidacion de compras-->
+    <record id="account_invoice_liquidation_purchase_form_view" model="ir.ui.view">
+        <field name="name">account.invoice.liquidation.form</field>
+        <field name="model">account.move</field>
+        <field name="priority" eval="50" />
+        <field name="mode">primary</field>
+        <field name="inherit_id" ref="account.view_move_form" />
+        <field name="arch" type="xml">
+            <xpath
+                expr="//field[@name='l10n_ec_electronic_authorization']"
+                position="attributes"
+            >
+                <attribute name="invisible">True</attribute>
+                <attribute name="required">False</attribute>
+            </xpath>
+
+            <xpath
+                expr="//page[@name='l10n_ec_additional_information']"
+                position="attributes"
+            >
+                <attribute name="invisible">False</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_invoice_sent']" position="attributes">
+                <attribute
+                    name="invisible"
+                >state != 'posted' or is_being_sent or invoice_pdf_report_id</attribute>
+            </xpath>
+
+        </field>
+    </record>
+    <record
+        id="action_move_liquidation_of_purchases_type"
+        model="ir.actions.act_window"
+    >
+        <field name="name">Liquidation of Purchase</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_id" ref="account.view_invoice_tree" />
+        <field name="search_view_id" ref="account.view_account_invoice_filter" />
+        <field
+            name="domain"
+        >[('move_type', '=', 'in_invoice'), ('l10n_latam_internal_type', '=', 'purchase_liquidation')]
+        </field>
+        <field
+            name="context"
+        >{'default_move_type': 'in_invoice', 'internal_type': 'purchase_liquidation'}
+        </field>
+        <field name="help" type="html">
+            <p
+                class="o_view_nocontent_smiling_face"
+            >Create a vendor liquidation of purchases
+            </p>
+            <p>
+                Create liquidation of purchases, register payments and keep track of the discussions with your
+                vendors.
+            </p>
+        </field>
+    </record>
+    <record
+        id="action_move_liquidation_purchase_tree"
+        model="ir.actions.act_window.view"
+    >
+        <field name="sequence" eval="1" />
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="account.view_invoice_tree" />
+        <field name="act_window_id" ref="action_move_liquidation_of_purchases_type" />
+    </record>
+    <record
+        id="action_move_liquidation_purchase_form"
+        model="ir.actions.act_window.view"
+    >
+        <field name="sequence" eval="4" />
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="account_invoice_liquidation_purchase_form_view" />
+        <field name="act_window_id" ref="action_move_liquidation_of_purchases_type" />
+    </record>
+    <menuitem
+        id="menu_action_move_liquidation_of_purchases_type"
+        action="action_move_liquidation_of_purchases_type"
+        sequence="6"
+        parent="account.menu_finance_payables"
+    />
+    <!-- action for customer invoice, filter debit notes-->
+    <record id="account.action_move_out_invoice_type" model="ir.actions.act_window">
+        <field name="domain">[('move_type', '=', 'out_invoice'),
+          ('l10n_latam_internal_type', '=', 'invoice')]</field>
+        <field name="context">{'default_move_type': 'out_invoice',
+          'internal_type': 'invoice'}</field>
+    </record>
+    <!--menu and actions for debit note-->
+    <record id="action_move_debit_note_type" model="ir.actions.act_window">
+        <field name="name">Debit Notes</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_id" ref="account.view_invoice_tree" />
+        <field name="search_view_id" ref="account.view_account_invoice_filter" />
+        <field
+            name="domain"
+        >[('move_type', '=', 'out_invoice'), ('l10n_latam_internal_type', '=', 'debit_note')]
+        </field>
+        <field
+            name="context"
+        >{'default_move_type': 'out_invoice', 'internal_type': 'debit_note'}
+        </field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create a debit note</p>
+            <p>
+                Create debit note, register payments and keep track of the discussions with your
+                vendors.
+            </p>
+        </field>
+    </record>
+    <record id="action_move_debit_note_tree" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="account.view_invoice_tree" />
+        <field name="act_window_id" ref="action_move_debit_note_type" />
+    </record>
+    <record id="action_move_debit_note_form" model="ir.actions.act_window.view">
+        <field name="sequence" eval="4" />
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="account.view_move_form" />
+        <field name="act_window_id" ref="action_move_debit_note_type" />
+    </record>
+    <menuitem
+        id="menu_action_move_debit_note_type"
+        action="action_move_debit_note_type"
+        sequence="6"
+        parent="account.menu_finance_receivables"
+    />
+
+</odoo>

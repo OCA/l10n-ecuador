@@ -1,0 +1,4 @@
+"id","name","model_id:id","group_id:id","perm_read","perm_write","perm_create","perm_unlink"
+access_model_sri_key_type_user,sri.key.type.user,model_sri_key_type,base.group_user,1,0,0,0
+access_model_sri_key_type_admin,sri.key.type.admin,model_sri_key_type,base.group_system,1,1,1,0
+l10n_ec_account_edi.access_l10n_ec_additional_information,access_l10n_ec_additional_information,l10n_ec_account_edi.model_l10n_ec_additional_information,base.group_user,1,1,1,1
