@@ -9,21 +9,19 @@
                 expr="//field[@name='child_ids']/form//field[@name='mobile']"
                 position="after"
             >
-                <field
-                    name="l10n_ec_is_carrier"
-                    attrs="{'invisible':  [('type','!=','contact')]}"
-                />
+                <field name="l10n_ec_is_carrier" invisible="type != 'contact'" />
                 <label
                     for="l10n_latam_identification_type_id"
                     string="Identification Number"
-                    attrs="{'invisible':  ['|',('l10n_ec_is_carrier','=',False), ('type','!=','contact')]}"
+                    invisible="l10n_ec_is_carrier== False or type != 'contact'"
                 />
                 <div>
                     <field
                         name="l10n_latam_identification_type_id"
                         options="{'no_open': True, 'no_create': True}"
                         placeholder="Type"
-                        attrs="{'invisible':  ['|',('l10n_ec_is_carrier','=',False), ('type','!=','contact')], 'readonly': [('parent_id', '!=', False), ('l10n_ec_is_carrier', '=', False)]}"
+                        invisible="l10n_ec_is_carrier == False or type != 'contact'"
+                        readonly="parent_id != False and l10n_ec_is_carrier == False"
                         class="oe_inline"
                         domain="country_id and ['|', ('country_id', '=', False), ('country_id', '=', country_id)] or []"
                     />
@@ -32,12 +30,13 @@
                         name="vat"
                         placeholder="Number"
                         class="oe_inline"
-                        attrs="{'invisible':  ['|',('l10n_ec_is_carrier','=',False),('type','!=','contact')], 'readonly': [('parent_id', '!=', False), ('l10n_ec_is_carrier', '=', False)]}"
+                        invisible="l10n_ec_is_carrier == False or type != 'contact'"
+                        readonly="parent_id != False and l10n_ec_is_carrier == False"
                     />
                 </div>
                 <field
                     name="l10n_ec_car_plate"
-                    attrs="{'invisible':  ['|',('l10n_ec_is_carrier','=',False),('type','!=','contact')]}"
+                    invisible="l10n_ec_is_carrier == False and type != 'contact'"
                 />
             </xpath>
         </field>
@@ -51,7 +50,7 @@
                 <field name="l10n_ec_is_carrier" />
                 <field
                     name="l10n_ec_car_plate"
-                    attrs="{'invisible':  [('l10n_ec_is_carrier','=',False)]}"
+                    invisible="l10n_ec_is_carrier == False"
                 />
             </xpath>
         </field>
@@ -64,18 +63,16 @@
 
             <field name='l10n_latam_identification_type_id' position="attributes">
                 <!--<field name="l10n_ec_is_carrier" invisible="1"/>-->
-                <attribute name="attrs">
-                    {
-                    'readonly': [('parent_id', '!=', False), ('l10n_ec_is_carrier', '=', False)]}
+                <attribute name="readonly">
+                    parent_id != False and l10n_ec_is_carrier == False
                 </attribute>
             </field>
             <xpath
                 expr="//field[@name='l10n_latam_identification_type_id']/../field[@name='vat']"
                 position="attributes"
             >
-                <attribute name="attrs">
-                    {
-                    'readonly': [('parent_id', '!=', False), ('l10n_ec_is_carrier', '=', False)]}
+                <attribute name="readonly">
+                    parent_id != False and l10n_ec_is_carrier == False
                 </attribute>
             </xpath>
         </field>

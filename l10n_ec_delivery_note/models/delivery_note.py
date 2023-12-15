@@ -388,7 +388,7 @@ class DeliveryNote(models.Model):
 
     @api.model
     def default_get(self, fields_list):
-        defaults = super(DeliveryNote, self).default_get(fields_list)
+        defaults = super().default_get(fields_list)
         document_type = self.env["l10n_latam.document.type"].search(
             [("code", "=", "06")], limit=1
         )
@@ -400,7 +400,7 @@ class DeliveryNote(models.Model):
         for delivery_note in self:
             if delivery_note.state != "draft":
                 raise UserError(_("Cant'n unlink Delivery Note, Try cancel!"))
-        return super(DeliveryNote, self).unlink()
+        return super().unlink()
 
     def action_confirm(self):
         for delivery_note in self:
@@ -485,7 +485,7 @@ class DeliveryNote(models.Model):
                             % "\n".join(errors)
                         )
                     existing_edi_document = note.edi_document_ids.filtered(
-                        lambda x: x.edi_format_id == edi_format
+                        lambda x: x.edi_format_id == edi_format  # noqa
                     )
                     if existing_edi_document:
                         existing_edi_document.write(
@@ -527,7 +527,7 @@ class DeliveryNote(models.Model):
 
     # Métodos del portal
     def _compute_access_url(self):
-        res = super(DeliveryNote, self)._compute_access_url()
+        res = super()._compute_access_url()
         for delivery_note in self:
             delivery_note.access_url = "/my/edi_delivery_note/%s" % (delivery_note.id)
         return res

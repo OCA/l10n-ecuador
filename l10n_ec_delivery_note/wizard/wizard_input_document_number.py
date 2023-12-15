@@ -51,7 +51,7 @@ class WizardAbstractDeliveryNote(models.AbstractModel):
     @api.model
     def default_get(self, fields_list):
         picking_model = self.env["stock.picking"]
-        res = super(WizardAbstractDeliveryNote, self).default_get(fields_list)
+        res = super().default_get(fields_list)
         company = self.env.company
         picking_id = (
             res.get("picking_id", False)
@@ -112,24 +112,24 @@ class StockBackorderConfirmation(models.TransientModel):
     _name = "stock.backorder.confirmation"
 
     def process(self):
-        res = super(StockBackorderConfirmation, self).process()
+        res = super().process()
         if self.picking_id.l10n_ec_create_delivery_note:
             self.create_delivery_note()
         return res
 
     def process_cancel_backorder(self):
-        res = super(StockBackorderConfirmation, self).process_cancel_backorder()
+        res = super().process_cancel_backorder()
         if self.picking_id.l10n_ec_create_delivery_note:
             self.create_delivery_note()
         return res
 
 
 class StockImmediateTransfer(models.TransientModel):
-    _inherit = ["wizard.abstract.delivery.note", "stock.immediate.transfer"]
-    _name = "stock.immediate.transfer"
+    _inherit = ["wizard.abstract.delivery.note", "stock.backorder.confirmation"]
+    _name = "stock.backorder.confirmation"
 
     def process(self):
-        res = super(StockImmediateTransfer, self).process()
+        res = super().process()
         if self.picking_id.l10n_ec_create_delivery_note:
             if self.picking_id.sale_id and (
                 self.picking_id.location_id

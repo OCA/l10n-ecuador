@@ -75,9 +75,7 @@
         <field name="inherit_id" ref="stock.view_backorder_confirmation" />
         <field name="arch" type="xml">
             <xpath expr="//footer" position="before">
-                <group
-                    attrs="{'invisible': [('l10n_ec_create_delivery_note', '=', False)]}"
-                >
+                <group invisible="l10n_ec_create_delivery_note == False">
                     <group col="2" colspan="4">
                         <div class="oe_title">
                             <h2>
@@ -87,19 +85,19 @@
                                     placeholder="00X-00X-0000000XXX"
                                     force_save="1"
                                     readonly="1"
-                                    attrs="{'required': [('l10n_ec_create_delivery_note', '=', True)]}"
+                                    required="l10n_ec_create_delivery_note == True"
                                 />
                                 <br />
                                 <label for="transfer_date" />
                                 <field
                                     name="transfer_date"
-                                    attrs="{'required': [('l10n_ec_create_delivery_note', '=', True)]}"
+                                    required="l10n_ec_create_delivery_note == True"
                                 />
                                 <br />
                                 <label for="delivery_date" />
                                 <field
                                     name="delivery_date"
-                                    attrs="{'required': [('l10n_ec_create_delivery_note', '=', True)]}"
+                                    required="l10n_ec_create_delivery_note == True"
                                 />
                             </h2>
                         </div>
@@ -121,14 +119,12 @@
     </record>
     <!-- immediate -->
     <record model="ir.ui.view" id="view_immediate_transfer">
-        <field name="name">stock.immediate.transfer.form</field>
-        <field name="model">stock.immediate.transfer</field>
-        <field name="inherit_id" ref="stock.view_immediate_transfer" />
+        <field name="name">stock.backorder.confirmation.form</field>
+        <field name="model">stock.backorder.confirmation</field>
+        <field name="inherit_id" ref="stock.view_backorder_confirmation" />
         <field name="arch" type="xml">
             <xpath expr="//footer" position="before">
-                <group
-                    attrs="{'invisible': [('l10n_ec_create_delivery_note', '=', False)]}"
-                >
+                <group invisible="l10n_ec_create_delivery_note == False">
                     <group col="2" colspan="4">
                         <div class="oe_title">
                             <h2>
@@ -138,19 +134,19 @@
                                     placeholder="00X-00X-0000000XXX"
                                     force_save="1"
                                     readonly="1"
-                                    attrs="{'required': [('l10n_ec_create_delivery_note', '=', True)]}"
+                                    required="l10n_ec_create_delivery_note == True"
                                 />
                                 <br />
                                 <label for="transfer_date" />
                                 <field
                                     name="transfer_date"
-                                    attrs="{'required': [('l10n_ec_create_delivery_note', '=', True)]}"
+                                    required="l10n_ec_create_delivery_note == True"
                                 />
                                 <br />
                                 <label for="delivery_date" />
                                 <field
                                     name="delivery_date"
-                                    attrs="{'required': [('l10n_ec_create_delivery_note', '=', True)]}"
+                                    required="l10n_ec_create_delivery_note == True"
                                 />
                             </h2>
                         </div>

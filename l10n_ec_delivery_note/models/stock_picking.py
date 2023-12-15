@@ -55,7 +55,7 @@ class StockPicking(models.Model):
             self.l10n_ec_create_delivery_note = (
                 self.picking_type_id.l10n_ec_default_delivery_note
             )
-        return super(StockPicking, self)._onchange_picking_type()
+        return super()._onchange_picking_type()
 
     @api.onchange("l10n_ec_delivery_carrier_id")
     def onchange_l10n_ec_delivery_carrier_id(self):
