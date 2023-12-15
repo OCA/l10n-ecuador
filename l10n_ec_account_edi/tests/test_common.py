@@ -93,12 +93,6 @@ class TestL10nECCommon(AccountTestInvoicingCommon):
         cls.tax_exempt_vat = cls.Tax.search(
             [("tax_group_id.l10n_ec_type", "=", "exempt_vat")], limit=1
         )
-        cls.tax_group_withhold_vat = cls.TaxGroup.search(
-            [("l10n_ec_type", "=", "withhold_vat")], limit=1
-        )
-        cls.tax_group_withhold_profit = cls.TaxGroup.search(
-            [("l10n_ec_type", "=", "withhold_income_tax")], limit=1
-        )
         # Diarios
         cls.journal_sale = cls.company_data["default_journal_sale"]
         cls.journal_purchase = ChartTemplate.ref("purchase_liquidation_ec")
