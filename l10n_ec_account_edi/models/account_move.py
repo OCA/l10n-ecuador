@@ -38,12 +38,12 @@ class AccountMove(models.Model):
     )
     l10n_ec_authorization_date = fields.Datetime(
         compute="_compute_l10n_ec_edi_document_data",
-        string="Access Key(EC)",
+        string="Electronic Authorization Date",
         store=True,
     )
     l10n_ec_xml_access_key = fields.Char(
         compute="_compute_l10n_ec_edi_document_data",
-        string="Electronic Authorization Date",
+        string="Access Key(EC)",
         store=True,
     )
     l10n_ec_is_edi_doc = fields.Boolean(
@@ -241,7 +241,18 @@ class AccountMove(models.Model):
             withhold_group_ids = (
                 self.env["account.tax.group"]
                 .search(
-                    [("l10n_ec_type", "in", ("withhold_vat", "withhold_income_tax"))]
+                    [
+                        (
+                            "l10n_ec_type",
+                            "in",
+                            (
+                                "withhold_vat_sale",
+                                "withhold_vat_purchase",
+                                "withhold_income_sale",
+                                "withhold_income_purchase",
+                            ),
+                        )
+                    ]
                 )
                 .ids
             )
