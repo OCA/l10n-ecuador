@@ -65,7 +65,10 @@ class AccountEdiFormat(models.Model):
             document_type = document.l10n_latam_document_type_id.internal_type
             taxes = document.invoice_line_ids.mapped("tax_ids")
             for tax in taxes:
-                if tax.tax_group_id.l10n_ec_type == "withhold_income_tax":
+                if tax.tax_group_id.l10n_ec_type in [
+                    "withhold_income_sale",
+                    "withhold_income_purchase",
+                ]:
                     if not tax.l10n_ec_code_ats:
                         errors.append(
                             _(
