@@ -258,10 +258,10 @@ msgid "ARCHIVO NO CUMPLE ESTRUCTURA XML"
 msgstr ""
 
 #. module: l10n_ec_account_edi
-#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_bank_statement_line__l10n_ec_authorization_date
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_bank_statement_line__l10n_ec_xml_access_key
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_edi_document__l10n_ec_xml_access_key
-#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_move__l10n_ec_authorization_date
-#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_payment__l10n_ec_authorization_date
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_move__l10n_ec_xml_access_key
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_payment__l10n_ec_xml_access_key
 msgid "Access Key(EC)"
 msgstr ""
 
@@ -524,9 +524,9 @@ msgid "Electronic Authorization"
 msgstr ""
 
 #. module: l10n_ec_account_edi
-#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_bank_statement_line__l10n_ec_xml_access_key
-#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_move__l10n_ec_xml_access_key
-#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_payment__l10n_ec_xml_access_key
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_bank_statement_line__l10n_ec_authorization_date
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_move__l10n_ec_authorization_date
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_payment__l10n_ec_authorization_date
 msgid "Electronic Authorization Date"
 msgstr ""
 
