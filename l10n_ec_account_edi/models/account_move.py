@@ -354,12 +354,9 @@ class AccountMove(models.Model):
         elif partner_vat_type == "foreign":
             return PartnerIdTypeEc.FOREIGN.value
         else:
-            # para liquidacion de compras tomar como si fuera de ventas los codigos
             # pasar out_ ya que solo evalua con que inicias el codigo
-            move_type = self.move_type
-            if self._is_l10n_ec_is_purchase_liquidation():
-                move_type = "out_"
-            return PartnerIdTypeEc.get_ats_code_for_partner(partner, move_type).value
+            # esto sirve para liquidaciones y retenciones
+            return PartnerIdTypeEc.get_ats_code_for_partner(partner, "out_").value
 
     def _is_manual_document_number(self):
         is_purchase = super()._is_manual_document_number()
