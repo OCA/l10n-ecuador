@@ -11,6 +11,7 @@
                     name="l10n_ec_electronic_authorization"
                     invisible="move_type not in ('in_invoice', 'in_refund')"
                     required="move_type in ('in_invoice', 'in_refund')"
+                    readonly="state != 'draft'"
                 />
                 <field name="l10n_latam_internal_type" invisible="1" />
             </xpath>
@@ -18,9 +19,10 @@
                 <!-- Forma de Pago SRI -->
                 <field
                     name="l10n_ec_sri_payment_id"
-                    options="{'no_create': True}"
+                    options="{'no_create': True, 'no_open': True}"
                     invisible="country_code != 'EC' or not l10n_latam_use_documents"
                     required="country_code == 'EC' and l10n_latam_use_documents"
+                    readonly="state != 'draft'"
                 />
             </xpath>
             <xpath expr="//page[@id='other_tab']" position="before">
