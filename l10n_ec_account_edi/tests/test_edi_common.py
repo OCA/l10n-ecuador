@@ -117,7 +117,7 @@ class TestL10nECEdiCommon(AccountEdiTestCommon, TestL10nECCommon):
         y la devuelve en estado posted, por defecto False
         """
         partner = partner or self.partner_cf
-        latam_document_type = latam_document_type or self.env.ref("l10n_ec.ec_dt_18")
+        latam_document_type = latam_document_type or self.env.ref("l10n_ec.ec_dt_01")
         form = self._l10n_ec_create_form_move(
             move_type="out_invoice",
             internal_type="invoice",
