@@ -156,6 +156,7 @@ class TestL10nEcDebitNote(TestL10nECEdiCommon):
             move_type="out_invoice",
             internal_type="debit_note",
             partner=self.partner_dni,
+            latam_document_type=self.env.ref("l10n_ec.ec_dt_05"),
             form_id=FORM_ID,
         )
         self.assertIn(form.journal_id, journal + self.journal_sale)
