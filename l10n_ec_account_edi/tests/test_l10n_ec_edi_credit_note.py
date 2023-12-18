@@ -154,6 +154,7 @@ class TestL10nEcCreditNote(TestL10nECEdiCommon):
             move_type="out_refund",
             internal_type="credit_note",
             partner=self.partner_dni,
+            latam_document_type=self.env.ref("l10n_ec.ec_dt_04"),
             form_id=FORM_ID,
         )
         self.assertIn(form.journal_id, journal + self.journal_sale)
