@@ -167,7 +167,11 @@
                                 required="1"
                                 options="{'no_open':True, 'no_create': True}"
                             />
-                            <field name="delivery_note_type" required="1" />
+                            <field
+                                name="delivery_note_type"
+                                required="1"
+                                readonly="state != 'draft'"
+                            />
                             <field
                                 name="l10n_latam_internal_type"
                                 required="1"
@@ -180,6 +184,7 @@
                                 name="company_id"
                                 options="{'no_create': True}"
                                 groups="base.group_multi_company"
+                                readonly="state != 'draft'"
                             />
                         </group>
                     </group>
@@ -192,6 +197,7 @@
                                         name="partner_id"
                                         required="1"
                                         options="{'no_quick_create': True}"
+                                        readonly="state != 'draft'"
                                     />
                                     <field
                                         name="delivery_address_id"
@@ -199,18 +205,32 @@
                                         domain="[('commercial_partner_id', '=', partner_id)]"
                                         options="{'no_quick_create': True}"
                                         context="{'default_parent_id': partner_id, 'default_type': 'delivery','show_address': 1}"
+                                        readonly="state != 'draft'"
                                     />
                                     <field
                                         name="delivery_carrier_id"
                                         required="1"
                                         options="{'no_quick_create': True}"
                                         context="{'default_l10n_ec_is_carrier': True}"
+                                        readonly="state != 'draft'"
                                     />
-                                    <field name="l10n_ec_car_plate" required="1" />
+                                    <field
+                                        name="l10n_ec_car_plate"
+                                        required="1"
+                                        readonly="state != 'draft'"
+                                    />
                                 </group>
                                 <group>
-                                    <field name="transfer_date" required="1" />
-                                    <field name="delivery_date" required="1" />
+                                    <field
+                                        name="transfer_date"
+                                        required="1"
+                                        readonly="state != 'draft'"
+                                    />
+                                    <field
+                                        name="delivery_date"
+                                        required="1"
+                                        readonly="state != 'draft'"
+                                    />
                                     <field
                                         name="stock_picking_ids"
                                         widget="many2many_tags"
@@ -219,14 +239,16 @@
                                         domain="[('partner_id.commercial_partner_id', '=', commercial_partner_id),
                                                 ('picking_type_id.code','in',('internal','outgoing')), ('state','=','done'),
                                                 ('l10n_ec_delivery_note_ids', '=', False)]"
+                                        readonly="state != 'draft'"
                                     />
                                     <field
                                         name="invoice_id"
                                         options="{'no_create': True}"
                                         domain="[('move_type', '=', 'out_invoice'), ('partner_id.commercial_partner_id', '=', commercial_partner_id), ('state', '=', 'posted')]"
+                                        readonly="state != 'draft'"
                                     />
-                                    <field name="rise" />
-                                    <field name="dau" />
+                                    <field name="rise" readonly="state != 'draft'" />
+                                    <field name="dau" readonly="state != 'draft'" />
                                 </group>
                             </group>
                             <separator string="Delivery Note detail" colspan="4" />
@@ -306,10 +328,18 @@
                             </field>
                         </page>
                         <page string="Transfer Motive">
-                            <field name="motive" colspan="2" />
+                            <field
+                                name="motive"
+                                colspan="2"
+                                readonly="state != 'draft'"
+                            />
                         </page>
                         <page string="Note">
-                            <field name="note" colspan="2" />
+                            <field
+                                name="note"
+                                colspan="2"
+                                readonly="state != 'draft'"
+                            />
                         </page>
                     </notebook>
                 </sheet>

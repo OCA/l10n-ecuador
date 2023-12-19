@@ -34,27 +34,19 @@ class DeliveryNote(models.Model):
     )
     transfer_date = fields.Date(
         required=True,
-        readonly=True,
-        states=STATES,
         default=lambda self: fields.Date.context_today(self),
         tracking=True,
     )
     delivery_date = fields.Date(
         required=True,
-        readonly=True,
-        states=STATES,
         default=lambda self: fields.Date.context_today(self),
         tracking=True,
     )
-    motive = fields.Text(readonly=True, states=STATES, copy=False)
-    l10n_ec_car_plate = fields.Char(
-        "Car plate", size=8, required=False, readonly=True, states=STATES
-    )
+    motive = fields.Text(copy=False)
+    l10n_ec_car_plate = fields.Char("Car plate", size=8, required=False)
     stock_picking_ids = fields.Many2many(
         "stock.picking",
         string="Pickings related",
-        readonly=True,
-        states=STATES,
         copy=False,
     )
     sale_order_ids = fields.Many2many(
@@ -69,8 +61,6 @@ class DeliveryNote(models.Model):
     partner_id = fields.Many2one(
         "res.partner",
         "Partner",
-        readonly=True,
-        states=STATES,
         index=True,
         auto_join=True,
         tracking=True,
@@ -87,16 +77,12 @@ class DeliveryNote(models.Model):
     delivery_address_id = fields.Many2one(
         "res.partner",
         "Delivery Address",
-        readonly=True,
-        states=STATES,
         index=True,
         tracking=True,
     )
     delivery_carrier_id = fields.Many2one(
         "res.partner",
         "Delivery Carrier",
-        readonly=True,
-        states=STATES,
         index=True,
         domain=[("l10n_ec_is_carrier", "=", True)],
     )
@@ -105,8 +91,6 @@ class DeliveryNote(models.Model):
             ("sales", "Transfer by Sales"),
             ("internal", "Internal Transfer"),
         ],
-        readonly=True,
-        states=STATES,
         default="sales",
     )
     delivery_line_ids = fields.One2many(
@@ -133,21 +117,17 @@ class DeliveryNote(models.Model):
     company_id = fields.Many2one(
         "res.company",
         "Company",
-        readonly=True,
-        states=STATES,
         default=lambda self: self.env.company,
         required=True,
     )
     country_code = fields.Char(
         related="company_id.account_fiscal_country_id.code", readonly=True
     )
-    rise = fields.Char("R.I.S.E", readonly=True, states=STATES, copy=False)
-    dau = fields.Char("D.A.U.", readonly=True, states=STATES, copy=False)
-    note = fields.Text(string="Notes", readonly=True, states=STATES, copy=False)
-    origin = fields.Text(readonly=True, states=STATES, copy=False)
-    invoice_id = fields.Many2one(
-        "account.move", string="Invoice", readonly=True, states=STATES
-    )
+    rise = fields.Char("R.I.S.E", copy=False)
+    dau = fields.Char("D.A.U.", copy=False)
+    note = fields.Text(string="Notes", copy=False)
+    origin = fields.Text(copy=False)
+    invoice_id = fields.Many2one("account.move", string="Invoice")
 
     edi_document_ids = fields.One2many(
         comodel_name="account.edi.document", inverse_name="l10n_ec_delivery_note_id"
