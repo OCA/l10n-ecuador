@@ -211,6 +211,10 @@ class AccountEdiFormat(models.Model):
         auth_client = self._l10n_ec_get_edi_ws_client(
             company.l10n_ec_type_environment, "authorization"
         )
+        # Si no hay conector (Ambiente=none), sale sin hacer nada
+        if client_send is None or auth_client is None:
+            return res
+
         for document in documents:
             edi_docs = document.edi_document_ids.filtered(
                 lambda x: x.edi_format_id.code in ("l10n_ec_format_sri",)
@@ -335,7 +339,9 @@ class AccountEdiFormat(models.Model):
         # es necesario que se cree una sola instancia
         # Para conexion y asi evitar un reinicio constante de la comunicacion
         wsClient = None
-        if environment == "test":
+        if environment == "none":
+            return None
+        elif environment == "test":
             ws_url = TEST_URL.get(url_type)
         elif environment == "production":
             ws_url = PRODUCTION_URL.get(url_type)

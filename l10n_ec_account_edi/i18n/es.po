@@ -796,6 +796,11 @@ msgid "Precio Unitario"
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#: model:ir.model.fields.selection,name:l10n_ec_account_edi.selection__res_company__l10n_ec_type_environment__none
+msgid "No Send"
+msgstr "No Enviar"
+
+#. module: l10n_ec_account_edi
 #: model:ir.model.fields.selection,name:l10n_ec_account_edi.selection__res_company__l10n_ec_type_environment__production
 msgid "Production"
 msgstr "Producción"
