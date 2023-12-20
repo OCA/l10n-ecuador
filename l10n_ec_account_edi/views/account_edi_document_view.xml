@@ -61,6 +61,7 @@
                         <field name="l10n_ec_xml_access_key" />
                         <field name="move_id" string="Related Document" />
                         <field name="l10n_ec_partner_id" />
+                        <field name="l10n_ec_partner_vat" />
                         <field name="l10n_ec_partner_email" />
                         <field name="l10n_ec_document_date" />
                         <field name="state" />
