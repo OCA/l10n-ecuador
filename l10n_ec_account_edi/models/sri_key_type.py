@@ -1,5 +1,6 @@
 import logging
 import subprocess
+import datetime
 from base64 import b64encode, b64decode
 from random import randrange
 from tempfile import NamedTemporaryFile
@@ -18,6 +19,7 @@ from xades.policy import ImpliedPolicy  # pylint: disable=W7936
 from odoo import fields, models, tools
 from odoo.exceptions import UserError
 from odoo.tools.translate import _
+
 
 _logger = logging.getLogger(__name__)
 
@@ -182,6 +184,10 @@ class SriKeyType(models.Model):
         def new_range():
             return randrange(100000, 999999)
 
+        current_time = datetime.datetime.utcnow().microsecond
+        print(current_time)
+        
+
         private_key = load_pem_private_key(b64decode(self.p_key), password=self.password.encode())        
         public_cert = load_pem_x509_certificate(b64decode(self.cert))
 
@@ -236,5 +242,8 @@ class SriKeyType(models.Model):
         ctx.private_key = private_key
         ctx.sign(signature)
         ctx.verify(signature)
+
+        lapso = datetime.datetime.utcnow().microsecond - current_time
+        print("Lapso: ", lapso)
 
         return etree.tostring(doc, encoding="UTF-8", pretty_print=True).decode()
