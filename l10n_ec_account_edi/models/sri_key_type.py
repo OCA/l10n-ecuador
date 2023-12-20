@@ -162,7 +162,7 @@ class SriKeyType(models.Model):
             "subject_common_name": subject_common_name,
             "subject_serial_number": subject_serial_number,
             "issuer_common_name": issuer_common_name,
-            "cert_serial_number": cert.serial_number,
+            "cert_serial_number": "%0.8X" % cert.serial_number,
             "cert_version": cert.version,
             "state": "valid",
         }
