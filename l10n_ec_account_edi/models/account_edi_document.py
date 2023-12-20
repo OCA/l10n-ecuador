@@ -46,6 +46,7 @@ class AccountEdiDocument(models.Model):
         compute="_compute_l10n_ec_document_data",
         store=True,
     )
+    l10n_ec_partner_email = fields.Char(related="l10n_ec_partner_id.email", string="Customer Email", readonly=True)
 
     @api.depends("move_id")
     def _compute_l10n_ec_document_data(self):
