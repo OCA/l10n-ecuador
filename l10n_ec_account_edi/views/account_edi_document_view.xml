@@ -10,8 +10,8 @@
                 expr="//field[@name='edi_document_ids']/tree//field[@name='state']"
                 position="before"
             >
-                <field name="l10n_ec_xml_access_key" optional="hide" />
-                <field name="l10n_ec_authorization_date" optional="hide" />
+                <field name="l10n_ec_xml_access_key" optional="show" />
+                <field name="l10n_ec_authorization_date" optional="show" />
                 <field name="l10n_ec_last_sent_date" optional="hide" />
             </xpath>
         </field>

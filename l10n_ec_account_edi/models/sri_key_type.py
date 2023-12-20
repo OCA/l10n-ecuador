@@ -136,10 +136,6 @@ class SriKeyType(models.Model):
         start_index = private_key_str.find("-----BEGIN ENCRYPTED PRIVATE KEY-----")
         private_key_str = private_key_str[start_index:]
 
-        # private_key = serialization.load_pem_private_key(
-        #     private_key_str.encode(),
-        #     self.password.encode(),
-        # )
         return private_key_str, certificate
 
     def action_validate_and_load(self):
@@ -184,14 +180,11 @@ class SriKeyType(models.Model):
         def new_range():
             return randrange(100000, 999999)
 
-        current_time = datetime.datetime.utcnow().microsecond
-        print(current_time)
+        #current_time = datetime.datetime.utcnow().microsecond
         
-
         private_key = load_pem_private_key(b64decode(self.p_key), password=self.password.encode())        
         public_cert = load_pem_x509_certificate(b64decode(self.cert))
 
-        #p12 = self._decode_certificate()
         doc = etree.fromstring(xml_string_data)
         signature_id = f"Signature{new_range()}"
         signature_property_id = f"{signature_id}-SignedPropertiesID{new_range()}"
@@ -235,6 +228,7 @@ class SriKeyType(models.Model):
             mime_type="text/xml",
         )
         doc.append(signature)
+        
 
         ctx = XAdESContext(ImpliedPolicy(xmlsig.constants.TransformSha1))
         ctx.x509 = public_cert
@@ -243,7 +237,7 @@ class SriKeyType(models.Model):
         ctx.sign(signature)
         ctx.verify(signature)
 
-        lapso = datetime.datetime.utcnow().microsecond - current_time
-        print("Lapso: ", lapso)
+        #lapso = datetime.datetime.utcnow().microsecond - current_time
+        #print("Lapso: ", lapso)
 
         return etree.tostring(doc, encoding="UTF-8", pretty_print=True).decode()
