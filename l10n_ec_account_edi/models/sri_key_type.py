@@ -182,8 +182,8 @@ class SriKeyType(models.Model):
         def new_range():
             return randrange(100000, 999999)
 
-        private_key = load_pem_private_key(b64decode(self.p_key), password=self.password)        
-        public_cert = load_pem_x509_certificate(b64decode(self.certificate))
+        private_key = load_pem_private_key(b64decode(self.p_key), password=self.password.encode())        
+        public_cert = load_pem_x509_certificate(b64decode(self.cert))
 
         #p12 = self._decode_certificate()
         doc = etree.fromstring(xml_string_data)
