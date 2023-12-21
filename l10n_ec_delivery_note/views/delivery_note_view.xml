@@ -187,6 +187,11 @@
                                 groups="base.group_multi_company"
                                 readonly="state != 'draft'"
                             />
+                            <field
+                                name="company_id"
+                                options="{'no_create': True}"
+                                invisible="1"
+                            />
                         </group>
                     </group>
                     <notebook colspan="2">
@@ -278,10 +283,15 @@
                                         options="{'no_create': True}"
                                         groups="uom.group_uom"
                                     />
+                                    <field name="product_uom_id" column_invisible="1" />
                                     <field
                                         name="production_lot_id"
                                         options="{'no_create': True}"
                                         groups="stock.group_production_lot"
+                                    />
+                                    <field
+                                        name="production_lot_id"
+                                        column_invisible="1"
                                     />
                                     <field name="move_id" invisible="1" />
                                     <field name="move_line_id" invisible="1" />

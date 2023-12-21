@@ -78,7 +78,7 @@ class StockPicking(models.Model):
             }
         )
         for picking in self.filtered("l10n_ec_create_delivery_note"):
-            if not picking.move_lines and not picking.move_line_ids:
+            if not picking.move_ids and not picking.move_line_ids:
                 raise UserError(_("Please add some lines to move"))
             # If no lots when needed, raise error
             picking_type = picking.picking_type_id

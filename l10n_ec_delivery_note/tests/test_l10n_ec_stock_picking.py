@@ -219,7 +219,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         picking = self._l10n_ec_create_or_modify_picking()
         picking.picking_type_id = picking_type_internal
         picking.action_confirm()
-        picking.action_set_quantities_to_reservation()
+        # picking.action_set_quantities_to_reservation()
         picking_context = picking.button_validate()
         wiz = Form(
             self.env[picking_context["res_model"]].with_context(
@@ -244,7 +244,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
             if i > 2:
                 picking.partner_id = self.partner_ruc.id
             picking.action_confirm()
-            picking.action_set_quantities_to_reservation()
+            # picking.action_set_quantities_to_reservation()
             picking.button_validate()
         pickings = self.env["stock.picking"].search([])
         model_wizard = self.env["wizard.create.delivery.note"]

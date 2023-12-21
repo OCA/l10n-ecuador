@@ -27,7 +27,6 @@ class DeliveryNote(models.Model):
     journal_id = fields.Many2one(
         comodel_name="account.journal",
         string="Emission Point",
-        readonly=True,
         check_company=True,
         domain=[("l10n_latam_use_documents", "=", True), ("type", "=", "sale")],
     )
@@ -96,7 +95,6 @@ class DeliveryNote(models.Model):
         "l10n_ec.delivery.note.line",
         "delivery_note_id",
         "Delivery note detail",
-        readonly=True,
         copy=True,
         auto_join=True,
     )
@@ -294,9 +292,8 @@ class DeliveryNote(models.Model):
         for delivery in self:
             date_current = fields.Date.context_today(self)
             if (
-                delivery.journal_id.l10n_ec_emission_type == "electronic"
-                and delivery.transfer_date
-                and delivery.transfer_date > date_current
+                # delivery.journal_id.l10n_ec_emission_type == "electronic" and
+                delivery.transfer_date and delivery.transfer_date > date_current
             ):
                 raise UserError(
                     _(

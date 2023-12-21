@@ -56,7 +56,7 @@ class TestL10nDeliveryNote(TestL10nDeliveryNoteCommon):
             delivery_note.action_confirm()
         picking = self._l10n_ec_create_or_modify_picking()
         picking.action_confirm()
-        picking.action_set_quantities_to_reservation()
+        # picking.action_set_quantities_to_reservation()
         picking.button_validate()
         delivery_note.write(
             {
@@ -163,7 +163,7 @@ class TestL10nDeliveryNote(TestL10nDeliveryNoteCommon):
         diferente de electronico configurado en el journal"""
         self.setup_edi_delivery_note()
         self.journal_values["name"] = "Delivery Note Journal Pre Printed"
-        self.journal_values["l10n_ec_emission_type"] = "pre_printed"
+        # self.journal_values["l10n_ec_emission_type"] = "pre_printed"
         self.journal_values["code"] = "GR1"
         new_journal = self.Journal.create(self.journal_values)
         delivery_note = self._l10n_ec_create_delivery_note()

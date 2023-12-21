@@ -43,7 +43,7 @@ class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
             picking = self._l10n_ec_create_or_modify_picking(
                 picking=pick, delivery_note=False
             )
-            picking.action_set_quantities_to_reservation()
+            # picking.action_set_quantities_to_reservation()
             picking.button_validate()
         model_wizard = self.env["wizard.create.delivery.note"]
         wiz = Form(model_wizard.with_context(active_ids=pickings.ids)).save()
@@ -78,7 +78,7 @@ class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
         picking = self._l10n_ec_create_or_modify_picking(
             picking=picking, delivery_note=False
         )
-        picking.action_set_quantities_to_reservation()
+        # picking.action_set_quantities_to_reservation()
         picking.button_validate()
         model_wizard = self.env["wizard.create.delivery.note"]
         wiz = Form(model_wizard.with_context(active_ids=picking.id)).save()
@@ -129,7 +129,7 @@ class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
         self.assertEqual(note1.state, "done")
         # Validar el picking en backorder y crear otra guia de remisión
         picking_backorder = picking.backorder_ids
-        picking_backorder.action_set_quantities_to_reservation()
+        # picking_backorder.action_set_quantities_to_reservation()
         picking_backorder_context = picking_backorder.button_validate()
         wiz = Form(
             self.env[picking_context["res_model"]].with_context(

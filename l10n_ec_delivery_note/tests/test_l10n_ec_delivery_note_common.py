@@ -28,7 +28,7 @@ class TestL10nDeliveryNoteCommon(TestL10nECEdiCommon):
             "l10n_latam_use_documents": True,
             "l10n_ec_entity": "001",
             "l10n_ec_emission": "001",
-            "l10n_ec_emission_type": "electronic",
+            # "l10n_ec_emission_type": "electronic",
             "type": "sale",
             "code": "GR",
         }
