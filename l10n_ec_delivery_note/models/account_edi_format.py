@@ -71,3 +71,14 @@ class AccountEdiFormat(models.Model):
                 )
             )
         return errors
+
+    def _get_batch_key(self, move, state):
+        move.ensure_one()
+        return ()
+
+    def _support_batching(self, move, state, company):
+        return False
+
+    def _post_invoice_edi(self, invoices):
+        self.ensure_one()
+        return {}

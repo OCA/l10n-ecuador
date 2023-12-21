@@ -118,7 +118,7 @@ class TestL10nDeliveryNoteCommon(TestL10nECEdiCommon):
         )
         self.picking_type.write({"use_create_lots": True})
         self.product_a.write({"type": "product", "tracking": "lot"})
-        lot = self.env["stock.production.lot"].create(
+        lot = self.env["stock.lot"].create(
             {
                 "name": "0001",
                 "product_id": self.product_a.id,

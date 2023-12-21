@@ -86,7 +86,7 @@ class StockPicking(models.Model):
                 "Product Unit of Measure"
             )
             no_quantities_done = all(
-                float_is_zero(move_line.qty_done, precision_digits=precision_digits)
+                float_is_zero(move_line.quantity, precision_digits=precision_digits)
                 for move_line in picking.move_line_ids.filtered(
                     lambda m: m.state not in ("done", "cancel")
                 )
@@ -94,7 +94,7 @@ class StockPicking(models.Model):
 
             no_reserved_quantities = all(
                 float_is_zero(
-                    move_line.product_qty,
+                    move_line.quantity_product_uom,
                     precision_rounding=move_line.product_uom_id.rounding,
                 )
                 for move_line in picking.move_line_ids
@@ -112,7 +112,7 @@ class StockPicking(models.Model):
                 if not no_quantities_done:
                     lines_to_check = lines_to_check.filtered(
                         lambda line: float_compare(
-                            line.qty_done,
+                            line.quantity,
                             0,
                             precision_rounding=line.product_uom_id.rounding,
                         )

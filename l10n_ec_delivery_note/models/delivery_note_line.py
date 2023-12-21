@@ -78,7 +78,7 @@ class DeliveryNoteLine(models.Model):
             "product_id": stock_move_line.product_id.id,
             "description": stock_move_line.move_id.sale_line_id.name
             or stock_move_line.product_id.name,
-            "product_qty": stock_move_line.qty_done,
+            "product_qty": stock_move_line.quantity,
             "product_uom_id": stock_move_line.product_uom_id.id,
             "move_id": stock_move_line.move_id.id,
             "move_line_id": stock_move_line.id,

@@ -114,7 +114,7 @@ class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
             picking.move_ids_without_package, view="stock.view_stock_move_operations"
         )
         with move_form.move_line_ids.new() as line:
-            line.qty_done = 1
+            line.quantity = 1
         move_form.save()
         picking_context = picking.button_validate()
         wiz = Form(

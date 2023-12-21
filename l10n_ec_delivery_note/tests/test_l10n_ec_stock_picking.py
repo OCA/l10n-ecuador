@@ -46,7 +46,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
             picking.move_ids_without_package, view="stock.view_stock_move_operations"
         )
         with move_form.move_line_ids.new() as line:
-            line.qty_done = 1
+            line.quantity = 1
         move_form.save()
         picking_context = picking.button_validate()
         wiz = Form(
@@ -68,7 +68,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
             picking.move_ids_without_package, view="stock.view_stock_move_operations"
         )
         with move_form.move_line_ids.new() as line:
-            line.qty_done = 1
+            line.quantity = 1
         move_form.save()
         picking_context = picking.button_validate()
         wiz = Form(
@@ -88,14 +88,14 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         picking.action_confirm()
         # Validar sin escoger el lote
         with self.assertRaises(UserError):
-            picking.move_ids_without_package.quantity_done = 1
+            picking.move_ids_without_package.quantity = 1
             picking.button_validate()
         move_form = Form(
             picking.move_ids_without_package, view="stock.view_stock_move_operations"
         )
         with move_form.move_line_ids.new() as line:
             line.lot_id = lot
-            line.qty_done = 1
+            line.quantity = 1
         move_form.save()
         picking_context = picking.button_validate()
         wiz = Form(
@@ -113,7 +113,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
             [
                 {
                     "product_id": stock_move_line.product_id.id,
-                    "product_qty": stock_move_line.qty_done,
+                    "product_qty": stock_move_line.quantity,
                     "product_uom_id": stock_move_line.product_uom_id.id,
                     "production_lot_id": stock_move_line.lot_id.id,
                 }
@@ -130,7 +130,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
             picking.move_ids_without_package, view="stock.view_stock_move_operations"
         )
         with move_form.move_line_ids.new() as line:
-            line.qty_done = 1
+            line.quantity = 1
         move_form.save()
         picking_context = picking.button_validate()
         wiz = Form(
@@ -153,7 +153,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
             picking.move_ids_without_package, view="stock.view_stock_move_operations"
         )
         with move_form.move_line_ids.new() as line:
-            line.qty_done = 1
+            line.quantity = 1
         move_form.save()
         picking_context = picking.button_validate()
         wiz = Form(

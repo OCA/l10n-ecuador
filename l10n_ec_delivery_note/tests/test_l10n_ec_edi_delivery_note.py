@@ -90,7 +90,7 @@ class TestL10nDeliveryNote(TestL10nDeliveryNoteCommon):
                 {
                     "delivery_note_id": delivery_note.id,
                     "product_id": stock_move_line.product_id.id,
-                    "product_qty": stock_move_line.qty_done,
+                    "product_qty": stock_move_line.quantity,
                     "product_uom_id": stock_move_line.product_uom_id.id,
                     "move_id": stock_move_line.move_id.id,
                     "production_lot_id": stock_move_line.lot_id.id,
