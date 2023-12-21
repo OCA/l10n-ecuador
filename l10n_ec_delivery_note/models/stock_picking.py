@@ -12,17 +12,13 @@ class StockPicking(models.Model):
     l10n_ec_delivery_note_ids = fields.Many2many(
         "l10n_ec.delivery.note", string="Delivery note", readonly=True, copy=False
     )
-    l10n_ec_create_delivery_note = fields.Boolean(
-        "Create Delivery note?", readonly=False, states=STATES
-    )
+    l10n_ec_create_delivery_note = fields.Boolean("Create Delivery note?")
     l10n_ec_delivery_carrier_id = fields.Many2one(
         "res.partner",
         "Delivery Note Carrier",
-        readonly=False,
-        states=STATES,
         domain=[("l10n_ec_is_carrier", "=", True)],
     )
-    l10n_ec_car_plate = fields.Char("Car plate", size=8, readonly=False, states=STATES)
+    l10n_ec_car_plate = fields.Char("Car plate", size=8)
     l10n_ec_delivery_note_number = fields.Char(
         string="Delivery Note Numbers",
         index=True,
@@ -32,7 +28,6 @@ class StockPicking(models.Model):
     l10n_ec_delivery_note_journal_id = fields.Many2one(
         comodel_name="account.journal",
         string="Emission Point",
-        states=STATES,
         check_company=True,
         domain=[("l10n_latam_use_documents", "=", True), ("type", "=", "sale")],
     )

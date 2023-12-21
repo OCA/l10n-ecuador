@@ -19,6 +19,7 @@
                 <field
                     name="l10n_ec_create_delivery_note"
                     invisible="picking_type_code == 'incoming'"
+                    readonly="state in ('done','cancel')"
                 />
             </field>
             <field name="partner_id" position="after">
@@ -33,12 +34,14 @@
                     name="l10n_ec_car_plate"
                     required="l10n_ec_create_delivery_note == True and picking_type_code != 'incoming'"
                     invisible="picking_type_code == 'incoming' and l10n_ec_create_delivery_note == False"
+                    readonly="state in ('done','cancel')"
                 />
                 <field
                     name="l10n_ec_delivery_note_journal_id"
                     invisible="picking_type_code == 'incoming'"
                     required="l10n_ec_create_delivery_note == True and picking_type_code != 'incoming'"
                     options="{'no_open':True, 'no_create': True}"
+                    readonly="state in ('done','cancel')"
                 />
                 <field
                     name="l10n_latam_internal_type"

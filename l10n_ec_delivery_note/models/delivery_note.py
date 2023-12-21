@@ -28,7 +28,6 @@ class DeliveryNote(models.Model):
         comodel_name="account.journal",
         string="Emission Point",
         readonly=True,
-        states=STATES,
         check_company=True,
         domain=[("l10n_latam_use_documents", "=", True), ("type", "=", "sale")],
     )
@@ -98,7 +97,6 @@ class DeliveryNote(models.Model):
         "delivery_note_id",
         "Delivery note detail",
         readonly=True,
-        states=STATES,
         copy=True,
         auto_join=True,
     )
