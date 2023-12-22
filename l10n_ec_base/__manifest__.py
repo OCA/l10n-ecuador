@@ -10,6 +10,8 @@
     "depends": ["l10n_ec", "account"],
     "data": [
         "data/l10n_latam_identification_type_data.xml" ,
+        "data/res_partner_data.xml",
+        "data/res.bank.csv",
         "wizard/account_payment_register_views.xml",
         "views/account_tax_view.xml",
         "views/account_journal_view.xml",

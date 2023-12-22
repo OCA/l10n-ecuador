@@ -4,7 +4,7 @@
         <record id="l10n_ec.ec_final_consumer" model="res.partner">
             <field name="name">Consumidor final</field>
             <field name="country_id" ref="base.ec"/>
-            <field name="image_1920" type="base64" file="l10n_ec/static/img/consumidor_final.png"/>
+            <field name="image_1920" type="base64" file="l10n_ec_base/static/img/consumidor_final.png"/>
             <field name="l10n_latam_identification_type_id" ref="l10n_ec.ec_ruc"/>
             <field name="vat">9999999999999</field>
         </record>
