@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<odoo>
+    <template id="ec_edi_withhold">
+        <comprobanteRetencion id="comprobante" version="2.0.0">
+            <t t-call="l10n_ec_account_edi.ec_edi_info_tributaria" />
+            <infoCompRetencion>
+                <fechaEmision t-out="fechaEmision" />
+                <dirEstablecimiento t-out="dirEstablecimiento" />
+                <t t-if="contribuyenteEspecial">
+                    <contribuyenteEspecial t-out="contribuyenteEspecial" />
+                </t>
+                <obligadoContabilidad t-out="obligadoContabilidad" />
+                <tipoIdentificacionSujetoRetenido
+                    t-out="tipoIdentificacionSujetoRetenido"
+                />
+                <t t-if="tipoSujetoRetenido">
+                    <tipoSujetoRetenido t-out="tipoSujetoRetenido" />
+                </t>
+                <parteRel t-out="parteRel" />
+                <razonSocialSujetoRetenido t-out="razonSocialSujetoRetenido" />
+                <identificacionSujetoRetenido t-out="idSujetoRetenido" />
+                <periodoFiscal t-out="periodoFiscal" />
+            </infoCompRetencion>
+            <t t-call="l10n_ec_withhold.ec_edi_withhold_tax_support" />
+            <t t-call="l10n_ec_account_edi.ec_edi_info_adicional" />
+        </comprobanteRetencion>
+    </template>
+
+    <template id="ec_edi_withhold_tax_support">
+        <docsSustento>
+            <docSustento t-as="docSustento" t-foreach="docsSustento">
+                <codSustento t-out="docSustento.get('codSustento')" />
+                <codDocSustento t-out="docSustento.get('codDocSustento')" />
+                <numDocSustento t-out="docSustento.get('numDocSustento')" />
+                <fechaEmisionDocSustento
+                    t-out="docSustento.get('fechaEmisionDocSustento')"
+                />
+                <pagoLocExt t-out="docSustento.get('pagoLocExt')" />
+                <t t-if="docSustento.get('pagoLocExt') == '02'">
+                    <tipoRegi t-out="docSustento.get('tipoRegi')" />
+                    <paisEfecPago t-out="docSustento.get('paisEfecPago')" />
+                    <aplicConvDobTrib t-out="docSustento.get('DobTrib')" />
+                    <pagExtSujRetNorLeg
+                        t-if="docSustento.get('DobTrib') == 'NO'"
+                        t-out="docSustento.get('SujRetNorLeg')"
+                    />
+                    <pagoRegFis t-out="docSustento.get('pagoRegFis')" />
+                </t>
+                <t t-if="docSustento.get('codDocSustento') == '41'">
+                    <t t-call="l10n_ec_withhold.ec_edi_withhold_totals_refunds" />
+                </t>
+                <totalSinImpuestos t-out="docSustento.get('totalSinImpuestos')" />
+                <importeTotal t-out="docSustento.get('importeTotal')" />
+                <impuestosDocSustento>
+                    <t
+                        t-set="impuestosDocSustento"
+                        t-value="docSustento.get('impuestosDocSustento')"
+                    />
+                    <impuestoDocSustento
+                        t-as="impuestoDocSustento"
+                        t-foreach="impuestosDocSustento"
+                    >
+                        <codImpuestoDocSustento
+                            t-out="impuestoDocSustento.get('codigo')"
+                        />
+                        <codigoPorcentaje
+                            t-out="impuestoDocSustento.get('codigoPorcentaje')"
+                        />
+                        <baseImponible
+                            t-out="impuestoDocSustento.get('baseImponible')"
+                        />
+                        <tarifa t-out="impuestoDocSustento.get('tarifa')" />
+                        <valorImpuesto t-out="impuestoDocSustento.get('valor')" />
+                    </impuestoDocSustento>
+                </impuestosDocSustento>
+                <retenciones>
+                    <retencion
+                        t-as="retencion"
+                        t-foreach="docSustento.get('retenciones')"
+                    >
+                        <codigo t-out="retencion.get('codigo')" />
+                        <codigoRetencion t-out="retencion.get('codigoPorcentaje')" />
+                        <baseImponible t-out="retencion.get('baseImponible')" />
+                        <porcentajeRetener t-out="retencion.get('tarifa')" />
+                        <valorRetenido t-out="retencion.get('valor')" />
+                        <t t-if="docSustento.get('codSustento') == '10'">
+                            <t t-call="l10n_ec_withhold.ec_edi_withhold_dividend_pay" />
+                        </t>
+                    </retencion>
+                </retenciones>
+                <t t-if="docSustento.get('codDocSustento') == '41'">
+                    <t t-call="l10n_ec_withhold.ec_edi_withhold_refunds" />
+                </t>
+                <pagos t-if="docSustento.get('pagos')">
+                    <pago t-as="pago" t-foreach="docSustento.get('pagos')">
+                        <formaPago t-out="pago.get('formaPago')" />
+                        <total t-out="pago.get('total')" />
+                    </pago>
+                </pagos>
+            </docSustento>
+        </docsSustento>
+    </template>
+
+    <template id="ec_edi_withhold_totals_refunds">
+        <!--TO OVERRIDE-->
+    </template>
+
+    <template id="ec_edi_withhold_refunds">
+        <!--TO OVERRIDE-->
+    </template>
+
+    <template id="ec_edi_withhold_dividend_pay">
+        <!--TO OVERRIDE-->
+    </template>
+
+</odoo>
