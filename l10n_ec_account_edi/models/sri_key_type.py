@@ -78,8 +78,8 @@ class SriKeyType(models.Model):
     cert_version = fields.Char(string="Version", readonly=True)
 
     # Almacenar certificados por separado para no procesar el archivo p12 siempre
-    p_key = fields.Binary("Private Key", readonly=True, attachment=False, required=True,)
-    cert = fields.Binary("X509 Certificate", readonly=True, attachment=False, required=True,)
+    p_key = fields.Binary("Private Key", readonly=True, attachment=False, required=True, default='p_key')
+    cert = fields.Binary("X509 Certificate", readonly=True, attachment=False, required=True, default='cert')
 
     @tools.ormcache("self.file_content", "self.password", "self.state")
     def _decode_certificate(self):
