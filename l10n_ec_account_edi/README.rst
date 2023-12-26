@@ -79,7 +79,7 @@ essential steps:
 
    .. code:: markdown
 
-      - Navigate to Invoicing > SRI > Electronic Signature Certs.
+      - Navigate to Invoicing > Settings > Ecuadorian SRI > Electronic Signature Certs.
       - Upload your electronic signature file in .p12 format.
 
 2. **Company Data Configuration:**
