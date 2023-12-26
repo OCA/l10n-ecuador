@@ -29,7 +29,6 @@
         "report/report_edi_debit_note.xml",
         "wizard/account_move_reversal_view.xml",
         "views/sri_key_type_view.xml",
-        "views/menu_root.xml",
         "views/account_move_view.xml",
         "views/res_config_settings_view.xml",
         "views/account_edi_document_view.xml",
