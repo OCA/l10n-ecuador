@@ -359,11 +359,6 @@ msgid "Config Settings"
 msgstr ""
 
 #. module: l10n_ec_account_edi
-#: model:ir.ui.menu,name:l10n_ec_account_edi.sri_config_menu
-msgid "Configurations"
-msgstr ""
-
-#. module: l10n_ec_account_edi
 #: model_terms:ir.actions.act_window,help:l10n_ec_account_edi.action_move_debit_note_type
 msgid "Create a debit note"
 msgstr ""
@@ -538,11 +533,6 @@ msgstr ""
 #. module: l10n_ec_account_edi
 #: model:ir.model,name:l10n_ec_account_edi.model_account_edi_document
 msgid "Electronic Document for an account.move"
-msgstr ""
-
-#. module: l10n_ec_account_edi
-#: model:ir.ui.menu,name:l10n_ec_account_edi.sri_electronic_documents_menu
-msgid "Electronic Documents"
 msgstr ""
 
 #. module: l10n_ec_account_edi
@@ -819,11 +809,6 @@ msgstr ""
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.account_edi_document_view_form
 msgid "Related Document"
-msgstr ""
-
-#. module: l10n_ec_account_edi
-#: model:ir.ui.menu,name:l10n_ec_account_edi.sri_root_menu
-msgid "SRI"
 msgstr ""
 
 #. module: l10n_ec_account_edi
