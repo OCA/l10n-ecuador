@@ -84,8 +84,8 @@
     <menuitem
         id="account_edi_document_menu_action"
         name="XML Electronic Documents"
-        sequence="5"
-        parent="sri_electronic_documents_menu"
+        sequence="2"
+        parent="l10n_ec.sri_menu"
         action="account_edi_document_action"
     />
 
