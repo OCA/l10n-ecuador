@@ -5,7 +5,7 @@ To effectively utilize the `l10n_ec_account_edi` module, follow these essential 
     Upload your electronic signature in the required .p12 format through the module's configuration settings. Ensure that the provided electronic signature is valid and complies with Ecuadorian regulations.
 
     ```markdown
-    - Navigate to Invoicing > SRI > Electronic Signature Certs.
+    - Navigate to Invoicing > Settings > Ecuadorian SRI > Electronic Signature Certs.
     - Upload your electronic signature file in .p12 format.
     ```
 
