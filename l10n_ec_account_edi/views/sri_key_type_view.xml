@@ -109,4 +109,12 @@
         <field name="view_id" ref="sri_key_type_tree_view" />
         <field name="search_view_id" ref="sri_key_type_search_view" />
     </record>
+    <menuitem
+        id="sri_key_type_menu"
+        name="Electronic Signature Certs"
+        sequence="1"
+        parent="l10n_ec.sri_menu"
+        action="sri_key_type_action"
+        groups="base.group_system"
+    />
 </odoo>
