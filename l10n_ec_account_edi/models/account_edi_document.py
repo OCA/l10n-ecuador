@@ -46,6 +46,8 @@ class AccountEdiDocument(models.Model):
         compute="_compute_l10n_ec_document_data",
         store=True,
     )
+    l10n_ec_partner_vat = fields.Char(related="l10n_ec_partner_id.vat", string="Ced/RUC", readonly=True)
+    l10n_ec_partner_email = fields.Char(related="l10n_ec_partner_id.email", string="Customer Email", readonly=True)
 
     @api.depends("move_id")
     def _compute_l10n_ec_document_data(self):
@@ -205,13 +207,10 @@ class AccountEdiDocument(models.Model):
                 company,
             )
             self.l10n_ec_xml_access_key = xml_access_key
-        social_name = "PRUEBAS SERVICIO DE RENTAS INTERNAS"
-        business_name = "PRUEBAS SERVICIO DE RENTAS INTERNAS"
-        if environment == "2":
-            social_name = self._l10n_ec_clean_str(company.partner_id.name)
-            business_name = self._l10n_ec_clean_str(
-                company.partner_id.l10n_ec_business_name or social_name
-            )
+
+        social_name = self._l10n_ec_clean_str(company.partner_id.name)
+        business_name = self._l10n_ec_clean_str(company.partner_id.l10n_ec_business_name or social_name)
+        
         data = {
             "ambiente": environment,
             "tipoEmision": "1",  # emision normal, SRI no acepta contingencia

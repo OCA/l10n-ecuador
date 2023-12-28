@@ -4,17 +4,16 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 15.0\n"
+"Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2023-09-08 07:37+0000\n"
-"Last-Translator: lojanet <lojanet@gmail.com>\n"
-"Language-Team: none\n"
-"Language: es\n"
+"POT-Creation-Date: 2023-12-20 19:54+0000\n"
+"PO-Revision-Date: 2023-12-20 19:54+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.17\n"
+"Plural-Forms: \n"
 
 #. module: l10n_ec_account_edi
 #: model:ir.model.fields.selection,name:l10n_ec_account_edi.selection__res_company__l10n_ec_debit_note_version__1_0_0
@@ -58,8 +57,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.electronic_report_common_head
 msgid ""
 "<br/>\n"
-"                                <strong>Agente Retención Resolución No</"
-"strong>"
+"                                <strong>Agente Retención Resolución No</strong>"
 msgstr ""
 
 #. module: l10n_ec_account_edi
@@ -154,11 +152,11 @@ msgstr "<span class=\"o_form_label\">Archivo de Firma Electrónica</span>"
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.res_config_settings_l10n_ec_edi
 msgid ""
-"<span class=\"o_form_label\">Electronic Invoicing Connection Parameters</"
-"span>"
+"<span class=\"o_form_label\">Electronic Invoicing Connection "
+"Parameters</span>"
 msgstr ""
-"<span class=\"o_form_label\">Parámetros de Conección WebService del SRI</"
-"span>"
+"<span class=\"o_form_label\">Parámetros de Conección WebService del "
+"SRI</span>"
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.res_config_settings_l10n_ec_edi
@@ -257,16 +255,10 @@ msgid "<strong>Telefono:</strong>"
 msgstr ""
 
 #. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/tests/test_l10n_ec_edi_out_invoice.py:0
-#, python-format
-msgid "ARCHIVO NO CUMPLE ESTRUCTURA XML"
-msgstr ""
-
-#. module: l10n_ec_account_edi
-#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_bank_statement_line__l10n_ec_authorization_date
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_bank_statement_line__l10n_ec_xml_access_key
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_edi_document__l10n_ec_xml_access_key
-#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_move__l10n_ec_authorization_date
-#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_payment__l10n_ec_authorization_date
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_move__l10n_ec_xml_access_key
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_payment__l10n_ec_xml_access_key
 msgid "Access Key(EC)"
 msgstr "Clave de Acceso(EC)"
 
@@ -278,7 +270,7 @@ msgstr "Asiento contable"
 #. module: l10n_ec_account_edi
 #: model:ir.model,name:l10n_ec_account_edi.model_account_move_reversal
 msgid "Account Move Reversal"
-msgstr "Reversión de Asiento Contable"
+msgstr "Revocación de movimiento en cuenta"
 
 #. module: l10n_ec_account_edi
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type__active
@@ -288,7 +280,7 @@ msgstr "Activo?"
 #. module: l10n_ec_account_edi
 #: model:ir.model,name:l10n_ec_account_edi.model_account_debit_note
 msgid "Add Debit Note wizard"
-msgstr "Asistente para agregar Nota Débito"
+msgstr "Asistente para agregar nota débito"
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.view_move_form_additional_information_extend
@@ -320,12 +312,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_edi_document__l10n_ec_authorization_date
 msgid "Authorization Date"
 msgstr "Fecha de Autorización"
-
-#. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
-#, python-format
-msgid "Can't connect to SRI Webservice, try in few minutes"
-msgstr "No hay conexión a WebService del SRI, Intente en unos minutos"
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.e_credit_note_document_body
@@ -364,7 +350,7 @@ msgstr "Compañía"
 #. module: l10n_ec_account_edi
 #: model:ir.model,name:l10n_ec_account_edi.model_res_config_settings
 msgid "Config Settings"
-msgstr "Opciones de Configuración"
+msgstr "Opciones de configuración"
 
 #. module: l10n_ec_account_edi
 #: model:ir.ui.menu,name:l10n_ec_account_edi.sri_config_menu
@@ -384,23 +370,19 @@ msgstr "Crear una Liquidación de Compra (Proveedor)"
 #. module: l10n_ec_account_edi
 #: model_terms:ir.actions.act_window,help:l10n_ec_account_edi.action_move_debit_note_type
 msgid ""
-"Create debit note, register payments and keep track of the discussions with "
-"your\n"
+"Create debit note, register payments and keep track of the discussions with your\n"
 "                vendors."
 msgstr ""
-"Cree notas de débito, registre pagos y realice un seguimiento de las "
-"discusiones con su\n"
+"Cree notas de débito, registre pagos y realice un seguimiento de las discusiones con su\n"
 "                proveedor."
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.actions.act_window,help:l10n_ec_account_edi.action_move_liquidation_of_purchases_type
 msgid ""
-"Create liquidation of purchases, register payments and keep track of the "
-"discussions with your\n"
+"Create liquidation of purchases, register payments and keep track of the discussions with your\n"
 "                vendors."
 msgstr ""
-"Crea Liquidación de Compras, registra pagos y realiza un seguimiento de las "
-"discusiones con tus\n"
+"Crea Liquidación de Compras, registra pagos y realiza un seguimiento de las discusiones con tus\n"
 "                Proveedores."
 
 #. module: l10n_ec_account_edi
@@ -437,6 +419,11 @@ msgstr "Dias de Crédito"
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_edi_document__l10n_ec_partner_id
 msgid "Customer"
 msgstr "Cliente"
+
+#. module: l10n_ec_account_edi
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_edi_document__l10n_ec_partner_email
+msgid "Customer Email"
+msgstr "Correo del cliente"
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.e_credit_note_document_body
@@ -503,21 +490,15 @@ msgid "Document Number"
 msgstr "Nº de documento"
 
 #. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/tests/test_l10n_ec_edi_out_invoice.py:0
-#, python-format
-msgid "EDI Error creating xml file"
-msgstr "Error EDI al crear archivo XML"
-
-#. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
-#, python-format
-msgid "EDI Error creating xml file: %s"
-msgstr "Error EDI creando archivo XML: %s"
-
-#. module: l10n_ec_account_edi
 #: model:ir.model,name:l10n_ec_account_edi.model_account_edi_format
 msgid "EDI format"
 msgstr "Formato EDI"
+
+#. module: l10n_ec_account_edi
+#: model:ir.model.fields,help:l10n_ec_account_edi.field_account_bank_statement_line__l10n_ec_sri_payment_id
+#: model:ir.model.fields,help:l10n_ec_account_edi.field_account_move__l10n_ec_sri_payment_id
+msgid "Ecuador: Payment Methods Defined by the SRI."
+msgstr "Ecuador: Medios de Pago Definidos por el SRI."
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.res_config_settings_l10n_ec_edi
@@ -532,9 +513,9 @@ msgid "Electronic Authorization"
 msgstr "Autorización Electrónica"
 
 #. module: l10n_ec_account_edi
-#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_bank_statement_line__l10n_ec_xml_access_key
-#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_move__l10n_ec_xml_access_key
-#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_payment__l10n_ec_xml_access_key
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_bank_statement_line__l10n_ec_authorization_date
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_move__l10n_ec_authorization_date
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_payment__l10n_ec_authorization_date
 msgid "Electronic Authorization Date"
 msgstr "Fecha Autorización Electrónica"
 
@@ -574,18 +555,6 @@ msgstr "Ambiente"
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_res_config_settings__l10n_ec_type_environment
 msgid "Environment type for electronic documents"
 msgstr "Tipo de Ambiente para Documentos Electrónicos"
-
-#. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/models/sri_key_type.py:0
-#, python-format
-msgid ""
-"Error opening the signature, possibly the signature key has been entered "
-"incorrectly or the file is not supported. \n"
-"%s"
-msgstr ""
-"Error al abrir la Firma, posiblemente la Clave de la Firma se haya ingresado "
-"incorrectamente o el archivo no sea compatible. \n"
-"%s"
 
 #. module: l10n_ec_account_edi
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type__expire_date
@@ -635,12 +604,6 @@ msgid "ID"
 msgstr ""
 
 #. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/models/account_move.py:0
-#, python-format
-msgid "Invalid provider authorization number, must be numeric only"
-msgstr "Número de Autorización de Proveedor no Válido, debe ser solo Numérico"
-
-#. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.res_config_settings_l10n_ec_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.view_move_form
 msgid "Invoice"
@@ -677,7 +640,7 @@ msgstr "Opcional para documentos electrónicos"
 #. module: l10n_ec_account_edi
 #: model:ir.model,name:l10n_ec_account_edi.model_account_move
 msgid "Journal Entry"
-msgstr "Asiento Contable"
+msgstr "Asiento contable"
 
 #. module: l10n_ec_account_edi
 #: model:ir.model,name:l10n_ec_account_edi.model_account_move_line
@@ -703,12 +666,6 @@ msgstr "L10n Latam Tipo Interno"
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.account_edi_document_view_tree
 msgid "Last Error Message"
 msgstr "Último Mensaje de Error"
-
-#. module: l10n_ec_account_edi
-#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_l10n_ec_additional_information____last_update
-#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type____last_update
-msgid "Last Modified on"
-msgstr "Ultima modificación"
 
 #. module: l10n_ec_account_edi
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_edi_document__l10n_ec_last_sent_date
@@ -750,6 +707,11 @@ msgid "Name"
 msgstr "Nombre"
 
 #. module: l10n_ec_account_edi
+#: model:ir.model.fields.selection,name:l10n_ec_account_edi.selection__res_company__l10n_ec_type_environment__none
+msgid "No Send"
+msgstr "No Enviar"
+
+#. module: l10n_ec_account_edi
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type__issuer_common_name
 msgid "Organization (Issuer)"
 msgstr "Organización (Emisor)"
@@ -772,7 +734,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_bank_statement_line__l10n_ec_sri_payment_id
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_move__l10n_ec_sri_payment_id
 msgid "Payment Method (SRI)"
-msgstr "SRI Forma de Pago"
+msgstr "Forma de pago (SRI)"
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.electronic_report_common_payment_info
@@ -793,6 +755,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.e_invoice_document_body
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.e_liquidation_document_body
 msgid "Precio Unitario"
+msgstr ""
+
+#. module: l10n_ec_account_edi
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type__p_key
+msgid "Private Key"
 msgstr ""
 
 #. module: l10n_ec_account_edi
@@ -840,20 +807,16 @@ msgstr ""
 msgid ""
 "Select 'Sale' for customer invoices journals.\n"
 "Select 'Purchase' for vendor bills journals.\n"
-"Select 'Cash' or 'Bank' for journals that are used in customer or vendor "
-"payments.\n"
+"Select 'Cash' or 'Bank' for journals that are used in customer or vendor payments.\n"
 "Select 'General' for miscellaneous operations journals."
 msgstr ""
 "Seleccione 'Venta' para Diarios de Facturas de Clientes.\n"
 "Seleccione 'Comprar' para Diarios de Facturas de Proveedores.\n"
-"Seleccione 'Efectivo' o 'Banco' para Diarios que se utilizan en pagos de "
-"Clientes o Proveedores.\n"
+"Seleccione 'Efectivo' o 'Banco' para Diarios que se utilizan en pagos de Clientes o Proveedores.\n"
 "Seleccione 'General' para Diarios de Operaciones Misceláneas."
 
 #. module: l10n_ec_account_edi
 #: model:ir.actions.server,name:l10n_ec_account_edi.ir_cron_send_email_electronic_documents_ir_actions_server
-#: model:ir.cron,cron_name:l10n_ec_account_edi.ir_cron_send_email_electronic_documents
-#: model:ir.cron,name:l10n_ec_account_edi.ir_cron_send_email_electronic_documents
 msgid "Send email with authorized electronic documents(Ecuador)"
 msgstr "Enviar correo con documentos electrónicos autorizados"
 
@@ -891,26 +854,6 @@ msgstr "Estado"
 #: model:ir.model.fields.selection,name:l10n_ec_account_edi.selection__res_company__l10n_ec_type_environment__test
 msgid "Test"
 msgstr "Prueba"
-
-#. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
-#, python-format
-msgid "The amount total %(Total)s is bigger than %(Limit)s for final customer"
-msgstr ""
-"Total Factura de Venta %(Total)s es mayor que el Limite %(Limit)s para "
-"Consumidor Final"
-
-#. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/models/account_move.py:0
-#, python-format
-msgid "The connection to the SRI service is not possible. Please check later."
-msgstr "No es posible la conexión al SRI. Por favor verifique más tarde."
-
-#. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/models/account_move.py:0
-#, python-format
-msgid "The receipt is authorized. It cannot be cancelled."
-msgstr "El Documento esta autorizado. No se puede cancelar."
 
 #. module: l10n_ec_account_edi
 #: model:ir.model,name:l10n_ec_account_edi.model_sri_key_type
@@ -953,104 +896,12 @@ msgid "Versions 1.1.0 to 6 decimals"
 msgstr "Versión 1.1.0 de 6 decimales"
 
 #. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/models/account_edi_document.py:0
-#, python-format
-msgid ""
-"Wrong XML File, Detail: \n"
-"%s"
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type__cert
+msgid "X509 Certificate"
 msgstr ""
-"Archivo XML Incorrecto, Detalle: \n"
-"%s"
 
 #. module: l10n_ec_account_edi
 #: model:ir.actions.act_window,name:l10n_ec_account_edi.account_edi_document_action
 #: model:ir.ui.menu,name:l10n_ec_account_edi.account_edi_document_menu_action
 msgid "XML Electronic Documents"
 msgstr "XML Documentos Electrónicos"
-
-#. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/models/account_move.py:0
-#, python-format
-msgid ""
-"You cannot validate an invoice with zero quantity. Please review the "
-"following items:\n"
-"%s"
-msgstr ""
-"No se puede Validar una Factura con Cantidad Cero. Revise los siguientes "
-"elementos:\n"
-"%s"
-
-#. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/models/account_move.py:0
-#, python-format
-msgid "You cannot validate an invoice with zero value."
-msgstr "No se puede Validar una Factura con Valor Cero."
-
-#. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
-#, python-format
-msgid "You must set Code Base into Tax: %s"
-msgstr "Debe configurar en Impuestos el Cófigo Base:%s"
-
-#. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
-#, python-format
-msgid "You must set Electronic Certificate File into company: %s"
-msgstr "Debe Configurar el archivo de Firma Electrónica en la Compañia: %s"
-
-#. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
-#, python-format
-msgid "You must set Emission address into Journal: %s"
-msgstr "Debe establecer la Dirección de Emisión en el Diario: %s"
-
-#. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
-#, python-format
-msgid "You must set Payment Method SRI on Current document or Journal: %s"
-msgstr ""
-"Debe configurar el Método de Pago SRI en el Documento actual o el Diario: %s"
-
-#. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
-#, python-format
-msgid "You must set Tax Code for Electronic Documents into Tax: %s"
-msgstr ""
-"Debe Configurar en Impuestos el Código Fiscal de Documentos Electrónicos: %s"
-
-#. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
-#, python-format
-msgid "You must set XML Version for Credit Note into company %s"
-msgstr ""
-"Debe Configurar la Versión XML para la Nota de Crédito en la Compañia %s"
-
-#. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
-#, python-format
-msgid "You must set XML Version for Invoice into company %s"
-msgstr "Debe Configurar la Versión XML para la Factura en la Compañia %s"
-
-#. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
-#, python-format
-msgid "You must set XML Version for Purchase Liquidation into company %s"
-msgstr ""
-"Debe Configurar la Versión XML para la Liquidación de Compras en la Compañia "
-"%s"
-
-#. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
-#, python-format
-msgid ""
-"You must set street into Emission Address: %(concact_name)s for Journal: "
-"%(journal_name)s"
-msgstr ""
-"Debe establecer la dirección de Emisión: %(concact_name)s para el Diario: "
-"%(journal_name)s"
-
-#. module: l10n_ec_account_edi
-#: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
-#, python-format
-msgid "You must set vat identification for company: %s"
-msgstr "Debe Configurar el RUC en la Compañia: %s"

@@ -1,21 +1,25 @@
 import logging
 import subprocess
-from base64 import b64decode
+import datetime
+from base64 import b64encode, b64decode
 from random import randrange
 from tempfile import NamedTemporaryFile
 
 import xmlsig  # pylint: disable=W7936
 from cryptography.hazmat.primitives import serialization  # pylint: disable=W7936
 from cryptography.hazmat.primitives.serialization import pkcs12  # pylint: disable=W7936
-from cryptography.x509 import ExtensionNotFound  # pylint: disable=W7936
+from cryptography.hazmat.primitives.serialization import load_pem_private_key
+from cryptography.x509 import load_pem_x509_certificate, ExtensionNotFound  # pylint: disable=W7936
 from cryptography.x509.oid import ExtensionOID, NameOID  # pylint: disable=W7936
 from lxml import etree
 from xades import XAdESContext, template  # pylint: disable=W7936
 from xades.policy import ImpliedPolicy  # pylint: disable=W7936
 
+
 from odoo import fields, models, tools
 from odoo.exceptions import UserError
 from odoo.tools.translate import _
+
 
 _logger = logging.getLogger(__name__)
 
@@ -43,7 +47,7 @@ class SriKeyType(models.Model):
     _name = "sri.key.type"
     _description = "Type of electronic key"
 
-    name = fields.Char(size=255, required=True, readonly=False)
+    name = fields.Char(size=255, default="Nuevo", required=True, readonly=False)
     file_content = fields.Binary(string="Signature File")
     file_name = fields.Char(string="Filename", readonly=True)
     password = fields.Char(string="Signing key")
@@ -72,6 +76,10 @@ class SriKeyType(models.Model):
         string="Serial number (certificate)", readonly=True
     )
     cert_version = fields.Char(string="Version", readonly=True)
+
+    # Almacenar certificados por separado para no procesar el archivo p12 siempre
+    p_key = fields.Binary("Private Key", readonly=True, attachment=False, required=True, default='p_key')
+    cert = fields.Binary("X509 Certificate", readonly=True, attachment=False, required=True, default='cert')
 
     @tools.ormcache("self.file_content", "self.password", "self.state")
     def _decode_certificate(self):
@@ -127,14 +135,11 @@ class SriKeyType(models.Model):
             private_key_str = private_key_str[start_index:]
         start_index = private_key_str.find("-----BEGIN ENCRYPTED PRIVATE KEY-----")
         private_key_str = private_key_str[start_index:]
-        private_key = serialization.load_pem_private_key(
-            private_key_str.encode(),
-            self.password.encode(),
-        )
-        return private_key, certificate
+
+        return private_key_str, certificate
 
     def action_validate_and_load(self):
-        _private_key, cert = self._decode_certificate()
+        private_key_str, cert = self._decode_certificate()
         issuer = cert.issuer
         subject = cert.subject
         subject_common_name = (
@@ -152,19 +157,21 @@ class SriKeyType(models.Model):
             if subject.get_attributes_for_oid(NameOID.COMMON_NAME)
             else ""
         )
+        caduca = fields.Datetime.context_timestamp(self, cert.not_valid_after).date()
         vals = {
+            "name": f"{subject_common_name} - {caduca}",
             "issue_date": fields.Datetime.context_timestamp(
                 self, cert.not_valid_before
             ).date(),
-            "expire_date": fields.Datetime.context_timestamp(
-                self, cert.not_valid_after
-            ).date(),
+            "expire_date": caduca,
             "subject_common_name": subject_common_name,
             "subject_serial_number": subject_serial_number,
             "issuer_common_name": issuer_common_name,
-            "cert_serial_number": cert.serial_number,
+            "cert_serial_number": "%0.8X" % cert.serial_number,
             "cert_version": cert.version,
             "state": "valid",
+            "p_key": b64encode(private_key_str.encode()),
+            "cert": b64encode(cert.public_bytes(serialization.Encoding.PEM)),
         }
         self.write(vals)
         return True
@@ -173,7 +180,11 @@ class SriKeyType(models.Model):
         def new_range():
             return randrange(100000, 999999)
 
-        p12 = self._decode_certificate()
+        #current_time = datetime.datetime.utcnow().microsecond
+        
+        private_key = load_pem_private_key(b64decode(self.p_key), password=self.password.encode())        
+        public_cert = load_pem_x509_certificate(b64decode(self.cert))
+
         doc = etree.fromstring(xml_string_data)
         signature_id = f"Signature{new_range()}"
         signature_property_id = f"{signature_id}-SignedPropertiesID{new_range()}"
@@ -217,8 +228,16 @@ class SriKeyType(models.Model):
             mime_type="text/xml",
         )
         doc.append(signature)
+        
+
         ctx = XAdESContext(ImpliedPolicy(xmlsig.constants.TransformSha1))
-        ctx.load_pkcs12(p12)
+        ctx.x509 = public_cert
+        ctx.public_key = public_cert.public_key()
+        ctx.private_key = private_key
         ctx.sign(signature)
         ctx.verify(signature)
+
+        #lapso = datetime.datetime.utcnow().microsecond - current_time
+        #print("Lapso: ", lapso)
+
         return etree.tostring(doc, encoding="UTF-8", pretty_print=True).decode()

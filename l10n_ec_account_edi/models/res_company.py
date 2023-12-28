@@ -6,11 +6,12 @@ class ResCompany(models.Model):
 
     l10n_ec_type_environment = fields.Selection(
         [
+            ("none", "No Send"),
             ("test", "Test"),
             ("production", "Production"),
         ],
         string="Environment type for electronic documents",
-        default="test",
+        default="none",
     )
     l10n_ec_key_type_id = fields.Many2one(
         comodel_name="sri.key.type",

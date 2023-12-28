@@ -21,7 +21,7 @@ class ResCompany(models.Model):
     )
     property_account_position_id = fields.Many2one(
         "account.fiscal.position",
-        "Fiscal Position",
+        "Posición Fiscal",
         related="partner_id.property_account_position_id",
         readonly=False,
     )

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="account_journal_form_view" model="ir.ui.view">
+        <field name="name">account.journal.form</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.view_account_journal_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='type']" position="after">
+                <field
+                    name="l10n_ec_withholding_type"
+                    invisible="country_code != 'EC' or type != 'general'"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>
