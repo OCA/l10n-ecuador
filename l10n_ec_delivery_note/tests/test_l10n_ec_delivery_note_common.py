@@ -72,7 +72,8 @@ class TestL10nDeliveryNoteCommon(TestL10nECEdiCommon):
         with Form(model_picking) as form:
             form.l10n_ec_delivery_note_journal_id = self.journal
             form.l10n_ec_create_delivery_note = delivery_note
-            form.l10n_ec_delivery_carrier_id = self.partner_carrier
+            if delivery_note:
+                form.l10n_ec_delivery_carrier_id = self.partner_carrier
             form.l10n_latam_internal_type = self.env["l10n_latam.document.type"].search(
                 [("code", "=", "06")], limit=1
             )
