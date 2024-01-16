@@ -162,12 +162,20 @@ class AccountEdiFormat(models.Model):
                         )
                     )
             # TODO: agregar logica para demas tipos de documento
-            errors.extend(self._l10n_ec_check_edi_configuration(journal, company))
+            errors.extend(self._l10n_ec_check_edi_configuration(document, company))
         return errors
 
-    def _l10n_ec_check_edi_configuration(self, journal, company):
+    def _l10n_ec_check_edi_configuration(self, document, company):
+        journal = document.journal_id
         errors = []
         contact_address = journal.l10n_ec_emission_address_id
+        if not document.commercial_partner_id.vat:
+            errors.append(
+                _(
+                    "You must set vat identification for Partner: %s",
+                    document.commercial_partner_id.display_name,
+                )
+            )
         if not company.vat:
             errors.append(
                 _(
