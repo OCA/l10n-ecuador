@@ -251,13 +251,6 @@ msgid "<strong>Telefono:</strong>"
 msgstr ""
 
 #. module: l10n_ec_account_edi
-#. odoo-python
-#: code:addons/l10n_ec_account_edi/tests/test_l10n_ec_edi_out_invoice.py:0
-#, python-format
-msgid "ARCHIVO NO CUMPLE ESTRUCTURA XML"
-msgstr ""
-
-#. module: l10n_ec_account_edi
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_bank_statement_line__l10n_ec_xml_access_key
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_edi_document__l10n_ec_xml_access_key
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_move__l10n_ec_xml_access_key
@@ -479,13 +472,6 @@ msgstr ""
 #. module: l10n_ec_account_edi
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_edi_document__l10n_ec_document_number
 msgid "Document Number"
-msgstr ""
-
-#. module: l10n_ec_account_edi
-#. odoo-python
-#: code:addons/l10n_ec_account_edi/tests/test_l10n_ec_edi_out_invoice.py:0
-#, python-format
-msgid "EDI Error creating xml file"
 msgstr ""
 
 #. module: l10n_ec_account_edi
@@ -1031,6 +1017,13 @@ msgstr ""
 msgid ""
 "You must set street into Emission Address: %(concact_name)s for Journal: "
 "%(journal_name)s"
+msgstr ""
+
+#. module: l10n_ec_account_edi
+#. odoo-python
+#: code:addons/l10n_ec_account_edi/models/account_edi_format.py:0
+#, python-format
+msgid "You must set vat identification for Partner: %s"
 msgstr ""
 
 #. module: l10n_ec_account_edi
