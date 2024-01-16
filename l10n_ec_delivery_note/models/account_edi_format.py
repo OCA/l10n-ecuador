@@ -5,11 +5,11 @@ class AccountEdiFormat(models.Model):
     _inherit = "account.edi.format"
 
     def l10n_ec_is_required_for_delivery_note(self, note):
-        # if (
-        #     note.country_code != "EC"
-        #     or note.journal_id.l10n_ec_emission_type != "electronic"
-        # ):
-        #     return False
+        if (
+            note.country_code != "EC"
+            # or note.journal_id.l10n_ec_emission_type != "electronic"
+        ):
+            return False
         if (
             self.code == "l10n_ec_format_sri"
             and note.l10n_latam_internal_type.internal_type == "delivery_note"
@@ -71,14 +71,3 @@ class AccountEdiFormat(models.Model):
                 )
             )
         return errors
-
-    def _get_batch_key(self, move, state):
-        move.ensure_one()
-        return ()
-
-    def _support_batching(self, move, state, company):
-        return False
-
-    def _post_invoice_edi(self, invoices):
-        self.ensure_one()
-        return {}

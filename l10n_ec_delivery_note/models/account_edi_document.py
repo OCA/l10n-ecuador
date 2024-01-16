@@ -29,41 +29,28 @@ class AccountEdiDocument(models.Model):
         return super()._compute_l10n_ec_document_data()
 
     def _prepare_jobs(self):
-        if self.move_id:
+        if not self.l10n_ec_delivery_note_id:
             return super()._prepare_jobs()
-        to_process = {}
-        documents = self.filtered(
-            lambda d: d.state in ("to_send", "to_cancel")
-            and d.blocking_level != "error"
-        )
-        for edi_doc in documents:
-            delivery_note = edi_doc.l10n_ec_delivery_note_id
-            edi_format = edi_doc.edi_format_id
-            custom_key = edi_format._get_batch_key(delivery_note, edi_doc.state)
-            key = (edi_format, edi_doc.state, delivery_note.company_id, custom_key)
-            to_process.setdefault(key, self.env["account.edi.document"])
-            to_process[key] |= edi_doc
 
         delivery_notes = []
-        for key, documents in to_process.items():
-            edi_format, state, company_id, custom_key = key
-            batch = self.env["account.edi.document"]
-            for doc in documents:
-                if edi_format._support_batching(
-                    doc.l10n_ec_delivery_note_id, state=state, company=company_id
-                ):
-                    batch |= doc
-                else:
-                    delivery_notes.append(doc)
-            if batch:
-                delivery_notes.append(batch)
+        for state, edi_flow in (("to_send", "post"), ("to_cancel", "cancel")):  # noqa
+            documents = self.filtered(
+                lambda d: d.state == state and d.blocking_level != "error"  # noqa
+            )
+            for edi_doc in documents:
+                # TODO: Only to_send
+                edi_doc._l10n_ec_render_xml_edi()
+                delivery_notes.append(edi_doc)
+                return delivery_notes
+
         return delivery_notes
 
     @api.model
-    def _process_job(self, documents, doc_type=None):
-        if self.move_id:
-            return super()._process_job(documents, doc_type)
+    def _process_job(self, job):
+        if not self.l10n_ec_delivery_note_id:
+            return super()._process_job(job)
 
+        # TODO: Posible rename documents to job
         def _postprocess_post_edi_results(documents, edi_result):
             attachments_to_unlink = self.env["ir.attachment"]
             for document in documents:
@@ -95,19 +82,19 @@ class AccountEdiDocument(models.Model):
                     )
             attachments_to_unlink.unlink()
 
-        delivery_note = documents.l10n_ec_delivery_note_id
-        documents.edi_format_id.ensure_one()
+        delivery_note = job.l10n_ec_delivery_note_id
+        job.edi_format_id.ensure_one()
         delivery_note.company_id.ensure_one()
-        if len({doc.state for doc in documents}) != 1:
+        if len({doc.state for doc in job}) != 1:
             raise ValueError(
                 "All account.edi.document of a job should have the same state"
             )
-        edi_format = documents.edi_format_id
-        state = documents[0].state
+        edi_format = job.edi_format_id
+        state = job[0].state
         if state == "to_send":
             with delivery_note._send_only_when_ready():
-                edi_result = edi_format._post_invoice_edi(delivery_note)
-                _postprocess_post_edi_results(documents, edi_result)
+                edi_result = edi_format._l10n_ec_post_move_edi(delivery_note)
+                _postprocess_post_edi_results(job, edi_result)
 
     def _process_documents_no_web_services(self):
         moves = self.filtered("move_id")
@@ -120,6 +107,11 @@ class AccountEdiDocument(models.Model):
         return super(AccountEdiDocument, moves)._process_documents_no_web_services()
 
     def _process_documents_web_services(self, job_count=None, with_commit=True):
+        if not self.l10n_ec_delivery_note_id:
+            return super()._process_documents_web_services(
+                job_count=job_count, with_commit=with_commit
+            )
+
         moves = self.filtered("move_id")
         super(AccountEdiDocument, moves)._process_documents_web_services()
         delivery_notes = self - moves
@@ -170,8 +162,9 @@ class AccountEdiDocument(models.Model):
         return len(all_jobs) - len(jobs_to_process)
 
     def _l10n_ec_render_xml_edi(self):
-        if self.move_id:
+        if not self.l10n_ec_delivery_note_id:
             return super()._l10n_ec_render_xml_edi()
+
         ViewModel = self.env["ir.ui.view"].sudo()
         xml_file = ViewModel._render_template(
             "l10n_ec_delivery_note.l10n_ec_delivery_note",

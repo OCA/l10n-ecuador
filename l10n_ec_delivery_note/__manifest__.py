@@ -15,7 +15,7 @@
         "report/report_delivery_note.xml",
         "report/report_e_delivery_note.xml",
         "data/edi_templates/edi_delivery_note.xml",
-        # "data/email_template.xml",
+        "data/email_template.xml",
         "data/l10n_latam.document.type.csv",
         "security/ir.model.access.csv",
         "security/security.xml",

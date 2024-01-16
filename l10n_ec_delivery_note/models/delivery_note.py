@@ -478,6 +478,7 @@ class DeliveryNote(models.Model):
                             }
                         )
         self.env["account.edi.document"].create(edi_document_vals_list)
+        # TODO :
         self.edi_document_ids._process_documents_no_web_services()
         self.env.ref("account_edi.ir_cron_edi_network")._trigger()
         return self
