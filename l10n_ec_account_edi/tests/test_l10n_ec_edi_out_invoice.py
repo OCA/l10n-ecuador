@@ -5,7 +5,6 @@ from unittest.mock import patch
 import requests
 from requests import PreparedRequest, Session
 
-from odoo import _
 from odoo.exceptions import UserError
 from odoo.tests import Form, tagged
 
@@ -155,33 +154,25 @@ class TestL10nOutInvoice(TestL10nECEdiCommon):
         self.assertIn("ERROR [65] FECHA EMISIÓN EXTEMPORANEA", edi_doc.error)
         self.assertEqual(edi_doc.blocking_level, "error")
 
+    @patch_service_sri
     def test_l10n_ec_out_invoice_with_foreign_client(self):
         # Factura con cliente sin identificación para que no se valide el XML
         self._setup_edi_company_ec()
         self.partner_passport.vat = False
+        with self.assertRaisesRegex(
+            UserError, "You must set vat identification for Partner"
+        ):
+            invoice = self._l10n_ec_prepare_edi_out_invoice(
+                partner=self.partner_passport, auto_post=True
+            )
+        self.partner_passport.vat = "ABC"
         invoice = self._l10n_ec_prepare_edi_out_invoice(
             partner=self.partner_passport, auto_post=True
         )
         edi_doc = invoice._get_edi_document(self.edi_format)
-        # Error en el archivo xml
-        with self.assertLogs(
-            "odoo.addons.l10n_ec_account_edi.models.account_edi_format",
-            level=logging.ERROR,
-        ):
-            edi_doc._process_documents_web_services(with_commit=False)
-        self.assertIn(_("EDI Error creating xml file"), edi_doc.error)
-        # Enviar contexto para presentar clave de acceso de xml erroneo
-        invoice.button_draft()
-        invoice.action_post()
-        edi_doc = invoice._get_edi_document(self.edi_format)
-        with self.assertLogs(
-            "odoo.addons.l10n_ec_account_edi.models.account_edi_document",
-            level=logging.ERROR,
-        ):
-            edi_doc.with_context(
-                l10n_ec_xml_call_from_cron=True
-            )._process_documents_web_services(with_commit=False)
-            self.assertIn(_("ARCHIVO NO CUMPLE ESTRUCTURA XML"), edi_doc.error)
+        edi_doc._process_documents_web_services(with_commit=False)
+        self.assertEqual(invoice.state, "posted")
+        self.assertTrue(edi_doc.l10n_ec_xml_access_key)
 
     @patch_service_sri
     def test_l10n_ec_out_invoice_with_payments(self):
