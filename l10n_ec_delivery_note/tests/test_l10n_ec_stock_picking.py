@@ -7,7 +7,7 @@ from odoo.tests import Form, tagged
 from .test_l10n_ec_delivery_note_common import TestL10nDeliveryNoteCommon
 
 
-@tagged("post_install_l10n_ec_account_edi", "post_install", "-at_install")
+@tagged("post_install_l10n_ec_account_edi", "post_install", "-at_install", "stock")
 class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
     def test_l10n_ec_check_validate_picking(self):
         """Restricciones al validar una transferencia"""

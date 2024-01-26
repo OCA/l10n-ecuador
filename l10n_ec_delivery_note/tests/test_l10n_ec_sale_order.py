@@ -4,7 +4,7 @@ from odoo.tests import Form, tagged
 from .test_l10n_ec_delivery_note_common import TestL10nDeliveryNoteCommon
 
 
-@tagged("post_install_l10n_ec_account_edi", "post_install", "-at_install")
+@tagged("post_install_l10n_ec_account_edi", "post_install", "-at_install", "sale")
 class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
     def test_l10n_ec_sale_order_picking_internal(self):
         """Validar creación de guia de remisión de picking
