@@ -4,14 +4,17 @@ from unittest.mock import create_autospec, patch
 from zeep import Client
 from zeep.transports import Transport
 
+from odoo.tools.misc import file_path
+
 from odoo.addons.l10n_ec_account_edi.models.account_edi_format import (
-    PRODUCTION_URL,
     AccountEdiFormat,
 )
 
-ws_url = PRODUCTION_URL.get("reception")
+soap_file_path = file_path(
+    "l10n_ec_account_edi/tests/wsdl/RecepcionComprobantesOffline?wsdl"
+)
 transport = Transport(timeout=30)
-wsClient = Client(ws_url, transport=transport)
+wsClient = Client(soap_file_path, transport=transport)
 factory = wsClient.type_factory("ns0")
 
 sri_message_date = factory.mensaje(
@@ -46,8 +49,10 @@ validation_sri_response_returned = factory.respuestaSolicitud(
     },
 )
 
-ws_url = PRODUCTION_URL.get("authorization")
-wsClient = Client(ws_url, transport=transport)
+soap_file_path = file_path(
+    "l10n_ec_account_edi/tests/wsdl/AutorizacionComprobantesOffline?wsdl"
+)
+wsClient = Client(soap_file_path, transport=transport)
 factory = wsClient.type_factory("ns0")
 
 auth_sri_response = factory.respuestaComprobante(
