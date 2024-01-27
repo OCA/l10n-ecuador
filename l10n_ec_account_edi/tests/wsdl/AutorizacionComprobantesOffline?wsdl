@@ -1,0 +1,131 @@
+<wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://ec.gob.sri.ws.autorizacion" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="AutorizacionComprobantesOfflineService" targetNamespace="http://ec.gob.sri.ws.autorizacion">
+<wsdl:types>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://ec.gob.sri.ws.autorizacion" elementFormDefault="unqualified" targetNamespace="http://ec.gob.sri.ws.autorizacion" version="1.0">
+<xs:element name="RespuestaAutorizacion" nillable="true" type="xs:anyType"/>
+<xs:element name="autorizacion" type="tns:autorizacion"/>
+<xs:element name="autorizacionComprobante" type="tns:autorizacionComprobante"/>
+<xs:element name="autorizacionComprobanteLote" type="tns:autorizacionComprobanteLote"/>
+<xs:element name="autorizacionComprobanteLoteResponse" type="tns:autorizacionComprobanteLoteResponse"/>
+<xs:element name="autorizacionComprobanteResponse" type="tns:autorizacionComprobanteResponse"/>
+<xs:element name="mensaje" type="tns:mensaje"/>
+<xs:complexType name="autorizacionComprobante">
+<xs:sequence>
+<xs:element minOccurs="0" name="claveAccesoComprobante" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="autorizacionComprobanteResponse">
+<xs:sequence>
+<xs:element minOccurs="0" name="RespuestaAutorizacionComprobante" type="tns:respuestaComprobante"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="respuestaComprobante">
+<xs:sequence>
+<xs:element minOccurs="0" name="claveAccesoConsultada" type="xs:string"/>
+<xs:element minOccurs="0" name="numeroComprobantes" type="xs:string"/>
+<xs:element minOccurs="0" name="autorizaciones">
+<xs:complexType>
+<xs:sequence>
+<xs:element maxOccurs="unbounded" minOccurs="0" ref="tns:autorizacion"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="autorizacion">
+<xs:sequence>
+<xs:element minOccurs="0" name="estado" type="xs:string"/>
+<xs:element minOccurs="0" name="numeroAutorizacion" type="xs:string"/>
+<xs:element minOccurs="0" name="fechaAutorizacion" type="xs:dateTime"/>
+<xs:element minOccurs="0" name="ambiente" type="xs:string"/>
+<xs:element minOccurs="0" name="comprobante" type="xs:string"/>
+<xs:element minOccurs="0" name="mensajes">
+<xs:complexType>
+<xs:sequence>
+<xs:element maxOccurs="unbounded" minOccurs="0" ref="tns:mensaje"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="mensaje">
+<xs:sequence>
+<xs:element minOccurs="0" name="identificador" type="xs:string"/>
+<xs:element minOccurs="0" name="mensaje" type="xs:string"/>
+<xs:element minOccurs="0" name="informacionAdicional" type="xs:string"/>
+<xs:element minOccurs="0" name="tipo" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="autorizacionComprobanteLote">
+<xs:sequence>
+<xs:element minOccurs="0" name="claveAccesoLote" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="autorizacionComprobanteLoteResponse">
+<xs:sequence>
+<xs:element minOccurs="0" name="RespuestaAutorizacionLote" type="tns:respuestaLote"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="respuestaLote">
+<xs:sequence>
+<xs:element minOccurs="0" name="claveAccesoLoteConsultada" type="xs:string"/>
+<xs:element minOccurs="0" name="numeroComprobantesLote" type="xs:string"/>
+<xs:element minOccurs="0" name="autorizaciones">
+<xs:complexType>
+<xs:sequence>
+<xs:element maxOccurs="unbounded" minOccurs="0" ref="tns:autorizacion"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+</xs:complexType>
+</xs:schema>
+</wsdl:types>
+<wsdl:message name="autorizacionComprobanteLote">
+<wsdl:part element="tns:autorizacionComprobanteLote" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="autorizacionComprobanteResponse">
+<wsdl:part element="tns:autorizacionComprobanteResponse" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="autorizacionComprobanteLoteResponse">
+<wsdl:part element="tns:autorizacionComprobanteLoteResponse" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="autorizacionComprobante">
+<wsdl:part element="tns:autorizacionComprobante" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:portType name="AutorizacionComprobantesOffline">
+<wsdl:operation name="autorizacionComprobante">
+<wsdl:input message="tns:autorizacionComprobante" name="autorizacionComprobante"> </wsdl:input>
+<wsdl:output message="tns:autorizacionComprobanteResponse" name="autorizacionComprobanteResponse"> </wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="autorizacionComprobanteLote">
+<wsdl:input message="tns:autorizacionComprobanteLote" name="autorizacionComprobanteLote"> </wsdl:input>
+<wsdl:output message="tns:autorizacionComprobanteLoteResponse" name="autorizacionComprobanteLoteResponse"> </wsdl:output>
+</wsdl:operation>
+</wsdl:portType>
+<wsdl:binding name="AutorizacionComprobantesOfflineServiceSoapBinding" type="tns:AutorizacionComprobantesOffline">
+<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+<wsdl:operation name="autorizacionComprobante">
+<soap:operation soapAction="" style="document"/>
+<wsdl:input name="autorizacionComprobante">
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output name="autorizacionComprobanteResponse">
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="autorizacionComprobanteLote">
+<soap:operation soapAction="" style="document"/>
+<wsdl:input name="autorizacionComprobanteLote">
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output name="autorizacionComprobanteLoteResponse">
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+</wsdl:binding>
+<wsdl:service name="AutorizacionComprobantesOfflineService">
+<wsdl:port binding="tns:AutorizacionComprobantesOfflineServiceSoapBinding" name="AutorizacionComprobantesOfflinePort">
+<soap:address location="http://localhost/comprobantes-electronicos-ws/AutorizacionComprobantesOffline"/>
+</wsdl:port>
+</wsdl:service>
+</wsdl:definitions>
