@@ -67,7 +67,12 @@ class TestL10nDeliveryNoteCommon(TestL10nECEdiCommon):
                 line.product_qty = 1
         return form.save()
 
-    def _l10n_ec_create_or_modify_picking(self, picking=None, delivery_note=True):
+    def _l10n_ec_create_or_modify_picking(
+        self, picking=None, delivery_note=True, picking_type_internal=None, quantity=0
+    ):
+        # TODO optional parameter -> picking_type
+        # TODO line.quantity = 1 as parameter
+        # if line.quantity > 1 then line.picked = True
         model_picking = picking if picking else self.env["stock.picking"]
         with Form(model_picking) as form:
             form.l10n_ec_delivery_note_journal_id = self.journal
@@ -79,12 +84,17 @@ class TestL10nDeliveryNoteCommon(TestL10nECEdiCommon):
             )
             if not model_picking.id:
                 form.partner_id = self.partner_dni
-                form.picking_type_id = self.picking_type
+                if picking_type_internal is None:
+                    form.picking_type_id = self.picking_type
+                else:
+                    form.picking_type_id = picking_type_internal
+
                 with form.move_ids_without_package.new() as line:
                     line.product_id = self.product_a
-                    line.product_uom_qty = 1
-                    line.quantity = 1
-                    line.picked = True
+                    if quantity > 0:
+                        line.product_uom_qty = quantity
+                        line.quantity = quantity
+                        line.picked = True
         return form.save()
 
     def _l10n_ec_prepare_sale_order(self):

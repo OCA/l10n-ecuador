@@ -54,7 +54,7 @@ class TestL10nDeliveryNote(TestL10nDeliveryNoteCommon):
         with self.assertRaises(UserError):
             delivery_note.delivery_line_ids = False
             delivery_note.action_confirm()
-        picking = self._l10n_ec_create_or_modify_picking()
+        picking = self._l10n_ec_create_or_modify_picking(quantity=1)
         picking.action_confirm()
         picking.button_validate()
         delivery_note.write(

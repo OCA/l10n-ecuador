@@ -15,7 +15,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         picking = self._l10n_ec_create_or_modify_picking()
         # Validar sin productos
         with self.assertRaises(UserError):
-            picking.move_line_ids = False
+            # picking.move_line_ids = False
             picking.button_validate()
         # Validar sin cantidad reservada
         with self.assertRaises(UserError):
@@ -25,7 +25,9 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
     def test_l10n_ec_immediate_picking(self):
         """Test transferencia inmediata"""
         self.setup_edi_delivery_note()
-        picking = self._l10n_ec_create_or_modify_picking(delivery_note=False)
+        picking = self._l10n_ec_create_or_modify_picking(
+            delivery_note=False, quantity=1
+        )
         picking.action_confirm()
         picking.button_validate()
         self.assertTrue(picking.state, "done")
@@ -33,7 +35,9 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
     def test_l10n_ec_picking_backorder(self):
         """Transferencia con Backorder"""
         self.setup_edi_delivery_note()
-        picking = self._l10n_ec_create_or_modify_picking(delivery_note=False)
+        picking = self._l10n_ec_create_or_modify_picking(
+            delivery_note=False, quantity=1
+        )
         picking.move_ids_without_package.product_uom_qty = 5
         picking.action_confirm()
         move_form = Form(
@@ -55,7 +59,9 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
     def test_l10n_ec_picking_cancel_backorder(self):
         """Transferencia cancelando Backorder"""
         self.setup_edi_delivery_note()
-        picking = self._l10n_ec_create_or_modify_picking(delivery_note=False)
+        picking = self._l10n_ec_create_or_modify_picking(
+            delivery_note=False, quantity=1
+        )
         picking.move_ids_without_package.product_uom_qty = 5
         picking.action_confirm()
         move_form = Form(
@@ -117,7 +123,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
     def test_l10n_ec_picking_backorder_delivery_note(self):
         """Transferencia con Backorder creando guía de remisión"""
         self.setup_edi_delivery_note()
-        picking = self._l10n_ec_create_or_modify_picking()
+        picking = self._l10n_ec_create_or_modify_picking(quantity=1)
         picking.move_ids_without_package.product_uom_qty = 5
         picking.action_confirm()
         move_form = Form(
@@ -148,7 +154,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         )
         with move_form.move_line_ids.new() as line:
             line.quantity = 1
-            line.product_uom_qty = 1
+            # line.product_uom_qty = 1
             line.picked = True
         move_form.save()
         picking_context = picking.button_validate()
@@ -166,7 +172,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         """Pruebas en wizard de crear guia de remisión"""
         self.setup_edi_delivery_note()
         # Agregar los dias por defecto para la entrega
-        picking = self._l10n_ec_create_or_modify_picking()
+        picking = self._l10n_ec_create_or_modify_picking(quantity=1)
         picking.action_confirm()
         picking_context = picking.button_validate()
         wiz = Form(
@@ -187,7 +193,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         """Validar y enviar al SRI una guía de remisión
         creada desde el picking, transferencia inmediata"""
         self.setup_edi_delivery_note()
-        picking = self._l10n_ec_create_or_modify_picking()
+        picking = self._l10n_ec_create_or_modify_picking(quantity=1)
         # Asociar el partner a una compañia
         picking.partner_id.parent_id = self.company_data["company"].partner_id.id
         picking.action_confirm()
@@ -212,8 +218,10 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         de transferencia interna"""
         self.setup_edi_delivery_note()
         picking_type_internal = self.setup_storage_locations_for_internal_picking()
-        picking = self._l10n_ec_create_or_modify_picking()
-        picking.picking_type_id = picking_type_internal
+        picking = self._l10n_ec_create_or_modify_picking(
+            picking_type_internal=picking_type_internal, quantity=1
+        )
+        # picking.picking_type_id = picking_type_internal
         picking.action_confirm()
         # picking.action_set_quantities_to_reservation()
         picking_context = picking.button_validate()
@@ -235,7 +243,9 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         """Desde acción crear una guia de remisión de varios picking"""
         self.setup_edi_delivery_note()
         for i in range(5):
-            picking = self._l10n_ec_create_or_modify_picking(delivery_note=False)
+            picking = self._l10n_ec_create_or_modify_picking(
+                delivery_note=False, quantity=1
+            )
             # Cambiar el partner en 2 transferencias
             if i > 2:
                 picking.partner_id = self.partner_ruc.id
@@ -255,6 +265,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
                 pick.picking_id.state == "done"
                 and pick.picking_id.l10n_ec_delivery_note_ids.id is False
             )
+            # TODO compare with 15
         delivery_context = wiz.action_create_delivery_note()
         delivery_note = Form(
             self.DeliveryNote.with_context(**delivery_context["context"])

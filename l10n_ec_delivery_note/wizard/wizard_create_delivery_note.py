@@ -21,6 +21,9 @@ class WizardCreateDeliveryNote(models.TransientModel):
 
     @api.model
     def default_get(self, fields):
+        # TODO verify values
+        # Create manytomany for models
+        # Pasar los ID
         values = super().default_get(fields)
         picking_lines = self.env["stock.picking"].browse(
             self.env.context.get("active_ids", [])
