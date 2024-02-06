@@ -83,6 +83,8 @@ class TestL10nDeliveryNoteCommon(TestL10nECEdiCommon):
                 with form.move_ids_without_package.new() as line:
                     line.product_id = self.product_a
                     line.product_uom_qty = 1
+                    line.quantity = 1
+                    line.picked = True
         return form.save()
 
     def _l10n_ec_prepare_sale_order(self):

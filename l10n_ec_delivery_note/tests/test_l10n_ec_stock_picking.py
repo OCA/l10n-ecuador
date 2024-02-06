@@ -15,11 +15,11 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         picking = self._l10n_ec_create_or_modify_picking()
         # Validar sin productos
         with self.assertRaises(UserError):
-            # picking.move_ids = False
+            picking.move_line_ids = False
             picking.button_validate()
         # Validar sin cantidad reservada
         with self.assertRaises(UserError):
-            picking.move_ids_without_package.product_uom_qty = 0
+            picking.move_ids_without_package.product_id = False
             picking.button_validate()
 
     def test_l10n_ec_immediate_picking(self):
@@ -27,13 +27,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         self.setup_edi_delivery_note()
         picking = self._l10n_ec_create_or_modify_picking(delivery_note=False)
         picking.action_confirm()
-        picking_context = picking.button_validate()
-        wiz = Form(
-            self.env[picking_context["res_model"]].with_context(
-                **picking_context["context"]
-            )
-        ).save()
-        wiz.process()
+        picking.button_validate()
         self.assertTrue(picking.state, "done")
 
     def test_l10n_ec_picking_backorder(self):
@@ -154,6 +148,8 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         )
         with move_form.move_line_ids.new() as line:
             line.quantity = 1
+            line.product_uom_qty = 1
+            line.picked = True
         move_form.save()
         picking_context = picking.button_validate()
         wiz = Form(
