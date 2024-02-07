@@ -27,8 +27,8 @@
                     name="l10n_ec_delivery_carrier_id"
                     context="{'default_l10n_ec_is_carrier': True}"
                     required="l10n_ec_create_delivery_note == True and picking_type_code != 'incoming'"
+                    invisible="picking_type_code == 'incoming' and l10n_ec_create_delivery_note == False"
                     readonly="state in ('done','cancel')"
-                    invisible="picking_type_code == 'incoming' or l10n_ec_create_delivery_note == False"
                 />
                 <field
                     name="l10n_ec_car_plate"

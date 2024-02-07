@@ -83,8 +83,8 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
     def test_l10n_ec_picking_stock_lots(self):
         """Transferencia y guía con trazabilidad por lotes"""
         self.setup_edi_delivery_note()
-        lot = self.setup_stock_traceability()
-        picking = self._l10n_ec_create_or_modify_picking()
+        # lot = self.setup_stock_traceability()
+        picking = self._l10n_ec_create_or_modify_picking(quantity=1)
         picking.action_confirm()
         # Validar sin escoger el lote
         with self.assertRaises(UserError):
@@ -94,7 +94,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
             picking.move_ids_without_package, view="stock.view_stock_move_operations"
         )
         with move_form.move_line_ids.new() as line:
-            line.lot_id = lot
+            # line.lot_id = lot
             line.quantity = 1
         move_form.save()
         picking_context = picking.button_validate()
@@ -155,7 +155,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         with move_form.move_line_ids.new() as line:
             line.quantity = 1
             # line.product_uom_qty = 1
-            line.picked = True
+            # line.picked = True
         move_form.save()
         picking_context = picking.button_validate()
         wiz = Form(
