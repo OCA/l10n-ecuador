@@ -78,7 +78,8 @@ class TestL10nDeliveryNoteCommon(TestL10nECEdiCommon):
             form.l10n_ec_delivery_note_journal_id = self.journal
             form.l10n_ec_create_delivery_note = delivery_note
             # if delivery_note:
-            form.l10n_ec_delivery_carrier_id = self.partner_carrier
+            if not form._get_modifier("l10n_ec_delivery_carrier_id", "invisible"):
+                form.l10n_ec_delivery_carrier_id = self.partner_carrier
             form.l10n_latam_internal_type = self.env["l10n_latam.document.type"].search(
                 [("code", "=", "06")], limit=1
             )

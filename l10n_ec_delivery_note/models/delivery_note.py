@@ -519,7 +519,7 @@ class DeliveryNote(models.Model):
         )
         ctx = {
             "default_model": self._name,
-            "default_res_id": self.id,
+            "active_ids": self.ids,
             "default_use_template": bool(template),
             "default_template_id": template.id,
             "default_composition_mode": "comment",
