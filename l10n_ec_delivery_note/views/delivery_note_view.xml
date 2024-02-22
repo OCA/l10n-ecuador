@@ -18,9 +18,9 @@
                     options="{'no_create': True}"
                     groups="stock.group_production_lot"
                 />
-                <field name="move_id" invisible="1" />
-                <field name="move_line_id" invisible="1" />
-                <field name="product_uom_category_id" invisible="1" />
+                <field name="move_id" column_invisible="True" />
+                <field name="move_line_id" column_invisible="True" />
+                <field name="product_uom_category_id" column_invisible="True" />
             </tree>
         </field>
     </record>
@@ -176,7 +176,7 @@
                             <field
                                 name="l10n_latam_internal_type"
                                 required="1"
-                                readonly="state in ('done','cancel')"
+                                readonly="state in ('done', 'cancel')"
                                 options="{'no_open':True, 'no_create': True}"
                             />
                         </group>
@@ -293,11 +293,14 @@
                                         name="production_lot_id"
                                         column_invisible="1"
                                     />
-                                    <field name="move_id" invisible="1" />
-                                    <field name="move_line_id" invisible="1" />
+                                    <field name="move_id" column_invisible="True" />
+                                    <field
+                                        name="move_line_id"
+                                        column_invisible="True"
+                                    />
                                     <field
                                         name="product_uom_category_id"
-                                        invisible="1"
+                                        column_invisible="True"
                                     />
                                 </tree>
                             </field>
@@ -330,8 +333,11 @@
                                         optional="hide"
                                     />
                                     <field name="state" />
-                                    <field name="error" invisible="1" />
-                                    <field name="blocking_level" invisible="1" />
+                                    <field name="error" column_invisible="True" />
+                                    <field
+                                        name="blocking_level"
+                                        column_invisible="True"
+                                    />
                                     <button
                                         name="action_export_xml"
                                         type="object"

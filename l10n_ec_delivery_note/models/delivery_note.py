@@ -4,8 +4,6 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools.translate import _
 
-STATES = {"draft": [("readonly", False)]}
-
 
 class DeliveryNote(models.Model):
     _inherit = ["mail.thread", "mail.activity.mixin", "portal.mixin", "sequence.mixin"]

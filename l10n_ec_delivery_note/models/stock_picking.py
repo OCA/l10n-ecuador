@@ -3,8 +3,6 @@ from odoo.exceptions import UserError
 from odoo.tools.float_utils import float_compare, float_is_zero
 from odoo.tools.translate import _
 
-STATES = {"done": [("readonly", True)], "cancel": [("readonly", True)]}
-
 
 class StockPicking(models.Model):
     _inherit = "stock.picking"

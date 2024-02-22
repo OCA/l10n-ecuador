@@ -17,7 +17,7 @@
                             <field name="line_ids" colspan="4">
                                 <tree>
                                     <field name="name" />
-                                    <field name="picking_id" invisible="1" />
+                                    <field name="picking_id" column_invisible="True" />
                                     <field name="partner_id" />
                                     <field name="location_id" />
                                     <field name="location_dest_id" />

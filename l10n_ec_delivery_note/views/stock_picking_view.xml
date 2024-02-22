@@ -12,42 +12,41 @@
                     string="Print Delivery Note"
                     groups="stock.group_stock_user"
                     type="object"
-                    invisible="l10n_ec_delivery_note_ids == [] or l10n_ec_create_delivery_note == False"
+                    invisible="not l10n_ec_delivery_note_ids or not l10n_ec_create_delivery_note"
                 />
             </button>
             <field name="origin" position="after">
                 <field
                     name="l10n_ec_create_delivery_note"
                     invisible="picking_type_code == 'incoming'"
-                    readonly="state in ('done','cancel')"
+                    readonly="state in ('done', 'cancel')"
                 />
             </field>
             <field name="partner_id" position="after">
                 <field
                     name="l10n_ec_delivery_carrier_id"
                     context="{'default_l10n_ec_is_carrier': True}"
-                    required="l10n_ec_create_delivery_note == True and picking_type_code != 'incoming'"
-                    invisible="picking_type_code == 'incoming' and l10n_ec_create_delivery_note == False"
-                    readonly="state in ('done','cancel')"
+                    invisible="picking_type_code == 'incoming' or not l10n_ec_create_delivery_note"
+                    readonly="state in ('done', 'cancel')"
+                    required="l10n_ec_create_delivery_note and picking_type_code != 'incoming'"
                 />
                 <field
                     name="l10n_ec_car_plate"
-                    required="l10n_ec_create_delivery_note == True and picking_type_code != 'incoming'"
-                    invisible="picking_type_code == 'incoming' and l10n_ec_create_delivery_note == False"
-                    readonly="state in ('done','cancel')"
+                    invisible="picking_type_code == 'incoming' or not l10n_ec_create_delivery_note"
+                    required="l10n_ec_create_delivery_note and picking_type_code != 'incoming'"
+                    readonly="state in ('done', 'cancel')"
                 />
                 <field
                     name="l10n_ec_delivery_note_journal_id"
                     invisible="picking_type_code == 'incoming'"
-                    required="l10n_ec_create_delivery_note == True and picking_type_code != 'incoming'"
+                    required="l10n_ec_create_delivery_note and picking_type_code != 'incoming'"
                     options="{'no_open':True, 'no_create': True}"
-                    readonly="state in ('done','cancel')"
                 />
                 <field
                     name="l10n_latam_internal_type"
                     invisible="picking_type_code == 'incoming'"
-                    required="l10n_ec_create_delivery_note == True and picking_type_code != 'incoming'"
-                    readonly="state in ('done','cancel')"
+                    readonly="state in ('done', 'cancel')"
+                    required="l10n_ec_create_delivery_note and picking_type_code != 'incoming'"
                     options="{'no_open':True, 'no_create': True}"
                 />
             </field>
@@ -61,9 +60,7 @@
                 </page>
             </xpath>
             <field name="partner_id" position="attributes">
-                <attribute
-                    name="required"
-                >l10n_ec_create_delivery_note == True</attribute>
+                <attribute name="required">l10n_ec_create_delivery_note</attribute>
             </field>
         </field>
     </record>
