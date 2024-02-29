@@ -1,7 +1,7 @@
 from dateutil.relativedelta import relativedelta
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import ValidationError
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DF
 
 
@@ -120,32 +120,5 @@ class StockBackorderConfirmation(models.TransientModel):
     def process_cancel_backorder(self):
         res = super().process_cancel_backorder()
         if self.picking_id.l10n_ec_create_delivery_note:
-            self.create_delivery_note()
-        return res
-
-
-class StockImmediateTransfer(models.TransientModel):
-    _inherit = ["wizard.abstract.delivery.note", "stock.backorder.confirmation"]
-    _name = "stock.backorder.confirmation"
-
-    def process(self):
-        res = super().process()
-        if self.picking_id.l10n_ec_create_delivery_note:
-            if self.picking_id.sale_id and (
-                self.picking_id.location_id
-                and self.picking_id.location_dest_id.usage == "internal"
-            ):
-                raise UserError(
-                    _(
-                        "The delivery note: %(picking_name)s cannot be processed in internal "
-                        "transfers created from the sales order: %(sale_name)s"
-                    )
-                    % (
-                        {
-                            "picking_name": self.picking_id.name,
-                            "sale_name": self.picking_id.sale_id.name,
-                        }
-                    )
-                )
             self.create_delivery_note()
         return res

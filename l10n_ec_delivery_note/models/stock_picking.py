@@ -1,6 +1,4 @@
 from odoo import api, fields, models
-from odoo.exceptions import UserError
-from odoo.tools.float_utils import float_compare, float_is_zero
 from odoo.tools.translate import _
 
 
@@ -76,91 +74,42 @@ class StockPicking(models.Model):
             }
         )
         for picking in self.filtered("l10n_ec_create_delivery_note"):
-            if not picking.move_ids and not picking.move_line_ids:
-                raise UserError(_("Please add some lines to move"))
-            # If no lots when needed, raise error
-            picking_type = picking.picking_type_id
-            precision_digits = self.env["decimal.precision"].precision_get(
-                "Product Unit of Measure"
-            )
-            no_quantities_done = all(
-                float_is_zero(move_line.quantity, precision_digits=precision_digits)
-                for move_line in picking.move_line_ids.filtered(
-                    lambda m: m.state not in ("done", "cancel")
-                )
-            )
+            if not self.env.context.get("skip_sanity_check", False):
+                self._sanity_check()
+            # Run the pre-validation wizards. Processing a pre-validation wizard should work on the
+            # moves and/or the context and never call `_action_done`.
+            if not self.env.context.get("button_validate_picking_ids"):
+                self = self.with_context(button_validate_picking_ids=self.ids)
+            res = self._pre_action_done_hook()
+            if res is not True:
+                return res
 
-            no_reserved_quantities = all(
-                float_is_zero(
-                    move_line.quantity_product_uom,
-                    precision_rounding=move_line.product_uom_id.rounding,
+            wiz = (
+                self.env["wizard.input.document.number"]
+                .with_context(**ctx)
+                .create(
+                    {
+                        "picking_id": picking.id,
+                        "partner_id": picking.partner_id
+                        and picking.partner_id.commercial_partner_id.id
+                        or None,
+                        "l10n_ec_journal_id": picking.l10n_ec_delivery_note_journal_id
+                        and picking.l10n_ec_delivery_note_journal_id.id
+                        or None,
+                        "transfer_date": fields.Date.context_today(self),
+                    }
                 )
-                for move_line in picking.move_line_ids
             )
-            if no_reserved_quantities and no_quantities_done:
-                raise UserError(
-                    _(
-                        "You cannot validate a transfer "
-                        "if has lines with quantity done equals to zero."
-                        "Please, switch to Edit mode and input the done quantities."
-                    )
-                )
-            if picking_type.use_create_lots or picking_type.use_existing_lots:
-                lines_to_check = picking.move_line_ids
-                if not no_quantities_done:
-                    lines_to_check = lines_to_check.filtered(
-                        lambda line: float_compare(
-                            line.quantity,
-                            0,
-                            precision_rounding=line.product_uom_id.rounding,
-                        )
-                    )
-
-                for line in lines_to_check:
-                    product = line.product_id
-                    if product and product.tracking != "none":
-                        if not line.lot_name and not line.lot_id:
-                            raise UserError(
-                                _(
-                                    "You need to supply a Lot/Serial number for product %s."
-                                )
-                                % product.display_name
-                            )
-            if no_quantities_done:
-                return super(
-                    StockPicking, picking.with_context(**ctx)
-                ).button_validate()
-            if picking._check_backorder() and not ctx.get("skip_backorder", False):
-                return picking.with_context(**ctx)._action_generate_backorder_wizard()
-            if not ctx.get("skip_immediate", False) and not ctx.get(
-                "skip_backorder", False
-            ):
-                wiz = (
-                    self.env["wizard.input.document.number"]
-                    .with_context(**ctx)
-                    .create(
-                        {
-                            "picking_id": picking.id,
-                            "partner_id": picking.partner_id
-                            and picking.partner_id.commercial_partner_id.id
-                            or None,
-                            "l10n_ec_journal_id": picking.l10n_ec_delivery_note_journal_id
-                            and picking.l10n_ec_delivery_note_journal_id.id
-                            or None,
-                            "transfer_date": fields.Date.context_today(self),
-                        }
-                    )
-                )
-                return {
-                    "name": _("Create Delivery Note"),
-                    "type": "ir.actions.act_window",
-                    "view_type": "form",
-                    "view_mode": "form",
-                    "res_model": "wizard.input.document.number",
-                    "target": "new",
-                    "res_id": wiz.id,
-                    "context": ctx,
-                }
+            return {
+                "name": _("Create Delivery Note"),
+                "type": "ir.actions.act_window",
+                "view_type": "form",
+                "view_mode": "form",
+                "res_model": "wizard.input.document.number",
+                "target": "new",
+                "res_id": wiz.id,
+                "context": ctx,
+            }
         return super(StockPicking, self.with_context(**ctx)).button_validate()
 
     def l10n_ec_do_print_delivery_notes(self):
