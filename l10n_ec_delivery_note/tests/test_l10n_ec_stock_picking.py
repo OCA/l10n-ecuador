@@ -121,13 +121,18 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         """Transferencia con Backorder creando guía de remisión"""
         self.setup_edi_delivery_note()
         picking = self._l10n_ec_create_or_modify_picking(quantity=1)
-        picking.move_ids_without_package.product_uom_qty = 5
+
+        for move in picking.move_ids_without_package:
+            move.quantity = 2
+            move.product_uom_qty = 5
+            move.picked = True
+
         picking.action_confirm()
         move_form = Form(
             picking.move_ids_without_package, view="stock.view_stock_move_operations"
         )
-        with move_form.move_line_ids.new() as line:
-            line.quantity = 1
+        # with move_form.move_line_ids.new() as line:
+        #     line.quantity = 1
         move_form.save()
         picking_context = picking.button_validate()
         wiz = Form(
@@ -143,16 +148,20 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
     def test_l10n_ec_picking_cancel_backorder_delivery_note(self):
         """Transferencia cancelando Backorder, creando guia de remisión"""
         self.setup_edi_delivery_note()
-        picking = self._l10n_ec_create_or_modify_picking()
-        picking.move_ids_without_package.product_uom_qty = 5
+        picking = self._l10n_ec_create_or_modify_picking(quantity=5)
+
+        for move in picking.move_ids_without_package:
+            move.quantity = 2
+            move.product_uom_qty = 5
+            move.picked = True
+
         picking.action_confirm()
         move_form = Form(
             picking.move_ids_without_package, view="stock.view_stock_move_operations"
         )
         with move_form.move_line_ids.new() as line:
             line.quantity = 1
-            # line.product_uom_qty = 1
-            # line.picked = True
+
         move_form.save()
         picking_context = picking.button_validate()
         wiz = Form(
@@ -162,6 +171,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         ).save()
         wiz.process_cancel_backorder()
         self.assertFalse(picking.backorder_ids.ids)
+        # TODO Create delivery
         self.assertEqual(picking.state, "done")
         self.assertEqual(picking.l10n_ec_delivery_note_ids.state, "done")
 
