@@ -19,7 +19,6 @@
         "data/l10n_latam.document.type.csv",
         "security/ir.model.access.csv",
         "security/security.xml",
-        "wizard/wizard_input_document_number_view.xml",
         "wizard/wizard_create_delivery_note_view.xml",
         "views/delivery_note_view.xml",
         "views/res_partner_view.xml",

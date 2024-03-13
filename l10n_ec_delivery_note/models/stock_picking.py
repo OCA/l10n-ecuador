@@ -1,4 +1,7 @@
+from dateutil.relativedelta import relativedelta
+
 from odoo import api, fields, models
+from odoo.exceptions import ValidationError
 from odoo.tools.translate import _
 
 
@@ -9,6 +12,8 @@ class StockPicking(models.Model):
         "l10n_ec.delivery.note", string="Delivery note", readonly=True, copy=False
     )
     l10n_ec_create_delivery_note = fields.Boolean("Create Delivery note?")
+    delivery_date = fields.Date(required=False)
+    transfer_date = fields.Date(required=False)
     l10n_ec_delivery_carrier_id = fields.Many2one(
         "res.partner",
         "Delivery Note Carrier",
@@ -33,12 +38,35 @@ class StockPicking(models.Model):
         domain="[('code', '=', '06')]",
     )
 
+    rise = fields.Char(string="R.I.S.E", required=False)
+    dau = fields.Char(string="D.A.U.", required=False)
+
     @api.depends("l10n_ec_delivery_note_ids.document_number")
     def _compute_delivery_note_number(self):
         for picking in self:
             picking.l10n_ec_delivery_note_number = ", ".join(
                 [i.display_name for i in self.l10n_ec_delivery_note_ids]
             )
+
+    @api.onchange("transfer_date")
+    def onchange_delivery_date(self):
+        if self.transfer_date:
+            self.delivery_date = self.transfer_date + relativedelta(
+                days=self.env.company.l10n_ec_delivery_note_days
+            )
+
+    @api.onchange("delivery_date")
+    @api.constrains("transfer_date", "delivery_date")
+    def _check_transfer_dates(self):
+        for wizard in self:
+            if (
+                wizard.transfer_date
+                and wizard.delivery_date
+                and wizard.delivery_date < wizard.transfer_date
+            ):
+                raise ValidationError(
+                    _("The Delivery Date can't less than transfer date, please check")
+                )
 
     @api.onchange("picking_type_id", "partner_id")
     def _onchange_picking_type(self):
@@ -75,7 +103,7 @@ class StockPicking(models.Model):
         )
         for picking in self.filtered("l10n_ec_create_delivery_note"):
             if not self.env.context.get("skip_sanity_check", False):
-                self._sanity_check()
+                picking._sanity_check()
             # Run the pre-validation wizards. Processing a pre-validation wizard should work on the
             # moves and/or the context and never call `_action_done`.
             if not self.env.context.get("button_validate_picking_ids"):
@@ -84,32 +112,6 @@ class StockPicking(models.Model):
             if res is not True:
                 return res
 
-            wiz = (
-                self.env["wizard.input.document.number"]
-                .with_context(**ctx)
-                .create(
-                    {
-                        "picking_id": picking.id,
-                        "partner_id": picking.partner_id
-                        and picking.partner_id.commercial_partner_id.id
-                        or None,
-                        "l10n_ec_journal_id": picking.l10n_ec_delivery_note_journal_id
-                        and picking.l10n_ec_delivery_note_journal_id.id
-                        or None,
-                        "transfer_date": fields.Date.context_today(self),
-                    }
-                )
-            )
-            return {
-                "name": _("Create Delivery Note"),
-                "type": "ir.actions.act_window",
-                "view_type": "form",
-                "view_mode": "form",
-                "res_model": "wizard.input.document.number",
-                "target": "new",
-                "res_id": wiz.id,
-                "context": ctx,
-            }
         return super(StockPicking, self.with_context(**ctx)).button_validate()
 
     def l10n_ec_do_print_delivery_notes(self):
@@ -213,3 +215,9 @@ class StockPicking(models.Model):
                 (self.env.cr.fetchone() or [0])[0] + 1
             )
         return ""
+
+    def _action_done(self):
+        for picking in self:
+            picking._l10n_ec_create_delivery_note()
+
+        return super()._action_done()

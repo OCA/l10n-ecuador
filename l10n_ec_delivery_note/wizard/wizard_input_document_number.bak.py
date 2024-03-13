@@ -1,7 +1,6 @@
 from dateutil.relativedelta import relativedelta
 
-from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo import api, fields, models
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DF
 
 
@@ -10,7 +9,6 @@ class WizardAbstractDeliveryNote(models.AbstractModel):
     _description = "Abstract Wizard to encapsulate logic to create new delivery notes"
     document_type = "delivery_note"
 
-    l10n_ec_create_delivery_note = fields.Boolean(string="Create Delivery note?")
     partner_id = fields.Many2one("res.partner", string="Partner", readonly=True)
     l10n_ec_journal_id = fields.Many2one(
         comodel_name="account.journal",
@@ -20,33 +18,9 @@ class WizardAbstractDeliveryNote(models.AbstractModel):
         domain=[("l10n_latam_internal_type", "=", "delivery_note")],
     )
     document_number = fields.Char()
-    delivery_date = fields.Date(required=False)
-    transfer_date = fields.Date(required=False)
+
     picking_id = fields.Many2one("stock.picking", string="Picking")
     invoice_id = fields.Many2one("account.move", string="Invoice")
-    rise = fields.Char("R.I.S.E")
-    dau = fields.Char("D.A.U.")
-    note = fields.Char()
-
-    @api.onchange("transfer_date")
-    def onchange_delivery_date(self):
-        if self.transfer_date:
-            self.delivery_date = self.transfer_date + relativedelta(
-                days=self.env.company.l10n_ec_delivery_note_days
-            )
-
-    @api.onchange("delivery_date")
-    @api.constrains("transfer_date", "delivery_date")
-    def _check_transfer_dates(self):
-        for wizard in self:
-            if (
-                wizard.transfer_date
-                and wizard.delivery_date
-                and wizard.delivery_date < wizard.transfer_date
-            ):
-                raise ValidationError(
-                    _("The Delivery Date can't less than transfer date, please check")
-                )
 
     @api.model
     def default_get(self, fields_list):
