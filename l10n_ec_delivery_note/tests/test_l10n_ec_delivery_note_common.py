@@ -1,3 +1,4 @@
+from odoo import fields
 from odoo.tests import Form, tagged
 
 from odoo.addons.l10n_ec_account_edi.tests.test_edi_common import TestL10nECEdiCommon
@@ -71,13 +72,17 @@ class TestL10nDeliveryNoteCommon(TestL10nECEdiCommon):
         self, picking=None, delivery_note=True, picking_type_internal=None, quantity=0
     ):
         # TODO optional parameter -> picking_type
-        # TODO line.quantity = 1 as parameter
         # if line.quantity > 1 then line.picked = True
         model_picking = picking if picking else self.env["stock.picking"]
         with Form(model_picking) as form:
             form.l10n_ec_delivery_note_journal_id = self.journal
             form.l10n_ec_create_delivery_note = delivery_note
-            # if delivery_note:
+
+            if delivery_note:
+                form.transfer_date = fields.Date.today()
+                form.delivery_date = fields.Date.today()
+                form.l10n_ec_delivery_carrier_id = self.partner_carrier
+
             if not form._get_modifier("l10n_ec_delivery_carrier_id", "invisible"):
                 form.l10n_ec_delivery_carrier_id = self.partner_carrier
             form.l10n_latam_internal_type = self.env["l10n_latam.document.type"].search(

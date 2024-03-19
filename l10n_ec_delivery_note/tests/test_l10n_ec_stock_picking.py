@@ -94,13 +94,8 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         picking.move_line_ids.quantity = 1
         picking.move_line_ids.lot_id = lot
 
-        picking_context = picking.button_validate()
-        wiz = Form(
-            self.env[picking_context["res_model"]].with_context(
-                **picking_context["context"]
-            )
-        ).save()
-        wiz.action_create_delivery_note()
+        picking.button_validate()
+
         delivery_note = picking.l10n_ec_delivery_note_ids
         self.assertEqual(picking.state, "done")
         self.assertEqual(delivery_note.state, "done")
@@ -178,23 +173,19 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
     def test_l10n_ec_wizard_create_delivery_note(self):
         """Pruebas en wizard de crear guia de remisión"""
         self.setup_edi_delivery_note()
-        # Agregar los dias por defecto para la entrega
+
         picking = self._l10n_ec_create_or_modify_picking(quantity=1)
         picking.action_confirm()
-        picking_context = picking.button_validate()
-        wiz = Form(
-            self.env[picking_context["res_model"]].with_context(
-                **picking_context["context"]
-            )
-        )
-        self.assertEqual(wiz.delivery_date, wiz.transfer_date + timedelta(days=2))
-        delivery_date_1 = wiz.delivery_date
-        wiz.transfer_date = False
-        self.assertEqual(wiz.delivery_date, delivery_date_1)
-        wiz.transfer_date = fields.Date.today() - timedelta(days=3)
-        self.assertNotEqual(wiz.delivery_date, delivery_date_1)
+        picking.button_validate()
+
+        self.assertEqual(picking.delivery_date, picking.transfer_date)
+        delivery_date_1 = picking.delivery_date
+        picking.transfer_date = False
+        self.assertEqual(picking.delivery_date, delivery_date_1)
+        picking.transfer_date = fields.Date.today() - timedelta(days=3)
+        self.assertNotEqual(picking.delivery_date, picking.transfer_date)
         with self.assertRaises(UserError):
-            wiz.delivery_date = wiz.transfer_date - timedelta(days=1)
+            picking.delivery_date = picking.transfer_date - timedelta(days=1)
 
     def test_l10n_ec_process_picking_note_sri(self):
         """Validar y enviar al SRI una guía de remisión
@@ -204,13 +195,8 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         # Asociar el partner a una compañia
         picking.partner_id.parent_id = self.company_data["company"].partner_id.id
         picking.action_confirm()
-        picking_context = picking.button_validate()
-        wiz = Form(
-            self.env[picking_context["res_model"]].with_context(
-                **picking_context["context"]
-            )
-        ).save()
-        wiz.process()
+        picking.button_validate()
+
         delivery_note = picking.l10n_ec_delivery_note_ids
         self.assertEqual(picking.state, "done")
         self.assertEqual(delivery_note.state, "done")
@@ -231,13 +217,13 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         # picking.picking_type_id = picking_type_internal
         picking.action_confirm()
         # picking.action_set_quantities_to_reservation()
-        picking_context = picking.button_validate()
-        wiz = Form(
-            self.env[picking_context["res_model"]].with_context(
-                **picking_context["context"]
-            )
-        ).save()
-        wiz.action_create_delivery_note()
+        picking.button_validate()
+        # wiz = Form(
+        #     self.env[picking_context["res_model"]].with_context(
+        #         **picking_context["context"]
+        #     )
+        # ).save()
+        # wiz.action_create_delivery_note()
         delivery_note = picking.l10n_ec_delivery_note_ids
         self.assertEqual(delivery_note.delivery_note_type, "internal")
         self.assertTrue(picking.state, "done")
@@ -266,6 +252,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
             Form(model_wizard.with_context(active_ids=pickings.ids))
         # Solo transferencias del mismo partner
         pickings_filtered = pickings.search([("partner_id", "=", self.partner_dni.id)])
+
         wiz = Form(model_wizard.with_context(active_ids=pickings_filtered.ids)).save()
         for pick in wiz.line_ids:
             self.assertTrue(
