@@ -261,9 +261,13 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
             )
             # TODO compare with 15
         delivery_context = wiz.action_create_delivery_note()
-        delivery_note = Form(
+
+        delivery_note_form = Form(
             self.DeliveryNote.with_context(**delivery_context["context"])
-        ).save()
+        )
+        delivery_note_form.delivery_carrier_id = self.partner_carrier
+        delivery_note = delivery_note_form.save()
+
         self.assertListEqual(delivery_note.stock_picking_ids.ids, pickings_filtered.ids)
         self.assertEqual(delivery_note.partner_id, self.partner_dni)
         # Intentar crear otra guia de remisión de las mismas transferencias
@@ -278,11 +282,14 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         self.assertEqual(delivery_note.state, "cancel")
         wiz3 = Form(model_wizard.with_context(active_ids=pickings_filtered.ids)).save()
         delivery_context = wiz3.action_create_delivery_note()
-        delivery_note_new = Form(
-            self.env["l10n_ec.delivery.note"].with_context(
-                **delivery_context["context"]
-            )
-        ).save()
+
+        delivery_note_form_new = Form(
+            self.DeliveryNote.with_context(**delivery_context["context"])
+        )
+
+        delivery_note_form_new.delivery_carrier_id = self.partner_carrier
+        delivery_note_new = delivery_note_form_new.save()
+
         self.assertListEqual(
             delivery_note.stock_picking_ids.ids, delivery_note_new.stock_picking_ids.ids
         )

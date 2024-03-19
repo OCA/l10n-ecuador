@@ -40,6 +40,7 @@ class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
             picking = self._l10n_ec_create_or_modify_picking(
                 picking=pick, delivery_note=False
             )
+
             # picking.action_set_quantities_to_reservation()
             picking.button_validate()
         model_wizard = self.env["wizard.create.delivery.note"]
@@ -53,9 +54,13 @@ class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
         )
         wiz.line_ids = wiz.line_ids - internal_pickings
         delivery_context = wiz.action_create_delivery_note()
-        delivery_note = Form(
+        delivery_note_form = Form(
             self.DeliveryNote.with_context(**delivery_context["context"])
-        ).save()
+        )
+
+        delivery_note_form.delivery_carrier_id = self.partner_carrier
+        delivery_note = delivery_note_form.save()
+
         delivery_note.action_confirm()
         self.assertEqual(delivery_note.state, "done")
         self.assertNotEqual(
@@ -84,9 +89,14 @@ class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
             invoice.button_cancel()
             wiz.action_create_delivery_note()
         delivery_context = wiz.action_create_delivery_note()
-        delivery_note = Form(
+
+        delivery_note_form = Form(
             self.DeliveryNote.with_context(**delivery_context["context"])
-        ).save()
+        )
+
+        delivery_note_form.delivery_carrier_id = self.partner_carrier
+        delivery_note = delivery_note_form.save()
+
         delivery_note.action_confirm()
         self.assertEqual(picking.id, delivery_note.stock_picking_ids.id)
         self.assertEqual(delivery_note.state, "done")
