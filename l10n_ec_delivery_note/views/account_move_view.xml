@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_out_invoice_tree" model="ir.ui.view">
+        <field name="name">view.out.invoice.tree</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_out_invoice_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='company_id']" position="after">
+                <field
+                    name="l10n_ec_delivery_note_ids"
+                    widget="many2many_tags"
+                    optional="hide"
+                />
+            </xpath>
+        </field>
+    </record>
+
+
+</odoo>
