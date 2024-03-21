@@ -20,7 +20,7 @@ class AccountEdiFormat(models.Model):
         if document.country_code == "EC":
             company = document.company_id
             partner = document.commercial_partner_id
-            errors = self._l10n_ec_check_edi_configuration(document.journal_id, company)
+            errors = self._l10n_ec_check_edi_configuration(document, company)
             # ruc en transportista
             if not document.delivery_carrier_id.vat:
                 errors.append(
