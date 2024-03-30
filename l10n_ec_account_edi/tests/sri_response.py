@@ -11,7 +11,7 @@ from odoo.addons.l10n_ec_account_edi.models.account_edi_format import (
 )
 
 soap_file_path = file_path(
-    "l10n_ec_account_edi/tests/wsdl/RecepcionComprobantesOffline?wsdl"
+    "l10n_ec_account_edi/tests/wsdl/RecepcionComprobantesOffline.wsdl"
 )
 transport = Transport(timeout=30)
 wsClient = Client(soap_file_path, transport=transport)
@@ -50,7 +50,7 @@ validation_sri_response_returned = factory.respuestaSolicitud(
 )
 
 soap_file_path = file_path(
-    "l10n_ec_account_edi/tests/wsdl/AutorizacionComprobantesOffline?wsdl"
+    "l10n_ec_account_edi/tests/wsdl/AutorizacionComprobantesOffline.wsdl"
 )
 wsClient = Client(soap_file_path, transport=transport)
 factory = wsClient.type_factory("ns0")
