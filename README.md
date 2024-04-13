@@ -22,7 +22,7 @@ Available addons
 addon | version | maintainers | summary
 --- | --- | --- | ---
 [l10n_ec_account_edi](l10n_ec_account_edi/) | 17.0.1.0.5 |  | Electronic data interchange adapted Ecuadorian localization
-[l10n_ec_base](l10n_ec_base/) | 17.0.1.0.0 |  | Ecuadorian Localization
+[l10n_ec_base](l10n_ec_base/) | 17.0.1.0.1 |  | Ecuadorian Localization
 
 [//]: # (end addons)
 

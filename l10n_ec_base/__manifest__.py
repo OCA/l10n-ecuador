@@ -6,7 +6,7 @@
     "author": "Odoo Community Association (OCA), Renan Nazate, Gabriel, Leonardo",
     "website": "https://github.com/OCA/l10n-ecuador",
     "license": "AGPL-3",
-    "version": "17.0.1.0.0",
+    "version": "17.0.1.0.1",
     "depends": ["l10n_ec", "account"],
     "data": [
         "wizard/account_payment_register_views.xml",
