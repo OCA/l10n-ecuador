@@ -13,7 +13,7 @@ from lxml import etree
 from xades import XAdESContext, template  # pylint: disable=W7936
 from xades.policy import ImpliedPolicy  # pylint: disable=W7936
 
-from odoo import fields, models, tools
+from odoo import api, fields, models, tools
 from odoo.exceptions import UserError
 from odoo.tools.translate import _
 
@@ -72,6 +72,7 @@ class SriKeyType(models.Model):
         string="Serial number (certificate)", readonly=True
     )
     cert_version = fields.Char(string="Version", readonly=True)
+    days_for_notification = fields.Integer(string="Days for notification", default=30)
 
     @tools.ormcache("self.file_content", "self.password", "self.state")
     def _decode_certificate(self):
@@ -223,3 +224,25 @@ class SriKeyType(models.Model):
         ctx.sign(signature)
         ctx.verify(signature)
         return etree.tostring(doc, encoding="UTF-8", pretty_print=True).decode()
+
+    def days_to_expire(self):
+        if self.expire_date:
+            return (self.expire_date - fields.Date.context_today(self)).days
+        return 0
+
+    @api.model
+    def action_email_notification(self):
+        email_template = self.env.ref(
+            "l10n_ec_account_edi.email_template_notify", False
+        )
+        all_companies = self.env["res.company"].search([])
+        for company in all_companies:
+            certificates = self.search(
+                [("company_id", "=", company.id), ("state", "=", "valid")]
+            )
+            for cert in certificates:
+                if 0 < cert.days_to_expire() <= cert.days_for_notification:
+                    email_template.send_mail(
+                        cert.id, email_layout_xmlid="mail.mail_notification_light"
+                    )
+        return True
