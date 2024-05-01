@@ -295,7 +295,8 @@ class AccountEdiDocument(models.Model):
     @api.model
     def l10n_ec_get_check_digit(self, access_key):
         """
-        Compute verificator digit for access_key  according SRI technical data sheet(table 1)
+        Compute verificator digit for access_key  according SRI technical data sheet
+        (table 1)
         """
         mult = 1
         current_sum = 0
@@ -475,7 +476,9 @@ class AccountEdiDocument(models.Model):
                 credit_note.l10n_ec_legacy_document_date
             ).strftime(EDI_DATE_FORMAT),
             "motivo": credit_note.l10n_ec_reason,
-            "tipoIdentificacionComprador": credit_note.l10n_ec_get_identification_type(),
+            "tipoIdentificacionComprador": (
+                credit_note.l10n_ec_get_identification_type()
+            ),
             "razonSocialComprador": self._l10n_ec_clean_str(
                 credit_note.commercial_partner_id.name
             )[:300],
@@ -526,7 +529,8 @@ class AccountEdiDocument(models.Model):
             )
         except Exception as e:
             _logger.info(
-                "can't validate document in %s, claveAcceso %s. ERROR: %s TRACEBACK: %s",
+                "can't validate document in %s, claveAcceso %s. ERROR: %s TRACEBACK: "
+                "%s",
                 str(client_ws),
                 self.l10n_ec_xml_access_key,
                 tools.ustr(e),
