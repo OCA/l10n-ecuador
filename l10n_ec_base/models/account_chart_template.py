@@ -1,8 +1,9 @@
 from odoo import api, models
 
 from odoo.addons.account.models.chart_template import template
-from odoo.addons.l10n_ec_base.data.account_tax_data import TAX_DATA_EC
-from odoo.addons.l10n_ec_base.data.account_tax_group_data import TAX_GROUP_DATA_EC
+
+from ..data.account_tax_data import TAX_DATA_EC
+from ..data.account_tax_group_data import TAX_GROUP_DATA_EC
 
 
 class AccountChartTemplate(models.AbstractModel):
