@@ -227,7 +227,9 @@ class TestL10nEcPurchaseLiquidation(TestL10nECEdiCommon):
         self.assertTrue(invoice.l10n_latam_internal_type, "purchase_liquidation")
 
     def test_l10n_ec_liquidation_default_journal_form(self):
-        """Test prueba en formulario de liquidación de compras, sin diarios registrados"""
+        """Test prueba en formulario de liquidación de compras, sin diarios
+        registrados
+        """
         self.journal_purchase.unlink()
         invoice_model = self.AccountMove.with_context(
             default_move_type="in_invoice", internal_type="purchase_liquidation"
@@ -236,7 +238,9 @@ class TestL10nEcPurchaseLiquidation(TestL10nECEdiCommon):
             Form(invoice_model)
 
     def test_l10n_ec_validate_lines_liquidation(self):
-        """Validaciones de cantidad y valor total en 0 en lineas de liquidación de compra"""
+        """Validaciones de cantidad y valor total en 0 en lineas de liquidación de
+        compra
+        """
         self._setup_edi_company_ec()
         invoice = self._l10n_ec_prepare_edi_liquidation()
         with Form(invoice, FORM_ID) as form:
