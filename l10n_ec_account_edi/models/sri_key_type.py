@@ -92,7 +92,8 @@ class SriKeyType(models.Model):
             ) from None
         certificate = p12.cert.certificate
         # revisar si el certificado tiene la extension digital_signature activada
-        # caso contrario tomar del listado de certificados el primero que tengan esta extension
+        # caso contrario tomar del listado de certificados el primero que tengan esta
+        # extension
         is_digital_signature = True
         try:
             extension = certificate.extensions.get_extension_for_oid(

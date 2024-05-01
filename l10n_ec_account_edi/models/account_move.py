@@ -62,7 +62,7 @@ class AccountMove(models.Model):
 
     @api.depends("company_id", "invoice_filter_type_domain")
     def _compute_suitable_journal_ids(self):
-        super()._compute_suitable_journal_ids()
+        res = super()._compute_suitable_journal_ids()
         Journal = self.env["account.journal"]
         is_purchase_liquidation = (
             self.env.context.get("internal_type", "") == "purchase_liquidation"
@@ -79,6 +79,7 @@ class AccountMove(models.Model):
                     ("l10n_ec_is_purchase_liquidation", "=", is_purchase_liquidation),
                 ]
             )
+        return res
 
     @api.depends("invoice_date", "invoice_date_due")
     def _compute_l10n_ec_credit_days(self):
@@ -134,7 +135,8 @@ class AccountMove(models.Model):
 
         journal = None
         # the currency is not a hard dependence, it triggers via manual add_to_compute
-        # avoid computing the currency before all it's dependences are set (like the journal...)
+        # avoid computing the currency before all it's dependences are set (like the
+        # journal...)
         if self.env.cache.contains(self, self._fields["currency_id"]):
             currency_id = self.currency_id.id or self._context.get(
                 "default_currency_id"
@@ -148,7 +150,8 @@ class AccountMove(models.Model):
 
         if not journal:
             error_msg = _(
-                "No journal could be found in company %(company_name)s for any of those types: %(journal_types)s",
+                "No journal could be found in company %(company_name)s for any of "
+                "those types: %(journal_types)s",
                 company_name=company.display_name,
                 journal_types=", ".join(journal_types),
             )
@@ -201,8 +204,12 @@ class AccountMove(models.Model):
                     self.date,
                 )
             payment_vals = {
-                "name": counterpart_line.payment_id.journal_id.l10n_ec_sri_payment_id.name,
-                "formaPago": counterpart_line.payment_id.journal_id.l10n_ec_sri_payment_id.code,
+                "name": (
+                    counterpart_line.payment_id.journal_id.l10n_ec_sri_payment_id.name
+                ),
+                "formaPago": (
+                    counterpart_line.payment_id.journal_id.l10n_ec_sri_payment_id.code
+                ),
                 "total": self.edi_document_ids._l10n_ec_number_format(amount),
             }
             if self.invoice_payment_term_id and credit_days:
@@ -430,7 +437,8 @@ class AccountMove(models.Model):
             if response is False:
                 raise ValidationError(
                     _(
-                        "The connection to the SRI service is not possible. Please check later."
+                        "The connection to the SRI service is not possible. Please "
+                        "check later."
                     )
                 )
 
