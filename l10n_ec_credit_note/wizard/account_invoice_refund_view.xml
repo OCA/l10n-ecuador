@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_account_invoice_refund_sale" model="ir.ui.view">
+        <field name="name">account.move.reversal.sale.form</field>
+        <field name="model">account.move.reversal</field>
+        <field name="inherit_id" ref="account.view_account_move_reversal" />
+        <field name="priority">50</field>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='reason']" position="before">
+                <field name="l10n_ec_type_credit_note" widget="radio" required="1" />
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
