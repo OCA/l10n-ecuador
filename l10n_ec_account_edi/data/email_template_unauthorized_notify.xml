@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <record id="email_template_unauthorized_notify" model="mail.template">
+        <field name="name">Unauthorized electronic documents</field>
+        <field name="model_id" ref="base.model_res_company" />
+        <field name="subject">Unauthorized electronic documents</field>
+        <field name="description">Notify documents Unauthorized</field>
+        <field name="email_to">somebody@odoo.ec</field>
+        <field name="body_html" type="html">
+            <p>
+                Dear,
+                <br />
+                This email is to notify you that the documents electronics
+                are unauthorized.
+                <br />
+            </p>
+            <t
+                t-set="records"
+                t-value="object.l10n_ec_get_edi_document_unauthorized()"
+            />
+            <table width="100%">
+                <thead>
+                    <tr style="text-align: center;">
+                        <th style="width: 190px;"><strong>Document</strong></th>
+                        <th style="width: 80px;"><strong>Date</strong></th>
+                        <th style="width: 80px;"><strong>Status</strong></th>
+                        <th><strong>Error</strong></th>
+                    </tr>
+                </thead>
+                <tbody style="padding: 10px; font-size: 12px;">
+                    <tr t-foreach="records" t-as="r">
+                        <td>
+                            <a
+                                t-attf-href="{{ r.move_id._get_share_url(redirect=True) }}"
+                                target="_blank"
+                                t-out="r.move_id.name or ''"
+                            >INV001</a>
+                        </td>
+                        <td style="text-align: center;">
+                            <span t-field="r.move_id.date">2024-01-01</span>
+                        </td>
+                        <td style="text-align: center;">
+                            <span t-field="r.state">Sent</span>
+                        </td>
+                        <td>
+                            <span t-field="r.error">Error</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div>
+                <br />
+                Thanks for your attention.
+            </div>
+        </field>
+        <field name="auto_delete" eval="True" />
+    </record>
+</odoo>

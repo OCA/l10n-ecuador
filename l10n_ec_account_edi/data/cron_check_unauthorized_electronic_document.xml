@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <record forcecreate="True" id="ir_cron_unauthorized_documents" model="ir.cron">
+        <field name="name">Unauthorized Electronic Documents(Ecuador)</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="doall" eval="False" />
+        <field name="priority" eval="20" />
+        <field name="model_id" ref="base.model_res_company" />
+        <field name="nextcall" eval="DateTime.now().strftime('%Y-%m-%d %H:00:00')" />
+        <field name="state">code</field>
+        <field
+            name="code"
+        >model.l10n_ec_action_unauthorized_documents_notification()</field>
+    </record>
+</odoo>

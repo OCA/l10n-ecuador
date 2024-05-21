@@ -55,3 +55,31 @@ class ResCompany(models.Model):
     def l10n_ec_get_resolution_data(self, date=None):
         # TODO: implementar logica para devolver numero de resolucion
         return ""
+
+    @api.model
+    def l10n_ec_action_unauthorized_documents_notification(self):
+        companies = self.search([])
+        email_template = self.env.ref(
+            "l10n_ec_account_edi.email_template_unauthorized_notify", False
+        )
+        for company in companies:
+            count = self.env["account.edi.document"].search_count(
+                company._l10n_ec_prepare_domain_for_unauthorized_documents()
+            )
+            if count > 0:
+                email_template.send_mail(
+                    company.id, email_layout_xmlid="mail.mail_notification_light"
+                )
+        return True
+
+    def _l10n_ec_prepare_domain_for_unauthorized_documents(self):
+        return [
+            ("state", "=", "to_send"),
+            ("move_id.company_id", "=", self.id),
+            ("error", "!=", False),
+        ]
+
+    def l10n_ec_get_edi_document_unauthorized(self):
+        return self.env["account.edi.document"].search(
+            self._l10n_ec_prepare_domain_for_unauthorized_documents()
+        )
