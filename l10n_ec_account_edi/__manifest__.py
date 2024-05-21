@@ -6,7 +6,7 @@
     "Carlos Lopez, Renan Nazate, Yazber Romero, Luis Romero, Jorge Quiguango",
     "website": "https://github.com/OCA/l10n-ecuador",
     "license": "AGPL-3",
-    "version": "17.0.1.0.7",
+    "version": "17.0.1.1.0",
     "depends": ["account", "account_edi", "l10n_ec", "l10n_ec_base"],
     "external_dependencies": {
         "python": ["cryptography==36.0.0", "xmlsig==0.1.9", "xades==0.2.4", "zeep"]
@@ -21,8 +21,10 @@
         "data/edi_templates/edi_debit_note.xml",
         "data/cron_send_email_electronic_documents.xml",
         "data/cron_check_certificate.xml",
+        "data/cron_check_unauthorized_electronic_document.xml",
         "data/email_template_edi_invoice.xml",
         "data/email_template_certificate_notify.xml",
+        "data/email_template_unauthorized_notify.xml",
         "report/edi_report_templates.xml",
         "report/report_edi_invoice.xml",
         "report/report_edi_liquidation.xml",
