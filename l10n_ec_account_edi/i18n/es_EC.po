@@ -147,6 +147,76 @@ msgid ""
 msgstr ""
 
 #. module: l10n_ec_account_edi
+#: model:mail.template,body_html:l10n_ec_account_edi.email_template_notify
+msgid ""
+"<div>\n"
+"                Dear,\n"
+"                <br>\n"
+"                This email is to notify you that the certificate\n"
+"                <t t-out=\"object.name\"></t> is next to expire on <t t-out="
+"\"object.expire_date\"></t>.\n"
+"                <br>\n"
+"                If this certificate is not renewed, the system will not be "
+"able\n"
+"                to sign documents.\n"
+"                <br>\n"
+"                Thanks for your attention.\n"
+"            </div>\n"
+"        "
+msgstr ""
+
+#. module: l10n_ec_account_edi
+#: model:mail.template,body_html:l10n_ec_account_edi.email_template_unauthorized_notify
+msgid ""
+"<p>\n"
+"                Dear,\n"
+"                <br>\n"
+"                This email is to notify you that the documents electronics\n"
+"                are unauthorized.\n"
+"                <br>\n"
+"            </p>\n"
+"            <t t-set=\"records\" t-value=\"object."
+"l10n_ec_get_edi_document_unauthorized()\"></t>\n"
+"            <table width=\"100%\">\n"
+"                <thead>\n"
+"                    <tr style=\"text-align: center;\">\n"
+"                        <th style=\"width: 190px;\"><strong>Document</"
+"strong></th>\n"
+"                        <th style=\"width: 80px;\"><strong>Date</strong></"
+"th>\n"
+"                        <th style=\"width: 80px;\"><strong>Status</strong></"
+"th>\n"
+"                        <th><strong>Error</strong></th>\n"
+"                    </tr>\n"
+"                </thead>\n"
+"                <tbody style=\"padding: 10px; font-size: 12px;\">\n"
+"                    <tr t-foreach=\"records\" t-as=\"r\">\n"
+"                        <td>\n"
+"                            <a t-attf-href=\"{{ r.move_id."
+"_get_share_url(redirect=True) }}\" target=\"_blank\" t-out=\"r.move_id.name "
+"or ''\">INV001</a>\n"
+"                        </td>\n"
+"                        <td style=\"text-align: center;\">\n"
+"                            <span t-field=\"r.move_id.date\">2024-01-01</"
+"span>\n"
+"                        </td>\n"
+"                        <td style=\"text-align: center;\">\n"
+"                            <span t-field=\"r.state\">Sent</span>\n"
+"                        </td>\n"
+"                        <td>\n"
+"                            <span t-field=\"r.error\">Error</span>\n"
+"                        </td>\n"
+"                    </tr>\n"
+"                </tbody>\n"
+"            </table>\n"
+"            <div>\n"
+"                <br>\n"
+"                Thanks for your attention.\n"
+"            </div>\n"
+"        "
+msgstr ""
+
+#. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.res_config_settings_l10n_ec_edi
 msgid "<span class=\"o_form_label\">Electronic Certificate File</span>"
 msgstr "<span class=\"o_form_label\">Archivo Firma Electrónica</span>"
@@ -441,6 +511,11 @@ msgid "Date of issue"
 msgstr "Fecha de Emisión"
 
 #. module: l10n_ec_account_edi
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type__days_for_notification
+msgid "Days for notification"
+msgstr ""
+
+#. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.res_config_settings_l10n_ec_edi
 msgid "Debit Note"
 msgstr "Nota de Débito"
@@ -528,6 +603,11 @@ msgstr "Autorización Electrónica"
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_account_payment__l10n_ec_authorization_date
 msgid "Electronic Authorization Date"
 msgstr "Fecha Autorización Electrónica"
+
+#. module: l10n_ec_account_edi
+#: model:ir.actions.server,name:l10n_ec_account_edi.ir_cron_check_certificate_ir_actions_server
+msgid "Electronic Certificate Expiry Notification(Ecuador)"
+msgstr ""
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.res_config_settings_l10n_ec_edi
@@ -619,6 +699,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_l10n_ec_additional_information__id
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_sri_key_type__id
 msgid "ID"
+msgstr ""
+
+#. module: l10n_ec_account_edi
+#: model:mail.template,subject:l10n_ec_account_edi.email_template_notify
+msgid ""
+"In {{ object.company_id.name }} company, the certificate is next to expire"
 msgstr ""
 
 #. module: l10n_ec_account_edi
@@ -738,6 +824,21 @@ msgstr "Nombre"
 msgid ""
 "No journal could be found in company %(company_name)s for any of those "
 "types: %(journal_types)s"
+msgstr ""
+
+#. module: l10n_ec_account_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.sri_key_type_form_view
+msgid "Notification"
+msgstr ""
+
+#. module: l10n_ec_account_edi
+#: model:mail.template,description:l10n_ec_account_edi.email_template_notify
+msgid "Notify Certificates About to Expire"
+msgstr ""
+
+#. module: l10n_ec_account_edi
+#: model:mail.template,description:l10n_ec_account_edi.email_template_unauthorized_notify
+msgid "Notify documents Unauthorized"
 msgstr ""
 
 #. module: l10n_ec_account_edi
@@ -893,6 +994,11 @@ msgstr ""
 "Consumidor Final"
 
 #. module: l10n_ec_account_edi
+#: model:mail.template,name:l10n_ec_account_edi.email_template_notify
+msgid "The certificate is next to expire"
+msgstr ""
+
+#. module: l10n_ec_account_edi
 #. odoo-python
 #: code:addons/l10n_ec_account_edi/models/account_move.py:0
 #, python-format
@@ -910,6 +1016,17 @@ msgstr "Documento Autorizado en SRI. No se puede cancelar."
 #: model:ir.model,name:l10n_ec_account_edi.model_sri_key_type
 msgid "Type of electronic key"
 msgstr "Tipo de Llave Electrónica"
+
+#. module: l10n_ec_account_edi
+#: model:ir.actions.server,name:l10n_ec_account_edi.ir_cron_unauthorized_documents_ir_actions_server
+msgid "Unauthorized Electronic Documents(Ecuador)"
+msgstr ""
+
+#. module: l10n_ec_account_edi
+#: model:mail.template,name:l10n_ec_account_edi.email_template_unauthorized_notify
+#: model:mail.template,subject:l10n_ec_account_edi.email_template_unauthorized_notify
+msgid "Unauthorized electronic documents"
+msgstr ""
 
 #. module: l10n_ec_account_edi
 #: model:ir.model.fields.selection,name:l10n_ec_account_edi.selection__sri_key_type__state__unverified
