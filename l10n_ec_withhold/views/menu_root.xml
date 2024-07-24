@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <menuitem
+        id="sri_withhold_purchase"
+        groups="account.group_account_manager"
+        name="Purchase Withholding"
+        action="action_account_move_purchase_withhold"
+        parent="account.menu_finance_payables"
+        sequence="7"
+    />
+    <menuitem
+        id="sri_withhold_sales"
+        groups="account.group_account_manager"
+        name="Sales Withholding"
+        action="action_account_move_sale_withhold"
+        parent="account.menu_finance_receivables"
+        sequence="7"
+    />
+</odoo>
