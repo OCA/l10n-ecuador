@@ -205,6 +205,7 @@ class TestL10nECCommon(AccountTestInvoicingCommon):
         journal=None,
         latam_document_type=None,
         auto_post=False,
+        l10n_latam_document_number=None,
     ):
         """Crea y devuelve una factura de compra
         :param partner: Partner, si no se envia se coloca uno
@@ -229,6 +230,11 @@ class TestL10nECCommon(AccountTestInvoicingCommon):
             use_payment_term=True,
         )
         form.l10n_ec_electronic_authorization = self.number_authorization_electronic
+        form.l10n_latam_document_number = (
+            "001-001-000000001"
+            if not l10n_latam_document_number
+            else l10n_latam_document_number
+        )
         invoice = form.save()
         if auto_post:
             invoice.action_post()
