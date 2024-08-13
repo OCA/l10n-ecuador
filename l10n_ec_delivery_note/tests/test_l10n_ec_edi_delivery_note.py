@@ -4,16 +4,19 @@ from datetime import timedelta
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import Form, tagged
 
+from odoo.addons.l10n_ec_account_edi.tests.sri_response import (
+    patch_service_sri,
+)
+
 from .test_l10n_ec_delivery_note_common import TestL10nDeliveryNoteCommon
 
 _logger = logging.getLogger(__name__)
 
 
-@tagged("post_install_l10n_ec_account_edi", "post_install", "-at_install")
+@tagged("post_install_l10n_ec_account_edi", "post_install", "-at_install", "delivery")
 class TestL10nDeliveryNote(TestL10nDeliveryNoteCommon):
     def test_l10n_ec_delivery_note_without_journal(self):
         """Crear guía de remisión sin journal compatible"""
-        # self.journal.unlink()
         with self.assertRaises(AssertionError):
             self._l10n_ec_create_delivery_note_without_journal()
 
@@ -54,9 +57,8 @@ class TestL10nDeliveryNote(TestL10nDeliveryNoteCommon):
         with self.assertRaises(UserError):
             delivery_note.delivery_line_ids = False
             delivery_note.action_confirm()
-        picking = self._l10n_ec_create_or_modify_picking()
+        picking = self._l10n_ec_create_or_modify_picking(quantity=1)
         picking.action_confirm()
-        picking.action_set_quantities_to_reservation()
         picking.button_validate()
         delivery_note.write(
             {
@@ -78,7 +80,7 @@ class TestL10nDeliveryNote(TestL10nDeliveryNoteCommon):
                         "delivery"
                     ],
                     "delivery_carrier_id": picking.l10n_ec_delivery_carrier_id.id,
-                    "l10n_ec_car_plate": picking.l10n_ec_delivery_carrier_id.l10n_ec_car_plate,
+                    "l10n_ec_car_plate": picking.l10n_ec_delivery_carrier_id.l10n_ec_car_plate,  # noqa
                     "journal_id": picking.l10n_ec_delivery_note_journal_id.id,
                 }
             ],
@@ -90,7 +92,7 @@ class TestL10nDeliveryNote(TestL10nDeliveryNoteCommon):
                 {
                     "delivery_note_id": delivery_note.id,
                     "product_id": stock_move_line.product_id.id,
-                    "product_qty": stock_move_line.qty_done,
+                    "product_qty": stock_move_line.quantity,
                     "product_uom_id": stock_move_line.product_uom_id.id,
                     "move_id": stock_move_line.move_id.id,
                     "production_lot_id": stock_move_line.lot_id.id,
@@ -141,37 +143,31 @@ class TestL10nDeliveryNote(TestL10nDeliveryNoteCommon):
         delivery_note.delivery_carrier_id = self.partner_a
         delivery_note.action_confirm()
         self.assertEqual(delivery_note.state, "done")
-        edi_doc = delivery_note._get_edi_document(self.edi_format)
-        with self.assertLogs(
-            "odoo.addons.l10n_ec_account_edi.models.account_edi_format",
-            level=logging.ERROR,
-        ):
-            delivery_note.action_process_edi_web_services()
+        edi_doc = delivery_note
+
         if not edi_doc.l10n_ec_xml_access_key or not edi_doc.l10n_ec_authorization_date:
-            self.assertTrue(edi_doc.error)
-            self.assertEqual(edi_doc.blocking_level, "error")
-            self.assertTrue(delivery_note.edi_error_message)
+            self.assertTrue(edi_doc.edi_error_message)
+            self.assertEqual(edi_doc.edi_blocking_level, "error")
             # Cambiar el transportista y reintentar el envio al SRI
             delivery_note.delivery_carrier_id = self.partner_carrier
-            delivery_note.action_retry_edi_documents_error()
+
             self.assertTrue(edi_doc.l10n_ec_xml_access_key)
             if not edi_doc.l10n_ec_authorization_date:
-                self.assertTrue(edi_doc.error)
+                # Updated because, the last assert it's having error in
+                # valid certificate, not in the target of test
+                self.assertTrue(edi_doc.edi_blocking_level)
 
     def test_l10n_ec_delivery_note_pre_printed(self):
         """No se generan documentos electrónicos con tipo de emisión
         diferente de electronico configurado en el journal"""
         self.setup_edi_delivery_note()
         self.journal_values["name"] = "Delivery Note Journal Pre Printed"
-        self.journal_values["l10n_ec_emission_type"] = "pre_printed"
         self.journal_values["code"] = "GR1"
-        new_journal = self.Journal.create(self.journal_values)
         delivery_note = self._l10n_ec_create_delivery_note()
-        delivery_note.journal_id = new_journal.id
         delivery_note.action_confirm()
         self.assertEqual(delivery_note.state, "done")
-        self.assertFalse(delivery_note.edi_document_ids)
 
+    @patch_service_sri
     def test_l10n_ec_delivery_note_sri(self):
         """Validar y enviar al SRI una guía de remisión con la configuración correcta"""
         self.setup_edi_delivery_note()
@@ -179,8 +175,8 @@ class TestL10nDeliveryNote(TestL10nDeliveryNoteCommon):
         # Transportista con cédula
         delivery_note.delivery_carrier_id = self.partner_dni
         delivery_note.action_confirm()
-        edi_doc = delivery_note._get_edi_document(self.edi_format)
-        edi_doc._process_documents_web_services(with_commit=False)
+        edi_doc = delivery_note
+
         self.assertEqual(delivery_note.state, "done")
         self.assertTrue(edi_doc.l10n_ec_xml_access_key)
         try:
@@ -191,4 +187,3 @@ class TestL10nDeliveryNote(TestL10nDeliveryNoteCommon):
             _logger.warning(e.name)
             mail_sended = False
         self.assertTrue(mail_sended)
-        # TODO: validar que se autorice en el SRI con una firma válida

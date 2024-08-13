@@ -26,7 +26,7 @@ class DeliveryNoteLine(models.Model):
     )
     product_qty = fields.Float("Quantity", digits="Product Unit of Measure")
     production_lot_id = fields.Many2one(
-        "stock.production.lot",
+        "stock.lot",
         "Production Lot",
         index=True,
         domain="[('product_id', '=', product_id)]",
@@ -62,7 +62,8 @@ class DeliveryNoteLine(models.Model):
                 raise ValidationError(
                     _(
                         "You cannot perform the move "
-                        "because the unit of measure: %(unit_name)s has a different category "
+                        "because the unit of measure: %(unit_name)s has a "
+                        "different category "
                         "as the product unit of measure: %(categ_name)s."
                     )
                     % {
@@ -78,7 +79,7 @@ class DeliveryNoteLine(models.Model):
             "product_id": stock_move_line.product_id.id,
             "description": stock_move_line.move_id.sale_line_id.name
             or stock_move_line.product_id.name,
-            "product_qty": stock_move_line.qty_done,
+            "product_qty": stock_move_line.quantity,
             "product_uom_id": stock_move_line.product_uom_id.id,
             "move_id": stock_move_line.move_id.id,
             "move_line_id": stock_move_line.id,
@@ -100,7 +101,7 @@ class DeliveryNoteLine(models.Model):
             "cantidad": EdiDocument._l10n_ec_number_format(
                 self.product_qty, decimals=6
             ),
-            "detallesAdicionales": self._l10n_ec_get_delivery_note_edi_additional_data(),
+            "detallesAdicionales": self._l10n_ec_get_delivery_note_edi_additional_data(),  # noqa
         }
         return res
 

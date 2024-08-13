@@ -235,7 +235,8 @@ class AccountEdiFormat(models.Model):
                     attachment = edi_doc.attachment_id
                     xml_file = edi_doc._l10n_ec_render_xml_edi()
                     _logger.debug(xml_file)
-                    edi_doc._l10n_ec_action_check_xsd(xml_file)
+                    xsd_file_path = edi_doc._l10n_ec_get_xsd_filename()
+                    edi_doc._l10n_ec_action_check_xsd(xml_file, xsd_file_path)
                     xml_signed = company.l10n_ec_key_type_id.action_sign(xml_file)
                     if not attachment:
                         attachment = self.env["ir.attachment"].create(
@@ -279,7 +280,7 @@ class AccountEdiFormat(models.Model):
                         sri_res = edi_doc._l10n_ec_edi_send_xml_auth(auth_client)
                         is_auth, msj = edi_doc._l10n_ec_edi_process_response_auth(
                             sri_res
-                        )
+                        )[:2]
                         errors.extend(msj)
                     if not is_auth:
                         sri_res = edi_doc._l10n_ec_edi_send_xml(client_send, xml_signed)
@@ -295,7 +296,7 @@ class AccountEdiFormat(models.Model):
                         sri_res = edi_doc._l10n_ec_edi_send_xml_auth(auth_client)
                         is_auth, msj = edi_doc._l10n_ec_edi_process_response_auth(
                             sri_res
-                        )
+                        )[:2]
                         errors.extend(msj)
             except Exception as ex:
                 _logger.error(tools.ustr(traceback.format_exc()))

@@ -18,9 +18,9 @@
                     options="{'no_create': True}"
                     groups="stock.group_production_lot"
                 />
-                <field name="move_id" invisible="1" />
-                <field name="move_line_id" invisible="1" />
-                <field name="product_uom_category_id" invisible="1" />
+                <field name="move_id" column_invisible="True" />
+                <field name="move_line_id" column_invisible="True" />
+                <field name="product_uom_category_id" column_invisible="True" />
             </tree>
         </field>
     </record>
@@ -33,7 +33,7 @@
                 <header>
                     <button
                         name="action_confirm"
-                        states="draft"
+                        invisible="state != 'draft'"
                         string="Confirm"
                         icon="fa-check"
                         type="object"
@@ -45,12 +45,12 @@
                         type="object"
                         string="Send by email"
                         class="oe_highlight"
-                        attrs="{'invisible': [('state', '!=', 'done')]}"
+                        invisible="state != 'done'"
                         groups="stock.group_stock_user"
                     />
                     <button
                         name="action_cancel"
-                        states="done"
+                        invisible="state != 'done'"
                         string="Cancel"
                         icon="fa-close"
                         type="object"
@@ -59,7 +59,7 @@
                     />
                     <button
                         name="action_set_draft"
-                        states="cancel"
+                        invisible="state != 'cancel'"
                         string="Back to draft"
                         icon="fa-undo"
                         type="object"
@@ -73,7 +73,7 @@
                     class="alert alert-info"
                     role="alert"
                     style="margin-bottom:0px;"
-                    attrs="{'invisible': ['|', ('edi_web_services_to_process', 'in', ['', False]), ('state', '=', 'draft')]}"
+                    invisible="edi_web_services_to_process in ['', False] or state == 'draft'"
                 >
                     <div
                     >The invoice will be processed asynchronously by the following E-invoicing service :
@@ -90,7 +90,7 @@
                     class="alert alert-danger"
                     role="alert"
                     style="margin-bottom:0px;"
-                    attrs="{'invisible': ['|', ('edi_error_count', '=', 0), ('edi_blocking_level', '!=', 'error')]}"
+                    invisible="edi_error_count == 0 or edi_blocking_level != 'error'"
                 >
                     <div class="o_row">
                         <field name="edi_error_message" />
@@ -99,7 +99,7 @@
                             string="⇒ See errors"
                             type="action"
                             class="oe_link"
-                            attrs="{'invisible': [('edi_error_count', '=', 1)]}"
+                            invisible="edi_error_count == 1"
                         />
                         <button
                             name="action_retry_edi_documents_error"
@@ -113,7 +113,7 @@
                     class="alert alert-warning"
                     role="alert"
                     style="margin-bottom:0px;"
-                    attrs="{'invisible': ['|', ('edi_error_count', '=', 0), ('edi_blocking_level', '!=', 'warning')]}"
+                    invisible="edi_error_count == 0 or edi_blocking_level != 'warning'"
                 >
                     <div class="o_row">
                         <field name="edi_error_message" />
@@ -122,7 +122,7 @@
                             string="⇒ See errors"
                             type="action"
                             class="oe_link"
-                            attrs="{'invisible': [('edi_error_count', '=', 1)]}"
+                            invisible="edi_error_count == 1"
                         />
                     </div>
                 </div>
@@ -130,7 +130,7 @@
                     class="alert alert-info"
                     role="alert"
                     style="margin-bottom:0px;"
-                    attrs="{'invisible': ['|', ('edi_error_count', '=', 0), ('edi_blocking_level', '!=', 'info')]}"
+                    invisible="edi_error_count == 0 or edi_blocking_level != 'info'"
                 >
                     <div class="o_row">
                         <field name="edi_error_message" />
@@ -139,7 +139,7 @@
                             string="⇒ See errors"
                             type="action"
                             class="oe_link"
-                            attrs="{'invisible': [('edi_error_count', '=', 1)]}"
+                            invisible="edi_error_count == 1"
                         />
                     </div>
                 </div>
@@ -149,37 +149,46 @@
                         <div style="width: 50%">
                             GR
                             <field
-                                attrs="{'invisible': [('document_number', '=', '/')]}"
+                                invisible="document_number == '/'"
                                 name="document_number"
                                 force_save="1"
                             />
                             <span
-                                attrs="{'invisible': ['|', ('state', '!=', 'draft'), ('document_number', '!=', '/')]}"
+                                invisible="state != 'draft' or document_number != '/'"
                             >
                                 Draft
                             </span>
                         </div>
                     </h1>
                     <group>
-                        <group>
+                        <group name="group_left">
                             <field
                                 name="journal_id"
                                 required="1"
                                 options="{'no_open':True, 'no_create': True}"
+                                readonly="state != 'draft'"
                             />
-                            <field name="delivery_note_type" required="1" />
                             <field
-                                name="l10n_latam_internal_type"
+                                name="delivery_note_type"
                                 required="1"
-                                attrs="{'readonly': [('state','in',('done','cancel'))]}"
-                                options="{'no_open':True, 'no_create': True}"
+                                readonly="state != 'draft'"
                             />
+                        </group>
+                        <group name="group_right">
+                            <field name="l10n_ec_xml_access_key" readonly="True" />
+                            <field name="l10n_ec_authorization_date" readonly="True" />
                         </group>
                         <group>
                             <field
                                 name="company_id"
                                 options="{'no_create': True}"
                                 groups="base.group_multi_company"
+                                readonly="state != 'draft'"
+                            />
+                            <field
+                                name="company_id"
+                                options="{'no_create': True}"
+                                invisible="1"
                             />
                         </group>
                     </group>
@@ -192,6 +201,7 @@
                                         name="partner_id"
                                         required="1"
                                         options="{'no_quick_create': True}"
+                                        readonly="state != 'draft'"
                                     />
                                     <field
                                         name="delivery_address_id"
@@ -199,18 +209,32 @@
                                         domain="[('commercial_partner_id', '=', partner_id)]"
                                         options="{'no_quick_create': True}"
                                         context="{'default_parent_id': partner_id, 'default_type': 'delivery','show_address': 1}"
+                                        readonly="state != 'draft'"
                                     />
                                     <field
                                         name="delivery_carrier_id"
                                         required="1"
                                         options="{'no_quick_create': True}"
                                         context="{'default_l10n_ec_is_carrier': True}"
+                                        readonly="state != 'draft'"
                                     />
-                                    <field name="l10n_ec_car_plate" required="1" />
+                                    <field
+                                        name="l10n_ec_car_plate"
+                                        required="1"
+                                        readonly="state != 'draft'"
+                                    />
                                 </group>
                                 <group>
-                                    <field name="transfer_date" required="1" />
-                                    <field name="delivery_date" required="1" />
+                                    <field
+                                        name="transfer_date"
+                                        required="1"
+                                        readonly="state != 'draft'"
+                                    />
+                                    <field
+                                        name="delivery_date"
+                                        required="1"
+                                        readonly="state != 'draft'"
+                                    />
                                     <field
                                         name="stock_picking_ids"
                                         widget="many2many_tags"
@@ -219,18 +243,25 @@
                                         domain="[('partner_id.commercial_partner_id', '=', commercial_partner_id),
                                                 ('picking_type_id.code','in',('internal','outgoing')), ('state','=','done'),
                                                 ('l10n_ec_delivery_note_ids', '=', False)]"
+                                        readonly="state != 'draft'"
                                     />
                                     <field
                                         name="invoice_id"
                                         options="{'no_create': True}"
                                         domain="[('move_type', '=', 'out_invoice'), ('partner_id.commercial_partner_id', '=', commercial_partner_id), ('state', '=', 'posted')]"
+                                        readonly="state != 'draft'"
                                     />
-                                    <field name="rise" />
-                                    <field name="dau" />
+                                    <field name="rise" readonly="state != 'draft'" />
+                                    <field name="dau" readonly="state != 'draft'" />
                                 </group>
                             </group>
                             <separator string="Delivery Note detail" colspan="4" />
-                            <field name="delivery_line_ids" colspan="4" nolabel="1">
+                            <field
+                                name="delivery_line_ids"
+                                colspan="4"
+                                nolabel="1"
+                                readonly="state != 'draft'"
+                            >
                                 <tree editable="bottom">
                                     <field
                                         name="product_id"
@@ -250,66 +281,41 @@
                                         options="{'no_create': True}"
                                         groups="uom.group_uom"
                                     />
+                                    <field name="product_uom_id" column_invisible="1" />
                                     <field
                                         name="production_lot_id"
                                         options="{'no_create': True}"
                                         groups="stock.group_production_lot"
                                     />
-                                    <field name="move_id" invisible="1" />
-                                    <field name="move_line_id" invisible="1" />
+                                    <field
+                                        name="production_lot_id"
+                                        column_invisible="1"
+                                    />
+                                    <field name="move_id" column_invisible="True" />
+                                    <field
+                                        name="move_line_id"
+                                        column_invisible="True"
+                                    />
                                     <field
                                         name="product_uom_category_id"
-                                        invisible="1"
-                                    />
-                                </tree>
-                            </field>
-                        </page>
-                        <page
-                            id="edi_documents"
-                            string="EDI Documents"
-                            groups="base.group_no_one"
-                            attrs="{'invisible': [('edi_document_ids', '=', [])]}"
-                        >
-                            <field name="edi_document_ids" options="{'no_open': '1'}">
-                                <tree
-                                    create="false"
-                                    delete="false"
-                                    edit="false"
-                                    decoration-danger="error"
-                                >
-                                    <field name="name" />
-                                    <field name="edi_format_name" />
-                                    <field
-                                        name="l10n_ec_xml_access_key"
-                                        optional="hide"
-                                    />
-                                    <field
-                                        name="l10n_ec_authorization_date"
-                                        optional="hide"
-                                    />
-                                    <field
-                                        name="l10n_ec_last_sent_date"
-                                        optional="hide"
-                                    />
-                                    <field name="state" />
-                                    <field name="error" invisible="1" />
-                                    <field name="blocking_level" invisible="1" />
-                                    <button
-                                        name="action_export_xml"
-                                        type="object"
-                                        class="oe_link oe_inline"
-                                        string="Download"
-                                        groups="base.group_no_one"
-                                        attrs="{'invisible': ['|', ('error', '=', False), ('blocking_level', '=', 'info')]}"
+                                        column_invisible="True"
                                     />
                                 </tree>
                             </field>
                         </page>
                         <page string="Transfer Motive">
-                            <field name="motive" colspan="2" />
+                            <field
+                                name="motive"
+                                colspan="2"
+                                readonly="state != 'draft'"
+                            />
                         </page>
                         <page string="Note">
-                            <field name="note" colspan="2" />
+                            <field
+                                name="note"
+                                colspan="2"
+                                readonly="state != 'draft'"
+                            />
                         </page>
                     </notebook>
                 </sheet>

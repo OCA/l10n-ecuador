@@ -21,7 +21,9 @@ class WizardCreateDeliveryNote(models.TransientModel):
 
     @api.model
     def default_get(self, fields):
-        values = super(WizardCreateDeliveryNote, self).default_get(fields)
+        # Create manytomany for models
+        # Pasar los ID
+        values = super().default_get(fields)
         picking_lines = self.env["stock.picking"].browse(
             self.env.context.get("active_ids", [])
         )
@@ -71,8 +73,8 @@ class WizardCreateDeliveryNote(models.TransientModel):
             ):
                 raise UserError(
                     _(
-                        "The delivery note: %(picking_name)s cannot be processed in internal "
-                        "transfers created from the sales order: %(sale_name)s"
+                        "The delivery note: %(picking_name)s cannot be processed in "
+                        "internal transfers created from the sales order: %(sale_name)s"
                     )
                     % {"picking_name": pick.name, "sale_name": pick.sale_id.name}
                 )

@@ -59,7 +59,35 @@ class AccountEdiDocument(models.Model):
             "docsSustento": self._l10n_ec_get_support_data(),
             "infoAdicional": self._l10n_ec_get_info_additional(),
         }
-        withhold_data.update(self._l10n_ec_get_info_tributaria(withhold))
+
+        xml_access_key = self.l10n_ec_xml_access_key
+
+        if not xml_access_key:
+            # generar y guardar la clave de acceso
+            (
+                entity_number,
+                printer_point_number,
+                document_number,
+            ) = self._l10n_ec_split_document_number(self._l10n_ec_get_edi_number())
+            environment = self._l10n_ec_get_environment()
+            document_code_sri = withhold._l10n_ec_get_document_code_sri()
+            xml_access_key = self.l10n_ec_generate_access_key(
+                document_code_sri,
+                f"{entity_number}{printer_point_number}{document_number}",
+                environment,
+                self._l10n_ec_get_edi_date(),
+                self.move_id.company_id,
+            )
+            self.l10n_ec_xml_access_key = xml_access_key
+
+        withhold_data.update(
+            self._l10n_ec_get_info_tributaria(
+                withhold,
+                self._l10n_ec_get_edi_number(),
+                withhold._l10n_ec_get_document_code_sri(),
+                xml_access_key,
+            )
+        )
         return withhold_data
 
     def _l10n_ec_get_type_suject_withholding(self, type_id):

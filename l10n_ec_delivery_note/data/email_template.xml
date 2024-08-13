@@ -13,10 +13,9 @@
         />
         <field name="auto_delete" eval="True" />
         <field
-            name="report_template"
-            ref="l10n_ec_delivery_note.action_report_delivery_note"
+            name="report_template_ids"
+            eval="[(4, ref('l10n_ec_delivery_note.action_report_delivery_note'))]"
         />
-        <field name="report_name">{{ object._l10n_ec_get_document_name() }}</field>
         <field name="lang">{{ object.partner_id.lang }}</field>
         <field name="body_html" type="xml">
             <div>
@@ -64,7 +63,7 @@
                     >nuestro portal</a>
                     <br />
                 </t>
-                <p>Gracias por Preferirnos,</p>
+                <p>Gracias por Preferirnos.</p>
             </div>
         </field>
     </record>

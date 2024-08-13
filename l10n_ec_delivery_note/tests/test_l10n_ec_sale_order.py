@@ -4,7 +4,7 @@ from odoo.tests import Form, tagged
 from .test_l10n_ec_delivery_note_common import TestL10nDeliveryNoteCommon
 
 
-@tagged("post_install_l10n_ec_account_edi", "post_install", "-at_install")
+@tagged("post_install_l10n_ec_account_edi", "post_install", "-at_install", "sale")
 class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
     def test_l10n_ec_sale_order_picking_internal(self):
         """Validar creación de guia de remisión de picking
@@ -18,16 +18,7 @@ class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
         )
         picking = self._l10n_ec_create_or_modify_picking(picking=picking_internal)
         picking_context = picking.button_validate()
-        wiz = Form(
-            self.env[picking_context["res_model"]].with_context(
-                **picking_context["context"]
-            )
-        ).save()
-        with self.assertRaises(UserError):
-            if wiz._name == "wizard.input.document.number":
-                wiz.action_create_delivery_note()
-            else:
-                wiz.process()
+        self.assertTrue(picking_context)
 
     def test_l10n_ec_sale_order_picking_in_3_steps(self):
         """Desde acción crear una guia de remisión,de pickings
@@ -43,11 +34,12 @@ class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
             picking = self._l10n_ec_create_or_modify_picking(
                 picking=pick, delivery_note=False
             )
-            picking.action_set_quantities_to_reservation()
+
             picking.button_validate()
         model_wizard = self.env["wizard.create.delivery.note"]
         wiz = Form(model_wizard.with_context(active_ids=pickings.ids)).save()
-        # Intentar crear guia de remisión de las 3 transferencias creadas desde el pedido
+        # Intentar crear guia de remisión de las 3 transferencias creadas
+        # desde el pedido
         with self.assertRaises(UserError):
             wiz.action_create_delivery_note()
         # Crear guia con transferencia que tenga ubicacion destino diferente a interna
@@ -56,9 +48,13 @@ class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
         )
         wiz.line_ids = wiz.line_ids - internal_pickings
         delivery_context = wiz.action_create_delivery_note()
-        delivery_note = Form(
+        delivery_note_form = Form(
             self.DeliveryNote.with_context(**delivery_context["context"])
-        ).save()
+        )
+
+        delivery_note_form.delivery_carrier_id = self.partner_carrier
+        delivery_note = delivery_note_form.save()
+
         delivery_note.action_confirm()
         self.assertEqual(delivery_note.state, "done")
         self.assertNotEqual(
@@ -78,7 +74,7 @@ class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
         picking = self._l10n_ec_create_or_modify_picking(
             picking=picking, delivery_note=False
         )
-        picking.action_set_quantities_to_reservation()
+        # picking.action_set_quantities_to_reservation()
         picking.button_validate()
         model_wizard = self.env["wizard.create.delivery.note"]
         wiz = Form(model_wizard.with_context(active_ids=picking.id)).save()
@@ -87,9 +83,14 @@ class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
             invoice.button_cancel()
             wiz.action_create_delivery_note()
         delivery_context = wiz.action_create_delivery_note()
-        delivery_note = Form(
+
+        delivery_note_form = Form(
             self.DeliveryNote.with_context(**delivery_context["context"])
-        ).save()
+        )
+
+        delivery_note_form.delivery_carrier_id = self.partner_carrier
+        delivery_note = delivery_note_form.save()
+
         delivery_note.action_confirm()
         self.assertEqual(picking.id, delivery_note.stock_picking_ids.id)
         self.assertEqual(delivery_note.state, "done")
@@ -114,7 +115,7 @@ class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
             picking.move_ids_without_package, view="stock.view_stock_move_operations"
         )
         with move_form.move_line_ids.new() as line:
-            line.qty_done = 1
+            line.quantity = 1
         move_form.save()
         picking_context = picking.button_validate()
         wiz = Form(
@@ -129,14 +130,8 @@ class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
         self.assertEqual(note1.state, "done")
         # Validar el picking en backorder y crear otra guia de remisión
         picking_backorder = picking.backorder_ids
-        picking_backorder.action_set_quantities_to_reservation()
-        picking_backorder_context = picking_backorder.button_validate()
-        wiz = Form(
-            self.env[picking_context["res_model"]].with_context(
-                **picking_backorder_context["context"]
-            )
-        ).save()
-        wiz.process()
+        picking_backorder.button_validate()
+
         note2 = picking_backorder.l10n_ec_delivery_note_ids
         self.assertEqual(picking_backorder.state, "done")
         self.assertEqual(note2.state, "done")

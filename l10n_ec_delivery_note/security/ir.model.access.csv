@@ -3,6 +3,5 @@
 "access_model_l10n_ec_delivery_note_line_all","access_model_l10n_ec_delivery_note_line_all","model_l10n_ec_delivery_note_line",,1,0,0,0
 "access_model_l10n_ec_delivery_note_group_stock_user","access_model_l10n_ec_delivery_note_group_stock_user","model_l10n_ec_delivery_note","stock.group_stock_user",1,1,1,1
 "access_model_l10n_ec_delivery_note_line_group_stock_user","access_model_l10n_ec_delivery_note_line_group_stock_user","model_l10n_ec_delivery_note_line","stock.group_stock_user",1,1,1,1
-"access_model_wizard_input_document_number_group_stock_user","access_model_wizard_input_document_number_group_stock_user","model_wizard_input_document_number","stock.group_stock_user",1,1,1,1
 "access_model_wizard_create_delivery_note_group_stock_user","access_model_wizard_create_delivery_note_group_stock_user","model_wizard_create_delivery_note","stock.group_stock_user",1,1,1,1
 "access_model_wizard_create_delivery_note_line_group_stock_user","access_model_wizard_create_delivery_note_line_group_stock_user","model_wizard_create_delivery_note_line","stock.group_stock_user",1,1,1,1

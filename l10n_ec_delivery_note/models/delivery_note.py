@@ -1,10 +1,13 @@
-from contextlib import contextmanager
+import logging
+from datetime import datetime
+from os import path
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools.translate import _
 
-STATES = {"draft": [("readonly", False)]}
+EDI_DATE_FORMAT = "%d/%m/%Y"
+_logger = logging.getLogger(__name__)
 
 
 class DeliveryNote(models.Model):
@@ -27,34 +30,24 @@ class DeliveryNote(models.Model):
     journal_id = fields.Many2one(
         comodel_name="account.journal",
         string="Emission Point",
-        readonly=True,
-        states=STATES,
         check_company=True,
         domain=[("l10n_latam_use_documents", "=", True), ("type", "=", "sale")],
     )
     transfer_date = fields.Date(
         required=True,
-        readonly=True,
-        states=STATES,
         default=lambda self: fields.Date.context_today(self),
         tracking=True,
     )
     delivery_date = fields.Date(
         required=True,
-        readonly=True,
-        states=STATES,
         default=lambda self: fields.Date.context_today(self),
         tracking=True,
     )
-    motive = fields.Text(readonly=True, states=STATES, copy=False)
-    l10n_ec_car_plate = fields.Char(
-        "Car plate", size=8, required=False, readonly=True, states=STATES
-    )
+    motive = fields.Text(copy=False)
+    l10n_ec_car_plate = fields.Char("Car plate", size=8, required=False)
     stock_picking_ids = fields.Many2many(
         "stock.picking",
         string="Pickings related",
-        readonly=True,
-        states=STATES,
         copy=False,
     )
     sale_order_ids = fields.Many2many(
@@ -69,8 +62,6 @@ class DeliveryNote(models.Model):
     partner_id = fields.Many2one(
         "res.partner",
         "Partner",
-        readonly=True,
-        states=STATES,
         index=True,
         auto_join=True,
         tracking=True,
@@ -87,16 +78,12 @@ class DeliveryNote(models.Model):
     delivery_address_id = fields.Many2one(
         "res.partner",
         "Delivery Address",
-        readonly=True,
-        states=STATES,
         index=True,
         tracking=True,
     )
     delivery_carrier_id = fields.Many2one(
         "res.partner",
         "Delivery Carrier",
-        readonly=True,
-        states=STATES,
         index=True,
         domain=[("l10n_ec_is_carrier", "=", True)],
     )
@@ -105,16 +92,12 @@ class DeliveryNote(models.Model):
             ("sales", "Transfer by Sales"),
             ("internal", "Internal Transfer"),
         ],
-        readonly=True,
-        states=STATES,
         default="sales",
     )
     delivery_line_ids = fields.One2many(
         "l10n_ec.delivery.note.line",
         "delivery_note_id",
         "Delivery note detail",
-        readonly=True,
-        states=STATES,
         copy=True,
         auto_join=True,
     )
@@ -133,25 +116,18 @@ class DeliveryNote(models.Model):
     company_id = fields.Many2one(
         "res.company",
         "Company",
-        readonly=True,
-        states=STATES,
         default=lambda self: self.env.company,
         required=True,
     )
     country_code = fields.Char(
         related="company_id.account_fiscal_country_id.code", readonly=True
     )
-    rise = fields.Char("R.I.S.E", readonly=True, states=STATES, copy=False)
-    dau = fields.Char("D.A.U.", readonly=True, states=STATES, copy=False)
-    note = fields.Text(string="Notes", readonly=True, states=STATES, copy=False)
-    origin = fields.Text(readonly=True, states=STATES, copy=False)
-    invoice_id = fields.Many2one(
-        "account.move", string="Invoice", readonly=True, states=STATES
-    )
+    rise = fields.Char("R.I.S.E", copy=False)
+    dau = fields.Char("D.A.U.", copy=False)
+    note = fields.Text(string="Notes", copy=False)
+    origin = fields.Text(copy=False)
+    invoice_id = fields.Many2one("account.move", string="Invoice")
 
-    edi_document_ids = fields.One2many(
-        comodel_name="account.edi.document", inverse_name="l10n_ec_delivery_note_id"
-    )
     edi_state = fields.Selection(
         selection=[
             ("to_send", "To Send"),
@@ -161,29 +137,26 @@ class DeliveryNote(models.Model):
         ],
         string="Electronic invoicing",
         store=True,
-        compute="_compute_edi_state",
         help="The aggregated state of all the EDIs with web-service of this move",
     )
+
     edi_error_count = fields.Integer(
-        compute="_compute_edi_error_count",
         help="How many EDIs are in error for this move ?",
     )
     edi_blocking_level = fields.Selection(
-        selection=[("info", "Info"), ("warning", "Warning"), ("error", "Error")],
-        compute="_compute_edi_error_message",
+        selection=[("info", "Info"), ("warning", "Warning"), ("error", "Error")]
     )
-    edi_error_message = fields.Html(compute="_compute_edi_error_message")
+    edi_error_message = fields.Html()
+
     edi_web_services_to_process = fields.Text(
-        compute="_compute_edi_web_services_to_process",
-        help="Technical field to display the documents that will be processed by the CRON",
+        help="Technical field to display the documents that "
+        "will be processed by the CRON",
     )
     l10n_ec_authorization_date = fields.Datetime(
-        compute="_compute_l10n_ec_edi_document_data",
         string="Access Key(EC)",
         store=True,
     )
     l10n_ec_xml_access_key = fields.Char(
-        compute="_compute_l10n_ec_edi_document_data",
         string="Electronic Authorization Date",
         store=True,
     )
@@ -191,13 +164,11 @@ class DeliveryNote(models.Model):
         string="Is Ecuadorian Electronic Document", default=False, copy=False
     )
 
-    l10n_latam_internal_type = fields.Many2one(
-        "l10n_latam.document.type",
-        string="Document Type",
-        domain="[('code', '=', '06')]",
-    )
-
     is_delivery_note_sent = fields.Boolean(default=False)
+
+    l10n_ec_last_sent_date = fields.Datetime(
+        "Last Sent Date", readonly=True, index=True
+    )
 
     @api.depends("journal_id")
     def _compute_document_number(self):
@@ -210,95 +181,6 @@ class DeliveryNote(models.Model):
         for rec in self.filtered(lambda x: x.journal_id):
             rec._set_next_sequence()
 
-    @api.depends("edi_document_ids.state")
-    def _compute_edi_state(self):
-        for note in self:
-            all_states = set(
-                note.edi_document_ids.filtered(
-                    lambda d: d.edi_format_id._needs_web_services()
-                ).mapped("state")
-            )
-            if all_states == {"sent"}:
-                note.edi_state = "sent"
-            elif all_states == {"cancelled"}:
-                note.edi_state = "cancelled"
-            elif "to_send" in all_states:
-                note.edi_state = "to_send"
-            elif "to_cancel" in all_states:
-                note.edi_state = "to_cancel"
-            else:
-                note.edi_state = False
-
-    @api.depends("edi_document_ids.error")
-    def _compute_edi_error_count(self):
-        for note in self:
-            note.edi_error_count = len(
-                note.edi_document_ids.filtered(lambda d: d.error)
-            )
-
-    @api.depends(
-        "edi_error_count", "edi_document_ids.error", "edi_document_ids.blocking_level"
-    )
-    def _compute_edi_error_message(self):
-        for note in self:
-            if note.edi_error_count == 0:
-                note.edi_error_message = None
-                note.edi_blocking_level = None
-            elif note.edi_error_count == 1:
-                error_doc = note.edi_document_ids.filtered(lambda d: d.error)
-                note.edi_error_message = error_doc.error
-                note.edi_blocking_level = error_doc.blocking_level
-            else:
-                error_levels = {doc.blocking_level for doc in note.edi_document_ids}
-                if "error" in error_levels:
-                    note.edi_error_message = str(note.edi_error_count) + _(
-                        " Electronic delivery note error(s)"
-                    )
-                    note.edi_blocking_level = "error"
-                elif "warning" in error_levels:
-                    note.edi_error_message = str(note.edi_error_count) + _(
-                        " Electronic delivery note warning(s)"
-                    )
-                    note.edi_blocking_level = "warning"
-                else:
-                    note.edi_error_message = str(note.edi_error_count) + _(
-                        " Electronic delivery note info(s)"
-                    )
-                    note.edi_blocking_level = "info"
-
-    @api.depends(
-        "edi_document_ids",
-        "edi_document_ids.state",
-        "edi_document_ids.blocking_level",
-        "edi_document_ids.edi_format_id",
-        "edi_document_ids.edi_format_id.name",
-    )
-    def _compute_edi_web_services_to_process(self):
-        for note in self:
-            to_process = note.edi_document_ids.filtered(
-                lambda d: d.state in ["to_send", "to_cancel"]
-                and d.blocking_level != "error"
-            )
-            format_web_services = to_process.edi_format_id.filtered(
-                lambda f: f._needs_web_services()
-            )
-            note.edi_web_services_to_process = ", ".join(
-                f.name for f in format_web_services
-            )
-
-    @api.depends(
-        "edi_document_ids.l10n_ec_authorization_date",
-        "edi_document_ids.l10n_ec_xml_access_key",
-    )
-    def _compute_l10n_ec_edi_document_data(self):
-        for note in self:
-            edi_doc = note.edi_document_ids.filtered(
-                lambda d: d.edi_format_id.code == "l10n_ec_format_sri"
-            )
-            note.l10n_ec_authorization_date = edi_doc.l10n_ec_authorization_date
-            note.l10n_ec_xml_access_key = edi_doc.l10n_ec_xml_access_key
-
-    # @api.onchange("transfer_date", "delivery_date")
     @api.constrains("transfer_date", "delivery_date")
     def _check_transfer_dates(self):
         for delivery in self:
@@ -315,11 +197,7 @@ class DeliveryNote(models.Model):
     def _check_transfer_date(self):
         for delivery in self:
             date_current = fields.Date.context_today(self)
-            if (
-                delivery.journal_id.l10n_ec_emission_type == "electronic"
-                and delivery.transfer_date
-                and delivery.transfer_date > date_current
-            ):
+            if delivery.transfer_date and delivery.transfer_date > date_current:
                 raise UserError(
                     _(
                         "You cannot create the delivery note electronic %s "
@@ -381,18 +259,15 @@ class DeliveryNote(models.Model):
             "document_number_uniq",
             "unique(document_number, company_id)",
             _(
-                "Document number of Delivery Note must be Unique by company, please check"
+                "Document number of Delivery Note must be Unique by company, "
+                "please check"
             ),
         )
     ]
 
     @api.model
     def default_get(self, fields_list):
-        defaults = super(DeliveryNote, self).default_get(fields_list)
-        document_type = self.env["l10n_latam.document.type"].search(
-            [("code", "=", "06")], limit=1
-        )
-        defaults["l10n_latam_internal_type"] = document_type.id
+        defaults = super().default_get(fields_list)
 
         return defaults
 
@@ -400,10 +275,16 @@ class DeliveryNote(models.Model):
         for delivery_note in self:
             if delivery_note.state != "draft":
                 raise UserError(_("Cant'n unlink Delivery Note, Try cancel!"))
-        return super(DeliveryNote, self).unlink()
+        return super().unlink()
 
     def action_confirm(self):
         for delivery_note in self:
+            errors = self._l10n_ec_check_delivery_note_configuration(delivery_note)
+            if errors:
+                raise UserError(
+                    _("Invalid delivery note configuration:\n\n%s") % "\n".join(errors)
+                )
+
             if not delivery_note.delivery_line_ids and not self.env.context.get(
                 "force_approve", False
             ):
@@ -426,17 +307,6 @@ class DeliveryNote(models.Model):
 
     def action_set_draft(self):
         return self.write({"state": "draft"})
-
-    def action_process_edi_web_services(self, with_commit=True):
-        docs = self.edi_document_ids.filtered(
-            lambda d: d.state in ("to_send", "to_cancel")
-            and d.blocking_level != "error"
-        )
-        docs._process_documents_web_services(with_commit=with_commit)
-
-    def action_retry_edi_documents_error(self):
-        self.edi_document_ids.write({"error": False, "blocking_level": False})
-        self.action_process_edi_web_services()
 
     def _get_last_sequence_domain(self, relaxed=False):
         self.ensure_one()
@@ -472,62 +342,134 @@ class DeliveryNote(models.Model):
         return "GR %s" % self.display_name
 
     def _l10n_ec_create_edi_document(self):
-        # Set the electronic document to be posted and post immediately for synchronous formats.
-        edi_document_vals_list = []
-        for note in self:
-            for edi_format in note.journal_id.edi_format_ids:
-                is_edi_needed = edi_format.l10n_ec_is_required_for_delivery_note(note)
-                if is_edi_needed:
-                    errors = edi_format._l10n_ec_check_delivery_note_configuration(note)
-                    if errors:
-                        raise UserError(
-                            _("Invalid delivery note configuration:\n\n%s")
-                            % "\n".join(errors)
-                        )
-                    existing_edi_document = note.edi_document_ids.filtered(
-                        lambda x: x.edi_format_id == edi_format
-                    )
-                    if existing_edi_document:
-                        existing_edi_document.write(
-                            {
-                                "state": "to_send",
-                                "attachment_id": False,
-                            }
-                        )
-                    else:
-                        edi_document_vals_list.append(
-                            {
-                                "edi_format_id": edi_format.id,
-                                "l10n_ec_delivery_note_id": note.id,
-                                "state": "to_send",
-                            }
-                        )
-        self.env["account.edi.document"].create(edi_document_vals_list)
-        self.edi_document_ids._process_documents_no_web_services()
-        self.env.ref("account_edi.ir_cron_edi_network")._trigger()
-        return self
+        # Set the electronic document to be posted and post immediately
+        # for synchronous formats.
+        self.ensure_one()
 
-    @contextmanager
-    def _send_only_when_ready(self):
-        delivery_note_not_ready = self.filtered(lambda x: not x._is_ready_to_be_sent())
+        self.write({"edi_state": "to_send", "l10n_ec_is_edi_doc": True})
+
+        xml_file = self._l10n_ec_render_xml_edi()
+        edi_document = self.env["account.edi.document"]
+
+        base_path = path.join("l10n_ec_delivery_note", "data", "xsd")
+        company = self.env.company
+        filename = f"GuiaRemision_V{company.l10n_ec_delivery_note_version}"
+
         try:
-            yield
-        finally:
-            delivery_note_not_ready.filtered(lambda x: x._is_ready_to_be_sent())
+            edi_document._l10n_ec_action_check_xsd(
+                xml_file, path.join(base_path, f"{filename}.xsd")
+            )
+        except Exception as error:
+            _logger.debug(error)
+            self.write(
+                {
+                    "edi_error_message": error,
+                    "edi_blocking_level": "error",
+                }
+            )
+            return self
 
-    def _is_ready_to_be_sent(self):
-        # Prevent a mail to be sent to the customer if the EDI document is not sent.
-        edi_documents_to_send = self.edi_document_ids.filtered(
-            lambda x: x.state == "to_send"
+        _logger.debug(xml_file)
+        xml_signed = self.company_id.l10n_ec_key_type_id.action_sign(xml_file)
+
+        attachment = self.env["ir.attachment"].search(
+            [
+                ("res_model", "=", self._name),
+                ("res_id", "=", self.id),
+                ("name", "=", f"GR-{self.document_number}.xml"),
+            ]
         )
-        return not bool(edi_documents_to_send)
 
-    def _get_edi_document(self, edi_format):
-        return self.edi_document_ids.filtered(lambda d: d.edi_format_id == edi_format)
+        if not attachment:
+            self.env["ir.attachment"].create(
+                {
+                    "name": f"GR-{self.document_number}.xml",
+                    "raw": xml_signed.encode(),
+                    "res_model": self._name,
+                    "res_id": self.id,
+                    "mimetype": "application/xml",
+                }
+            )
+        else:
+            attachment.write({"raw": xml_signed.encode()})
+
+        edi_format = self.env["account.edi.format"]
+        client_send = edi_format._l10n_ec_get_edi_ws_client(
+            self.company_id.l10n_ec_type_environment, "reception"
+        )
+        auth_client = edi_format._l10n_ec_get_edi_ws_client(
+            self.company_id.l10n_ec_type_environment, "authorization"
+        )
+
+        if client_send is None or auth_client is None:
+            self.write(
+                {
+                    "edi_error_message": _(
+                        "Can't connect to SRI web service, try again later"
+                    ),
+                    "edi_blocking_level": "error",
+                }
+            )
+            return self
+
+        # intentar consultar el documento previamente autorizado
+
+        is_auth = False
+        is_sent = False
+        msj = []
+        errors = []
+        authorization_date = False
+        if self.l10n_ec_last_sent_date:
+            sri_res = edi_document._l10n_ec_edi_send_xml_auth(auth_client)
+            (
+                is_auth,
+                msj,
+                authorization_date,
+            ) = edi_document._l10n_ec_edi_process_response_auth(sri_res)
+            errors.extend(msj)
+        if not is_auth:
+            sri_res = edi_document._l10n_ec_edi_send_xml(client_send, xml_signed)
+            is_sent, msj = edi_document._l10n_ec_edi_process_response_send(sri_res)
+            errors.extend(msj)
+        if not is_auth and is_sent and not msj:
+            # guardar la fecha de envio al SRI
+            # en caso de errores, poder saber si hubo un intento o no
+            # para antes de volver a enviarlo, consultar si se autorizo
+            sri_res = edi_document._l10n_ec_edi_send_xml_auth(
+                auth_client, self.l10n_ec_xml_access_key
+            )
+            (
+                is_auth,
+                msj,
+                authorization_date,
+            ) = edi_document._l10n_ec_edi_process_response_auth(sri_res)
+            errors.extend(msj)
+
+        if errors:
+            self.edi_blocking_level = "error"
+
+        if is_auth:
+            self.write(
+                {
+                    "edi_state": "sent",
+                    "l10n_ec_is_edi_doc": True,
+                    "l10n_ec_authorization_date": authorization_date,
+                }
+            )
+        else:
+            self.write(
+                {
+                    "edi_error_message": "\n".join(errors),
+                    "edi_blocking_level": "error",
+                }
+            )
+
+        self.l10n_ec_last_sent_date = datetime.now()
+        return self
 
     # Métodos del portal
     def _compute_access_url(self):
-        res = super(DeliveryNote, self)._compute_access_url()
+        res = super()._compute_access_url()
         for delivery_note in self:
             delivery_note.access_url = "/my/edi_delivery_note/%s" % (delivery_note.id)
         return res
@@ -545,7 +487,7 @@ class DeliveryNote(models.Model):
         )
         ctx = {
             "default_model": self._name,
-            "default_res_id": self.id,
+            "active_ids": self.ids,
             "default_use_template": bool(template),
             "default_template_id": template.id,
             "default_composition_mode": "comment",
@@ -578,3 +520,174 @@ class DeliveryNote(models.Model):
         except Exception:
             send_mail = False
         return send_mail
+
+    def _l10n_ec_check_delivery_note_configuration(self, document):
+        company = document.company_id
+        partner = document.commercial_partner_id
+        errors = self.env["account.edi.format"]._l10n_ec_check_edi_configuration(
+            document, company
+        )
+        # ruc en transportista
+        if not document.delivery_carrier_id.vat:
+            errors.append(
+                _(
+                    "You must set vat identification for carrier: %s",
+                    document.delivery_carrier_id.name,
+                )
+            )
+        if not document.delivery_address_id.street:
+            errors.append(
+                _(
+                    "You must set delivery address for receiver: %s",
+                    document.delivery_address_id.commercial_partner_id.name,
+                )
+            )
+        if not company.l10n_ec_delivery_note_version:
+            errors.append(
+                _(
+                    "You must set XML Version for Delivery Note company %s",
+                    company.display_name,
+                )
+            )
+        error_identification = self._check_l10n_ec_values_identification_type(partner)
+        if error_identification:
+            errors.extend(error_identification)
+
+        return errors
+
+    def _check_l10n_ec_values_identification_type(self, partner):
+        ec_ruc = self.env.ref("l10n_ec.ec_ruc", False)
+        ec_dni = self.env.ref("l10n_ec.ec_dni", False)
+        ec_passport = self.env.ref("l10n_ec.ec_passport", False)
+        errors = []
+        # validar que la empresa tenga ruc y tipo de documento
+        if not partner.vat:
+            errors.append(_("Please enter DNI/RUC to partner: %s", partner.name))
+        if partner.l10n_latam_identification_type_id.id not in (
+            ec_ruc.id,
+            ec_dni.id,
+            ec_passport.id,
+        ):
+            errors.append(
+                _(
+                    "You must set Identification type as RUC, DNI or Passport "
+                    "for ecuadorian company, on partner %s",
+                    partner.name,
+                )
+            )
+        return errors
+
+    @api.model
+    def l10n_ec_get_type_identification(self, number):
+        if len(number) == 10:
+            return "05"
+        elif len(number) == 13:
+            return "04"
+
+    def _l10n_ec_render_xml_edi(self):
+        xml_access_key = self.l10n_ec_xml_access_key
+        if not xml_access_key:
+            # generar y guardar la clave de acceso
+            account_edi_document = self.env["account.edi.document"]
+            (
+                entity_number,
+                printer_point_number,
+                document_number,
+            ) = account_edi_document._l10n_ec_split_document_number(
+                self.document_number
+            )
+            environment = account_edi_document._l10n_ec_get_environment()
+            document_code_sri = self._l10n_ec_get_document_code_sri()
+            xml_access_key = account_edi_document.l10n_ec_generate_access_key(
+                document_code_sri,
+                f"{entity_number}{printer_point_number}{document_number}",
+                environment,
+                self._l10n_ec_get_document_date(),
+                self.company_id,
+            )
+            self.l10n_ec_xml_access_key = xml_access_key
+
+        ViewModel = self.env["ir.ui.view"].sudo()
+        xml_file = ViewModel._render_template(
+            "l10n_ec_delivery_note.l10n_ec_delivery_note",
+            self._l10n_ec_get_info_delivery_note(xml_access_key),
+        )
+        return xml_file
+
+    def _l10n_ec_get_info_delivery_note(self, xml_access_key: str):
+        edi = self.env["account.edi.document"]
+        delivery_note = self
+        invoice = True if delivery_note.invoice_id else False
+        company = self.company_id
+        address = (
+            delivery_note.delivery_address_id
+            and delivery_note.delivery_address_id.street
+            or "NA"
+        )
+        delivery_note_data = {
+            "dirEstablecimiento": edi._l10n_ec_clean_str(
+                delivery_note.journal_id.l10n_ec_emission_address_id.street or ""
+            )[:300],
+            "dirPartida": edi._l10n_ec_clean_str(
+                delivery_note.journal_id.l10n_ec_emission_address_id.street or ""
+            )[:300],
+            "razonSocialTransportista": edi._l10n_ec_clean_str(
+                delivery_note.delivery_carrier_id.name
+            )[:300],
+            "tipoIdentificacionTransportista": delivery_note.l10n_ec_get_type_identification(  # noqa
+                delivery_note.delivery_carrier_id.vat
+            ),
+            "rucTransportista": delivery_note.delivery_carrier_id.vat,
+            "rise": delivery_note.rise if delivery_note.rise else False,
+            "obligadoContabilidad": edi._l10n_ec_get_required_accounting(
+                company.partner_id.property_account_position_id
+            ),
+            "contribuyenteEspecial": delivery_note.company_id.l10n_ec_get_resolution_data(  # noqa
+                delivery_note.transfer_date
+            ),
+            "fechaIniTransporte": delivery_note.transfer_date.strftime(EDI_DATE_FORMAT),
+            "fechaFinTransporte": delivery_note.delivery_date.strftime(EDI_DATE_FORMAT),
+            "placa": delivery_note.l10n_ec_car_plate or "N/A",
+            "identificacionDestinatario": delivery_note.partner_id.commercial_partner_id.vat,  # noqa
+            "razonSocialDestinatario": edi._l10n_ec_clean_str(
+                delivery_note.partner_id.commercial_partner_id.name
+            )[:300],
+            "dirDestinatario": edi._l10n_ec_clean_str(address)[:300],
+            "motivoTraslado": edi._l10n_ec_clean_str(delivery_note.motive or "N/A")[
+                :300
+            ],
+            "docAduaneroUnico": delivery_note.dau if delivery_note.dau else False,
+            "invoice": invoice,
+            "codDocSustento": "01" if invoice else False,
+            "numDocSustento": delivery_note.invoice_id.l10n_latam_document_number
+            if invoice
+            else False,
+            "numAutDocSustento": self.l10n_ec_xml_access_key if invoice else False,
+            "fechaEmisionDocSustento": delivery_note.invoice_id.invoice_date.strftime(
+                EDI_DATE_FORMAT
+            )
+            if invoice
+            else False,
+            "detalles": self._l10n_ec_get_details_delivery_note(delivery_note),
+        }
+        delivery_note_data.update(
+            edi._l10n_ec_get_info_tributaria(
+                delivery_note,
+                self.document_number,
+                self._l10n_ec_get_document_code_sri(),
+                xml_access_key,
+            )
+        )
+        return delivery_note_data
+
+    def _l10n_ec_get_details_delivery_note(self, delivery_note):
+        res = []
+        for line in delivery_note.delivery_line_ids:
+            res.append(line.l10n_ec_get_delivery_note_edi_data())
+        return res
+
+    def action_process_edi_web_services(self):
+        return ""
+
+    def action_retry_edi_documents_error(self):
+        return ""

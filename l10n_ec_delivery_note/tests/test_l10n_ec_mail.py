@@ -34,14 +34,13 @@ class TestL10nMail(TestL10nDeliveryNoteCommon, MailCommon):
         delivery_note = self._l10n_ec_create_delivery_note()
         # Transportista con cédula
         delivery_note.delivery_carrier_id = self.partner_dni
-        delivery_note.action_confirm()
-        edi_doc = delivery_note._get_edi_document(self.edi_format)
+
         with patch.object(
             AccountEdiDocument,
             "_l10n_ec_edi_send_xml_auth",
             mock_l10n_ec_edi_send_xml_with_auth,
         ):
-            edi_doc._process_documents_web_services(with_commit=False)
+            delivery_note.action_confirm()
         cron_tasks = self.env.ref(
             "l10n_ec_account_edi.ir_cron_send_email_electronic_documents", False
         )

@@ -1,3 +1,4 @@
+from odoo import fields
 from odoo.tests import Form, tagged
 
 from odoo.addons.l10n_ec_account_edi.tests.test_edi_common import TestL10nECEdiCommon
@@ -28,7 +29,6 @@ class TestL10nDeliveryNoteCommon(TestL10nECEdiCommon):
             "l10n_latam_use_documents": True,
             "l10n_ec_entity": "001",
             "l10n_ec_emission": "001",
-            "l10n_ec_emission_type": "electronic",
             "type": "sale",
             "code": "GR",
         }
@@ -67,20 +67,36 @@ class TestL10nDeliveryNoteCommon(TestL10nECEdiCommon):
                 line.product_qty = 1
         return form.save()
 
-    def _l10n_ec_create_or_modify_picking(self, picking=None, delivery_note=True):
+    def _l10n_ec_create_or_modify_picking(
+        self, picking=None, delivery_note=True, picking_type_internal=None, quantity=0
+    ):
         model_picking = picking if picking else self.env["stock.picking"]
         with Form(model_picking) as form:
             form.l10n_ec_delivery_note_journal_id = self.journal
             form.l10n_ec_create_delivery_note = delivery_note
-            form.l10n_ec_delivery_carrier_id = self.partner_carrier
-            form.l10n_latam_internal_type = self.env["l10n_latam.document.type"].search(
-                [("code", "=", "06")], limit=1
-            )
+
+            if delivery_note:
+                current_date = fields.Date.context_today(model_picking)
+                form.transfer_date = current_date
+                form.delivery_date = current_date
+                form.l10n_ec_delivery_carrier_id = self.partner_carrier
+
+            if not form._get_modifier("l10n_ec_delivery_carrier_id", "invisible"):
+                form.l10n_ec_delivery_carrier_id = self.partner_carrier
+
             if not model_picking.id:
                 form.partner_id = self.partner_dni
-                form.picking_type_id = self.picking_type
+                if picking_type_internal is None:
+                    form.picking_type_id = self.picking_type
+                else:
+                    form.picking_type_id = picking_type_internal
+
                 with form.move_ids_without_package.new() as line:
                     line.product_id = self.product_a
+                    if quantity > 0:
+                        line.product_uom_qty = quantity
+                        line.quantity = quantity
+                        line.picked = True
         return form.save()
 
     def _l10n_ec_prepare_sale_order(self):
@@ -118,7 +134,7 @@ class TestL10nDeliveryNoteCommon(TestL10nECEdiCommon):
         )
         self.picking_type.write({"use_create_lots": True})
         self.product_a.write({"type": "product", "tracking": "lot"})
-        lot = self.env["stock.production.lot"].create(
+        lot = self.env["stock.lot"].create(
             {
                 "name": "0001",
                 "product_id": self.product_a.id,

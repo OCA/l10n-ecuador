@@ -5,7 +5,7 @@
     "website": "https://github.com/OCA/l10n-ecuador",
     "license": "AGPL-3",
     "category": "Stock",
-    "version": "15.0.1.0.1",
+    "version": "17.0.1.0.0",
     "depends": [
         "sale_management",
         "stock",
@@ -16,10 +16,8 @@
         "report/report_e_delivery_note.xml",
         "data/edi_templates/edi_delivery_note.xml",
         "data/email_template.xml",
-        "data/l10n_latam.document.type.csv",
         "security/ir.model.access.csv",
         "security/security.xml",
-        "wizard/wizard_input_document_number_view.xml",
         "wizard/wizard_create_delivery_note_view.xml",
         "views/delivery_note_view.xml",
         "views/res_partner_view.xml",
@@ -28,6 +26,5 @@
         "views/res_config_view.xml",
         "views/account_move_view.xml",
         "views/menu_root.xml",
-        "views/account_edi_document_view.xml",
     ],
 }
