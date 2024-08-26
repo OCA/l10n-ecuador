@@ -257,7 +257,7 @@ class AccountMove(models.Model):
     def is_withhold(self):
         return (
             self.country_code == "EC"
-            and self.l10n_latam_internal_type == "withhold"
+            and self.l10n_latam_document_type_id.internal_type == "withhold"
             and self.l10n_ec_withholding_type in self.get_withhold_types()
         )
 
