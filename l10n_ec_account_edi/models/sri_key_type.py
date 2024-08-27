@@ -1,4 +1,5 @@
 import logging
+import os
 import subprocess
 from base64 import b64decode
 from random import randrange
@@ -25,17 +26,34 @@ KEY_TO_PEM_CMD = (
 
 
 def convert_key_cer_to_pem(key, password):
-    # TODO compute it from a python way
     with NamedTemporaryFile(
-        "wb", suffix=".key", prefix="edi.ec.tmp."
+        delete=False, suffix=".key", prefix="edi.ec.tmp."
     ) as key_file, NamedTemporaryFile(
-        "rb", suffix=".key", prefix="edi.ec.tmp."
+        delete=False, suffix=".key", prefix="edi.ec.tmp."
     ) as keypem_file:
+        key_path = key_file.name
+        keypem_path = keypem_file.name
+
+        # Escribir la clave en el archivo temporal
         key_file.write(key)
         key_file.flush()
-        command = KEY_TO_PEM_CMD % (key_file.name, keypem_file.name, password, password)
-        subprocess.call(command.split())
-        key_pem = keypem_file.read().decode()
+
+        # Ejecutar el comando openssl
+        command = KEY_TO_PEM_CMD % (key_path, keypem_path, password, password)
+        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+
+        if result.returncode != 0:
+            _logger.error(f"Error converting key to PEM: {result.stderr}")
+            raise UserError(_("Error converting key to PEM."))
+
+        # Leer el contenido del archivo PEM
+        with open(keypem_path, "rb") as keypem_file:
+            key_pem = keypem_file.read().decode()
+
+    # Eliminar archivos temporales
+    os.remove(key_path)
+    os.remove(keypem_path)
+
     return key_pem
 
 
