@@ -1,0 +1,2 @@
+"id","name","model_id:id","group_id:id","perm_read","perm_write","perm_create","perm_unlink"
+access_model_l10n_ec_sri_reports_sri_ats_user,access_model_sri_ats,model_sri_ats,account.group_account_manager,1,1,1,1

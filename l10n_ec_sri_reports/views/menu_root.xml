@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <menuitem
+        id="sri_reports_root"
+        groups="account.group_account_manager"
+        name="SRI Reports"
+        parent="account.menu_finance_reports"
+        sequence="50"
+    />
+</odoo>
