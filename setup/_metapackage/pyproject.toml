@@ -1,9 +1,10 @@
 [project]
 name = "odoo-addons-oca-l10n-ecuador"
-version = "17.0.20240724.0"
+version = "17.0.20240919.0"
 dependencies = [
     "odoo-addon-l10n_ec_account_edi>=17.0dev,<17.1dev",
     "odoo-addon-l10n_ec_base>=17.0dev,<17.1dev",
+    "odoo-addon-l10n_ec_credit_note>=17.0dev,<17.1dev",
     "odoo-addon-l10n_ec_withhold>=17.0dev,<17.1dev",
 ]
 classifiers=[

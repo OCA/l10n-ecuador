@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_sri_ats_tree" model="ir.ui.view">
+        <field name="name">sri.ats.tree</field>
+        <field name="model">sri.ats</field>
+        <field name="arch" type="xml">
+            <tree default_order="date_start desc">
+                <field name="name" />
+                <field name="date_start" />
+                <field name="date_end" />
+                <field name="company_id" />
+                <field name="sri_state" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_sri_ats_form" model="ir.ui.view">
+        <field name="name">sri.ats.form</field>
+        <field name="model">sri.ats</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="action_load"
+                        string="Load"
+                        type="object"
+                        class="btn-primary"
+                        invisible="sri_state == 'done'"
+                    />
+                    <button
+                        name="action_draft"
+                        string="Draft"
+                        type="object"
+                        class="btn-primary"
+                        invisible="sri_state == 'draft'"
+                    />
+                    <button
+                        name="action_done"
+                        string="Done"
+                        type="object"
+                        class="btn-primary"
+                        invisible="sri_state == 'done' or not xml_file"
+                    />
+                    <field name="sri_state" widget="statusbar" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1 class="d-flex" invisible="name == False">
+                            <field name="name" placeholder="Medicine" required="True" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="date_start" />
+                            <field name="date_end" />
+                        </group>
+                        <group>
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                            />
+                            <field name="file_name" invisible="True" />
+                            <field name="xml_file" filename="file_name" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_sri_ats_search" model="ir.ui.view">
+        <field name="name">sri.ats.search</field>
+        <field name="model">sri.ats</field>
+        <field name="arch" type="xml">
+            <search>
+                <filter
+                    string="Draft"
+                    name="draft"
+                    domain="[('sri_state', '=', 'draft')]"
+                />
+                <filter
+                    string="Done"
+                    name="done"
+                    domain="[('sri_state', '=', 'done')]"
+                />
+                <filter string="Date" name="date" date="date_start" />
+
+                <group>
+                    <filter
+                        string="SRI State"
+                        name="group_by_state"
+                        context="{'group_by':'sri_state'}"
+                    />
+                    <filter
+                        string="Date End"
+                        name="group_by_date_end"
+                        context="{'group_by':'date_end'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+
+    <record id="action_sri_ats" model="ir.actions.act_window">
+        <field name="name">SRI ATS</field>
+        <field name="res_model">sri.ats</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_sri_ats_tree" />
+    </record>
+
+
+    <menuitem
+        id="menu_sri_ats"
+        name="SRI ATS"
+        parent="sri_reports_root"
+        action="action_sri_ats"
+    />
+
+
+</odoo>

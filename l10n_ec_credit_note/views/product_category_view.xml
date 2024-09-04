@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record model="ir.ui.view" id="account_product_category_form_view">
+        <field name="name">product.category.form</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="account.view_category_property_form" />
+        <field name="arch" type="xml">
+            <group name="account_property" position="inside">
+                <group string="Credit Note(Only for Ecuadorian Companies)">
+                    <field
+                        name="l10n_ec_property_account_discount_id"
+                        options="{'no_quick_create': True}"
+                        domain="[('deprecated', '=', False)]"
+                    />
+                    <field
+                        name="l10n_ec_property_account_return_id"
+                        options="{'no_quick_create': True}"
+                        domain="[('deprecated', '=', False)]"
+                    />
+                </group>
+            </group>
+        </field>
+    </record>
+</odoo>

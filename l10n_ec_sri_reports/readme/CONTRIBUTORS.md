@@ -1,0 +1,3 @@
+- Ricardo Jara (https://github.com/rvjaraj)
+- Jorge Luis (https://github.com/mestizosdev)
+- Carlos Lopez (https://github.com/celm1990)
