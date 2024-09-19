@@ -1,0 +1,26 @@
+{
+    "name": "Credit Notes extension for Ecuador",
+    "category": "Account",
+    "author": "Odoo Community Association (OCA), Odoo-EC",
+    "website": "https://github.com/OCA/l10n-ecuador",
+    "license": "AGPL-3",
+    "version": "17.0.1.0.0",
+    "depends": [
+        "account",
+        "account_edi",
+        "l10n_ec",
+        "l10n_ec_base",
+        "l10n_ec_account_edi",
+        "stock_account",
+    ],
+    "data": [
+        "views/res_config_view.xml",
+        "views/product_category_view.xml",
+        "views/product_template_view.xml",
+        "views/account_move_view.xml",
+        "wizard/account_invoice_refund_view.xml",
+    ],
+    "demo": [],
+    "installable": True,
+    "auto_install": False,
+}
