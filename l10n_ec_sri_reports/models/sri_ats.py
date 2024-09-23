@@ -84,12 +84,11 @@ class SriAts(models.Model):
     @api.depends("date_start", "date_end")
     def _compute_name(self):
         for record in self:
+            record.file_name = False
+            record.name = False
             if record.date_start and record.date_end:
                 record.file_name = "AT%s.xml" % (record.date_end.strftime("%Y%m"))
                 record.name = "AT%s" % (record.date_end.strftime("%Y%m"))
-            else:
-                record.file_name = False
-                record.name = False
 
     def action_draft(self):
         self.write({"sri_state": "draft"})
@@ -194,7 +193,7 @@ class SriAts(models.Model):
         data_air = {}
         withhold_income_purchase_lines = l10n_ec_withhold_lines.filtered(
             lambda x: x.tax_ids[0].tax_group_id.l10n_ec_type
-            in ["withhold_income_purchase"]
+                      in ["withhold_income_purchase"]
         )
         if withhold_income_purchase_lines:
             air_vals = []

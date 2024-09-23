@@ -7,6 +7,10 @@ from odoo.addons.l10n_ec_withhold.tests.test_l10n_ec_purchase_withhold import (
     TestL10nPurchaseWithhold,
 )
 
+from odoo.addons.l10n_ec_withhold.tests.test_l10n_ec_sale_withhold import (
+    TestL10nSaleWithhold,
+)
+
 
 def sri_get_name(date):
     date_end = date.replace(day=1) + relativedelta(months=1, days=-1)
@@ -14,12 +18,82 @@ def sri_get_name(date):
 
 
 @tagged("post_install_l10n", "post_install", "-at_install")
-class TestL10nSriAts(TestL10nPurchaseWithhold):
+class TestL10nSriAts(TestL10nSaleWithhold):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
-    def _create_invoice_and_withhold(self):
+    def _create_sale_invoice_and_withhold(self):
+        self.product_a.list_price = 100
+        partner = self.partner_with_email
+        invoice1 = self.get_invoice(partner)
+        invoice2 = self.get_invoice(partner)
+        all_invoices = invoice1 + invoice2
+        wizard = self._prepare_new_wizard_withhold(
+            all_invoices,
+            "1-1-1",
+            "1111111111",
+        )
+        with wizard.withhold_line_ids.new() as line:
+            line.invoice_id = invoice1
+            line.tax_group_withhold_id = self.tax_sale_withhold_vat_100.tax_group_id
+            line.tax_withhold_id = self.tax_sale_withhold_vat_100
+        with wizard.withhold_line_ids.new() as line:
+            line.invoice_id = invoice1
+            line.tax_group_withhold_id = self.tax_sale_withhold_profit_303.tax_group_id
+            line.tax_withhold_id = self.tax_sale_withhold_profit_303
+        with wizard.withhold_line_ids.new() as line:
+            line.invoice_id = invoice2
+            line.tax_group_withhold_id = self.tax_sale_withhold_vat_50.tax_group_id
+            line.tax_withhold_id = self.tax_sale_withhold_vat_50
+        with wizard.withhold_line_ids.new() as line:
+            line.invoice_id = invoice2
+            line.tax_group_withhold_id = self.tax_sale_withhold_profit_303.tax_group_id
+            line.tax_withhold_id = self.tax_sale_withhold_profit_303
+        wizard.save().button_validate()
+
+    def create_sri_report(self, date=False):
+        srists = self.env["sri.ats"].create({})
+        if date:
+            srists.date_start = date.replace(day=1)
+            srists.date_end = srists.date_start + relativedelta(months=1, days=-1)
+        return srists
+
+    def test_create_ats_name(self):
+        SRIATS = self.env["sri.ats"]
+        current_date = fields.Date.context_today(SRIATS) - relativedelta(months=1)
+        srists = self.create_sri_report()
+        self.assertEqual(srists.name, sri_get_name(current_date))
+
+    def test_create_ats_name_change_date(self):
+        SRIATS = self.env["sri.ats"]
+        current_date = fields.Date.context_today(SRIATS)
+        srists = self.create_sri_report(current_date)
+        self.assertEqual(srists.name, sri_get_name(current_date))
+
+    def test_sri_data_purchase(self):
+        SRIATS = self.env["sri.ats"]
+        current_date = fields.Date.context_today(SRIATS)
+        self._create_sale_invoice_and_withhold()
+        srists = self.create_sri_report(current_date)
+        srists.action_load()
+        self.assertTrue(srists.xml_file)
+        self.assertTrue((srists.name + ".xml") == srists.file_name)
+
+
+class TestL10nSriAtsPurchase(TestL10nPurchaseWithhold):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+    def create_sri_report(self, date=False):
+        srists = self.env["sri.ats"].create({})
+        if date:
+            srists.date_start = date.replace(day=1)
+            srists.date_end = srists.date_start + relativedelta(months=1, days=-1)
+        return srists
+
+    def _create_purchase_invoice_and_withhold(self):
         self._setup_edi_company_ec()
         self.partner_ruc.property_account_position_id = self.position_require_withhold
         invoice_form = self._l10n_ec_create_form_move(
@@ -50,28 +124,11 @@ class TestL10nSriAts(TestL10nPurchaseWithhold):
         wizard.button_validate()
         return invoice
 
-    def create_sri_report(self, date=False):
-        srists = self.env["sri.ats"].create({})
-        if date:
-            srists.date_start = date.replace(day=1)
-            srists.date_end = srists.date_start + relativedelta(months=1, days=-1)
-        return srists
-
-    def test_create_ats_name(self):
-        SRIATS = self.env["sri.ats"]
-        current_date = fields.Date.context_today(SRIATS) - relativedelta(months=1)
-        srists = self.create_sri_report()
-        self.assertEqual(srists.name, sri_get_name(current_date))
-
-    def test_create_ats_name_change_date(self):
+    def test_sri_data_purchase(self):
         SRIATS = self.env["sri.ats"]
         current_date = fields.Date.context_today(SRIATS)
+        self._create_purchase_invoice_and_withhold()
         srists = self.create_sri_report(current_date)
-        self.assertEqual(srists.name, sri_get_name(current_date))
-
-    def test_sri_data_purchase(self):
-        self._create_invoice_and_withhold()
-        srists = self.create_sri_report()
         srists.action_load()
         self.assertTrue(srists.xml_file)
         self.assertTrue((srists.name + ".xml") == srists.file_name)
