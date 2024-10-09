@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<odoo>
+    <template id="ec_edi_sri">
+        <iva>
+            <TipoIDInformante t-out="tipoIDInformante" />
+            <IdInformante t-out="idInformante" />
+            <razonSocial t-out="razonSocial" />
+            <Anio t-out="anio" />
+            <Mes t-out="mes" />
+            <numEstabRuc t-out="numEstabRuc" />
+            <totalVentas t-out="totalVentas" />
+            <codigoOperativo t-out="codigoOperativo" />
+            <compras t-if="'exist_compras'">
+                <t t-call="l10n_ec_sri_reports.ec_edi_sri_compras" />
+            </compras>
+            <ventas t-if="'exist_ventas'">
+                <t t-call="l10n_ec_sri_reports.ec_edi_sri_ventas" />
+            </ventas>
+            <ventasEstablecimiento t-if="'exist_ventas'">
+                <t t-call="l10n_ec_sri_reports.ec_edi_sri_ventas_establecimiento" />
+            </ventasEstablecimiento>
+        </iva>
+    </template>
+
+    <template id="ec_edi_sri_compras">
+        <t t-as="detalle" t-foreach="compras_detalles">
+            <detalleCompras>
+                <codSustento t-out="detalle.get('codSustento')" />
+                <tpIdProv t-out="detalle.get('tpIdProv')" />
+                <idProv t-out="detalle.get('idProv')" />
+                <tipoComprobante t-out="detalle.get('tipoComprobante')" />
+                <parteRel t-out="detalle.get('parteRel')" />
+                <fechaRegistro t-out="detalle.get('fechaRegistro')" />
+                <establecimiento t-out="detalle.get('establecimiento')" />
+                <puntoEmision t-out="detalle.get('puntoEmision')" />
+                <secuencial t-out="detalle.get('secuencial')" />
+                <fechaEmision t-out="detalle.get('fechaEmision')" />
+                <autorizacion t-out="detalle.get('autorizacion')" />
+                <baseNoGraIva t-out="detalle.get('baseNoGraIva')" />
+                <baseImponible t-out="detalle.get('baseImponible')" />
+                <baseImpGrav t-out="detalle.get('baseImpGrav')" />
+                <baseImpExe t-out="detalle.get('baseImpExe')" />
+                <montoIce t-out="detalle.get('montoIce')" />
+                <montoIva t-out="detalle.get('montoIva')" />
+                <valRetBien10 t-out="detalle.get('valRetBien10')" />
+                <valRetServ20 t-out="detalle.get('valRetServ20')" />
+                <valorRetBienes t-out="detalle.get('valorRetBienes')" />
+                <valRetServ50 t-out="detalle.get('valRetServ50')" />
+                <valorRetServicios t-out="detalle.get('valorRetServicios')" />
+                <valRetServ100 t-out="detalle.get('valRetServ100')" />
+                <totbasesImpReemb t-out="detalle.get('totbasesImpReemb')" />
+                <t t-call="l10n_ec_sri_reports.ec_edi_sri_exterior_payment" />
+                <t t-call="l10n_ec_sri_reports.ec_edi_sri_payment" />
+                <t t-call="l10n_ec_sri_reports.ec_edi_sri_air" />
+            </detalleCompras>
+        </t>
+    </template>
+
+    <template id="ec_edi_sri_ventas">
+        <detalleVentas t-as="detalle" t-foreach="ventas_detalles">
+            <tpIdCliente t-out="detalle.get('tpIdCliente')" />
+            <idCliente t-out="detalle.get('idCliente')" />
+            <parteRelVtas t-out="detalle.get('parteRelVtas')" />
+            <tipoComprobante t-out="detalle.get('tipoComprobante')" />
+            <tipoEmision t-out="detalle.get('tipoEmision')" />
+            <numeroComprobantes t-out="detalle.get('numeroComprobantes')" />
+            <baseNoGraIva t-out="detalle.get('baseNoGraIva')" />
+            <baseImponible t-out="detalle.get('baseImponible')" />
+            <baseImpGrav t-out="detalle.get('baseImpGrav')" />
+            <montoIva t-out="detalle.get('montoIva')" />
+            <montoIce t-out="detalle.get('montoIce')" />
+            <valorRetIva t-out="detalle.get('valorRetIva')" />
+            <valorRetRenta t-out="detalle.get('valorRetRenta')" />
+            <t t-call="l10n_ec_sri_reports.ec_edi_sri_payment" />
+        </detalleVentas>
+    </template>
+
+    <template id="ec_edi_sri_exterior_payment">
+        <pagoExterior>
+            <pagoLocExt t-out="detalle.get('pagoLocExt')" />
+            <paisEfecPago t-out="detalle.get('paisEfecPago')" />
+            <aplicConvDobTrib t-out="detalle.get('aplicConvDobTrib')" />
+            <pagExtSujRetNorLeg t-out="detalle.get('pagExtSujRetNorLeg')" />
+        </pagoExterior>
+    </template>
+
+    <template id="ec_edi_sri_payment">
+        <formasDePago t-if="detalle.get('formaPago', False)">
+            <formaPago
+                t-foreach="detalle.get('formaPagos',[])"
+                t-as="forma_pago"
+                t-out="forma_pago"
+            />
+        </formasDePago>
+    </template>
+
+    <template id="ec_edi_sri_air">
+        <air>
+            <t t-if="detalle.get('air', False)">
+                <detalleAir t-foreach="detalle.get('detalleAir', [])" t-as="withhold">
+                    <codRetAir t-out="withhold.get('codRetAir', '')" />
+                    <baseImpAir t-out="withhold.get('baseImpAir', 0.0)" />
+                    <porcentajeAir t-out="withhold.get('porcentajeAir', 0.0)" />
+                    <valRetAir t-out="withhold.get('valRetAir', 0.0)" />
+                </detalleAir>
+            </t>
+        </air>
+        <t t-if="detalle.get('air', False)">
+            <estabRetencion1 t-out="detalle.get('estabRetencion1', '')" />
+            <ptoEmiRetencion1 t-out="detalle.get('ptoEmiRetencion1', '')" />
+            <secRetencion1 t-out="detalle.get('secRetencion1', '')" />
+            <autRetencion1 t-out="detalle.get('autRetencion1', '')" />
+            <fechaEmiRet1 t-out="detalle.get('fechaEmiRet1', '')" />
+        </t>
+    </template>
+
+    <template id="ec_edi_sri_ventas_establecimiento">
+        <ventaEst t-foreach="venta_est" t-as="est">
+            <codEstab t-out="est.get('codEstab', '')" />
+            <ventasEstab t-out="est.get('ventasEstab', 0)" />
+            <ivaComp t-out="est.get('ivaComp', 0)" />
+        </ventaEst>
+    </template>
+
+</odoo>
