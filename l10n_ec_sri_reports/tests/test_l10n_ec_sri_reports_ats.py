@@ -6,7 +6,6 @@ from odoo.tests import tagged
 from odoo.addons.l10n_ec_withhold.tests.test_l10n_ec_purchase_withhold import (
     TestL10nPurchaseWithhold,
 )
-
 from odoo.addons.l10n_ec_withhold.tests.test_l10n_ec_sale_withhold import (
     TestL10nSaleWithhold,
 )
@@ -83,9 +82,9 @@ class TestL10nSriAts(TestL10nSaleWithhold):
         srists.action_draft()
         self.assertTrue(srists.sri_state == "draft")
         data = srists._l10n_ec_get_info_ats()
-        self.assertTrue(data['idInformante'] == self.company.partner_id.vat)
-        self.assertTrue(data['anio'] == current_date.strftime("%Y"))
-        self.assertTrue(data['mes'] == current_date.strftime("%m"))
+        self.assertTrue(data["idInformante"] == self.company.partner_id.vat)
+        self.assertTrue(data["anio"] == current_date.strftime("%Y"))
+        self.assertTrue(data["mes"] == current_date.strftime("%m"))
         self.assertTrue((srists.name + ".xml") == srists.file_name)
 
 
@@ -139,21 +138,31 @@ class TestL10nSriAtsPurchase(TestL10nPurchaseWithhold):
         srists = self.create_sri_report(current_date)
         # srists.action_load()
         data = srists._l10n_ec_get_info_ats()
-        self.assertTrue(data['exist_compras'])
-        self.assertTrue(data['compras_detalles'])
-        data_invoice = data['compras_detalles'][0]
-        self.assertTrue(data_invoice['tpIdProv'] == invoice.partner_id.l10n_latam_identification_type_id.l10n_ec_code)
-        self.assertTrue(data_invoice['idProv'] == invoice.partner_id.vat)
-        self.assertTrue(data_invoice['tipoComprobante'] == invoice.l10n_latam_document_type_id.code)
-        self.assertTrue(data_invoice['aut'] == invoice.l10n_ec_electronic_authorization)
-        self.assertTrue(data_invoice['estab'] == invoice.l10n_latam_document_number[:3])
-        self.assertTrue(data_invoice['ptoEmi'] == invoice.l10n_latam_document_number[4:7])
-        self.assertTrue(data_invoice['secuencial'] == invoice.l10n_latam_document_number[8:])
-        self.assertTrue(data_invoice['fechaEmision'] == invoice.invoice_date.strftime("%d/%m/%Y"))
-        self.assertTrue(data_invoice['baseNoGraIva'] == 0)
-        self.assertTrue(data_invoice['baseImponible'] == 100)
-        self.assertTrue(data_invoice['baseImpGrav'] == 100)
-        self.assertTrue(data_invoice['baseNoObjIva'] == 0)
-        self.assertTrue(data_invoice['montoIva'] == 15)
-        self.assertTrue(data_invoice['valorRetIva'] == 15)
-
+        self.assertTrue(data["exist_compras"])
+        self.assertTrue(data["compras_detalles"])
+        data_invoice = data["compras_detalles"][0]
+        self.assertTrue(
+            data_invoice["tpIdProv"]
+            == invoice.partner_id.l10n_latam_identification_type_id.l10n_ec_code
+        )
+        self.assertTrue(data_invoice["idProv"] == invoice.partner_id.vat)
+        self.assertTrue(
+            data_invoice["tipoComprobante"] == invoice.l10n_latam_document_type_id.code
+        )
+        self.assertTrue(data_invoice["aut"] == invoice.l10n_ec_electronic_authorization)
+        self.assertTrue(data_invoice["estab"] == invoice.l10n_latam_document_number[:3])
+        self.assertTrue(
+            data_invoice["ptoEmi"] == invoice.l10n_latam_document_number[4:7]
+        )
+        self.assertTrue(
+            data_invoice["secuencial"] == invoice.l10n_latam_document_number[8:]
+        )
+        self.assertTrue(
+            data_invoice["fechaEmision"] == invoice.invoice_date.strftime("%d/%m/%Y")
+        )
+        self.assertTrue(data_invoice["baseNoGraIva"] == 0)
+        self.assertTrue(data_invoice["baseImponible"] == 100)
+        self.assertTrue(data_invoice["baseImpGrav"] == 100)
+        self.assertTrue(data_invoice["baseNoObjIva"] == 0)
+        self.assertTrue(data_invoice["montoIva"] == 15)
+        self.assertTrue(data_invoice["valorRetIva"] == 15)
