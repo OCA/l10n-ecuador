@@ -20,7 +20,7 @@ def sri_get_name(date):
 
 
 @tagged("post_install_l10n", "post_install", "-at_install")
-class TestL10nSriAts(TestL10nSaleWithhold):
+class TestL10nSriAts(TestL10nSaleWithhold, TestL10nPurchaseWithhold):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -54,55 +54,6 @@ class TestL10nSriAts(TestL10nSaleWithhold):
             line.tax_withhold_id = self.tax_sale_withhold_profit_303
         wizard.save().button_validate()
 
-    def create_sri_report(self, date=False):
-        srists = self.env["sri.ats"].create({})
-        if date:
-            srists.date_start = date.replace(day=1)
-            srists.date_end = srists.date_start + relativedelta(months=1, days=-1)
-        return srists
-
-    def test_create_ats_name(self):
-        SRIATS = self.env["sri.ats"]
-        current_date = fields.Date.context_today(SRIATS) - relativedelta(months=1)
-        srists = self.create_sri_report()
-        self.assertEqual(srists.name, sri_get_name(current_date))
-
-    def test_create_ats_name_change_date(self):
-        SRIATS = self.env["sri.ats"]
-        current_date = fields.Date.context_today(SRIATS)
-        srists = self.create_sri_report(current_date)
-        self.assertEqual(srists.name, sri_get_name(current_date))
-
-    def test_sri_data_purchase(self):
-        SRIATS = self.env["sri.ats"]
-        current_date = fields.Date.context_today(SRIATS)
-        self._create_sale_invoice_and_withhold()
-        srists = self.create_sri_report(current_date)
-
-        srists.action_load()
-        srists.action_done()
-        self.assertTrue(srists.sri_state == "done")
-        srists.action_draft()
-        self.assertTrue(srists.sri_state == "draft")
-        data = srists._l10n_ec_get_info_ats()
-        self.assertTrue(data["idInformante"] == self.company.partner_id.vat)
-        self.assertTrue(data["anio"] == current_date.strftime("%Y"))
-        self.assertTrue(data["mes"] == current_date.strftime("%m"))
-        self.assertTrue((srists.name + ".xml") == srists.file_name)
-
-
-class TestL10nSriAtsPurchase(TestL10nPurchaseWithhold):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-
-    def create_sri_report(self, date=False):
-        srists = self.env["sri.ats"].create({})
-        if date:
-            srists.date_start = date.replace(day=1)
-            srists.date_end = srists.date_start + relativedelta(months=1, days=-1)
-        return srists
-
     def _create_purchase_invoice_and_withhold(self):
         self._setup_edi_company_ec()
         self.partner_ruc.property_account_position_id = self.position_require_withhold
@@ -134,16 +85,46 @@ class TestL10nSriAtsPurchase(TestL10nPurchaseWithhold):
         wizard.button_validate()
         return invoice
 
+    def create_sri_report(self, date=False):
+        srists = self.env["sri.ats"].create({})
+        if date:
+            srists.date_start = date.replace(day=1)
+            srists.date_end = srists.date_start + relativedelta(months=1, days=-1)
+        return srists
+
+    def test_create_ats_name(self):
+        SRIATS = self.env["sri.ats"]
+        current_date = fields.Date.context_today(SRIATS) - relativedelta(months=1)
+        srists = self.create_sri_report()
+        self.assertEqual(srists.name, sri_get_name(current_date))
+
+    def test_create_ats_name_change_date(self):
+        SRIATS = self.env["sri.ats"]
+        current_date = fields.Date.context_today(SRIATS)
+        srists = self.create_sri_report(current_date)
+        self.assertEqual(srists.name, sri_get_name(current_date))
+
     def test_sri_data_purchase(self):
         SRIATS = self.env["sri.ats"]
         current_date = fields.Date.context_today(SRIATS)
+        self._create_sale_invoice_and_withhold()
         invoice = self._create_purchase_invoice_and_withhold()
         srists = self.create_sri_report(current_date)
-        # srists.action_load()
+
+        srists.action_load()
+        srists.action_done()
+        self.assertTrue(srists.sri_state == "done")
+        srists.action_draft()
+        self.assertTrue(srists.sri_state == "draft")
         data = srists._l10n_ec_get_info_ats()
+        self.assertTrue(data["idInformante"] == self.company.partner_id.vat)
+        self.assertTrue(data["anio"] == current_date.strftime("%Y"))
+        self.assertTrue(data["mes"] == current_date.strftime("%m"))
+        self.assertTrue((srists.name + ".xml") == srists.file_name)
         self.assertTrue(data["exist_compras"])
         self.assertTrue(data["compras_detalles"])
         data_invoice = data["compras_detalles"][0]
+
         self.assertTrue(
             data_invoice["tpIdProv"]
             == PartnerIdTypeEc.get_ats_code_for_partner(invoice.partner_id, "in_").value
