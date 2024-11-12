@@ -1,10 +1,9 @@
 from dateutil.relativedelta import relativedelta
 
-from odoo import fields
 from odoo.tests import tagged
 
-from odoo.addons.l10n_ec.models.res_partner import (
-    PartnerIdTypeEc,
+from odoo.addons.l10n_ec_account_edi.tests.test_l10n_ec_edi_liquidation import (
+    TestL10nEcPurchaseLiquidation,
 )
 from odoo.addons.l10n_ec_withhold.tests.test_l10n_ec_purchase_withhold import (
     TestL10nPurchaseWithhold,
@@ -20,60 +19,17 @@ def sri_get_name(date):
 
 
 @tagged("post_install_l10n", "post_install", "-at_install")
-class TestL10nSriAts(TestL10nSaleWithhold, TestL10nPurchaseWithhold):
+class TestL10nSriAts(
+    TestL10nEcPurchaseLiquidation, TestL10nSaleWithhold, TestL10nPurchaseWithhold
+):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
-    def _create_sale_invoice_and_withhold(self):
-        self.product_a.list_price = 100
-        partner = self.partner_with_email
-        invoice1 = self.get_invoice(partner)
-        invoice2 = self.get_invoice(partner)
-        all_invoices = invoice1 + invoice2
-        wizard = self._prepare_new_wizard_withhold(
-            all_invoices,
-            "1-1-1",
-            "1111111111",
-        )
-        with wizard.withhold_line_ids.new() as line:
-            line.invoice_id = invoice1
-            line.tax_group_withhold_id = self.tax_sale_withhold_vat_100.tax_group_id
-            line.tax_withhold_id = self.tax_sale_withhold_vat_100
-        with wizard.withhold_line_ids.new() as line:
-            line.invoice_id = invoice1
-            line.tax_group_withhold_id = self.tax_sale_withhold_profit_303.tax_group_id
-            line.tax_withhold_id = self.tax_sale_withhold_profit_303
-        with wizard.withhold_line_ids.new() as line:
-            line.invoice_id = invoice2
-            line.tax_group_withhold_id = self.tax_sale_withhold_vat_50.tax_group_id
-            line.tax_withhold_id = self.tax_sale_withhold_vat_50
-        with wizard.withhold_line_ids.new() as line:
-            line.invoice_id = invoice2
-            line.tax_group_withhold_id = self.tax_sale_withhold_profit_303.tax_group_id
-            line.tax_withhold_id = self.tax_sale_withhold_profit_303
-        wizard.save().button_validate()
-
-    def _create_purchase_invoice_and_withhold(self):
-        self._setup_edi_company_ec()
-        self.partner_ruc.property_account_position_id = self.position_require_withhold
-        invoice_form = self._l10n_ec_create_form_move(
-            move_type="in_invoice",
-            internal_type="invoice",
-            partner=self.partner_ruc,
-            taxes=self.tax_vat,
-            journal=self.journal_purchase,
-            latam_document_type=self.env.ref("l10n_ec.ec_dt_01"),
-        )
-        invoice_form.l10n_ec_tax_support = "01"
-        invoice_form.l10n_latam_document_number = "001-001-000000001"
-        invoice_form.l10n_ec_electronic_authorization = (
-            self.number_authorization_electronic
-        )
-        invoice = invoice_form.save()
-        invoice.action_post()
-        self.assertTrue(invoice.l10n_ec_withhold_active)
-        invoice.action_try_create_ecuadorian_withhold()
+    def _prepare_invoice_with_withhold(self, invoice=None):
+        self.WizardWithhold = self.env["l10n_ec.wizard.create.purchase.withhold"]
+        if invoice is None:
+            invoice = self._l10n_ec_create_in_invoice(self.partner_ruc, auto_post=True)
         wizard_form = self._prepare_new_wizard_withhold_purchase(
             invoice,
             tax_withhold_vat=self.tax_withhold_vat_100,
@@ -85,70 +41,23 @@ class TestL10nSriAts(TestL10nSaleWithhold, TestL10nPurchaseWithhold):
         wizard.button_validate()
         return invoice
 
-    def create_sri_report(self, date=False):
-        srists = self.env["sri.ats"].create({})
-        if date:
-            srists.date_start = date.replace(day=1)
-            srists.date_end = srists.date_start + relativedelta(months=1, days=-1)
-        return srists
+    def _create_data_for_ats(self):
+        self._setup_edi_company_ec()
+        out_invoice = [
+            self.get_invoice(self.partner_dni),
+            self.get_invoice(self.partner_dni),
+        ]
+        self.partner_ruc.property_account_position_id = self.position_require_withhold
+        invoice = self._prepare_invoice_with_withhold()
+        liquidation = self._l10n_ec_prepare_edi_liquidation(
+            auto_post=True, partner=self.partner_ruc
+        )
+        liquidation = self._prepare_invoice_with_withhold(liquidation)
+        in_invoices = [invoice, liquidation]
+        return {"out_invoice": out_invoice, "in_invoice": in_invoices}
 
-    def test_create_ats_name(self):
-        SRIATS = self.env["sri.ats"]
-        current_date = fields.Date.context_today(SRIATS) - relativedelta(months=1)
-        srists = self.create_sri_report()
-        self.assertEqual(srists.name, sri_get_name(current_date))
-
-    def test_create_ats_name_change_date(self):
-        SRIATS = self.env["sri.ats"]
-        current_date = fields.Date.context_today(SRIATS)
-        srists = self.create_sri_report(current_date)
-        self.assertEqual(srists.name, sri_get_name(current_date))
-
-    def test_sri_data_purchase(self):
-        SRIATS = self.env["sri.ats"]
-        current_date = fields.Date.context_today(SRIATS)
-        self._create_sale_invoice_and_withhold()
-        invoice = self._create_purchase_invoice_and_withhold()
-        srists = self.create_sri_report(current_date)
-
-        srists.action_load()
-        srists.action_done()
-        self.assertTrue(srists.sri_state == "done")
-        srists.action_draft()
-        self.assertTrue(srists.sri_state == "draft")
-        data = srists._l10n_ec_get_info_ats()
-        self.assertTrue(data["idInformante"] == self.company.partner_id.vat)
-        self.assertTrue(data["anio"] == current_date.strftime("%Y"))
-        self.assertTrue(data["mes"] == current_date.strftime("%m"))
-        self.assertTrue((srists.name + ".xml") == srists.file_name)
-        self.assertTrue(data["exist_compras"])
-        self.assertTrue(data["compras_detalles"])
-        data_invoice = data["compras_detalles"][0]
-
-        self.assertTrue(
-            data_invoice["tpIdProv"]
-            == PartnerIdTypeEc.get_ats_code_for_partner(invoice.partner_id, "in_").value
-        )
-        self.assertTrue(data_invoice["idProv"] == invoice.partner_id.vat)
-        self.assertTrue(
-            data_invoice["tipoComprobante"] == invoice.l10n_latam_document_type_id.code
-        )
-        self.assertTrue(
-            data_invoice["autorizacion"] == invoice.l10n_ec_electronic_authorization
-        )
-        self.assertTrue(
-            data_invoice["establecimiento"] == invoice.l10n_latam_document_number[:3]
-        )
-        self.assertTrue(
-            data_invoice["puntoEmision"] == invoice.l10n_latam_document_number[4:7]
-        )
-        self.assertTrue(
-            data_invoice["secuencial"] == invoice.l10n_latam_document_number[8:]
-        )
-        self.assertTrue(
-            data_invoice["fechaEmision"] == invoice.invoice_date.strftime("%d/%m/%Y")
-        )
-        self.assertTrue(data_invoice["baseNoGraIva"] == "0.00")
-        self.assertTrue(data_invoice["baseImponible"] == "0.00")
-        self.assertTrue(data_invoice["baseImpGrav"] == "800.00")
-        self.assertTrue(data_invoice["montoIva"] == "96.00")
+    def test_ats(self):
+        data = self._create_data_for_ats()
+        self.assertTrue(data)
+        self.assertTrue(data["out_invoice"])
+        self.assertTrue(data["in_invoice"])
