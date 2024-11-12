@@ -1,5 +1,9 @@
+import base64
+import xml.etree.ElementTree as ET
+
 from dateutil.relativedelta import relativedelta
 
+from odoo import fields
 from odoo.tests import tagged
 from odoo.tests.common import Form
 
@@ -160,11 +164,85 @@ class TestL10nSriAts(TestL10nPurchaseWithhold):
             auto_post=True, partner=self.partner_ruc
         )
         liquidation = self._prepare_invoice_with_purchase_withhold(liquidation)
-        in_invoices = [invoice, liquidation]
+        in_invoices = invoice | liquidation
+
         return {"out_invoice": out_invoice, "in_invoice": in_invoices}
 
-    def test_ats(self):
+    def xml_to_dict(self, xml_file):
+        decoded_xml = base64.b64decode(xml_file).decode("utf-8")
+        root = ET.fromstring(decoded_xml)
+        data_dict = {"compras": [], "ventas": []}
+
+        for compra in root.findall(".//compras/detalleCompras"):
+            compra_data = {
+                "codSustento": compra.find("codSustento").text,
+                "tpIdProv": compra.find("tpIdProv").text,
+                "idProv": compra.find("idProv").text,
+                "tipoComprobante": compra.find("tipoComprobante").text,
+                "baseImpGrav": compra.find("baseImpGrav").text,
+                "montoIva": compra.find("montoIva").text,
+                "valRetServ100": compra.find("valRetServ100").text,
+            }
+            data_dict["compras"].append(compra_data)
+
+        for venta in root.findall(".//ventas/detalleVentas"):
+            venta_data = {
+                "tpIdCliente": venta.find("tpIdCliente").text,
+                "idCliente": venta.find("idCliente").text,
+                "baseImpGrav": venta.find("baseImpGrav").text,
+                "montoIva": venta.find("montoIva").text,
+                "valorRetIva": venta.find("valorRetIva").text,
+            }
+            data_dict["ventas"].append(venta_data)
+
+        return data_dict
+
+    def sri_get_name(self, date):
+        date_end = date.replace(day=1) + relativedelta(months=1, days=-1)
+        return "AT%s" % (date_end.strftime("%Y%m"))
+
+    def create_sri_report(self, date=False):
+        sriats = self.env["sri.ats"].create({})
+        if date:
+            sriats.date_start = date.replace(day=1)
+            sriats.date_end = sriats.date_start + relativedelta(months=1, days=-1)
+        return sriats
+
+    def test_create_ats_name(self):
+        M_ATS = self.env["sri.ats"]
+        current_date = fields.Date.context_today(M_ATS) - relativedelta(months=1)
+        sriats = self.create_sri_report()
+        self.assertEqual(sriats.name, sri_get_name(current_date))
+
+    def test_create_ats_name_change_date(self):
+        M_ATS = self.env["sri.ats"]
+        current_date = fields.Date.context_today(M_ATS)
+        sriats = self.create_sri_report(current_date)
+        self.assertEqual(sriats.name, sri_get_name(current_date))
+
+    def test_ats_action(self):
+        M_ATS = self.env["sri.ats"]
+        current_date = fields.Date.context_today(M_ATS)
+        sriats = self.create_sri_report(current_date)
+        self.assertTrue(sriats.sri_state == "draft")
+        self.assertFalse(sriats.xml_file)
+        sriats.action_load()
+        self.assertTrue(sriats.xml_file)
+        sriats.action_done()
+        self.assertTrue(sriats.sri_state == "done")
+        sriats.action_draft()
+        self.assertTrue(sriats.sri_state == "draft")
+
+    def test_ats_data(self):
+        M_ATS = self.env["sri.ats"]
         data = self._create_data_for_ats()
-        self.assertTrue(data)
-        self.assertTrue(data["out_invoice"])
-        self.assertTrue(data["in_invoice"])
+        current_date = fields.Date.context_today(M_ATS)
+        sriats = self.create_sri_report(current_date)
+        sriats.action_load()
+        xml_date = self.xml_to_dict(sriats.xml_file)
+        total_compras = sum(data["in_invoice"].mapped("amount_untaxed"))
+        total_ventas = sum(data["out_invoice"].mapped("amount_untaxed"))
+        xml_total_compras = sum([float(x["baseImpGrav"]) for x in xml_date["compras"]])
+        xml_total_ventas = sum([float(x["baseImpGrav"]) for x in xml_date["ventas"]])
+        self.assertEqual(total_compras, xml_total_compras)
+        self.assertEqual(total_ventas, xml_total_ventas)
