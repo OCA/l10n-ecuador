@@ -240,9 +240,23 @@ class TestL10nSriAts(TestL10nPurchaseWithhold):
         sriats = self.create_sri_report(current_date)
         sriats.action_load()
         xml_date = self.xml_to_dict(sriats.xml_file)
-        total_compras = sum(data["in_invoice"].mapped("amount_untaxed"))
-        total_ventas = sum(data["out_invoice"].mapped("amount_untaxed"))
-        xml_total_compras = sum([float(x["baseImpGrav"]) for x in xml_date["compras"]])
-        xml_total_ventas = sum([float(x["baseImpGrav"]) for x in xml_date["ventas"]])
-        self.assertEqual(total_compras, xml_total_compras)
-        self.assertEqual(total_ventas, xml_total_ventas)
+        compras = data["in_invoice"]
+        ventas = data["out_invoice"]
+
+        self.assertEqual(
+            sum(compras.mapped("amount_untaxed")),
+            sum([float(x["baseImpGrav"]) for x in xml_date["compras"]]),
+        )
+        self.assertEqual(
+            sum(ventas.mapped("amount_untaxed")),
+            sum([float(x["baseImpGrav"]) for x in xml_date["ventas"]]),
+        )
+
+        self.assertEqual(
+            sum(compras.mapped("amount_tax")),
+            sum([float(x["montoIva"]) for x in xml_date["compras"]]),
+        )
+        self.assertEqual(
+            sum(ventas.mapped("amount_tax")),
+            sum([float(x["montoIva"]) for x in xml_date["ventas"]]),
+        )
