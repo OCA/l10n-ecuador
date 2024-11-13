@@ -15,25 +15,17 @@ from odoo.addons.l10n_ec_withhold.tests.test_l10n_ec_purchase_withhold import (
 FORM_ID = "l10n_ec_account_edi.account_invoice_liquidation_purchase_form_view"
 
 
-def sri_get_name(date):
-    date_end = date.replace(day=1) + relativedelta(months=1, days=-1)
-    return "AT%s" % (date_end.strftime("%Y%m"))
-
-
 @tagged("post_install_l10n", "post_install", "-at_install")
 class TestL10nSriAts(TestL10nPurchaseWithhold):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.chart_template = cls.env["account.chart.template"].with_company(cls.company)
-        cls.tax_sale_withhold_vat_50 = cls.chart_template.ref(
-            "tax_sale_withhold_vat_50"
-        )
         cls.tax_sale_withhold_vat_100 = cls.chart_template.ref(
             "tax_sale_withhold_vat_100"
         )
-        cls.tax_sale_withhold_profit_303 = cls.chart_template.ref(
-            "tax_withhold_profit_303"
+        cls.tax_withhold_profit_sale_1_75x100 = cls.chart_template.ref(
+            "tax_withhold_profit_sale_1_75x100"
         )
 
     @patch_service_sri
@@ -143,7 +135,7 @@ class TestL10nSriAts(TestL10nPurchaseWithhold):
             new_document_number=new_document_number,
             electronic_authorization=electronic_authorization,
             tax_withhold_vat=self.tax_sale_withhold_vat_100,
-            tax_withhold_profit=self.tax_sale_withhold_profit_303,
+            tax_withhold_profit=self.tax_withhold_profit_sale_1_75x100,
         )
         wizard = wizard.save()
         wizard.button_validate()
@@ -181,8 +173,17 @@ class TestL10nSriAts(TestL10nPurchaseWithhold):
                 "tipoComprobante": compra.find("tipoComprobante").text,
                 "baseImpGrav": compra.find("baseImpGrav").text,
                 "montoIva": compra.find("montoIva").text,
+                "valRetBien10": compra.find("valRetBien10").text,
                 "valRetServ100": compra.find("valRetServ100").text,
+                "baseImpAir": "0.00",
+                "porcentajeAir": "0.00",
+                "valRetAir": "0.00",
             }
+            if compra.findall("air/detalleAir"):
+                ret = compra.findall("air/detalleAir")[0]
+                compra_data["baseImpAir"] = ret.find("baseImpAir").text
+                compra_data["porcentajeAir"] = ret.find("porcentajeAir").text
+                compra_data["valRetAir"] = ret.find("valRetAir").text
             data_dict["compras"].append(compra_data)
 
         for venta in root.findall(".//ventas/detalleVentas"):
@@ -192,6 +193,7 @@ class TestL10nSriAts(TestL10nPurchaseWithhold):
                 "baseImpGrav": venta.find("baseImpGrav").text,
                 "montoIva": venta.find("montoIva").text,
                 "valorRetIva": venta.find("valorRetIva").text,
+                "valorRetRenta": venta.find("valorRetRenta").text,
             }
             data_dict["ventas"].append(venta_data)
 
@@ -212,13 +214,13 @@ class TestL10nSriAts(TestL10nPurchaseWithhold):
         M_ATS = self.env["sri.ats"]
         current_date = fields.Date.context_today(M_ATS) - relativedelta(months=1)
         sriats = self.create_sri_report()
-        self.assertEqual(sriats.name, sri_get_name(current_date))
+        self.assertEqual(sriats.name, self.sri_get_name(current_date))
 
     def test_create_ats_name_change_date(self):
         M_ATS = self.env["sri.ats"]
         current_date = fields.Date.context_today(M_ATS)
         sriats = self.create_sri_report(current_date)
-        self.assertEqual(sriats.name, sri_get_name(current_date))
+        self.assertEqual(sriats.name, self.sri_get_name(current_date))
 
     def test_ats_action(self):
         M_ATS = self.env["sri.ats"]
@@ -242,6 +244,8 @@ class TestL10nSriAts(TestL10nPurchaseWithhold):
         xml_date = self.xml_to_dict(sriats.xml_file)
         compras = data["in_invoice"]
         ventas = data["out_invoice"]
+        compra_retenciones = compras.mapped("l10n_ec_withhold_ids")
+        venta_retenciones = ventas.mapped("l10n_ec_withhold_ids")
 
         self.assertEqual(
             sum(compras.mapped("amount_untaxed")),
@@ -259,4 +263,34 @@ class TestL10nSriAts(TestL10nPurchaseWithhold):
         self.assertEqual(
             sum(ventas.mapped("amount_tax")),
             sum([float(x["montoIva"]) for x in xml_date["ventas"]]),
+        )
+
+        self.assertEqual(
+            sum(
+                compra_retenciones.mapped(
+                    "l10n_ec_withhold_line_ids.l10n_ec_withhold_tax_amount"
+                )
+            ),
+            sum(
+                [
+                    float(x["valRetBien10"])
+                    + float(x["valRetServ100"])
+                    + float(x["valRetAir"])
+                    for x in xml_date["compras"]
+                ]
+            ),
+        )
+
+        self.assertEqual(
+            sum(
+                venta_retenciones.mapped(
+                    "l10n_ec_withhold_line_ids.l10n_ec_withhold_tax_amount"
+                )
+            ),
+            sum(
+                [
+                    float(x["valorRetIva"]) + float(x["valorRetRenta"])
+                    for x in xml_date["ventas"]
+                ]
+            ),
         )
