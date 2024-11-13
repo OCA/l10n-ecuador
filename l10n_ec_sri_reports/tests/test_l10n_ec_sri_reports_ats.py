@@ -3,7 +3,8 @@ import xml.etree.ElementTree as ET
 
 from dateutil.relativedelta import relativedelta
 
-from odoo import fields
+from odoo import _, fields
+from odoo.exceptions import UserError
 from odoo.tests import tagged
 from odoo.tests.common import Form
 
@@ -33,8 +34,6 @@ class TestL10nSriAts(TestL10nPurchaseWithhold):
         """
         Create invoice
         """
-        if not self.company.vat:
-            self._setup_edi_company_ec()
         invoice = self._l10n_ec_prepare_edi_out_invoice(partner=partner, auto_post=True)
         edi_doc = invoice._get_edi_document(self.edi_format)
         edi_doc._process_documents_web_services(with_commit=False)
@@ -221,6 +220,11 @@ class TestL10nSriAts(TestL10nPurchaseWithhold):
         current_date = fields.Date.context_today(M_ATS)
         sriats = self.create_sri_report(current_date)
         self.assertEqual(sriats.name, self.sri_get_name(current_date))
+        sriats.date_start = False
+        sriats.date_end = False
+        msj_expected = _("Please set the start and end date")
+        with self.assertRaisesRegex(UserError, msj_expected):
+            sriats.action_load()
 
     def test_ats_action(self):
         M_ATS = self.env["sri.ats"]
