@@ -6,6 +6,9 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools.translate import _
 
+from odoo.addons.account_edi.models.account_edi_document import AccountEdiDocument
+from odoo.addons.account_edi.models.account_edi_format import AccountEdiFormat
+
 EDI_DATE_FORMAT = "%d/%m/%Y"
 _logger = logging.getLogger(__name__)
 
@@ -27,6 +30,12 @@ class DeliveryNote(models.Model):
         compute="_compute_document_number",
         store=True,
     )
+
+    is_manual_document_number = fields.Boolean(
+        compute="_compute_is_manual_document_number",
+        store=False,
+    )
+
     journal_id = fields.Many2one(
         comodel_name="account.journal",
         string="Emission Point",
@@ -148,10 +157,6 @@ class DeliveryNote(models.Model):
     )
     edi_error_message = fields.Html()
 
-    edi_web_services_to_process = fields.Text(
-        help="Technical field to display the documents that "
-        "will be processed by the CRON",
-    )
     l10n_ec_authorization_date = fields.Datetime(
         string="Access Key(EC)",
         store=True,
@@ -171,6 +176,19 @@ class DeliveryNote(models.Model):
     )
 
     @api.depends("journal_id")
+    def _compute_is_manual_document_number(self):
+        domain = [
+            ("journal_id", "=", self.journal_id.id),
+            ("company_id", "=", self.company_id.id),
+            ("state", "=", "done"),
+        ]
+        count = self.search_count(domain)
+        if count == 0:
+            self.is_manual_document_number = False
+        else:
+            self.is_manual_document_number = True
+
+    @api.depends("journal_id")
     def _compute_document_number(self):
         self.filtered(
             lambda x: not x.document_number
@@ -178,6 +196,7 @@ class DeliveryNote(models.Model):
             and x.journal_id.l10n_latam_use_documents
             and x.state == "draft"
         ).document_number = "/"
+
         for rec in self.filtered(lambda x: x.journal_id):
             rec._set_next_sequence()
 
@@ -363,6 +382,7 @@ class DeliveryNote(models.Model):
             _logger.debug(error)
             self.write(
                 {
+                    "edi_error_count": 1,
                     "edi_error_message": error,
                     "edi_blocking_level": "error",
                 }
@@ -402,14 +422,7 @@ class DeliveryNote(models.Model):
         )
 
         if client_send is None or auth_client is None:
-            self.write(
-                {
-                    "edi_error_message": _(
-                        "Can't connect to SRI web service, try again later"
-                    ),
-                    "edi_blocking_level": "error",
-                }
-            )
+            self.write_not_connected()
             return self
 
         # intentar consultar el documento previamente autorizado
@@ -418,54 +431,19 @@ class DeliveryNote(models.Model):
         is_sent = False
         msj = []
         errors = []
-        authorization_date = False
+
         if self.l10n_ec_last_sent_date:
-            sri_res = edi_document._l10n_ec_edi_send_xml_auth(auth_client)
-            (
-                is_auth,
-                msj,
-                authorization_date,
-            ) = edi_document._l10n_ec_edi_process_response_auth(sri_res)
-            errors.extend(msj)
+            self.find_authorization(edi_format, edi_document)
+            if self.l10n_ec_authorization_date:
+                return self
+
         if not is_auth:
             sri_res = edi_document._l10n_ec_edi_send_xml(client_send, xml_signed)
             is_sent, msj = edi_document._l10n_ec_edi_process_response_send(sri_res)
             errors.extend(msj)
         if not is_auth and is_sent and not msj:
-            # guardar la fecha de envio al SRI
-            # en caso de errores, poder saber si hubo un intento o no
-            # para antes de volver a enviarlo, consultar si se autorizo
-            sri_res = edi_document._l10n_ec_edi_send_xml_auth(
-                auth_client, self.l10n_ec_xml_access_key
-            )
-            (
-                is_auth,
-                msj,
-                authorization_date,
-            ) = edi_document._l10n_ec_edi_process_response_auth(sri_res)
-            errors.extend(msj)
-
-        if errors:
-            self.edi_blocking_level = "error"
-
-        if is_auth:
-            self.write(
-                {
-                    "edi_state": "sent",
-                    "l10n_ec_is_edi_doc": True,
-                    "l10n_ec_authorization_date": authorization_date,
-                }
-            )
-        else:
-            self.write(
-                {
-                    "edi_error_message": "\n".join(errors),
-                    "edi_blocking_level": "error",
-                }
-            )
-
-        self.l10n_ec_last_sent_date = datetime.now()
-        return self
+            self.find_authorization(edi_format, edi_document)
+            return self
 
     # Métodos del portal
     def _compute_access_url(self):
@@ -687,7 +665,71 @@ class DeliveryNote(models.Model):
         return res
 
     def action_process_edi_web_services(self):
-        return ""
+        self.ensure_one()
+        self._l10n_ec_create_edi_document()
 
     def action_retry_edi_documents_error(self):
-        return ""
+        self.ensure_one()
+        edi_format = self.env["account.edi.format"]
+        edi_document = self.env["account.edi.document"]
+        self.find_authorization(edi_format, edi_document)
+
+        if not self.l10n_ec_authorization_date:
+            self._l10n_ec_create_edi_document()
+
+    def find_authorization(
+        self, edi_format: AccountEdiFormat, edi_document: AccountEdiDocument
+    ):
+        auth_client = edi_format._l10n_ec_get_edi_ws_client(
+            self.company_id.l10n_ec_type_environment, "authorization"
+        )
+
+        if auth_client is None:
+            self.write_not_connected()
+            return self
+
+        is_auth = False
+        errors = []
+        authorization_date = False
+
+        sri_res = edi_document._l10n_ec_edi_send_xml_auth(
+            auth_client, self.l10n_ec_xml_access_key
+        )
+        (
+            is_auth,
+            msj,
+            authorization_date,
+        ) = edi_document._l10n_ec_edi_process_response_auth(sri_res)
+        errors.extend(msj)
+
+        if is_auth:
+            self.write(
+                {
+                    "edi_error_count": 0,
+                    "edi_state": "sent",
+                    "l10n_ec_is_edi_doc": True,
+                    "l10n_ec_authorization_date": authorization_date,
+                }
+            )
+        else:
+            self.write(
+                {
+                    "edi_error_count": 1,
+                    "edi_error_message": "\n".join(errors),
+                    "edi_blocking_level": "error",
+                }
+            )
+
+        self.l10n_ec_last_sent_date = datetime.now()
+        return self
+
+    def write_not_connected(self):
+        self.write(
+            {
+                "edi_error_count": 1,
+                "edi_error_message": _(
+                    "Can't connect to SRI web service, try again later"
+                ),
+                "edi_blocking_level": "error",
+            }
+        )

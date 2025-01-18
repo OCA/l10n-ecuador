@@ -135,9 +135,8 @@ class AccountEdiDocument(models.Model):
             sequence_number.rjust(9, "0"),
         )
 
-    def _l10n_ec_action_check_xsd(self, xml_string):
+    def _l10n_ec_action_check_xsd(self, xml_string, xsd_file_path):
         try:
-            xsd_file_path = self._l10n_ec_get_xsd_filename()
             xsd_file = tools.file_open(xsd_file_path)
             xmlschema_doc = etree.parse(xsd_file)
             xmlschema = etree.XMLSchema(xmlschema_doc)
@@ -177,34 +176,24 @@ class AccountEdiDocument(models.Model):
         # TODO: agregar logica para demas tipos de documento
         return path.join(base_path, f"{filename}.xsd")
 
-    def _l10n_ec_get_info_tributaria(self, document):
+    @api.model
+    def _l10n_ec_get_info_tributaria(
+        self, document, document_number, document_code_sri, xml_access_key: str
+    ):
         company = document.company_id
-        document_code_sri = self._l10n_ec_get_edi_code_sri()
         (
             entity_number,
             printer_point_number,
             document_number,
-        ) = self._l10n_ec_split_document_number(self._l10n_ec_get_edi_number())
-        complete_document_number = (
-            f"{entity_number}{printer_point_number}{document_number}"
-        )
+        ) = self._l10n_ec_split_document_number(document_number)
+
         journal = document.journal_id
         emission_address = (
             journal.l10n_ec_emission_address_id.commercial_partner_id.street
         )
         ruc = company.partner_id.vat
         environment = self._l10n_ec_get_environment()
-        xml_access_key = self.l10n_ec_xml_access_key
-        if not xml_access_key:
-            # generar y guardar la clave de acceso
-            xml_access_key = self.l10n_ec_generate_access_key(
-                document_code_sri,
-                complete_document_number,
-                environment,
-                self._l10n_ec_get_edi_date(),
-                company,
-            )
-            self.l10n_ec_xml_access_key = xml_access_key
+
         social_name = "PRUEBAS SERVICIO DE RENTAS INTERNAS"
         business_name = "PRUEBAS SERVICIO DE RENTAS INTERNAS"
         if environment == "2":
@@ -327,24 +316,45 @@ class AccountEdiDocument(models.Model):
         ViewModel = self.env["ir.ui.view"].sudo()
         document_type = self._l10n_ec_get_document_type()
         xml_file = ""
+
+        xml_access_key = self.l10n_ec_xml_access_key
+        if not xml_access_key:
+            # generar y guardar la clave de acceso
+            (
+                entity_number,
+                printer_point_number,
+                document_number,
+            ) = self._l10n_ec_split_document_number(self._l10n_ec_get_edi_number())
+            environment = self._l10n_ec_get_environment()
+            document_code_sri = self._l10n_ec_get_edi_code_sri()
+            xml_access_key = self.l10n_ec_generate_access_key(
+                document_code_sri,
+                f"{entity_number}{printer_point_number}{document_number}",
+                environment,
+                self._l10n_ec_get_edi_date(),
+                self.move_id.company_id,
+            )
+            self.l10n_ec_xml_access_key = xml_access_key
+
         if document_type == "invoice":
             xml_file = ViewModel._render_template(
-                "l10n_ec_account_edi.ec_edi_invoice", self._l10n_ec_get_info_invoice()
+                "l10n_ec_account_edi.ec_edi_invoice",
+                self._l10n_ec_get_info_invoice(xml_access_key),
             )
         if document_type == "purchase_liquidation":
             xml_file = ViewModel._render_template(
                 "l10n_ec_account_edi.ec_edi_liquidation",
-                self._l10n_ec_get_info_liquidation(),
+                self._l10n_ec_get_info_liquidation(xml_access_key),
             )
         if document_type == "credit_note":
             xml_file = ViewModel._render_template(
                 "l10n_ec_account_edi.ec_edi_credit_note",
-                self._l10n_ec_get_info_credit_note(),
+                self._l10n_ec_get_info_credit_note(xml_access_key),
             )
         if document_type == "debit_note":
             xml_file = ViewModel._render_template(
                 "l10n_ec_account_edi.ec_edi_debit_note",
-                self._l10n_ec_get_info_debit_note(),
+                self._l10n_ec_get_info_debit_note(xml_access_key),
             )
         # TODO: agregar logica para demas tipos de documento
         return xml_file
@@ -362,7 +372,7 @@ class AccountEdiDocument(models.Model):
             )
         return info_data
 
-    def _l10n_ec_get_info_invoice(self):
+    def _l10n_ec_get_info_invoice(self, xml_access_key: str):
         self.ensure_one()
         invoice = self.move_id
         date_invoice = invoice.invoice_date
@@ -405,10 +415,17 @@ class AccountEdiDocument(models.Model):
             "infoSustitutivaGuiaRemision": False,
             "infoAdicional": self._l10n_ec_get_info_additional(),
         }
-        invoice_data.update(self._l10n_ec_get_info_tributaria(invoice))
+        invoice_data.update(
+            self._l10n_ec_get_info_tributaria(
+                invoice,
+                self._l10n_ec_get_edi_number(),
+                self._l10n_ec_get_edi_code_sri(),
+                xml_access_key,
+            )
+        )
         return invoice_data
 
-    def _l10n_ec_get_info_liquidation(self):
+    def _l10n_ec_get_info_liquidation(self, xml_access_key: str):
         self.ensure_one()
         invoice = self.move_id
         date_invoice = invoice.invoice_date
@@ -449,10 +466,17 @@ class AccountEdiDocument(models.Model):
             "retenciones": False,
             "infoAdicional": self._l10n_ec_get_info_additional(),
         }
-        invoice_data.update(self._l10n_ec_get_info_tributaria(invoice))
+        invoice_data.update(
+            self._l10n_ec_get_info_tributaria(
+                invoice,
+                self._l10n_ec_get_edi_number(),
+                self._l10n_ec_get_edi_code_sri(),
+                xml_access_key,
+            )
+        )
         return invoice_data
 
-    def _l10n_ec_get_info_credit_note(self):
+    def _l10n_ec_get_info_credit_note(self, xml_access_key: str):
         self.ensure_one()
         credit_note = self.move_id
         date_invoice = credit_note.invoice_date
@@ -507,7 +531,14 @@ class AccountEdiDocument(models.Model):
             "infoSustitutivaGuiaRemision": False,
             "infoAdicional": self._l10n_ec_get_info_additional(),
         }
-        credit_note_data.update(self._l10n_ec_get_info_tributaria(credit_note))
+        credit_note_data.update(
+            self._l10n_ec_get_info_tributaria(
+                credit_note,
+                self._l10n_ec_get_edi_number(),
+                self._l10n_ec_get_edi_code_sri(),
+                xml_access_key,
+            )
+        )
         return credit_note_data
 
     def _l10n_ec_edi_send_xml(self, client_ws, xml_file):
@@ -577,14 +608,16 @@ class AccountEdiDocument(models.Model):
             ok = False
         return ok, msj_list
 
-    def _l10n_ec_edi_send_xml_auth(self, client_ws):
+    def _l10n_ec_edi_send_xml_auth(self, client_ws, access_key=False):
         """
         Envia a autorizar el archivo
         :param client_ws: direccion del webservice para realizar el proceso
         """
+        if not access_key:
+            access_key = self.l10n_ec_xml_access_key
         try:
             response = client_ws.service.autorizacionComprobante(
-                claveAccesoComprobante=self.l10n_ec_xml_access_key
+                claveAccesoComprobante=access_key
             )
         except Exception as e:
             response = False
@@ -600,11 +633,12 @@ class AccountEdiDocument(models.Model):
         si fue recibida, devolver True y los mensajes
         """
         is_auth = False
+        l10n_ec_authorization_date = False
         msj_list = []
         response_data = serialize_object(response, dict)
         if not response_data or not response_data.get("autorizaciones"):
             _logger.warning("Authorization response error, No Autorizacion in response")
-            return is_auth, msj_list
+            return is_auth, msj_list, l10n_ec_authorization_date
         # a veces el SRI devulve varias autorizaciones, unas como no autorizadas
         # pero otra si autorizada, si pasa eso, tomar la que fue autorizada
         # las demas ignorarlas
@@ -644,9 +678,13 @@ class AccountEdiDocument(models.Model):
                 {"l10n_ec_authorization_date": l10n_ec_authorization_date.strftime(DTF)}
             )
             break
-        return is_auth, msj_list
 
-    def _l10n_ec_get_info_debit_note(self):
+        if l10n_ec_authorization_date:
+            return is_auth, msj_list, l10n_ec_authorization_date.strftime(DTF)
+
+        return is_auth, msj_list, l10n_ec_authorization_date
+
+    def _l10n_ec_get_info_debit_note(self, xml_access_key: str):
         self.ensure_one()
         debit_note = self.move_id
         company = debit_note.company_id or self.env.company
@@ -685,7 +723,14 @@ class AccountEdiDocument(models.Model):
             "infoAdicional": self._l10n_ec_get_info_additional(),
         }
 
-        debit_note_dict.update(self._l10n_ec_get_info_tributaria(debit_note))
+        debit_note_dict.update(
+            self._l10n_ec_get_info_tributaria(
+                debit_note,
+                self._l10n_ec_get_edi_number(),
+                self._l10n_ec_get_edi_code_sri(),
+                xml_access_key,
+            )
+        )
         return debit_note_dict
 
     @api.model

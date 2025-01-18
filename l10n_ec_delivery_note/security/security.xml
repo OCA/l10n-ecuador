@@ -3,32 +3,11 @@
     <record id="l10n_ec_delivery_note_comp_rule" model="ir.rule">
         <field name="name">Ecuadorian Delivery Note Multi Company</field>
         <field name="model_id" ref="model_l10n_ec_delivery_note" />
-        <field
-            name="domain_force"
-        >['|',('company_id','=',False),('company_id', 'in', company_ids)]</field>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
     </record>
     <record id="l10n_ec_delivery_note_line_comp_rule" model="ir.rule">
         <field name="name">Ecuadorian Delivery Note detail Multi Company</field>
         <field name="model_id" ref="model_l10n_ec_delivery_note_line" />
-        <field
-            name="domain_force"
-        >['|',('company_id','=',False),('company_id', 'in', company_ids)]</field>
-    </record>
-    <!-- Portal for Delivery Note -->
-    <record id="l10n_ec_delivery_note_rule_portal" model="ir.rule">
-        <field name="name">Portal Personal Delivery Note</field>
-        <field name="model_id" ref="model_l10n_ec_delivery_note" />
-        <field
-            name="domain_force"
-        >[('message_partner_ids','child_of',[user.commercial_partner_id.id])]</field>
-        <field name="groups" eval="[(4, ref('base.group_portal'))]" />
-    </record>
-    <record id="l10n_ec_delivery_note_line_rule_portal" model="ir.rule">
-        <field name="name">Portal Delivery Note lines</field>
-        <field name="model_id" ref="model_l10n_ec_delivery_note_line" />
-        <field
-            name="domain_force"
-        >[('delivery_note_id.message_partner_ids','child_of',[user.commercial_partner_id.id])]</field>
-        <field name="groups" eval="[(4, ref('base.group_portal'))]" />
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
     </record>
 </odoo>

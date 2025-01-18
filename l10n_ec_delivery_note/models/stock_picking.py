@@ -78,6 +78,15 @@ class StockPicking(models.Model):
                 self.l10n_ec_delivery_carrier_id.l10n_ec_car_plate or ""
             )
 
+    @api.onchange("l10n_ec_create_delivery_note")
+    def onchange_l10n_ec_create_delivery_note(self):
+        if self.l10n_ec_create_delivery_note:
+            self.transfer_date = fields.Date.context_today(self)
+            self.delivery_date = self.transfer_date
+        else:
+            self.transfer_date = False
+            self.delivery_date = False
+
     @api.model
     def l10n_ec_defined_delivery_note_type(self, picking_type_code):
         delivery_note_type = "internal"
