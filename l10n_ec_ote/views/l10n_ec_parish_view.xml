@@ -1,0 +1,61 @@
+<?xml version="1.0" ?>
+<odoo>
+    <record id="l10n_ec_parish_tree_view" model="ir.ui.view">
+        <field name="name">l10n.ec.parish.tree</field>
+        <field name="model">l10n.ec.parish</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="city_id" />
+                <field name="name" />
+                <field name="code" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="l10n_ec_parish_form_view" model="ir.ui.view">
+        <field name="name">l10n.ec.parish.form</field>
+        <field name="model">l10n.ec.parish</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group colspan="4" col="2">
+                        <field name="name" />
+                        <field name="code" />
+                        <field name="city_id" options="{'no_create': True}" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="l10n_ec_parish_search_view" model="ir.ui.view">
+        <field name="name">l10n.ec.parish.search</field>
+        <field name="model">l10n.ec.parish</field>
+        <field name="arch" type="xml">
+            <search>
+                <field
+                    name="name"
+                    filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"
+                />
+                <field name="city_id" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_l10n_ec_parish" model="ir.actions.act_window">
+        <field name="name">Parish</field>
+        <field name="res_model">l10n.ec.parish</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="l10n_ec_parish_tree_view" />
+        <field name="search_view_id" ref="l10n_ec_parish_search_view" />
+    </record>
+
+    <menuitem
+        id="l10n_ec_parish_menu"
+        name="Parish"
+        parent="contacts.menu_localisation"
+        action="action_l10n_ec_parish"
+        sequence="4"
+    />
+
+</odoo>

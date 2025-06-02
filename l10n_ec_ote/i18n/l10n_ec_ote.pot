@@ -1,0 +1,1209 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_ec_ote
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1316
+msgid "24 DE MAYO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_2202
+msgid "AGUARICO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0602
+msgid "ALAUSI"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0902
+msgid "ALFREDO BAQUERIZO MORENO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1801
+msgid "AMBATO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1002
+msgid "ANTONIO ANTE"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1604
+msgid "ARAJUNO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1503
+msgid "ARCHIDONA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0702
+msgid "ARENILLAS"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0806
+msgid "ATACAMES"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0703
+msgid "ATAHUALPA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0301
+msgid "AZOGUES"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1202
+msgid "BABA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1201
+msgid "BABAHOYO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0903
+msgid "BALAO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0704
+msgid "BALSAS"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0904
+msgid "BALZAR"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1802
+msgid "BAÑOS DE AGUA SANTA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0302
+msgid "BIBLIAN"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0402
+#: model:res.city,name:l10n_ec_ote.canton_1302
+msgid "BOLIVAR"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1210
+msgid "BUENA FE"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0206
+msgid "CALUMA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1102
+msgid "CALVAS"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0115
+msgid "CAMILO PONCE ENRIQUEZ"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1509
+msgid "CARLOS JULIO AROSEMENA TOLA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_2106
+msgid "CASCALES"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1103
+msgid "CATAMAYO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1702
+msgid "CAYAMBE"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0303
+msgid "CAÑAR"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1104
+msgid "CELICA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1907
+msgid "CENTINELA DEL CONDOR"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1803
+msgid "CEVALLOS"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1105
+msgid "CHAGUARPAMBA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0604
+msgid "CHAMBO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0705
+msgid "CHILLA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0202
+msgid "CHILLANES"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0203
+msgid "CHIMBO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1902
+msgid "CHINCHIPE"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1303
+msgid "CHONE"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0111
+msgid "CHORDELEG"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0605
+msgid "CHUNCHI"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0905
+msgid "COLIMES"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0603
+msgid "COLTA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1003
+msgid "COTACACHI"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0923
+msgid "CRNEL. MARCELINO MARIDUEÑA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0101
+msgid "CUENCA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0610
+msgid "CUMANDA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_2107
+msgid "CUYABENO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:ir.actions.act_window,name:l10n_ec_ote.action_res_city
+#: model:ir.ui.menu,name:l10n_ec_ote.res_city_menu
+msgid "Cities"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_parish__city_id
+msgid "City"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_parish__code
+msgid "Code"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:ir.model,name:l10n_ec_ote.model_res_company
+msgid "Companies"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:ir.model,name:l10n_ec_ote.model_res_partner
+msgid "Contact"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_parish__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_parish__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0906
+msgid "DAULE"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0306
+msgid "DELEG"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0907
+msgid "DURAN"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_parish__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0204
+msgid "ECHEANDIA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1304
+msgid "EL CARMEN"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1504
+msgid "EL CHACO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0706
+msgid "EL GUABO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0112
+msgid "EL PAN"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1906
+msgid "EL PANGUI"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_9004
+msgid "EL PIEDRERO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0305
+msgid "EL TAMBO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0909
+msgid "EL TRIUNFO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0802
+msgid "ELOY ALFARO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0908
+msgid "EMPALME"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0801
+msgid "ESMERALDAS"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0403
+msgid "ESPEJO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1106
+msgid "ESPINDOLA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:ir.model,name:l10n_ec_ote.model_l10n_ec_parish
+msgid "Ecuadorian's Parish"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1305
+msgid "FLAVIO ALFARO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0102
+msgid "GIRON"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0927
+msgid "GNRAL. ANTONIO ELIZALDE"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_2102
+msgid "GONZALO PIZARRO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1107
+msgid "GONZANAMA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0114
+msgid "GUACHAPALA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0103
+msgid "GUALACEO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1402
+msgid "GUALAQUIZA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0606
+msgid "GUAMOTE"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0607
+msgid "GUANO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0201
+msgid "GUARANDA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0901
+msgid "GUAYAQUIL"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1407
+msgid "HUAMBOYA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0707
+msgid "HUAQUILLAS"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1001
+msgid "IBARRA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_parish__id
+msgid "ID"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_2002
+msgid "ISABELA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0928
+msgid "ISIDRO AYORA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1320
+msgid "JAMA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1321
+msgid "JARAMIJO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1306
+msgid "JIPIJAPA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1307
+msgid "JUNIN"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0808
+#: model:res.city,name:l10n_ec_ote.canton_2302
+msgid "LA CONCORDIA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_2203
+msgid "LA JOYA DE LOS SACHAS"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_2402
+msgid "LA LIBERTAD"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0502
+msgid "LA MANA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0304
+msgid "LA TRONCAL"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_2101
+msgid "LAGO AGRIO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_9001
+msgid "LAS GOLONDRINAS"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0714
+msgid "LAS LAJAS"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0207
+msgid "LAS NAVES"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0501
+msgid "LATACUNGA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1403
+msgid "LIMON INDANZA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1410
+msgid "LOGROÐO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1101
+msgid "LOJA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0924
+msgid "LOMAS DE SARGENTILLO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_2204
+msgid "LORETO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_parish____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_parish__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_parish__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1108
+msgid "MACARA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0701
+msgid "MACHALA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_9003
+msgid "MANGA DEL CURA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1308
+msgid "MANTA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0708
+msgid "MARCABELI"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1703
+msgid "MEJIA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1602
+msgid "MERA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0910
+msgid "MILAGRO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0404
+msgid "MIRA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1212
+msgid "MOCACHE"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1804
+msgid "MOCHA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1203
+msgid "MONTALVO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1309
+msgid "MONTECRISTI"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0405
+msgid "MONTUFAR"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1401
+msgid "MORONA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0803
+msgid "MUISNE"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0104
+msgid "NABON"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1903
+msgid "NANGARITZA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0911
+msgid "NARANJAL"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0912
+msgid "NARANJITO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0925
+msgid "NOBOL"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_l10n_ec_parish__name
+msgid "Name"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1116
+#: model:res.city,name:l10n_ec_ote.canton_1318
+msgid "OLMEDO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_2201
+msgid "ORELLANA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1004
+msgid "OTAVALO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0110
+msgid "OÑA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1411
+msgid "PABLO SEXTO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1310
+msgid "PAJAN"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1908
+msgid "PALANDA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1209
+msgid "PALENQUE"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0913
+msgid "PALESTINA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0608
+msgid "PALLATANGA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1404
+msgid "PALORA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1109
+msgid "PALTAS"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0503
+msgid "PANGUA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1909
+msgid "PAQUISHA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0709
+msgid "PASAJE"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1601
+msgid "PASTAZA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1805
+msgid "PATATE"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0105
+msgid "PAUTE"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1317
+msgid "PEDERNALES"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0914
+msgid "PEDRO CARBO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1704
+msgid "PEDRO MONCAYO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1708
+msgid "PEDRO VICENTE MALDONADO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0609
+msgid "PENIPE"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1311
+msgid "PICHINCHA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1005
+msgid "PIMAMPIRO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1114
+msgid "PINDAL"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0710
+msgid "PIÑAS"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0921
+msgid "PLAYAS"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0711
+msgid "PORTOVELO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1301
+msgid "PORTOVIEJO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0106
+msgid "PUCARA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1204
+msgid "PUEBLOVIEJO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1319
+msgid "PUERTO LOPEZ"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1709
+msgid "PUERTO QUITO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0504
+msgid "PUJILI"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_2103
+msgid "PUTUMAYO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1110
+msgid "PUYANGO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:ir.actions.act_window,name:l10n_ec_ote.action_l10n_ec_parish
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_res_company__l10n_ec_parish_id
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_res_partner__l10n_ec_parish_id
+#: model:ir.model.fields,field_description:l10n_ec_ote.field_res_users__l10n_ec_parish_id
+#: model:ir.ui.menu,name:l10n_ec_ote.l10n_ec_parish_menu
+#: model_terms:ir.ui.view,arch_db:l10n_ec_ote.res_company_parish_form_view
+#: model_terms:ir.ui.view,arch_db:l10n_ec_ote.res_partner_parish_form_view
+msgid "Parish"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1806
+msgid "QUERO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1205
+msgid "QUEVEDO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1507
+msgid "QUIJOS"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1115
+msgid "QUILANGA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0804
+msgid "QUININDE"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1213
+msgid "QUINSALOMA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1701
+msgid "QUITO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0601
+msgid "RIOBAMBA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0807
+msgid "RIOVERDE"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1312
+msgid "ROCAFUERTE"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1705
+msgid "RUMIÑAHUI"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0505
+msgid "SALCEDO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_2403
+msgid "SALINAS"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0919
+msgid "SALITRE"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0916
+msgid "SAMBORONDON"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_2001
+msgid "SAN CRISTOBAL"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0107
+msgid "SAN FERNANDO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0920
+msgid "SAN JACINTO DE YAGUACHI"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1408
+msgid "SAN JUAN BOSCO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0805
+msgid "SAN LORENZO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0205
+msgid "SAN MIGUEL"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1707
+msgid "SAN MIGUEL DE LOS BANCOS"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1006
+msgid "SAN MIGUEL DE URCUQUI"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0406
+msgid "SAN PEDRO DE HUACA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1807
+msgid "SAN PEDRO DE PELILEO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1322
+msgid "SAN VICENTE"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1313
+msgid "SANTA ANA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1603
+msgid "SANTA CLARA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_2003
+msgid "SANTA CRUZ"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_2401
+msgid "SANTA ELENA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0108
+msgid "SANTA ISABEL"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0918
+msgid "SANTA LUCIA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0712
+msgid "SANTA ROSA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1405
+msgid "SANTIAGO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1808
+msgid "SANTIAGO DE PILLARO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_2301
+msgid "SANTO DOMINGO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0506
+msgid "SAQUISILI"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1111
+msgid "SARAGURO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0113
+msgid "SEVILLA DE ORO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_2104
+msgid "SHUSHUFINDI"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0507
+msgid "SIGCHOS"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0109
+msgid "SIGSIG"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0922
+msgid "SIMON BOLIVAR"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1112
+msgid "SOZORANGA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1314
+msgid "SUCRE"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1406
+msgid "SUCUA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_2105
+msgid "SUCUMBIOS"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0307
+msgid "SUSCAL"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1409
+msgid "TAISHA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1501
+msgid "TENA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1809
+msgid "TISALEO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1412
+msgid "TIWINTZA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1315
+msgid "TOSAGUA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0401
+msgid "TULCAN"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1206
+msgid "URDANETA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1211
+msgid "VALENCIA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1207
+msgid "VENTANAS"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1208
+msgid "VINCES"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1904
+msgid "YACUAMBI"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1905
+msgid "YANTZAZA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1901
+msgid "ZAMORA"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_1113
+msgid "ZAPOTILLO"
+msgstr ""
+
+#. module: l10n_ec_ote
+#: model:res.city,name:l10n_ec_ote.canton_0713
+msgid "ZARUMA"
+msgstr ""

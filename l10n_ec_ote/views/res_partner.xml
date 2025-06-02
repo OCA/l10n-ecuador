@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="res_partner_parish_form_view" model="ir.ui.view">
+        <field name="name">l10n_ec.view.partner.form</field>
+        <field name="model">res.partner</field>
+        <field name="priority" eval="100" />
+        <field name="inherit_id" ref="base.view_partner_form" />
+        <field name="arch" type="xml">
+            <field name="city" invisible="1"/>
+            <field name="zip" invisible="1"/>
+            <xpath expr="//field[@name='street2']" position="after">
+                <field name="l10n_ec_parish_id" 
+                domain="[('city_id', '=', city_id)]"
+                context="{'city_id': city_id}"
+                options='{"no_open": True, "no_create": True}'
+                placeholder="Parroquia"
+                
+                />
+                
+            </xpath>
+            <xpath expr="//field[@name='zip']" position="after">
+                <field
+                name="city_id"
+                placeholder="Ciudad Ecuador"
+                domain="[('state_id', '=', state_id)]"
+                context="{'state_id': state_id}"
+                options='{"no_open": True, "no_create": True}'
+            /> 
+            </xpath>
+        </field>
+    </record>
+</odoo>
