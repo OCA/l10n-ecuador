@@ -17,9 +17,11 @@ class ResPartner(models.Model):
     )
     
     @api.onchange('state_id')
-    def _onchange_field(self):
-        self.city_id = False
-        self.l10n_ec_parish_id = False
+    def _onchange_state_id(self):
+        """Clear city and parish when state changes"""
+        if self.state_id:
+            self.city_id = False
+            self.l10n_ec_parish_id = False
     
     
   
