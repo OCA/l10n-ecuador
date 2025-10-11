@@ -1,11 +1,10 @@
 from odoo.exceptions import ValidationError
-from odoo.tests import common
-from odoo.tests.common import Form
+from odoo.tests import Form, common
 
 
 class TestModelA(common.TransactionCase):
     def test_valid_l10n_ec_entity(self):
-        self.env.user.company_id = self.env.ref("l10n_ec.demo_company_ec")
+        self.env.user.company_id = self.env.ref("base.demo_company_ec")
         journal_form = Form(self.env["account.journal"])
         journal_form.name = "nametest"
         journal_form.type = "sale"
@@ -24,7 +23,7 @@ class TestModelA(common.TransactionCase):
             journal_form.save()
 
     def test_l10n_ec_purchase_liquidation(self):
-        self.env.user.company_id = self.env.ref("l10n_ec.demo_company_ec")
+        self.env.user.company_id = self.env.ref("base.demo_company_ec")
         journal_form = Form(self.env["account.journal"])
         journal_form.name = "purchase liquidation"
         journal_form.type = "purchase"

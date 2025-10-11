@@ -15,13 +15,12 @@ class ResCompany(models.Model):
             ("rimpe_popular", "CONTRIBUYENTE NEGOCIO POPULAR - RÉGIMEN RIMPE"),
         ],
     )
-
     l10n_ec_retention_agent = fields.Char(
         "Retention Agent Nro",
     )
     property_account_position_id = fields.Many2one(
         "account.fiscal.position",
-        "Fiscal Position",
+        "Declaration of Fiscal Position",
         related="partner_id.property_account_position_id",
         readonly=False,
     )
