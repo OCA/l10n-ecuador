@@ -9,9 +9,9 @@ from ..data.account_tax_group_data import TAX_GROUP_DATA_EC
 class AccountChartTemplate(models.AbstractModel):
     _inherit = "account.chart.template"
 
-    def _load(self, template_code, company, install_demo):
+    def _load(self, template_code, company, install_demo, force_create=True):
         """Set tax calculation rounding method required in Ecuadorian localization"""
-        res = super()._load(template_code, company, install_demo)
+        res = super()._load(template_code, company, install_demo, force_create)
         if company.country_id.code == "EC":
             # set SRI payment for records exist
             self._l10n_ec_set_default_sri_payment(company)
