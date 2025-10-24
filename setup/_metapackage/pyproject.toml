@@ -1,0 +1,11 @@
+[project]
+name = "odoo-addons-oca-l10n-ecuador"
+version = "18.0.20251024.0"
+dependencies = [
+    "odoo-addon-l10n_ec_base==18.0.*",
+]
+classifiers=[
+    "Programming Language :: Python",
+    "Framework :: Odoo",
+    "Framework :: Odoo :: 18.0",
+]
