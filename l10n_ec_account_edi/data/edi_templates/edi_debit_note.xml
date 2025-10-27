@@ -31,9 +31,10 @@
                         <valor t-out="totalImpuesto.get('valor')" />
                     </impuesto>
                 </impuestos>
+
                 <valorTotal t-out="importeTotal" />
 
-                <pagos t-if="pagos">
+                <pagos>
                     <pago t-as="pago" t-foreach="pagos">
                         <formaPago t-out="pago.get('formaPago')" />
                         <total t-out="pago.get('total')" />
@@ -42,12 +43,14 @@
                     </pago>
                 </pagos>
             </infoNotaDebito>
-            <motivos t-if="detalles">
+
+            <motivos>
                 <motivo t-foreach="detalles" t-as="detalle">
                     <razon t-out="detalle.get('descripcion')" />
                     <valor t-out="detalle.get('precioUnitario')" />
                 </motivo>
             </motivos>
+
             <t t-call="l10n_ec_account_edi.ec_edi_info_adicional" />
         </notaDebito>
     </template>

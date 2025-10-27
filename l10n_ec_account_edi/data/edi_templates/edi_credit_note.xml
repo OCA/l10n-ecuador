@@ -6,6 +6,7 @@
             t-att-version="company.l10n_ec_credit_note_version"
         >
             <t t-call="l10n_ec_account_edi.ec_edi_info_tributaria" />
+
             <infoNotaCredito>
                 <fechaEmision t-out="fechaEmision" />
                 <dirEstablecimiento t-out="dirEstablecimiento" />
@@ -23,7 +24,8 @@
                 <totalSinImpuestos t-out="totalSinImpuestos" />
                 <valorModificacion t-out="valorModificacion" />
                 <moneda t-out="moneda" />
-                <totalConImpuestos t-if="totalConImpuestos">
+
+                <totalConImpuestos>
                     <totalImpuesto t-as="totalImpuesto" t-foreach="totalConImpuestos">
                         <codigo t-out="totalImpuesto.get('codigo')" />
                         <codigoPorcentaje
@@ -35,7 +37,8 @@
                 </totalConImpuestos>
                 <motivo t-out="motivo" />
             </infoNotaCredito>
-            <detalles t-if="detalles">
+
+            <detalles>
                 <detalle t-foreach="detalles" t-as="detalle">
                     <codigoInterno t-out="detalle.get('codigoInterno')" />
                     <codigoAuxiliar t-out="detalle.get('codigoAuxiliar')" />
@@ -46,6 +49,7 @@
                     <precioTotalSinImpuesto
                         t-out="detalle.get('precioTotalSinImpuesto')"
                     />
+
                     <detallesAdicionales t-if="detalle.get('detallesAdicionales')">
                         <detAdicional
                             t-as="detAdicional"
@@ -54,6 +58,7 @@
                             t-att-valor="detAdicional.get('valor')"
                         />
                     </detallesAdicionales>
+
                     <impuestos t-if="detalle.get('impuestos')">
                         <impuesto t-foreach="detalle.get('impuestos')" t-as="impuesto">
                             <codigo t-out="impuesto.get('codigo')" />
@@ -67,6 +72,7 @@
                     </impuestos>
                 </detalle>
             </detalles>
+
             <t t-call="l10n_ec_account_edi.ec_edi_info_adicional" />
         </notaCredito>
     </template>

@@ -16,7 +16,8 @@
                 <direccionComprador t-out="direccionComprador" />
                 <totalSinImpuestos t-out="totalSinImpuestos" />
                 <totalDescuento t-out="totalDescuento" />
-                <totalConImpuestos t-if="totalConImpuestos">
+
+                <totalConImpuestos>
                     <totalImpuesto t-as="totalImpuesto" t-foreach="totalConImpuestos">
                         <codigo t-out="totalImpuesto.get('codigo')" />
                         <codigoPorcentaje
@@ -27,9 +28,11 @@
                         <valor t-out="totalImpuesto.get('valor')" />
                     </totalImpuesto>
                 </totalConImpuestos>
+
                 <importeTotal t-out="importeTotal" />
                 <moneda t-out="moneda" />
-                <pagos t-if="pagos">
+
+                <pagos>
                     <pago t-as="pago" t-foreach="pagos">
                         <formaPago t-out="pago.get('formaPago')" />
                         <total t-out="pago.get('total')" />
@@ -40,7 +43,8 @@
                 <valorRetIva t-out="valorRetIva" />
                 <valorRetRenta t-out="valorRetRenta" />
             </infoFactura>
-            <detalles t-if="detalles">
+
+            <detalles>
                 <detalle t-foreach="detalles" t-as="detalle">
                     <codigoPrincipal t-out="detalle.get('codigoPrincipal')" />
                     <codigoAuxiliar t-out="detalle.get('codigoAuxiliar')" />
@@ -53,6 +57,7 @@
                     <precioTotalSinImpuesto
                         t-out="detalle.get('precioTotalSinImpuesto')"
                     />
+
                     <detallesAdicionales t-if="detalle.get('detallesAdicionales')">
                         <detAdicional
                             t-as="detAdicional"
@@ -61,6 +66,7 @@
                             t-att-valor="detAdicional.get('valor')"
                         />
                     </detallesAdicionales>
+
                     <impuestos t-if="detalle.get('impuestos')">
                         <impuesto t-foreach="detalle.get('impuestos')" t-as="impuesto">
                             <codigo t-out="impuesto.get('codigo')" />
@@ -74,6 +80,7 @@
                     </impuestos>
                 </detalle>
             </detalles>
+
             <t t-call="l10n_ec_account_edi.ec_edi_info_adicional" />
         </factura>
     </template>
