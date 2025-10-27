@@ -86,10 +86,7 @@ class TestL10nEcDebitNote(TestL10nECEdiCommon):
         self.assertEqual("posted", debit_note.state)
         edi_doc = debit_note._get_edi_document(self.edi_format)
 
-        with self.assertLogs(
-            "odoo.addons.l10n_ec_account_edi.models.account_edi_format",
-            level=logging.ERROR,
-        ):
+        with self.assertLogs("odoo.addons.l10n_ec_account_edi"):
             edi_doc._process_documents_web_services(with_commit=False)
 
         self.assertFalse(edi_doc.edi_content)

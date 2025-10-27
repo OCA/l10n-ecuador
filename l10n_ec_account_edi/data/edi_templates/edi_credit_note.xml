@@ -7,33 +7,33 @@
         >
             <t t-call="l10n_ec_account_edi.ec_edi_info_tributaria" />
             <infoNotaCredito>
-               <fechaEmision t-out="fechaEmision" />
-               <dirEstablecimiento t-out="dirEstablecimiento" />
-               <tipoIdentificacionComprador t-out="tipoIdentificacionComprador" />
-               <razonSocialComprador t-out="razonSocialComprador" />
-               <identificacionComprador t-out="identificacionComprador" />
-               <t t-if="contribuyenteEspecial">
-                   <contribuyenteEspecial t-out="contribuyenteEspecial" />
-               </t>
-               <obligadoContabilidad t-out="obligadoContabilidad" />
-               <rise t-out="rise" />
-               <codDocModificado t-out="codDocModificado" />
-               <numDocModificado t-out="numDocModificado" />
-               <fechaEmisionDocSustento t-out="fechaEmisionDocSustento" />
-               <totalSinImpuestos t-out="totalSinImpuestos" />
-               <valorModificacion t-out="valorModificacion" />
-               <moneda t-out="moneda" />
-               <totalConImpuestos t-if="totalConImpuestos">
-                   <totalImpuesto t-as="totalImpuesto" t-foreach="totalConImpuestos">
-                       <codigo t-out="totalImpuesto.get('codigo')" />
-                       <codigoPorcentaje
+                <fechaEmision t-out="fechaEmision" />
+                <dirEstablecimiento t-out="dirEstablecimiento" />
+                <tipoIdentificacionComprador t-out="tipoIdentificacionComprador" />
+                <razonSocialComprador t-out="razonSocialComprador" />
+                <identificacionComprador t-out="identificacionComprador" />
+                <t t-if="contribuyenteEspecial">
+                    <contribuyenteEspecial t-out="contribuyenteEspecial" />
+                </t>
+                <obligadoContabilidad t-out="obligadoContabilidad" />
+                <rise t-out="rise" />
+                <codDocModificado t-out="codDocModificado" />
+                <numDocModificado t-out="numDocModificado" />
+                <fechaEmisionDocSustento t-out="fechaEmisionDocSustento" />
+                <totalSinImpuestos t-out="totalSinImpuestos" />
+                <valorModificacion t-out="valorModificacion" />
+                <moneda t-out="moneda" />
+                <totalConImpuestos t-if="totalConImpuestos">
+                    <totalImpuesto t-as="totalImpuesto" t-foreach="totalConImpuestos">
+                        <codigo t-out="totalImpuesto.get('codigo')" />
+                        <codigoPorcentaje
                             t-out="totalImpuesto.get('codigoPorcentaje')"
                         />
-                       <baseImponible t-out="totalImpuesto.get('baseImponible')" />
-                       <valor t-out="totalImpuesto.get('valor')" />
-                   </totalImpuesto>
-               </totalConImpuestos>
-               <motivo t-out="motivo" />
+                        <baseImponible t-out="totalImpuesto.get('baseImponible')" />
+                        <valor t-out="totalImpuesto.get('valor')" />
+                    </totalImpuesto>
+                </totalConImpuestos>
+                <motivo t-out="motivo" />
             </infoNotaCredito>
             <detalles t-if="detalles">
                 <detalle t-foreach="detalles" t-as="detalle">

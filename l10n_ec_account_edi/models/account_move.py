@@ -43,7 +43,7 @@ class AccountMove(models.Model):
     )
     l10n_ec_xml_access_key = fields.Char(
         compute="_compute_l10n_ec_edi_document_data",
-        string="Access Key(EC)",
+        string="Access Key (EC)",
         store=True,
     )
     l10n_ec_is_edi_doc = fields.Boolean(
@@ -243,30 +243,23 @@ class AccountMove(models.Model):
 
     def _l10n_ec_get_taxes_grouped_by_tax_group(self, exclude_withholding=True):
         self.ensure_one()
+        WITHHOLD_TAXES = {
+            "withhold_vat_sale",
+            "withhold_vat_purchase",
+            "withhold_income_sale",
+            "withhold_income_purchase",
+        }
 
         def filter_withholding_taxes(base_line, tax_values):
-            withhold_group_ids = (
-                self.env["account.tax.group"]
-                .search(
-                    [
-                        (
-                            "l10n_ec_type",
-                            "in",
-                            (
-                                "withhold_vat_sale",
-                                "withhold_vat_purchase",
-                                "withhold_income_sale",
-                                "withhold_income_purchase",
-                            ),
-                        )
-                    ]
-                )
-                .ids
-            )
-            return (
-                tax_values["tax_repartition_line"].tax_id.tax_group_id.id
-                not in withhold_group_ids
-            )
+            tax = tax_values.get("tax")
+            if not tax:
+                trl = tax_values.get("tax_repartition_line")
+                tax = trl.tax_id if trl else None
+
+            if not tax or not tax.tax_group_id:
+                return False
+
+            return tax.tax_group_id.l10n_ec_type not in WITHHOLD_TAXES
 
         taxes_data = self._prepare_edi_tax_details(
             filter_to_apply=exclude_withholding and filter_withholding_taxes or None,
@@ -313,7 +306,7 @@ class AccountMove(models.Model):
                 ):
                     if float_compare(line.quantity, 0.0, precision_digits=2) <= 0:
                         product_not_quantity.append(
-                            "  - %s" % line.product_id.display_name
+                            f"  - {line.product_id.display_name}"
                         )
                 if product_not_quantity:
                     error_list.append(
@@ -393,7 +386,7 @@ class AccountMove(models.Model):
 
     def action_send_and_print(self):
         if any(x._is_l10n_ec_is_purchase_liquidation() for x in self):
-            template = self.env.ref(self._get_mail_template(), raise_if_not_found=False)
+            template = self._get_mail_template()
             return {
                 "name": _("Send"),
                 "type": "ir.actions.act_window",
@@ -409,8 +402,8 @@ class AccountMove(models.Model):
         return super().action_send_and_print()
 
     def l10n_ec_send_email(self):
-        WizardInvoiceSent = self.env["account.move.send"]
         self.ensure_one()
+        WizardInvoiceSent = self.env["account.move.send.wizard"]
         res = self.with_context(discard_logo_check=True).action_invoice_sent()
         context = res["context"]
         send_mail = WizardInvoiceSent.with_context(**context).create({})

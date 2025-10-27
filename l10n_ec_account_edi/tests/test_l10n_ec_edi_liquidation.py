@@ -76,10 +76,7 @@ class TestL10nEcPurchaseLiquidation(TestL10nECEdiCommon):
         invoice = self._l10n_ec_prepare_edi_liquidation(auto_post=True)
         self.assertEqual("posted", invoice.state)
         edi_doc = invoice._get_edi_document(self.edi_format)
-        with self.assertLogs(
-            "odoo.addons.l10n_ec_account_edi.models.account_edi_format",
-            level=logging.ERROR,
-        ):
+        with self.assertLogs("odoo.addons.l10n_ec_account_edi"):
             edi_doc._process_documents_web_services(with_commit=False)
         self.assertFalse(edi_doc.edi_content)
         self.assertTrue(edi_doc.error)

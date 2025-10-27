@@ -21,10 +21,18 @@
             <table width="100%">
                 <thead>
                     <tr style="text-align: center;">
-                        <th style="width: 190px;"><strong>Document</strong></th>
-                        <th style="width: 80px;"><strong>Date</strong></th>
-                        <th style="width: 80px;"><strong>Status</strong></th>
-                        <th><strong>Error</strong></th>
+                        <th style="width: 190px;">
+                            <strong>Document</strong>
+                        </th>
+                        <th style="width: 80px;">
+                            <strong>Date</strong>
+                        </th>
+                        <th style="width: 80px;">
+                            <strong>Status</strong>
+                        </th>
+                        <th>
+                            <strong>Error</strong>
+                        </th>
                     </tr>
                 </thead>
                 <tbody style="padding: 10px; font-size: 12px;">

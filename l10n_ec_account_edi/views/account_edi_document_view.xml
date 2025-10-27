@@ -7,7 +7,7 @@
         <field name="inherit_id" ref="account_edi.view_move_form_inherit" />
         <field name="arch" type="xml">
             <xpath
-                expr="//field[@name='edi_document_ids']/tree//field[@name='state']"
+                expr="//field[@name='edi_document_ids']/list//field[@name='state']"
                 position="before"
             >
                 <field name="l10n_ec_xml_access_key" optional="hide" />
@@ -18,10 +18,10 @@
     </record>
 
     <record id="account_edi_document_view_tree" model="ir.ui.view">
-        <field name="name">account.edi.document.view.tree</field>
+        <field name="name">account.edi.document.view.list</field>
         <field name="model">account.edi.document</field>
         <field name="arch" type="xml">
-            <tree
+            <list
                 create="false"
                 edit="false"
                 delete="false"
@@ -41,7 +41,7 @@
                 <field name="error" string="Last Error Message" />
                 <field name="create_date" optional="hide" />
                 <field name="create_uid" optional="hide" />
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -53,10 +53,12 @@
                 <sheet>
                     <div class="oe_title">
                         <span class="o_form_label">XML Electronic Document</span>
-                            <h1 class="mt0">
-                                <span><field name="l10n_ec_document_number" /></span>
-                            </h1>
-                        </div>
+                        <h1 class="mt0">
+                            <span>
+                                <field name="l10n_ec_document_number" />
+                            </span>
+                        </h1>
+                    </div>
                     <group>
                         <field name="l10n_ec_xml_access_key" />
                         <field name="move_id" string="Related Document" />
@@ -78,7 +80,7 @@
         <field name="name">XML Electronic Documents</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">account.edi.document</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="view_id" ref="account_edi_document_view_tree" />
     </record>
     <menuitem
@@ -88,5 +90,4 @@
         parent="l10n_ec.sri_menu"
         action="account_edi_document_action"
     />
-
 </odoo>

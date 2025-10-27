@@ -5,7 +5,7 @@ from datetime import datetime
 from zeep import Client
 from zeep.transports import Transport
 
-from odoo import _, api, models, tools
+from odoo import _, api, models
 from odoo.tools import float_compare, formatLang
 
 _logger = logging.getLogger(__name__)
@@ -298,11 +298,11 @@ class AccountEdiFormat(models.Model):
                         )
                         errors.extend(msj)
             except Exception as ex:
-                _logger.error(tools.ustr(traceback.format_exc()))
+                _logger.error(traceback.format_exc())
                 errors.append(
                     _(
                         "EDI Error creating xml file: %s",
-                        tools.ustr(ex),
+                        ex,
                     )
                 )
             blocking_level = False
@@ -358,6 +358,6 @@ class AccountEdiFormat(models.Model):
             _logger.warning(
                 "Error in Connection with web services of SRI: %s. Error: %s",
                 ws_url,
-                tools.ustr(e),
+                e,
             )
         return wsClient

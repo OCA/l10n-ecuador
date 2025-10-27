@@ -9,8 +9,10 @@ from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 @tagged("post_install_l10n", "post_install", "-at_install")
 class TestL10nECCommon(AccountTestInvoicingCommon):
     @classmethod
-    def setUpClass(cls, chart_template_ref="ec"):
-        super().setUpClass(chart_template_ref=chart_template_ref)
+    @AccountTestInvoicingCommon.setup_country("ec")
+    def setUpClass(cls):
+        super().setUpClass()
+
         cls.company = cls.company_data["company"]
         cls.company.write(
             {
@@ -121,7 +123,7 @@ class TestL10nECCommon(AccountTestInvoicingCommon):
         self.partner_contact.write(
             {
                 "l10n_latam_identification_type_id": self.env.ref("l10n_ec.ec_ruc").id,
-                "street": "SN",
+                "street": "Av. Amazonas 1234",
                 "property_account_position_id": required_accounting.id,
             }
         )

@@ -9,14 +9,8 @@ from .test_edi_common import TestL10nECEdiCommon
 @tagged("post_install_l10n", "post_install", "-at_install", "certificate")
 class TestL10nCheckCertificate(TestL10nECEdiCommon):
     @classmethod
-    def setUpClass(
-        cls,
-        chart_template_ref="ec",
-        edi_format_ref="l10n_ec_account_edi.edi_format_ec_sri",
-    ):
-        super().setUpClass(
-            chart_template_ref=chart_template_ref, edi_format_ref=edi_format_ref
-        )
+    def setUpClass(cls):
+        super().setUpClass()
         cert = cls.env["sri.key.type"]
         cert_to_delete = cert.search([("name", "=", "Test")])
         cert_to_delete.write({"state": "expired"})

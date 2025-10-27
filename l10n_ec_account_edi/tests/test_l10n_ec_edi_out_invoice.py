@@ -51,10 +51,7 @@ class TestL10nOutInvoice(TestL10nECEdiCommon):
         invoice = self._l10n_ec_prepare_edi_out_invoice(auto_post=True)
         self.assertEqual("posted", invoice.state)
         edi_doc = invoice._get_edi_document(self.edi_format)
-        with self.assertLogs(
-            "odoo.addons.l10n_ec_account_edi.models.account_edi_format",
-            level=logging.ERROR,
-        ):
+        with self.assertLogs("odoo.addons.l10n_ec_account_edi"):
             edi_doc._process_documents_web_services(with_commit=False)
         self.assertFalse(edi_doc.edi_content)
         self.assertTrue(edi_doc.error)
@@ -116,7 +113,8 @@ class TestL10nOutInvoice(TestL10nECEdiCommon):
             "_l10n_ec_edi_send_xml_auth",
             mock_l10n_ec_edi_send_xml_without_auth,
         ):
-            edi_doc._process_documents_web_services(with_commit=False)
+            with self.assertLogs("odoo.addons.l10n_ec_account_edi"):
+                edi_doc._process_documents_web_services(with_commit=False)
         # comprobar que la factura este validada,
         # pero documento edi se quede en estado to_send
         self.assertEqual(invoice.state, "posted")
@@ -130,7 +128,8 @@ class TestL10nOutInvoice(TestL10nECEdiCommon):
             "_l10n_ec_edi_send_xml_auth",
             mock_l10n_ec_edi_send_xml_with_auth,
         ):
-            edi_doc._process_documents_web_services(with_commit=False)
+            with self.assertLogs("odoo.addons.l10n_ec_account_edi"):
+                edi_doc._process_documents_web_services(with_commit=False)
         self.assertEqual(edi_doc.state, "sent")
         self.assertEqual(invoice.l10n_ec_xml_access_key, edi_doc.l10n_ec_xml_access_key)
         self.assertEqual(

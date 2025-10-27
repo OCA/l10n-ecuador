@@ -37,8 +37,8 @@
                                 <span t-out="company.partner_id.city.capitalize()" />
                                 -
                                 <span
-                                    t-out="company.partner_id.country_id.name.capitalize()"
-                                />
+                                t-out="company.partner_id.country_id.name.capitalize()"
+                            />
                             </div>
                             <br />
                             <strong>Dir. Matriz:</strong>
@@ -129,17 +129,17 @@
                             <strong>CLAVE DE ACCESO:</strong>
                             <br />
                             <div
-                                class="oe_product_image text-center"
-                                t-if="edi_doc.l10n_ec_xml_access_key"
-                            >
-                                <img
-                                    class="barcode"
-                                    t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s&amp;' % ('Code128', edi_doc.l10n_ec_xml_access_key, 400, 100)"
-                                    alt="Clave de Acceso"
-                                />
-                                <br />
-                                <span t-field="edi_doc.l10n_ec_xml_access_key" />
-                            </div>
+                            class="oe_product_image text-center"
+                            t-if="edi_doc.l10n_ec_xml_access_key"
+                        >
+                            <img
+                                class="barcode"
+                                t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s&amp;' % ('Code128', edi_doc.l10n_ec_xml_access_key, 400, 100)"
+                                alt="Clave de Acceso"
+                            />
+                            <br />
+                            <span t-field="edi_doc.l10n_ec_xml_access_key" />
+                        </div>
                             <br />
                         </div>
                     </td>
@@ -236,6 +236,7 @@
     <template id="electronic_report_common_total_info">
         <table class="table table-sm table-bordered-black small">
             <t t-set="tax_totals" t-value="o.tax_totals" />
+            <t t-set="currency" t-value="(o.currency_id or o.company_id.currency_id)" />
             <t t-call="account.document_tax_totals" />
         </table>
     </template>

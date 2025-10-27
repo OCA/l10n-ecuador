@@ -15,4 +15,5 @@ class TestL10nECKeyType(TestL10nECEdiCommon):
         # Validar la firma con contraseña equivocada
         self.certificate.password = "invalid"
         with self.assertRaises(UserError):
-            self.certificate.action_validate_and_load()
+            with self.assertLogs("odoo.addons.l10n_ec_account_edi"):
+                self.certificate.action_validate_and_load()

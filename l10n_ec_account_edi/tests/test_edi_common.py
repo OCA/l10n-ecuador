@@ -1,10 +1,11 @@
 import base64
+import os
 from datetime import datetime
 
 import pytz
 
 from odoo.tests import tagged
-from odoo.tools import misc, os
+from odoo.tools import misc
 
 from odoo.addons.account_edi.tests.common import AccountEdiTestCommon
 
@@ -14,14 +15,10 @@ from .test_common import TestL10nECCommon
 @tagged("post_install_l10n", "post_install", "-at_install")
 class TestL10nECEdiCommon(AccountEdiTestCommon, TestL10nECCommon):
     @classmethod
-    def setUpClass(
-        cls,
-        chart_template_ref="ec",
-        edi_format_ref="l10n_ec_account_edi.edi_format_ec_sri",
-    ):
-        super().setUpClass(
-            chart_template_ref=chart_template_ref, edi_format_ref=edi_format_ref
-        )
+    @AccountEdiTestCommon.setup_country("ec")
+    @AccountEdiTestCommon.setup_edi_format("l10n_ec_account_edi.edi_format_ec_sri")
+    def setUpClass(cls):
+        super().setUpClass()
         cls.env.user.tz = "America/Guayaquil"
         # Archivo xml básico
         cls.attachment = cls.env["ir.attachment"].create(

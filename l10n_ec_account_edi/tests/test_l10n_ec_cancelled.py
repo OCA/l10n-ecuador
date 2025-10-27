@@ -43,14 +43,17 @@ class TestL10nCancelled(TestL10nECEdiCommon):
         ):
             edi_doc._process_documents_web_services(with_commit=False)
 
-        with patch.object(
-            AccountEdiDocument,
-            "_l10n_ec_edi_send_xml_auth",
-            mock_l10n_ec_edi_send_xml_with_auth,
-        ), patch.object(
-            AccountEdiDocument,
-            "_l10n_ec_edi_process_response_auth",
-            mock_l10n_ec_edi_process_response_auth_cancelled,
+        with (
+            patch.object(
+                AccountEdiDocument,
+                "_l10n_ec_edi_send_xml_auth",
+                mock_l10n_ec_edi_send_xml_with_auth,
+            ),
+            patch.object(
+                AccountEdiDocument,
+                "_l10n_ec_edi_process_response_auth",
+                mock_l10n_ec_edi_process_response_auth_cancelled,
+            ),
         ):
             invoice.button_cancel_posted_moves()
 
@@ -89,9 +92,12 @@ class TestL10nCancelled(TestL10nECEdiCommon):
             edi_doc._process_documents_web_services(with_commit=False)
 
         # Receipt is authorized
-        with patch.object(
-            AccountEdiDocument,
-            "_l10n_ec_edi_send_xml_auth",
-            mock_l10n_ec_edi_send_xml_with_auth,
-        ), self.assertRaises(ValidationError):
+        with (
+            patch.object(
+                AccountEdiDocument,
+                "_l10n_ec_edi_send_xml_auth",
+                mock_l10n_ec_edi_send_xml_with_auth,
+            ),
+            self.assertRaises(ValidationError),
+        ):
             invoice.button_cancel_posted_moves()

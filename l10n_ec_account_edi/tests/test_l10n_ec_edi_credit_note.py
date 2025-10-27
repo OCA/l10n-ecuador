@@ -85,10 +85,7 @@ class TestL10nEcCreditNote(TestL10nECEdiCommon):
         credit_note = self._l10n_ec_prepare_edi_credit_note(auto_post=True)
         self.assertEqual("posted", credit_note.state)
         edi_doc = credit_note._get_edi_document(self.edi_format)
-        with self.assertLogs(
-            "odoo.addons.l10n_ec_account_edi.models.account_edi_format",
-            level=logging.ERROR,
-        ):
+        with self.assertLogs("odoo.addons.l10n_ec_account_edi"):
             edi_doc._process_documents_web_services(with_commit=False)
         self.assertFalse(edi_doc.edi_content)
         self.assertTrue(edi_doc.error)

@@ -63,7 +63,7 @@
                             </div>
                         </div>
                     </div>
-<!--                    Configurar Limite del valor de factura a Consumidor Final -->
+                    <!--                    Configurar Limite del valor de factura a Consumidor Final -->
                     <div class="col-12 col-lg-6 o_setting_box" title="Final Consumer">
                         <div class="o_setting_left_pane" />
                         <div class="o_setting_right_pane">

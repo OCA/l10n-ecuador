@@ -66,11 +66,12 @@ class AccountEdiDocument(models.Model):
         return re.sub("[^-A-Za-z0-9/?:().,'+ ]", "", remove_accents(str_to_clean))
 
     def _l10n_ec_header_get_document_lines_edi_data(self, taxes_data):
-        res = []
-        document_type = self.move_id.l10n_latam_internal_type
-        for doc_line in self.move_id.invoice_line_ids.filtered(
+        product_lines = self.move_id.invoice_line_ids.filtered(
             lambda x: x.display_type == "product"
-        ).sorted("price_subtotal"):
+        )
+        document_type = self.move_id.l10n_latam_internal_type
+        res = []
+        for doc_line in product_lines.sorted("price_subtotal"):
             line_tax_data = taxes_data.get("tax_details_per_record", {}).get(doc_line)
             if document_type == "invoice":
                 res.append(doc_line.l10n_ec_get_invoice_edi_data(line_tax_data))
@@ -108,9 +109,14 @@ class AccountEdiDocument(models.Model):
     def l10n_ec_header_get_total_with_taxes(self, taxes_data):
         self.ensure_one()
         res = []
-        for tax_data in taxes_data.get("tax_details", {}).values():
-            tax_vals = self._l10n_ec_prepare_tax_vals_edi(tax_data)
-            res.append(tax_vals)
+        per_record = (taxes_data or {}).get("tax_details_per_record") or {}
+        for rec_vals in per_record.values():
+            tax_details = rec_vals.get("tax_details") or {}
+            for td in tax_details.values():
+                taxes_data_list = td.get("taxes_data") or []
+                if not taxes_data_list:
+                    continue
+                res.append(self._l10n_ec_prepare_tax_vals_edi(taxes_data_list[0]))
         return res
 
     def _l10n_ec_get_environment(self):
@@ -153,12 +159,10 @@ class AccountEdiDocument(models.Model):
                 _logger.error(
                     "Wrong XML File, access_key: %s, Error: %s",
                     self.l10n_ec_xml_access_key,
-                    tools.ustr(e),
+                    e,
                 )
             else:
-                raise UserError(
-                    _("Wrong XML File, Detail: \n%s") % tools.ustr(e)
-                ) from None
+                raise UserError(_("Wrong XML File, Detail: \n%s") % e) from None
         return True
 
     def _l10n_ec_get_xsd_filename(self):
@@ -166,16 +170,21 @@ class AccountEdiDocument(models.Model):
         base_path = path.join("l10n_ec_account_edi", "data", "xsd")
         company = self.move_id.company_id or self.env.company
         document_type = self._l10n_ec_get_document_type()
-        if document_type == "invoice":
-            filename = f"factura_V{company.l10n_ec_invoice_version}"
-        if document_type == "purchase_liquidation":
-            filename = f"LiquidacionCompra_V{company.l10n_ec_liquidation_version}"
-        if document_type == "credit_note":
-            filename = f"NotaCredito_V{company.l10n_ec_credit_note_version}"
-        if document_type == "debit_note":
-            filename = f"NotaDebito_V{company.l10n_ec_debit_note_version}"
-        # TODO: agregar logica para demas tipos de documento
-        return path.join(base_path, f"{filename}.xsd")
+        xds_filename = {
+            "invoice": f"factura_V{company.l10n_ec_invoice_version}.xsd",
+            "purchase_liquidation": (
+                f"LiquidacionCompra_V{company.l10n_ec_liquidation_version}.xsd"
+            ),
+            "credit_note": f"NotaCredito_V{company.l10n_ec_credit_note_version}.xsd",
+            "debit_note": f"NotaDebito_V{company.l10n_ec_debit_note_version}.xsd",
+            # TODO: agregar logica para demas tipos de documento
+        }
+
+        filename = xds_filename.get(document_type)
+        if not filename:
+            raise UserError(_(f"XSD file not found for document type: {document_type}"))
+
+        return path.join(base_path, filename)
 
     def _l10n_ec_get_info_tributaria(self, document):
         company = document.company_id
@@ -533,8 +542,8 @@ class AccountEdiDocument(models.Model):
                 "%s",
                 str(client_ws),
                 self.l10n_ec_xml_access_key,
-                tools.ustr(e),
-                tools.ustr(traceback.format_exc()),
+                e,
+                traceback.format_exc(),
             )
         return response
 
@@ -567,12 +576,12 @@ class AccountEdiDocument(models.Model):
                     msj_str = f"{tipo} [{identificador}] {messaje} {additional_info}"
                     msj_list.append(msj_str)
         except Exception as e:
-            msj_list.append(tools.ustr(e))
+            msj_list.append(e)
             _logger.info(
                 "can't validate document, clave de acceso %s. ERROR: %s TRACEBACK: %s",
                 self.l10n_ec_xml_access_key,
-                tools.ustr(e),
-                tools.ustr(traceback.format_exc()),
+                e,
+                traceback.format_exc(),
             )
             ok = False
         return ok, msj_list
@@ -588,9 +597,7 @@ class AccountEdiDocument(models.Model):
             )
         except Exception as e:
             response = False
-            _logger.warning(
-                "Error send xml to server %s. ERROR: %s", client_ws, tools.ustr(e)
-            )
+            _logger.warning("Error send xml to server %s. ERROR: %s", client_ws, e)
         return response
 
     def _l10n_ec_edi_process_response_auth(self, response):

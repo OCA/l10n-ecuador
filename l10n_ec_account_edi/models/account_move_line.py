@@ -69,19 +69,23 @@ class AccountMoveLine(models.Model):
         res = []
         return res
 
-    def _l10n_ec_get_invoice_edi_taxes(self, taxes_data):
-        tax_values = []
+    def _l10n_ec_build_taxes(self, taxes_data=None):
         EdiDocument = self.env["account.edi.document"]
-        for tax_data in taxes_data.get("tax_details", {}).values():
-            tax_values.append(EdiDocument._l10n_ec_prepare_tax_vals_edi(tax_data))
+        tax_values = []
+        if taxes_data is None:
+            return tax_values
+
+        for tax_details in taxes_data.get("tax_details", {}).values():
+            taxes = tax_details.get("taxes_data") or []
+            if taxes:
+                tax_values.append(EdiDocument._l10n_ec_prepare_tax_vals_edi(taxes[0]))
         return tax_values
 
+    def _l10n_ec_get_invoice_edi_taxes(self, taxes_data):
+        return self._l10n_ec_build_taxes(taxes_data)
+
     def _l10n_ec_get_credit_note_edi_taxes(self, taxes_data):
-        tax_values = []
-        EdiDocument = self.env["account.edi.document"]
-        for tax_data in taxes_data.get("tax_details", {}).values():
-            tax_values.append(EdiDocument._l10n_ec_prepare_tax_vals_edi(tax_data))
-        return tax_values
+        return self._l10n_ec_build_taxes(taxes_data)
 
     def l10n_ec_get_debit_note_edi_data(self, taxes_data):
         self.ensure_one()

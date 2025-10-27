@@ -26,11 +26,10 @@ KEY_TO_PEM_CMD = (
 
 def convert_key_cer_to_pem(key, password):
     # TODO compute it from a python way
-    with NamedTemporaryFile(
-        "wb", suffix=".key", prefix="edi.ec.tmp."
-    ) as key_file, NamedTemporaryFile(
-        "rb", suffix=".key", prefix="edi.ec.tmp."
-    ) as keypem_file:
+    with (
+        NamedTemporaryFile("wb", suffix=".key", prefix="edi.ec.tmp.") as key_file,
+        NamedTemporaryFile("rb", suffix=".key", prefix="edi.ec.tmp.") as keypem_file,
+    ):
         key_file.write(key)
         key_file.flush()
         command = KEY_TO_PEM_CMD % (key_file.name, keypem_file.name, password, password)
@@ -65,8 +64,8 @@ class SriKeyType(models.Model):
     # datos informativos del certificado
     issue_date = fields.Date(string="Date of issue", readonly=True)
     expire_date = fields.Date(string="Expiration date", readonly=True)
-    subject_serial_number = fields.Char(string="Serial Number(Subject)", readonly=True)
-    subject_common_name = fields.Char(string="Organization(Subject)", readonly=True)
+    subject_serial_number = fields.Char(string="Serial Number (Subject)", readonly=True)
+    subject_common_name = fields.Char(string="Organization (Subject)", readonly=True)
     issuer_common_name = fields.Char(string="Organization (Issuer)", readonly=True)
     cert_serial_number = fields.Char(
         string="Serial number (certificate)", readonly=True
@@ -83,13 +82,13 @@ class SriKeyType(models.Model):
         try:
             p12 = pkcs12.load_pkcs12(file_content, self.password.encode())
         except Exception as ex:
-            _logger.warning(tools.ustr(ex))
+            _logger.warning(ex)
             raise UserError(
                 _(
                     "Error opening the signature, possibly the signature key has "
                     "been entered incorrectly or the file is not supported. \n%s"
                 )
-                % (tools.ustr(ex))
+                % (ex)
             ) from None
         certificate = p12.cert.certificate
         # revisar si el certificado tiene la extension digital_signature activada
@@ -102,7 +101,7 @@ class SriKeyType(models.Model):
             )
             is_digital_signature = extension.value.digital_signature
         except ExtensionNotFound as ex:
-            _logger.debug(tools.ustr(ex))
+            _logger.debug(ex)
         if not is_digital_signature:
             # cuando hay mas de un certificado, tomar el certificado correcto
             # este deberia tener entre las extensiones digital_signature = True
@@ -113,7 +112,7 @@ class SriKeyType(models.Model):
                         ExtensionOID.KEY_USAGE
                     )
                 except ExtensionNotFound as ex:
-                    _logger.debug(tools.ustr(ex))
+                    _logger.debug(ex)
                 if extension.value.digital_signature:
                     certificate = other_cert.certificate
                     break
