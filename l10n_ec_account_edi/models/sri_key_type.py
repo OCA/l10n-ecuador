@@ -1,11 +1,8 @@
 import logging
-import subprocess
 from base64 import b64decode
 from random import randrange
-from tempfile import NamedTemporaryFile
 
 import xmlsig  # pylint: disable=W7936
-from cryptography.hazmat.primitives import serialization  # pylint: disable=W7936
 from cryptography.hazmat.primitives.serialization import pkcs12  # pylint: disable=W7936
 from cryptography.x509 import ExtensionNotFound  # pylint: disable=W7936
 from cryptography.x509.oid import ExtensionOID, NameOID  # pylint: disable=W7936
@@ -18,24 +15,6 @@ from odoo.exceptions import UserError
 from odoo.tools.translate import _
 
 _logger = logging.getLogger(__name__)
-
-KEY_TO_PEM_CMD = (
-    "openssl pkcs12 -nocerts -in %s -out %s -passin pass:%s -passout pass:%s"
-)
-
-
-def convert_key_cer_to_pem(key, password):
-    # TODO compute it from a python way
-    with (
-        NamedTemporaryFile("wb", suffix=".key", prefix="edi.ec.tmp.") as key_file,
-        NamedTemporaryFile("rb", suffix=".key", prefix="edi.ec.tmp.") as keypem_file,
-    ):
-        key_file.write(key)
-        key_file.flush()
-        command = KEY_TO_PEM_CMD % (key_file.name, keypem_file.name, password, password)
-        subprocess.call(command.split())
-        key_pem = keypem_file.read().decode()
-    return key_pem
 
 
 class SriKeyType(models.Model):
@@ -73,86 +52,69 @@ class SriKeyType(models.Model):
     cert_version = fields.Char(string="Version", readonly=True)
     days_for_notification = fields.Integer(string="Days for notification", default=30)
 
-    @tools.ormcache("self.file_content", "self.password", "self.state")
+    @tools.ormcache("self.id", "self.write_date", "self.password")
     def _decode_certificate(self):
         self.ensure_one()
-        if not self.password:
-            return None, None, None
-        file_content = b64decode(self.file_content)
+        if not self.file_content or not self.password:
+            return None
+
         try:
-            p12 = pkcs12.load_pkcs12(file_content, self.password.encode())
+            file_content = b64decode(self.file_content)
         except Exception as ex:
-            _logger.warning(ex)
+            _logger.warning(f"Base64 decode failed: {ex}")
+            raise UserError(_("Invalid certificate file (base64).")) from None
+
+        try:
+            private_key, cert, other_certs = pkcs12.load_key_and_certificates(
+                file_content, self.password.encode("utf-8")
+            )
+        except Exception as ex:
+            _logger.warning(f"PKCS#12 load failed: {ex}")
             raise UserError(
                 _(
-                    "Error opening the signature, possibly the signature key has "
-                    "been entered incorrectly or the file is not supported. \n%s"
+                    "Error opening the signature. Wrong password or unsupported file.\n"
+                    f"{ex}"
                 )
-                % (ex)
             ) from None
-        certificate = p12.cert.certificate
-        # revisar si el certificado tiene la extension digital_signature activada
-        # caso contrario tomar del listado de certificados el primero que tengan esta
-        # extension
-        is_digital_signature = True
-        try:
-            extension = certificate.extensions.get_extension_for_oid(
-                ExtensionOID.KEY_USAGE
+
+        if private_key is None or cert is None:
+            raise UserError(
+                _("PKCS#12 does not contain a private key and end-entity certificate.")
             )
-            is_digital_signature = extension.value.digital_signature
-        except ExtensionNotFound as ex:
-            _logger.debug(ex)
-        if not is_digital_signature:
-            # cuando hay mas de un certificado, tomar el certificado correcto
-            # este deberia tener entre las extensiones digital_signature = True
-            # pero si el certificado solo tiene uno, devolvera None
-            for other_cert in p12.additional_certs:
-                try:
-                    extension = other_cert.certificate.extensions.get_extension_for_oid(
-                        ExtensionOID.KEY_USAGE
-                    )
-                except ExtensionNotFound as ex:
-                    _logger.debug(ex)
-                if extension.value.digital_signature:
-                    certificate = other_cert.certificate
+
+        def has_digital_signature(x509):
+            try:
+                ku = x509.extensions.get_extension_for_oid(ExtensionOID.KEY_USAGE).value
+                return bool(getattr(ku, "digital_signature", False))
+            except ExtensionNotFound:
+                return True
+
+        if not has_digital_signature(cert) and other_certs:
+            for other in other_certs:
+                if has_digital_signature(other):
+                    cert = other
                     break
-        private_key_str = convert_key_cer_to_pem(file_content, self.password)
-        start_index = private_key_str.find("Signing Key")
-        # cuando el archivo tiene mas de una firma electronica
-        # viene varias secciones con BEGIN ENCRYPTED PRIVATE KEY
-        # diferenciandose por:
-        # * Decryption Key
-        # * Signing Key
-        # asi que tomar desde Signing Key en caso de existir
-        if start_index >= 0:
-            private_key_str = private_key_str[start_index:]
-        start_index = private_key_str.find("-----BEGIN ENCRYPTED PRIVATE KEY-----")
-        private_key_str = private_key_str[start_index:]
-        private_key = serialization.load_pem_private_key(
-            private_key_str.encode(),
-            self.password.encode(),
-        )
-        return private_key, certificate
+
+        return (private_key, cert, other_certs or [])
 
     def action_validate_and_load(self):
-        _private_key, cert = self._decode_certificate()
+        decoded = self._decode_certificate()
+        if not decoded:
+            raise UserError(_("Certificate/password not provided."))
+
+        cert = decoded[1]
+
         issuer = cert.issuer
         subject = cert.subject
-        subject_common_name = (
-            subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
-            if subject.get_attributes_for_oid(NameOID.COMMON_NAME)
-            else ""
-        )
-        subject_serial_number = (
-            subject.get_attributes_for_oid(NameOID.SERIAL_NUMBER)[0].value
-            if subject.get_attributes_for_oid(NameOID.SERIAL_NUMBER)
-            else ""
-        )
-        issuer_common_name = (
-            issuer.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
-            if subject.get_attributes_for_oid(NameOID.COMMON_NAME)
-            else ""
-        )
+
+        def _attr(name_oid, xname):
+            vals = xname.get_attributes_for_oid(name_oid)
+            return vals[0].value if vals else ""
+
+        subject_common_name = _attr(NameOID.COMMON_NAME, subject)
+        subject_serial_number = _attr(NameOID.SERIAL_NUMBER, subject)
+        issuer_common_name = _attr(NameOID.COMMON_NAME, issuer)
+
         vals = {
             "issue_date": fields.Datetime.context_timestamp(
                 self, cert.not_valid_before
@@ -164,7 +126,7 @@ class SriKeyType(models.Model):
             "subject_serial_number": subject_serial_number,
             "issuer_common_name": issuer_common_name,
             "cert_serial_number": cert.serial_number,
-            "cert_version": cert.version,
+            "cert_version": str(cert.version),  # evita objetos Enum directos
             "state": "valid",
         }
         self.write(vals)
@@ -175,6 +137,9 @@ class SriKeyType(models.Model):
             return randrange(100000, 999999)
 
         p12 = self._decode_certificate()
+        if not p12:
+            raise UserError(_("Certificate/password not provided."))
+
         doc = etree.fromstring(xml_string_data)
         signature_id = f"Signature{new_range()}"
         signature_property_id = f"{signature_id}-SignedPropertiesID{new_range()}"
