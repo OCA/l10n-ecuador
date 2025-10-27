@@ -56,14 +56,9 @@ class SriKeyType(models.Model):
     def _decode_certificate(self):
         self.ensure_one()
         if not self.file_content or not self.password:
-            return None
+            raise UserError(_("Certificate/password not provided."))
 
-        try:
-            file_content = b64decode(self.file_content)
-        except Exception as ex:
-            _logger.warning(f"Base64 decode failed: {ex}")
-            raise UserError(_("Invalid certificate file (base64).")) from None
-
+        file_content = b64decode(self.file_content)
         try:
             private_key, cert, other_certs = pkcs12.load_key_and_certificates(
                 file_content, self.password.encode("utf-8")
@@ -99,9 +94,6 @@ class SriKeyType(models.Model):
 
     def action_validate_and_load(self):
         decoded = self._decode_certificate()
-        if not decoded:
-            raise UserError(_("Certificate/password not provided."))
-
         cert = decoded[1]
 
         issuer = cert.issuer
