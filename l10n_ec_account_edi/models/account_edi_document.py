@@ -90,131 +90,6 @@ class AccountEdiDocument(models.Model):
             for line in self.move_id.invoice_line_ids
         )
 
-    # 1.
-    # @api.model
-    # def _l10n_ec_prepare_tax_vals_edi(self, tax_data):
-    #     tax = tax_data["tax"]
-    #     base_amount = tax_data.get("base_amount_currency", 0.0)
-    #     tax_amount = tax_data.get("tax_amount_currency", 0.0)
-    #     rate = tax.amount
-    #     tax_vals = {
-    #         "codigo": tax.tax_group_id.l10n_ec_xml_fe_code,
-    #         "codigoPorcentaje": tax.l10n_ec_xml_fe_code,
-    #         "baseImponible": self._l10n_ec_number_format(abs(base_amount), 6),
-    #         "tarifa": self._l10n_ec_number_format(abs(rate), 6),
-    #         "valor": self._l10n_ec_number_format(abs(tax_amount), 6),
-    #     }
-    #     return tax_vals
-    # 2.
-    # @api.model
-    # def _l10n_ec_prepare_tax_vals_edi(self, tax_data):
-    #     _logger.info("🔍 tax_data recibido: %s", tax_data)
-    #     if not isinstance(tax_data, dict) or "tax" not in tax_data:
-    #         _logger.warning("Tax data incompleto o mal formado: %s", tax_data)
-    #         return {
-    #             "codigo": "2",  # valor válido por defecto
-    #             "codigoPorcentaje": "00",
-    #             "baseImponible": "0.000000",
-    #             "tarifa": "0.000000",
-    #             "valor": "0.000000",
-    #         }
-    #     move = self.env['account.move'].browse(self._context.get('active_id'))  # o ajusta según contexto
-
-    #     for line in move.invoice_line_ids:
-    #         for tax in line.tax_ids:
-    #             print("Producto:", line.product_id.name)
-    #             print("Impuesto:", tax.name)
-    #             print("Código XML:", tax.l10n_ec_xml_fe_code)
-    #             print("Grupo:", tax.tax_group_id.name)
-    #             print("Código Grupo:", tax.tax_group_id.l10n_ec_xml_fe_code)
-    #             print("------")
-
-    #     tax = tax_data["tax"]
-    #     base_amount = tax_data.get("base_amount_currency", 0.0)
-    #     tax_amount = tax_data.get("tax_amount_currency", 0.0)
-    #     rate = tax.amount
-    #     print("Llego")
-
-    #     codigo_raw = str(tax.tax_group_id.l10n_ec_xml_fe_code or "").strip()
-    #     if codigo_raw not in ["2", "3", "5"]:
-    #         _logger.error("Código inválido para grupo '%s': %s", tax.tax_group_id.name, codigo_raw)
-    #         raise ValidationError(_("Código de impuesto inválido: '%s'. Debe ser uno de: 2, 3, 5.") % codigo_raw)
-
-    #     tax_vals = {
-    #         "codigo": codigo_raw,
-    #         "codigoPorcentaje": str(tax.l10n_ec_xml_fe_code or "00").strip(),
-    #         "baseImponible": self._l10n_ec_number_format(abs(base_amount), 6),
-    #         "tarifa": self._l10n_ec_number_format(abs(rate), 6),
-    #         "valor": self._l10n_ec_number_format(abs(tax_amount), 6),
-    #     }
-    #     return tax_vals
-
-    # 3.
-    # @api.model
-    # def _l10n_ec_prepare_tax_vals_edi(self, tax_data):
-    #     """
-    #     Prepara los valores de impuestos para el XML EDI del SRI.
-    #     Extrae el impuesto desde 'tax' o desde 'taxes_data' si está anidado.
-    #     No usa valores por defecto: lanza error si no se puede construir correctamente.
-    #     """
-
-    #     tax = tax_data.get("tax")
-    #     source = "directo"
-
-    #     # Si no está directo, buscar en taxes_data
-    #     if not tax and "taxes_data" in tax_data:
-    #         taxes_list = tax_data["taxes_data"]
-    #         if isinstance(taxes_list, list) and taxes_list:
-    #             tax_entry = taxes_list[0]
-    #             tax = tax_entry.get("tax")
-    #             base_amount = tax_entry.get("base_amount_currency", 0.0)
-    #             tax_amount = tax_entry.get("tax_amount_currency", 0.0)
-    #             source = "anidado en taxes_data"
-    #         else:
-    #             raise ValidationError(_("❌ 'taxes_data' está vacío o mal formado."))
-    #     else:
-    #         base_amount = tax_data.get("base_amount_currency", 0.0)
-    #         tax_amount = tax_data.get("tax_amount_currency", 0.0)
-
-    #     # Validación ética: si no se encuentra el impuesto, detener
-    #     if not tax:
-    #         _logger.info("📦 tax_data recibido: %s", tax_data)
-    #         _logger.info("📌 Impuesto extraído desde: %s", source)
-    #         _logger.info("📦 tax extraído: %s", tax.name if tax else "None")
-    #         raise ValidationError(_(
-
-    #             "❌ No se pudo extraer el impuesto desde tax_data.\n"
-    #             "Verifica que la línea tenga impuestos válidos y que el dict esté bien formado."
-    #         ))
-
-    #     # Validación de tipo
-    #     if not isinstance(tax, self.env['account.tax']):
-    #         raise ValidationError(_("❌ El objeto 'tax' no es válido. Verifica que sea una instancia de account.tax."))
-
-    #     rate = tax.amount
-    #     codigo_raw = str(tax.tax_group_id.l10n_ec_xml_fe_code or "").strip()
-
-    #     if not codigo_raw:
-    #         raise ValidationError(_(
-    #             "❌ El grupo tributario '%s' no tiene código XML definido.\n"
-    #             "Verifica tax_group_id.l10n_ec_xml_fe_code."
-    #         ) % tax.tax_group_id.name)
-
-    #     # Construcción explícita del dict
-    #     tax_vals = {
-    #         "codigo": codigo_raw,
-    #         "codigoPorcentaje": str(tax.l10n_ec_xml_fe_code or "00").strip(),
-    #         "baseImponible": self._l10n_ec_number_format(abs(base_amount), 6),
-    #         "tarifa": self._l10n_ec_number_format(abs(rate), 6),
-    #         "valor": self._l10n_ec_number_format(abs(tax_amount), 6),
-    #     }
-
-    #     # Logs para trazabilidad
-    #     _logger.info("📦 tax_data recibido: %s", tax_data)
-    #     _logger.info("📌 Impuesto extraído desde: %s", source)
-    #     _logger.info("📦 tax extraído: %s", tax.name if tax else "None")
-
-    #     return tax_vals
     @api.model
     def _l10n_ec_validate_tax_dict(self, tax_data):
         """
@@ -262,9 +137,7 @@ class AccountEdiDocument(models.Model):
         # Tercer intento: buscar en base_line_x_taxes_data → tax_details → taxes_data
         elif not tax and "base_line_x_taxes_data" in tax_data:
             try:
-                nested = tax_data["base_line_x_taxes_data"][0][1][
-                    0
-                ]  # segundo elemento del tuple
+                nested = tax_data["base_line_x_taxes_data"][0][1][0]
                 tax = nested.get("tax")
                 base_amount = nested.get("base_amount_currency", 0.0)
                 tax_amount = nested.get("tax_amount_currency", 0.0)
@@ -272,7 +145,7 @@ class AccountEdiDocument(models.Model):
             except Exception:
                 raise ValidationError(
                     _("❌ No se pudo extraer el impuesto desde tax_details anidados.")
-                )
+                ) from None
 
         else:
             base_amount = tax_data.get("base_amount_currency", 0.0)
@@ -284,7 +157,8 @@ class AccountEdiDocument(models.Model):
             raise ValidationError(
                 _(
                     "❌ No se pudo extraer el impuesto desde tax_data.\n"
-                    "Verifica que la línea tenga impuestos válidos y que el dict esté bien formado."
+                    "Verifica que la línea tenga impuestos válidos y "
+                    "que el dict esté bien formado."
                 )
             )
 
@@ -293,11 +167,14 @@ class AccountEdiDocument(models.Model):
             if tax._name != "account.tax":
                 raise ValidationError(
                     _(
-                        "❌ El objeto 'tax' no es válido. Verifica que sea una instancia de account.tax."
+                        "❌ El objeto 'tax' no es válido. Verifica que sea una "
+                        "instancia de account.tax."
                     )
                 )
         except AttributeError:
-            raise ValidationError(_("❌ El objeto 'tax' no tiene estructura válida."))
+            raise ValidationError(
+                _("❌ El objeto 'tax' no tiene estructura válida.")
+            ) from None
 
         rate = tax.amount
         codigo_raw = str(tax.tax_group_id.l10n_ec_xml_fe_code or "").strip()

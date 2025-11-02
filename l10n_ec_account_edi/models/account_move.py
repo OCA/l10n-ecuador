@@ -241,44 +241,6 @@ class AccountMove(models.Model):
             payment_data.append(payment_vals)
         return payment_data
 
-    # def _l10n_ec_get_taxes_grouped_by_tax_group(self, exclude_withholding=True):
-    #     self.ensure_one()
-
-    #     def filter_withholding_taxes(base_line, tax_values):
-    #         withhold_group_ids = (
-    #             self.env["account.tax.group"]
-    #             .search(
-    #                 [
-    #                     (
-    #                         "l10n_ec_type",
-    #                         "in",
-    #                         (
-    #                             "withhold_vat_sale",
-    #                             "withhold_vat_purchase",
-    #                             "withhold_income_sale",
-    #                             "withhold_income_purchase",
-    #                         ),
-    #                     )
-    #                 ]
-    #             )
-    #             .ids
-    #         )
-    #         return (
-    #             tax_values["tax_repartition_line"].tax_id.tax_group_id.id
-    #             not in withhold_group_ids
-    #         )
-
-    #     taxes_data = self._prepare_edi_tax_details(
-    #         filter_to_apply=exclude_withholding and filter_withholding_taxes or None,
-    #     )
-    #     return taxes_data
-
-    #### Función: `_l10n_ec_get_taxes_grouped_by_tax_group`
-    # - **Propósito:** Agrupar impuestos excluyendo retenciones según configuración ecuatoriana
-    # - **Corrección aplicada:** Validación segura de `tax_repartition_line` para evitar `KeyError`
-    # - **Impacto:** Elimina errores en generación de XML EDI y mejora trazabilidad
-    # - **Compatibilidad:** Odoo 18, módulos `l10n_ec_account_edi`, `l10n_ec_withhold`
-
     def _l10n_ec_get_taxes_grouped_by_tax_group(self, exclude_withholding=True):
         self.ensure_one()
 
@@ -357,20 +319,23 @@ class AccountMove(models.Model):
                 ):
                     if float_compare(line.quantity, 0.0, precision_digits=2) <= 0:
                         product_not_quantity.append(
-                            "  - %s" % line.product_id.display_name
+                            f"  - {line.product_id.display_name}"
                         )
+
                 if product_not_quantity:
+                    items = "\n".join(product_not_quantity)
                     error_list.append(
                         _(
                             "You cannot validate an invoice with zero quantity. "
-                            "Please review the following items:\n%s"
+                            f"Please review the following items:\n{items}"
                         )
-                        % "\n".join(product_not_quantity)
                     )
+
                 if float_compare(move.amount_total, 0.0, precision_digits=2) <= 0:
                     error_list.append(
                         _("You cannot validate an invoice with zero value.")
                     )
+
                 if error_list:
                     raise UserError("\n".join(error_list))
 
