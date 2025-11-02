@@ -9,8 +9,8 @@ from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 @tagged("post_install_l10n", "post_install", "-at_install")
 class TestL10nECCommon(AccountTestInvoicingCommon):
     @classmethod
-    def setUpClass(cls, chart_template_ref="ec"):
-        super().setUpClass(chart_template_ref=chart_template_ref)
+    def setUpClass(cls):
+        super().setUpClass()
         cls.company = cls.company_data["company"]
         cls.company.write(
             {
@@ -100,6 +100,7 @@ class TestL10nECCommon(AccountTestInvoicingCommon):
 
         # Number authorization
         cls.number_authorization_electronic = "".rjust(49, "1")
+
 
     def get_sequence_number(self):
         """Generar secuencia para documentos y que no se repitan"""
