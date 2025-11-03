@@ -88,7 +88,7 @@ class SriKeyType(models.Model):
                     "Error opening the signature, possibly the signature key has "
                     "been entered incorrectly or the file is not supported. \n%s"
                 )
-                % (tools.ustr(ex))
+                % (str(ex))
             ) from None
         certificate = p12.cert.certificate
         # revisar si el certificado tiene la extension digital_signature activada
@@ -150,16 +150,21 @@ class SriKeyType(models.Model):
         )
         issuer_common_name = (
             issuer.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
-            if subject.get_attributes_for_oid(NameOID.COMMON_NAME)
+            if issuer.get_attributes_for_oid(NameOID.COMMON_NAME)
             else ""
         )
+
+        # Convertir a naive datetime si tiene tzinfo
+        not_before = cert.not_valid_before_utc
+        not_after = cert.not_valid_after_utc
+        if not_before.tzinfo is not None:
+            not_before = not_before.replace(tzinfo=None)
+        if not_after.tzinfo is not None:
+            not_after = not_after.replace(tzinfo=None)
+
         vals = {
-            "issue_date": fields.Datetime.context_timestamp(
-                self, cert.not_valid_before
-            ).date(),
-            "expire_date": fields.Datetime.context_timestamp(
-                self, cert.not_valid_after
-            ).date(),
+            "issue_date": fields.Datetime.context_timestamp(self, not_before).date(),
+            "expire_date": fields.Datetime.context_timestamp(self, not_after).date(),
             "subject_common_name": subject_common_name,
             "subject_serial_number": subject_serial_number,
             "issuer_common_name": issuer_common_name,
