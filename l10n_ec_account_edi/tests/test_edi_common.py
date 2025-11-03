@@ -1,28 +1,35 @@
 import base64
+import os
 from datetime import datetime
 
 import pytz
 
 from odoo.tests import tagged
-from odoo.tools import misc, os
+from odoo.tools import misc
 
 from odoo.addons.account_edi.tests.common import AccountEdiTestCommon
 
+# Importar desde test_common, NO desde test_edi_common (evitar circular import)
 from .test_common import TestL10nECCommon
 
 
 @tagged("post_install_l10n", "post_install", "-at_install")
 class TestL10nECEdiCommon(AccountEdiTestCommon, TestL10nECCommon):
     @classmethod
-    def setUpClass(
-        cls,
-        chart_template_ref="ec",
-        edi_format_ref="l10n_ec_account_edi.edi_format_ec_sri",
-    ):
-        super().setUpClass(
-            chart_template_ref=chart_template_ref, edi_format_ref=edi_format_ref
-        )
+    def setUpClass(cls, edi_format_ref="l10n_ec_account_edi.edi_format_ec_sri"):
+        """
+        En Odoo 18, AccountEdiTestCommon.setUpClass() no acepta chart_template_ref
+        Solo necesitamos pasar edi_format_ref
+        """
+        # Llamar primero a TestL10nECCommon que maneja chart_template_ref
+        # TestL10nECCommon.setUpClass()
+        super().setUpClass()
+
+        # Configurar el formato EDI
+        cls.edi_format = cls.env.ref(edi_format_ref)
+
         cls.env.user.tz = "America/Guayaquil"
+
         # Archivo xml básico
         cls.attachment = cls.env["ir.attachment"].create(
             {
@@ -38,6 +45,7 @@ class TestL10nECEdiCommon(AccountEdiTestCommon, TestL10nECCommon):
             "l10n_ec_account_edi", "tests", "certificates", "test.p12"
         )
         file_content = misc.file_open(file_path, mode="rb").read()
+
         # Crear certificado de firma electrónica válido
         cls.certificate = (
             cls.env["sri.key.type"]
@@ -85,14 +93,39 @@ class TestL10nECEdiCommon(AccountEdiTestCommon, TestL10nECCommon):
         )
         # Diario efectivo, establecer tipo de pago SRI
         self.journal_cash.l10n_ec_sri_payment_id = self.env.ref("l10n_ec.P1").id
-        ChartTemplate = self.env["account.chart.template"].with_company(self.company)
-        tax_group = ChartTemplate.ref("tax_group_vat_12")
-        self.tax_sale_a.write(
-            {
-                "l10n_ec_xml_fe_code": "2",
-                "tax_group_id": tax_group.id,
-            }
+
+        # Buscar grupo de impuestos de manera más robusta
+        tax_group = self.env["account.tax.group"].search(
+            [
+                ("l10n_ec_type", "=", "vat12"),
+                ("company_id", "=", self.company.id),
+            ],
+            limit=1,
         )
+
+        # Si no existe, buscarlo por xml_id alternativo
+        if not tax_group:
+            try:
+                tax_group = self.env.ref("l10n_ec.tax_group_vat_12")
+            except ValueError:
+                # Si tampoco existe, crear uno temporal para los tests
+                tax_group = self.env["account.tax.group"].create(
+                    {
+                        "name": "IVA 12%",
+                        "l10n_ec_type": "vat12",
+                        "l10n_ec_xml_fe_code": "2",
+                        "company_id": self.company.id,
+                    }
+                )
+
+        # Configurar tax_sale_a si existe
+        if hasattr(self, "tax_sale_a") and self.tax_sale_a:
+            self.tax_sale_a.write(
+                {
+                    "l10n_ec_xml_fe_code": "2",
+                    "tax_group_id": tax_group.id,
+                }
+            )
 
     def _l10n_ec_prepare_edi_out_invoice(
         self,

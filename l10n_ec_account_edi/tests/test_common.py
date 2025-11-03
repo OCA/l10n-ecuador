@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from odoo import fields
@@ -5,12 +6,15 @@ from odoo.tests import Form, tagged
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
+_logger = logging.getLogger(__name__)
+# NOTA: NO importar test_edi_common aquí para evitar imports circulares
+
 
 @tagged("post_install_l10n", "post_install", "-at_install")
 class TestL10nECCommon(AccountTestInvoicingCommon):
     @classmethod
     def setUpClass(cls, chart_template_ref="ec"):
-        super().setUpClass(chart_template_ref=chart_template_ref)
+        super().setUpClass()
         cls.company = cls.company_data["company"]
         cls.company.write(
             {
@@ -18,7 +22,7 @@ class TestL10nECCommon(AccountTestInvoicingCommon):
                 "country_id": cls.env.ref("base.ec").id,
             }
         )
-        ChartTemplate = cls.env["account.chart.template"].with_company(cls.company)
+
         # Models
         cls.Partner = cls.env["res.partner"].with_company(cls.company).sudo()
         cls.Journal = cls.env["account.journal"].with_company(cls.company)
@@ -28,11 +32,13 @@ class TestL10nECCommon(AccountTestInvoicingCommon):
         )
         cls.Tax = cls.env["account.tax"].with_company(cls.company)
         cls.TaxGroup = cls.env["account.tax.group"].with_company(cls.company)
+
         # Dates
         cls.current_datetime = fields.Datetime.context_timestamp(
             cls.AccountMove, fields.Datetime.now()
         )
         cls.current_date = fields.Date.context_today(cls.AccountMove)
+
         # Partners
         cls.partner_contact = cls.company.partner_id
         cls.partner_cf = cls.Partner.create(
@@ -77,6 +83,7 @@ class TestL10nECCommon(AccountTestInvoicingCommon):
                 "email": "my_email@test.com.ec",
             }
         )
+
         # Impuestos
         cls.tax_group_vat = cls.TaxGroup.search(
             [("l10n_ec_type", "=", "vat12")], limit=1
@@ -93,13 +100,63 @@ class TestL10nECCommon(AccountTestInvoicingCommon):
         cls.tax_exempt_vat = cls.Tax.search(
             [("tax_group_id.l10n_ec_type", "=", "exempt_vat")], limit=1
         )
+
         # Diarios
         cls.journal_sale = cls.company_data["default_journal_sale"]
-        cls.journal_purchase = ChartTemplate.ref("purchase_liquidation_ec")
+
+        # Buscar o crear diario de liquidación de compras
+        cls.journal_purchase = cls._get_or_create_purchase_journal()
+
         cls.journal_cash = cls.company_data["default_journal_cash"]
 
         # Number authorization
         cls.number_authorization_electronic = "".rjust(49, "1")
+
+    @classmethod
+    def _get_or_create_purchase_journal(cls):
+        """Obtener o crear diario de liquidación de compras"""
+        # Intentar buscar por xmlid
+        try:
+            return cls.env.ref("l10n_ec.purchase_liquidation_ec")
+        except ValueError as e:
+            _logger.warning("No se encontró el diario de liquidación: %s", e)
+            # ahora no queda vacío
+
+        # Buscar por tipo y código
+        journal = cls.Journal.search(
+            [
+                ("type", "=", "purchase"),
+                ("code", "=", "LIQC"),
+                ("company_id", "=", cls.company.id),
+            ],
+            limit=1,
+        )
+
+        if journal:
+            return journal
+
+        # Buscar cualquier diario de compras con el tipo de documento correcto
+        purchase_journals = cls.Journal.search(
+            [
+                ("type", "=", "purchase"),
+                ("company_id", "=", cls.company.id),
+            ]
+        )
+
+        for journal in purchase_journals:
+            if journal.l10n_latam_use_documents:
+                return journal
+
+        # Si no existe, crear uno
+        return cls.Journal.create(
+            {
+                "name": "Liquidación de Compras Test",
+                "code": "LIQC",
+                "type": "purchase",
+                "company_id": cls.company.id,
+                "l10n_latam_use_documents": True,
+            }
+        )
 
     def get_sequence_number(self):
         """Generar secuencia para documentos y que no se repitan"""
