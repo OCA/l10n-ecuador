@@ -10,27 +10,12 @@
         />
         <field name="arch" type="xml">
             <xpath expr="//div[@id='l10n_ec_section']" position="inside">
-                <setting string="Default Accounts for  Credit Notes">
-                    <div class="content-group">
-                        <div class="row mt8">
-                            <label
-                                for="l10n_ec_property_account_discount_id"
-                                class="col-lg-5 o_light_label"
-                                string="C.C. Discount"
-                            />
-                            <field name="l10n_ec_property_account_discount_id" />
-                        </div>
-                        <div class="row mt8">
-                            <label
-                                for="l10n_ec_property_account_return_id"
-                                class="col-lg-5 o_light_label"
-                                string="C.C. Refund"
-                            />
-                            <field name="l10n_ec_property_account_return_id" />
-                        </div>
-                    </div>
-
-                </setting>
+                <group>
+                    <group string="Default Accounts for Credit Notes">
+                        <field name="l10n_ec_property_account_discount_id" />
+                        <field name="l10n_ec_property_account_return_id" />
+                    </group>
+                </group>
             </xpath>
         </field>
     </record>
