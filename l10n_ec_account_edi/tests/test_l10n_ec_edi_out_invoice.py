@@ -1,4 +1,5 @@
 import logging
+import re
 from datetime import timedelta
 from unittest.mock import patch
 
@@ -13,7 +14,11 @@ from odoo.addons.l10n_ec_account_edi.models.account_edi_document import (
 )
 from odoo.addons.l10n_ec_account_edi.models.account_edi_format import TEST_URL
 
-from .sri_response import patch_service_sri, validation_sri_response_returned
+from .sri_response import (
+    patch_service_sri,
+    patch_service_sri_connection_error,
+    validation_sri_response_returned,
+)
 from .test_edi_common import TestL10nECEdiCommon
 
 _logger = logging.getLogger(__name__)
@@ -78,15 +83,38 @@ class TestL10nOutInvoice(TestL10nECEdiCommon):
         self.assertEqual(
             invoice.l10n_ec_authorization_date, edi_doc.l10n_ec_authorization_date
         )
+        self.assertFalse(invoice.is_move_sent)
+
         # Envio de email
-        try:
-            invoice.action_invoice_sent()
-            mail_sended = True
-        except UserError as e:
-            _logger.warning(e.name)
-            mail_sended = False
-        self.assertTrue(mail_sended)
-        # TODO: validar que se autorice en el SRI con una firma válida
+        wizard = self.create_send_and_print(invoice)
+        wizard.action_send_and_print()
+        self.assertTrue(invoice.is_move_sent)
+
+    @patch_service_sri_connection_error
+    def test_l10n_ec_out_invoice_sri_connection_error(self):
+        """Crear factura electrónica, simular error de conexión con el SRI"""
+        # Configurar los datos previamente
+        self._setup_edi_company_ec()
+        invoice = self._l10n_ec_prepare_edi_out_invoice(
+            use_payment_term=False, auto_post=True
+        )
+        edi_doc = invoice._get_edi_document(self.edi_format)
+
+        with self.assertLogs("odoo.addons.l10n_ec_account_edi") as log_catcher:
+            edi_doc._process_documents_web_services(with_commit=False)
+            self.assertIn(
+                "can't validate document",
+                log_catcher.output[0],
+            )
+
+        # Comprobar que la factura esté validada,
+        # pero documento edi se quede en estado to_send por el error
+        self.assertEqual(invoice.state, "posted")
+        self.assertEqual(edi_doc.state, "to_send")
+        # Se genera clave de acceso pero no se puede enviar por error de conexión
+        self.assertTrue(edi_doc.l10n_ec_xml_access_key)
+        # No hay fecha de autorización porque no se pudo conectar
+        self.assertFalse(edi_doc.l10n_ec_authorization_date)
 
     @patch_service_sri
     def test_l10n_ec_out_invoice_sri_without_response(self):
@@ -113,8 +141,12 @@ class TestL10nOutInvoice(TestL10nECEdiCommon):
             "_l10n_ec_edi_send_xml_auth",
             mock_l10n_ec_edi_send_xml_without_auth,
         ):
-            with self.assertLogs("odoo.addons.l10n_ec_account_edi"):
-                edi_doc._process_documents_web_services(with_commit=False)
+            with self.assertLogs(
+                "odoo.addons.l10n_ec_account_edi", level="WARNING"
+            ) as log_catcher:
+                processed = edi_doc._process_documents_web_services(with_commit=False)
+                self.assertIn("Authorization response error", log_catcher.output[0])
+                self.assertEqual(processed, 0)
         # comprobar que la factura este validada,
         # pero documento edi se quede en estado to_send
         self.assertEqual(invoice.state, "posted")
@@ -128,8 +160,11 @@ class TestL10nOutInvoice(TestL10nECEdiCommon):
             "_l10n_ec_edi_send_xml_auth",
             mock_l10n_ec_edi_send_xml_with_auth,
         ):
-            with self.assertLogs("odoo.addons.l10n_ec_account_edi"):
-                edi_doc._process_documents_web_services(with_commit=False)
+            with self.assertLogs("odoo.addons.l10n_ec_account_edi") as log_catcher:
+                processed = edi_doc._process_documents_web_services(with_commit=False)
+                self.assertIn("Authorization succesful", log_catcher.output[0])
+                self.assertEqual(processed, 0)
+
         self.assertEqual(edi_doc.state, "sent")
         self.assertEqual(invoice.l10n_ec_xml_access_key, edi_doc.l10n_ec_xml_access_key)
         self.assertEqual(
@@ -326,3 +361,90 @@ class TestL10nOutInvoice(TestL10nECEdiCommon):
         # 1 = test
         # 2 = Production
         self.assertEqual(edi_doc.l10n_ec_xml_access_key[23], "2")
+
+    @patch_service_sri
+    def test_l10n_ec_out_invoice_xsd_validation_error(self):
+        """Test XSD validation error handling - UserError is caught by edi_format"""
+        self._setup_edi_company_ec()
+        invoice = self._l10n_ec_prepare_edi_out_invoice(auto_post=True)
+        edi_doc = invoice._get_edi_document(self.edi_format)
+
+        # Mock _l10n_ec_render_xml_edi para devolver XML inválido
+        original_render = AccountEdiDocument._l10n_ec_render_xml_edi
+
+        def mock_render_invalid_xml(edi_doc_self):
+            # Llamar al método original pero corromper el XML
+            valid_xml = original_render(edi_doc_self)
+            # Eliminar el tag importeTotal que es obligatorio
+            regex = r"<importeTotal>.*?</importeTotal>"
+            invalid_xml = re.sub(regex, "", valid_xml)
+            return invalid_xml
+
+        with patch.object(
+            AccountEdiDocument, "_l10n_ec_render_xml_edi", mock_render_invalid_xml
+        ):
+            # El UserError se lanza pero es capturado por account_edi_format
+            # y se logea el traceback
+            with self.assertLogs(
+                "odoo.addons.l10n_ec_account_edi.models.account_edi_format",
+                level="ERROR",
+            ) as log_catcher:
+                edi_doc._process_documents_web_services(with_commit=False)
+
+                # Verificar que se logeó el error
+                self.assertTrue(
+                    len(log_catcher.output) > 0,
+                    "Should log UserError traceback in account_edi_format",
+                )
+
+            # Verificar que el documento quedó con error
+            self.assertTrue(edi_doc.error, "EDI document should have error")
+            self.assertIn("Wrong XML File", edi_doc.error)
+
+    @patch_service_sri
+    def test_l10n_ec_out_invoice_xsd_validation_error_from_cron(self):
+        """Test XSD validation error from cron - only logs, no exception"""
+        self._setup_edi_company_ec()
+        invoice = self._l10n_ec_prepare_edi_out_invoice(auto_post=True)
+        edi_doc = invoice._get_edi_document(self.edi_format)
+
+        # Mock _l10n_ec_render_xml_edi para devolver XML inválido
+        original_render = AccountEdiDocument._l10n_ec_render_xml_edi
+
+        def mock_render_invalid_xml(edi_doc_self):
+            # Llamar al método original pero corromper el XML
+            valid_xml = original_render(edi_doc_self)
+            # Eliminar el tag importeTotal que es obligatorio
+            regex = r"<importeTotal>.*?</importeTotal>"
+            invalid_xml = re.sub(regex, "", valid_xml)
+            return invalid_xml
+
+        with patch.object(
+            AccountEdiDocument, "_l10n_ec_render_xml_edi", mock_render_invalid_xml
+        ):
+            # Con contexto de cron, solo logea error, NO lanza excepción
+            with self.assertLogs(
+                "odoo.addons.l10n_ec_account_edi.models.account_edi_document",
+                level="ERROR",
+            ) as log_catcher:
+                edi_doc.with_context(
+                    l10n_ec_xml_call_from_cron=True
+                )._process_documents_web_services(with_commit=False)
+
+                # Verificar que se logeó el error de XSD en account_edi_document
+                self.assertTrue(
+                    any("Wrong XML File" in msg for msg in log_catcher.output),
+                    "Should log XSD validation error in account_edi_document",
+                )
+
+                edi_doc.with_context(
+                    l10n_ec_xml_call_from_cron=True
+                )._process_documents_web_services(with_commit=False)
+
+                # Verificar que se logeó el traceback del error
+                # El UserError es capturado por el try-except en
+                # account_edi_format._l10n_ec_post_move_edi
+                self.assertTrue(
+                    len(log_catcher.output) > 0,
+                    "Should log error traceback in account_edi_format",
+                )

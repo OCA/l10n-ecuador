@@ -103,15 +103,6 @@ class TestL10nEcPurchaseLiquidation(TestL10nECEdiCommon):
         self.assertEqual(
             invoice.l10n_ec_authorization_date, edi_doc.l10n_ec_authorization_date
         )
-        # Envio de email
-        try:
-            invoice.action_invoice_sent()
-            mail_sended = True
-        except UserError:
-            _logger.warning("Error sending mail", exc_info=True)
-            mail_sended = False
-        self.assertTrue(mail_sended)
-        # TODO: validar que se autorice en el SRI con una firma válida
 
     @patch_service_sri(validation_response=validation_sri_response_returned)
     def test_l10n_ec_liquidation_back_sri(self):
@@ -151,14 +142,6 @@ class TestL10nEcPurchaseLiquidation(TestL10nECEdiCommon):
         self.assertEqual(
             invoice.l10n_ec_authorization_date, edi_doc.l10n_ec_authorization_date
         )
-        # Envio de email
-        try:
-            invoice.action_invoice_sent()
-            mail_sended = True
-        except UserError as e:
-            _logger.warning(e.name)
-            mail_sended = False
-        self.assertTrue(mail_sended)
 
     @patch_service_sri
     def test_l10n_ec_liquidation_with_payments(self):

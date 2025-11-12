@@ -2,6 +2,7 @@ from datetime import datetime
 from unittest.mock import create_autospec, patch
 
 from zeep import Client
+from zeep.exceptions import TransportError
 from zeep.transports import Transport
 
 from odoo.tools.misc import file_path
@@ -80,6 +81,17 @@ def _mock_create_client(validation_response, auth_response):
     return mock_client
 
 
+def _mock_create_client_connection_error():
+    mock_client = create_autospec(Client)
+    mock_client.service.validarComprobante.side_effect = TransportError(
+        "Connection refused", status_code=None
+    )
+    mock_client.service.autorizacionComprobante.side_effect = TransportError(
+        "Connection refused", status_code=None
+    )
+    return mock_client
+
+
 def patch_service_sri(*args, **kwargs):
     """
     Change the Zeep Client to Mock
@@ -119,3 +131,28 @@ def patch_service_sri(*args, **kwargs):
     if args and callable(args[0]):
         return wrapper(args[0])
     return wrapper
+
+
+def patch_service_sri_connection_error(func):
+    """
+    Simula un error de conexión con el servicio SRI.
+
+    El cliente zeep no podrá establecer conexión con el servidor,
+    lanzando TransportError cuando se intente llamar a los servicios.
+
+    Example usage:
+
+    @patch_service_sri_connection_error
+    def test_connection_error(self):
+        # Tu código de prueba aquí
+        # Los llamados al SRI fallarán con TransportError
+    """
+
+    def patched(self, *func_args, **func_kwargs):
+        mock_client = _mock_create_client_connection_error()
+        with patch.object(
+            AccountEdiFormat, "_l10n_ec_get_edi_ws_client", return_value=mock_client
+        ):
+            return func(self, *func_args, **func_kwargs)
+
+    return patched

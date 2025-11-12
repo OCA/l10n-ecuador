@@ -128,6 +128,18 @@ class TestL10nECCommon(AccountTestInvoicingCommon):
             }
         )
 
+    def create_send_and_print(self, invoices, **kwargs):
+        wizard_model = (
+            "account.move.send.wizard"
+            if len(invoices) == 1
+            else "account.move.send.batch.wizard"
+        )
+        return (
+            self.env[wizard_model]
+            .with_context(active_model="account.move", active_ids=invoices.ids)
+            .create(kwargs)
+        )
+
     def _l10n_ec_edi_company_no_account(self):
         """Cambiar tipo de contribuyente, compañia no
         obligada a llevar contabilidad, no validar impuestos de retenciones"""

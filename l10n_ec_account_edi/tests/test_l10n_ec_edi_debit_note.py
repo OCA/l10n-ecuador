@@ -116,15 +116,12 @@ class TestL10nEcDebitNote(TestL10nECEdiCommon):
         self.assertEqual(
             debit_note.l10n_ec_authorization_date, edi_doc.l10n_ec_authorization_date
         )
+        self.assertFalse(debit_note.is_move_sent)
+
         # Envio de email
-        try:
-            debit_note.action_invoice_sent()
-            mail_sended = True
-        except UserError as e:
-            _logger.warning(e.name)
-            mail_sended = False
-        self.assertTrue(mail_sended)
-        # TODO: validar que se autorice en el SRI con una firma válida
+        wizard = self.create_send_and_print(debit_note)
+        wizard.action_send_and_print()
+        self.assertTrue(debit_note.is_move_sent)
 
     @patch_service_sri(validation_response=validation_sri_response_returned)
     def test_l10n_ec_debit_note_back_sri(self):
