@@ -129,9 +129,6 @@ class SriKeyType(models.Model):
             return randrange(100000, 999999)
 
         p12 = self._decode_certificate()
-        if not p12:
-            raise UserError(_("Certificate/password not provided."))
-
         doc = etree.fromstring(xml_string_data)
         signature_id = f"Signature{new_range()}"
         signature_property_id = f"{signature_id}-SignedPropertiesID{new_range()}"

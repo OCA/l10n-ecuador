@@ -130,6 +130,146 @@ class TestL10nECEdiCommon(AccountEdiTestCommon, TestL10nECCommon):
             invoice.action_post()
         return invoice
 
+    def _l10n_ec_prepare_edi_debit_note(
+        self,
+        partner=None,
+        taxes=None,
+        products=None,
+        journal=None,
+        latam_document_type=None,
+        use_payment_term=False,
+        auto_post=False,
+    ):
+        """Crea y devuelve una debit note electronica
+        :param partner: Partner, si no se envia se coloca uno
+        :param taxes: Impuestos, si no se envia se coloca impuestos del producto
+        :param products: Productos, si no se envia se coloca uno
+        :param journal: Diario, si no se envia se coloca
+        por defecto diario para factura de venta
+        :param latam_document_type: Tipo de documento, si no se envia se coloca uno
+        :param use_payment_term: Si es True se coloca
+        un término de pago a la liquidacion de compra, por defecto True
+        :param auto_post: Si es True valida la factura
+        y la devuelve en estado posted, por defecto False
+        """
+        partner = partner or self.partner_dni
+        latam_document_type = latam_document_type or self.env.ref("l10n_ec.ec_dt_05")
+
+        form = self._l10n_ec_create_form_move(
+            move_type="out_invoice",
+            internal_type="debit_note",
+            partner=partner,
+            taxes=taxes,
+            products=products,
+            journal=journal,
+            latam_document_type=latam_document_type,
+            use_payment_term=use_payment_term,
+            form_id="account.view_move_form",
+        )
+        if form.l10n_latam_internal_type == "debit_note":
+            form.l10n_ec_legacy_document_number = self.get_sequence_number()
+            form.l10n_ec_legacy_document_date = self.current_datetime
+            form.l10n_ec_legacy_document_authorization = (
+                self.number_authorization_electronic
+            )
+            form.l10n_ec_reason = "Test debit note"
+        debit_note = form.save()
+        if auto_post:
+            debit_note.action_post()
+        return debit_note
+
+    def _l10n_ec_prepare_edi_credit_note(
+        self,
+        partner=None,
+        taxes=None,
+        products=None,
+        journal=None,
+        latam_document_type=None,
+        use_payment_term=False,
+        auto_post=False,
+    ):
+        """Crea y devuelve una credit note electronica
+        :param partner: Partner, si no se envia se coloca uno
+        :param taxes: Impuestos, si no se envia se coloca impuestos del producto
+        :param products: Productos, si no se envia se coloca uno
+        :param journal: Diario, si no se envia se coloca
+        por defecto diario para factura de venta
+        :param latam_document_type: Tipo de documento, si no se envia se coloca uno
+        :param use_payment_term: Si es True se coloca
+        un término de pago a la liquidacion de compra, por defecto True
+        :param auto_post: Si es True valida la factura
+        y la devuelve en estado posted, por defecto False
+        """
+        partner = partner or self.partner_dni
+        latam_document_type = latam_document_type or self.env.ref("l10n_ec.ec_dt_04")
+
+        form = self._l10n_ec_create_form_move(
+            move_type="out_refund",
+            internal_type="credit_note",
+            partner=partner,
+            taxes=taxes,
+            products=products,
+            journal=journal,
+            latam_document_type=latam_document_type,
+            use_payment_term=use_payment_term,
+            form_id="account.view_move_form",
+        )
+        if form.l10n_latam_internal_type == "credit_note":
+            form.l10n_ec_legacy_document_number = self.get_sequence_number()
+            form.l10n_ec_legacy_document_date = self.current_datetime
+            form.l10n_ec_legacy_document_authorization = (
+                self.number_authorization_electronic
+            )
+            form.l10n_ec_reason = "FA MOTIVO"
+        credit_note = form.save()
+        if auto_post:
+            credit_note.action_post()
+        return credit_note
+
+    def _l10n_ec_prepare_edi_liquidation(
+        self,
+        partner=None,
+        taxes=None,
+        products=None,
+        journal=None,
+        latam_document_type=None,
+        use_payment_term=False,
+        auto_post=False,
+    ):
+        """Crea y devuelve una liquidación de compra electronica
+        :param partner: Partner, si no se envia se coloca uno
+        :param taxes: Impuestos, si no se envia se coloca impuestos del producto
+        :param products: Productos, si no se envia se coloca uno
+        :param journal: Diario, si no se envia se coloca
+        por defecto diario para liquidación de compra
+        :param latam_document_type: Tipo de documento, si no se envia se coloca uno
+        :param use_payment_term: Si es True se coloca
+        un término de pago a la liquidacion de compra, por defecto False
+        :param auto_post: Si es True valida la factura
+        y la devuelve en estado posted, por defecto False
+        """
+        partner = partner or self.partner_dni
+        journal = journal or self.journal_purchase
+        latam_document_type = latam_document_type or self.env.ref("l10n_ec.ec_dt_03")
+
+        form = self._l10n_ec_create_form_move(
+            move_type="in_invoice",
+            internal_type="purchase_liquidation",
+            partner=partner,
+            taxes=taxes,
+            products=products,
+            journal=journal,
+            latam_document_type=latam_document_type,
+            use_payment_term=use_payment_term,
+            form_id="account.view_move_form",
+        )
+        # Agregar número de autorización electrónica requerido
+        form.l10n_ec_electronic_authorization = self.number_authorization_electronic
+        liquidation = form.save()
+        if auto_post:
+            liquidation.action_post()
+        return liquidation
+
     def _l10n_ec_test_generate_access_key(self, edi_doc):
         """Genera y devuelve una clave de acceso
         :param edi_doc: Edi document para obtener los datos"""

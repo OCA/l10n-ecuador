@@ -101,3 +101,57 @@ class TestL10nCancelled(TestL10nECEdiCommon):
             self.assertRaises(ValidationError),
         ):
             invoice.button_cancel_posted_moves()
+
+    @patch_service_sri
+    def test_l10n_ec_authorized_to_cancelled_connection_error(self):
+        """
+        Create invoice, send to the SRI for authorize,
+        then try to cancel but connection fails
+        """
+
+        def mock_l10n_ec_edi_send_xml_with_auth(edi_doc_instance, client_ws):
+            return self._get_response_with_auth(edi_doc_instance)
+
+        def mock_l10n_ec_edi_send_xml_auth_connection_error(
+            edi_doc_instance, client_ws
+        ):
+            # Simular que no hay conexión con el SRI
+            return False
+
+        partner = self.partner_with_email
+        self._setup_edi_company_ec()
+        invoice = self._l10n_ec_prepare_edi_out_invoice(
+            partner=partner, auto_post=False
+        )
+        invoice.action_post()
+        edi_doc = invoice._get_edi_document(self.edi_format)
+
+        # Autorizar la factura primero
+        with patch.object(
+            AccountEdiDocument,
+            "_l10n_ec_edi_send_xml_auth",
+            mock_l10n_ec_edi_send_xml_with_auth,
+        ):
+            edi_doc._process_documents_web_services(with_commit=False)
+
+        # Verificar que está autorizada
+        self.assertTrue(edi_doc.l10n_ec_authorization_date)
+        self.assertEqual(edi_doc.state, "sent")
+
+        # Intentar cancelar pero sin conexión al SRI
+        with (
+            patch.object(
+                AccountEdiDocument,
+                "_l10n_ec_edi_send_xml_auth",
+                mock_l10n_ec_edi_send_xml_auth_connection_error,
+            ),
+            self.assertRaisesRegex(
+                ValidationError,
+                "The connection to the SRI service is not possible",
+            ),
+        ):
+            invoice.button_cancel_posted_moves()
+
+        # Verificar que la factura no se canceló
+        self.assertEqual(invoice.state, "posted")
+        self.assertEqual(edi_doc.state, "sent")
