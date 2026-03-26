@@ -327,3 +327,25 @@ class TestL10nOutInvoice(TestL10nECEdiCommon):
         # 1 = test
         # 2 = Production
         self.assertEqual(edi_doc.l10n_ec_xml_access_key[23], "2")
+
+    def test_l10n_ec_out_invoice_discount_decimal_precision(self):
+        """totalDescuento must not exceed 2 decimal places as required by the
+        SRI XSD (fractionDigits=2). A discount of 33.33% on a 10.00 unit price
+        produces 3.333 which caused SRI rejection when serialized with 6 decimals.
+        """
+        self._setup_edi_company_ec()
+        invoice = self._l10n_ec_prepare_edi_out_invoice()
+        with Form(invoice) as form:
+            with form.invoice_line_ids.edit(0) as line:
+                line.price_unit = 10.00
+                line.discount = 33.33
+        invoice.action_post()
+        edi_doc = invoice._get_edi_document(self.edi_format)
+        info = edi_doc._l10n_ec_get_info_invoice()
+        total_descuento = info["totalDescuento"]
+        # float_repr returns a string; must have exactly 2 decimal places
+        self.assertRegex(
+            total_descuento,
+            r"^\d+\.\d{2}$",
+            "totalDescuento must have exactly 2 decimal places per SRI XSD",
+        )

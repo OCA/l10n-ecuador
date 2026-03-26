@@ -390,7 +390,7 @@ class AccountEdiDocument(models.Model):
             )[:300],
             "totalSinImpuestos": self._l10n_ec_number_format(invoice.amount_untaxed, 6),
             "totalDescuento": self._l10n_ec_number_format(
-                self._l10n_ec_compute_amount_discount(), 6
+                self._l10n_ec_compute_amount_discount(), 2
             ),
             "totalConImpuestos": self.l10n_ec_header_get_total_with_taxes(taxes_data),
             "compensaciones": [],
@@ -436,7 +436,7 @@ class AccountEdiDocument(models.Model):
             )[:300],
             "totalSinImpuestos": self._l10n_ec_number_format(invoice.amount_untaxed, 6),
             "totalDescuento": self._l10n_ec_number_format(
-                self._l10n_ec_compute_amount_discount(), 6
+                self._l10n_ec_compute_amount_discount(), 2
             ),
             "totalConImpuestos": self.l10n_ec_header_get_total_with_taxes(taxes_data),
             "compensaciones": [],
@@ -491,7 +491,7 @@ class AccountEdiDocument(models.Model):
                 credit_note.amount_untaxed, 6
             ),
             "totalDescuento": self._l10n_ec_number_format(
-                self._l10n_ec_compute_amount_discount(), 6
+                self._l10n_ec_compute_amount_discount(), 2
             ),
             "totalConImpuestos": self.l10n_ec_header_get_total_with_taxes(taxes_data),
             "compensaciones": [],
