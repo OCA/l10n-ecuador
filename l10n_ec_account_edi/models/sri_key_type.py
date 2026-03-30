@@ -20,7 +20,7 @@ from odoo.tools.translate import _
 _logger = logging.getLogger(__name__)
 
 KEY_TO_PEM_CMD = (
-    "openssl pkcs12 -nocerts -in %s -out %s -passin pass:%s -passout pass:%s"
+    "openssl pkcs12 -nocerts -in %s -out %s -legacy -passin pass:%s -passout pass:%s"
 )
 
 
