@@ -77,10 +77,24 @@ class SriKeyType(models.Model):
     def _decode_certificate(self):
         self.ensure_one()
         if not self.password:
-            return None, None, None
+            return None, None
         file_content = b64decode(self.file_content)
         try:
-            p12 = pkcs12.load_pkcs12(file_content, self.password.encode())
+            # load_pkcs12 was introduced in cryptography 36.0.0.
+            # Fall back to load_key_and_certificates for older versions.
+            if hasattr(pkcs12, "load_pkcs12"):
+                p12 = pkcs12.load_pkcs12(file_content, self.password.encode())
+                certificate = p12.cert.certificate
+                additional_certs = [
+                    ac.certificate for ac in (p12.additional_certs or [])
+                ]
+            else:
+                _private_key_raw, certificate, additional_certs_raw = (
+                    pkcs12.load_key_and_certificates(
+                        file_content, self.password.encode()
+                    )
+                )
+                additional_certs = list(additional_certs_raw or [])
         except Exception as ex:
             _logger.warning(tools.ustr(ex))
             raise UserError(
@@ -90,7 +104,6 @@ class SriKeyType(models.Model):
                 )
                 % (tools.ustr(ex))
             ) from None
-        certificate = p12.cert.certificate
         # revisar si el certificado tiene la extension digital_signature activada
         # caso contrario tomar del listado de certificados el primero que tengan esta
         # extension
@@ -106,16 +119,16 @@ class SriKeyType(models.Model):
             # cuando hay mas de un certificado, tomar el certificado correcto
             # este deberia tener entre las extensiones digital_signature = True
             # pero si el certificado solo tiene uno, devolvera None
-            for other_cert in p12.additional_certs:
+            for other_cert in additional_certs:
                 try:
-                    extension = other_cert.certificate.extensions.get_extension_for_oid(
+                    extension = other_cert.extensions.get_extension_for_oid(
                         ExtensionOID.KEY_USAGE
                     )
+                    if extension.value.digital_signature:
+                        certificate = other_cert
+                        break
                 except ExtensionNotFound as ex:
                     _logger.debug(tools.ustr(ex))
-                if extension.value.digital_signature:
-                    certificate = other_cert.certificate
-                    break
         private_key_str = convert_key_cer_to_pem(file_content, self.password)
         start_index = private_key_str.find("Signing Key")
         # cuando el archivo tiene mas de una firma electronica
@@ -174,7 +187,7 @@ class SriKeyType(models.Model):
         def new_range():
             return randrange(100000, 999999)
 
-        p12 = self._decode_certificate()
+        private_key, certificate = self._decode_certificate()
         doc = etree.fromstring(xml_string_data)
         signature_id = f"Signature{new_range()}"
         signature_property_id = f"{signature_id}-SignedPropertiesID{new_range()}"
@@ -219,7 +232,8 @@ class SriKeyType(models.Model):
         )
         doc.append(signature)
         ctx = XAdESContext(ImpliedPolicy(xmlsig.constants.TransformSha1))
-        ctx.load_pkcs12(p12)
+        ctx.load_private_key(private_key)
+        ctx.load_certificate(certificate)
         ctx.sign(signature)
         ctx.verify(signature)
         return etree.tostring(doc, encoding="UTF-8", pretty_print=True).decode()
