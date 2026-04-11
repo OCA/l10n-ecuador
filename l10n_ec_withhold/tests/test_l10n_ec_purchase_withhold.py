@@ -96,8 +96,7 @@ class TestL10nPurchaseWithhold(TestL10nECEdiCommon):
         invoice = self._l10n_ec_create_in_invoice(self.partner_ruc, auto_post=True)
         self.assertFalse(invoice.l10n_ec_withhold_active)
         msj_expected = _(
-            "Please select only invoice "
-            "what satisfies the requirements for create withhold"
+            "Please select only invoice , what satisfies the requirements for create withhold"
         )
         with self.assertRaisesRegex(UserError, msj_expected):
             invoice.action_try_create_ecuadorian_withhold()
