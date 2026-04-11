@@ -39,7 +39,9 @@ class WizardAbstractWithhold(models.AbstractModel):
                 and wizard.journal_id.l10n_ec_withholding_type == "purchase"
             ):
                 move = self.env["account.move"].new(self._prepare_withholding_vals())
-                sequence_format_string, sequence_format_values = move._get_next_sequence_format()
+                sequence_format_string, sequence_format_values = (
+                    move._get_next_sequence_format()
+                )
                 sequence_format_values["seq"] += 1
                 move.name = sequence_format_string.format(**sequence_format_values)
                 wizard.document_number = move.l10n_latam_document_number
