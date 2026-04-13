@@ -9,19 +9,19 @@ class ResPartner(models.Model):
         "Business Name",
     )
 
-    # No valida RUCs Sociedades Juridicas (S.A.S.) ej: 1793189549001
-    # @api.constrains("vat", "country_id")
-    # def check_vat(self):
-    #     partner_to_skip_validate = self.env["res.partner"]
-    #     for partner in self:
-    #         if (
-    #             partner.country_id.code == "EC"
-    #             and partner.vat
-    #             and len(partner.vat) == 13
-    #             and partner.vat[2] == "9"
-    #         ):
-    #             partner_to_skip_validate |= partner
-    #     return super(ResPartner, self - partner_to_skip_validate).check_vat()
+    #No valida RUCs Sociedades Juridicas (S.A.S.) ej: 1793189549001
+    @api.constrains("vat", "country_id")
+    def check_vat(self):
+        partner_to_skip_validate = self.env["res.partner"]
+        for partner in self:
+            if (
+                 partner.country_id.code == "EC"
+                 and partner.vat
+                 and len(partner.vat) == 13
+                 and partner.vat[2] == "9"
+             ):
+                 partner_to_skip_validate |= partner
+    return super(ResPartner, self - partner_to_skip_validate).check_vat()
 
     def write(self, values):
         for partner in self:
