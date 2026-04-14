@@ -48,8 +48,8 @@ class ResPartner(models.Model):
                 )
         return super().write(values)
 
-    def unlink(self):
+    def _unlink_except_cascade(self):
         for partner in self:
             if partner.vat in ["9999999999", "9999999999999"]:
                 raise UserError(self.env._("You cannot unlink final consumer"))
-        return super().unlink()
+        return super()._unlink_except_cascade()
