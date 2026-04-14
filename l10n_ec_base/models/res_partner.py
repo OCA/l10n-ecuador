@@ -1,4 +1,4 @@
-from odoo import _, fields, models
+from odoo import api, fields, models
 from odoo.exceptions import UserError
 
 
@@ -10,18 +10,26 @@ class ResPartner(models.Model):
     )
 
     # No valida RUCs Sociedades Juridicas (S.A.S.) ej: 1793189549001
-    # @api.constrains("vat", "country_id")
-    # def check_vat(self):
-    #     partner_to_skip_validate = self.env["res.partner"]
-    #     for partner in self:
-    #         if (
-    #             partner.country_id.code == "EC"
-    #             and partner.vat
-    #             and len(partner.vat) == 13
-    #             and partner.vat[2] == "9"
-    #         ):
-    #             partner_to_skip_validate |= partner
-    #     return super(ResPartner, self - partner_to_skip_validate).check_vat()
+    @api.constrains("vat", "country_id")
+    def check_vat(self):
+        partner_to_skip_validate = self.env["res.partner"]
+        for partner in self:
+            if (
+                partner.country_id.code == "EC"
+                and partner.vat
+                and len(partner.vat) == 13
+                and partner.vat[2] == "9"
+            ):
+                partner_to_skip_validate |= partner
+        partners_to_validate = self - partner_to_skip_validate
+        if not partners_to_validate:
+            return True
+        check_vat_super = getattr(
+            super(ResPartner, partners_to_validate), "check_vat", None
+        )
+        if callable(check_vat_super):
+            return check_vat_super()
+        return True
 
     def write(self, values):
         for partner in self:
@@ -35,11 +43,13 @@ class ResPartner(models.Model):
                     or "country_id" in values
                 )
             ):
-                raise UserError(_("You cannot modify record of final consumer"))
+                raise UserError(
+                    self.env._("You cannot modify record of final consumer")
+                )
         return super().write(values)
 
-    def unlink(self):
+    def _unlink_except_cascade(self):
         for partner in self:
             if partner.vat in ["9999999999", "9999999999999"]:
-                raise UserError(_("You cannot unlink final consumer"))
-        return super().unlink()
+                raise UserError(self.env._("You cannot unlink final consumer"))
+        return super()._unlink_except_cascade()
