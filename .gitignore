@@ -88,3 +88,11 @@ docs/_build/
 
 # OCA rules
 !static/lib/
+
+# MemPalace (Claude Code plugin)
+mempalace.yaml
+entities.json
+
+# Local development (direnv + pyenv)
+.envrc
+.python-version
