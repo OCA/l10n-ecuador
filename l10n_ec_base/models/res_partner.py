@@ -21,7 +21,7 @@ class ResPartner(models.Model):
                  and partner.vat[2] == "9"
              ):
                  partner_to_skip_validate |= partner
-    return super(ResPartner, self - partner_to_skip_validate).check_vat()
+        return super(ResPartner, self - partner_to_skip_validate).check_vat()
 
     def write(self, values):
         for partner in self:
