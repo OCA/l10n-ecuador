@@ -1,0 +1,2 @@
+"id","name","type","code","show_on_dashboard","l10n_latam_use_documents","l10n_ec_is_purchase_liquidation","l10n_ec_entity","l10n_ec_emission"
+"purchase_liquidation_ec","Liquidation of Purchases","purchase","LDP","1","1","1","001","001"

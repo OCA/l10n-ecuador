@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<odoo>
+    <template id="ec_edi_debit_note">
+        <notaDebito id="comprobante" t-att-version="company.l10n_ec_debit_note_version">
+            <t t-call="l10n_ec_account_edi.ec_edi_info_tributaria" />
+            <infoNotaDebito>
+                <fechaEmision t-out="fechaEmision" />
+                <dirEstablecimiento t-out="dirEstablecimiento" />
+                <tipoIdentificacionComprador t-out="tipoIdentificacionComprador" />
+                <razonSocialComprador t-out="razonSocialComprador" />
+                <identificacionComprador t-out="identificacionComprador" />
+                <!--
+                <t t-if="contribuyenteEspecial">
+                    <contribuyenteEspecial t-out="contribuyenteEspecial" />
+                </t>
+                -->
+                <obligadoContabilidad t-out="obligadoContabilidad" />
+                <codDocModificado t-out="codDocModificado" />
+                <numDocModificado t-out="numDocModificado" />
+                <fechaEmisionDocSustento t-out="fechaEmisionDocSustento" />
+                <totalSinImpuestos t-out="totalSinImpuestos" />
+
+                <impuestos t-if="totalConImpuestos">
+                    <impuesto t-as="totalImpuesto" t-foreach="totalConImpuestos">
+                        <codigo t-out="totalImpuesto.get('codigo')" />
+                        <codigoPorcentaje
+                            t-out="totalImpuesto.get('codigoPorcentaje')"
+                        />
+                        <tarifa t-out="totalImpuesto.get('tarifa')" />
+                        <baseImponible t-out="totalImpuesto.get('baseImponible')" />
+                        <valor t-out="totalImpuesto.get('valor')" />
+                    </impuesto>
+                </impuestos>
+                <valorTotal t-out="importeTotal" />
+
+                <pagos t-if="pagos">
+                    <pago t-as="pago" t-foreach="pagos">
+                        <formaPago t-out="pago.get('formaPago')" />
+                        <total t-out="pago.get('total')" />
+                        <plazo t-out="pago.get('plazo', False)" />
+                        <unidadTiempo t-out="pago.get('unidadTiempo', False)" />
+                    </pago>
+                </pagos>
+            </infoNotaDebito>
+            <motivos t-if="detalles">
+                <motivo t-foreach="detalles" t-as="detalle">
+                    <razon t-out="detalle.get('descripcion')" />
+                    <valor t-out="detalle.get('precioUnitario')" />
+                </motivo>
+            </motivos>
+            <t t-call="l10n_ec_account_edi.ec_edi_info_adicional" />
+        </notaDebito>
+    </template>
+</odoo>

@@ -1,0 +1,6 @@
+# generated from manifests external_dependencies
+cryptography==42.0.8
+pyOpenSSL
+xades
+xmlsig
+zeep
