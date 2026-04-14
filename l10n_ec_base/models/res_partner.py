@@ -32,24 +32,20 @@ class ResPartner(models.Model):
         return True
 
     def write(self, values):
-        for partner in self:
-            if (
-                partner.vat in ["9999999999", "9999999999999"]
-                and not self.env.is_system()
-                and (
-                    "name" in values
-                    or "vat" in values
-                    or "active" in values
-                    or "country_id" in values
-                )
-            ):
-                raise UserError(
-                    self.env._("You cannot modify record of final consumer")
-                )
+        protected_fields = {"name", "vat", "active", "country_id"}
+        if protected_fields & values.keys():
+            for partner in self:
+                if (
+                    partner.vat in ["9999999999", "9999999999999"]
+                    and not partner.env.is_system()
+                ):
+                    raise UserError(
+                        self.env._("You cannot modify record of final consumer")
+                    )
         return super().write(values)
 
-    def _unlink_except_cascade(self):
+    @api.ondelete(at_uninstall=False)
+    def _unlink_except_final_consumer(self):
         for partner in self:
             if partner.vat in ["9999999999", "9999999999999"]:
                 raise UserError(self.env._("You cannot unlink final consumer"))
-        return super()._unlink_except_cascade()
