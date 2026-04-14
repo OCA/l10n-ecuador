@@ -1,4 +1,4 @@
-from odoo import _, api, fields, models
+from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
 
@@ -17,7 +17,7 @@ class AccountJournal(models.Model):
             if rec.l10n_ec_entity:
                 if len(rec.l10n_ec_entity) < 3 or not rec.l10n_ec_entity.isnumeric():
                     raise ValidationError(
-                        _(
+                        self.env._(
                             "Length less than 3 numbers or The point of entity "
                             "must contain only numbers"
                         )
@@ -29,7 +29,7 @@ class AccountJournal(models.Model):
                     or not rec.l10n_ec_emission.isnumeric()
                 ):
                     raise ValidationError(
-                        _(
+                        self.env._(
                             "Length less than 3 numbers or The point of "
                             "emission must contain only numbers"
                         )
