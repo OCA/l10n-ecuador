@@ -8,7 +8,9 @@
     "license": "AGPL-3",
     "version": "19.0.1.0.0",
     "depends": ["account", "account_edi", "l10n_ec", "l10n_ec_base"],
-    "external_dependencies": {"python": ["pyOpenSSL", "xmlsig", "xades", "zeep", "cryptography"]},
+    "external_dependencies": {
+        "python": ["pyOpenSSL", "xmlsig", "xades", "zeep", "cryptography"]
+    },
     "data": [
         "security/ir.model.access.csv",
         "data/edi_format_data.xml",
