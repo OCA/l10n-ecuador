@@ -58,7 +58,7 @@ class ResCompany(models.Model):
 
     @api.model
     def l10n_ec_action_unauthorized_documents_notification(self):
-        companies = self.search([])
+        companies = self.search([], limit=80)
         email_template = self.env.ref(
             "l10n_ec_account_edi.email_template_unauthorized_notify", False
         )

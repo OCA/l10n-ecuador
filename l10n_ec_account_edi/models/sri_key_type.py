@@ -1,41 +1,19 @@
 import logging
-import subprocess
 from base64 import b64decode
 from random import randrange
-from tempfile import NamedTemporaryFile
 
-import xmlsig  # pylint: disable=W7936
-from cryptography.hazmat.primitives import serialization  # pylint: disable=W7936
-from cryptography.hazmat.primitives.serialization import pkcs12  # pylint: disable=W7936
-from cryptography.x509 import ExtensionNotFound  # pylint: disable=W7936
-from cryptography.x509.oid import ExtensionOID, NameOID  # pylint: disable=W7936
+import xmlsig
+from cryptography.hazmat.primitives.serialization import pkcs12
+from cryptography.x509 import ExtensionNotFound
+from cryptography.x509.oid import ExtensionOID, NameOID
 from lxml import etree
-from xades import XAdESContext, template  # pylint: disable=W7936
-from xades.policy import ImpliedPolicy  # pylint: disable=W7936
+from xades import XAdESContext, template
+from xades.policy import ImpliedPolicy
 
 from odoo import api, fields, models, tools
 from odoo.exceptions import UserError
-from odoo.tools.translate import _
 
 _logger = logging.getLogger(__name__)
-
-KEY_TO_PEM_CMD = (
-    "openssl pkcs12 -nocerts -in %s -out %s -legacy -passin pass:%s -passout pass:%s"
-)
-
-
-def convert_key_cer_to_pem(key, password):
-    # TODO compute it from a python way
-    with (
-        NamedTemporaryFile("wb", suffix=".key", prefix="edi.ec.tmp.") as key_file,
-        NamedTemporaryFile("rb", suffix=".key", prefix="edi.ec.tmp.") as keypem_file,
-    ):
-        key_file.write(key)
-        key_file.flush()
-        command = KEY_TO_PEM_CMD % (key_file.name, keypem_file.name, password, password)
-        subprocess.call(command.split())
-        key_pem = keypem_file.read().decode()
-    return key_pem
 
 
 class SriKeyType(models.Model):
@@ -80,17 +58,19 @@ class SriKeyType(models.Model):
             return None, None, None
         file_content = b64decode(self.file_content)
         try:
-            p12 = pkcs12.load_pkcs12(file_content, self.password.encode())
+            private_key, certificate, additional_certs = (
+                pkcs12.load_key_and_certificates(file_content, self.password.encode())
+            )
         except Exception as ex:
-            _logger.warning(tools.ustr(ex))
+            _logger.warning(str(ex))
             raise UserError(
-                _(
+                self.env._(
                     "Error opening the signature, possibly the signature key has "
-                    "been entered incorrectly or the file is not supported. \n%s"
+                    "been entered incorrectly or the file is not supported.\n"
+                    "%(error)s",
+                    error=str(ex),
                 )
-                % (tools.ustr(ex))
             ) from None
-        certificate = p12.cert.certificate
         # revisar si el certificado tiene la extension digital_signature activada
         # caso contrario tomar del listado de certificados el primero que tengan esta
         # extension
@@ -101,37 +81,22 @@ class SriKeyType(models.Model):
             )
             is_digital_signature = extension.value.digital_signature
         except ExtensionNotFound as ex:
-            _logger.debug(tools.ustr(ex))
+            _logger.debug(str(ex))
         if not is_digital_signature:
             # cuando hay mas de un certificado, tomar el certificado correcto
             # este deberia tener entre las extensiones digital_signature = True
             # pero si el certificado solo tiene uno, devolvera None
-            for other_cert in p12.additional_certs:
+            for other_cert in additional_certs or []:
                 try:
-                    extension = other_cert.certificate.extensions.get_extension_for_oid(
+                    extension = other_cert.extensions.get_extension_for_oid(
                         ExtensionOID.KEY_USAGE
                     )
                 except ExtensionNotFound as ex:
-                    _logger.debug(tools.ustr(ex))
+                    _logger.debug(str(ex))
+                    continue
                 if extension.value.digital_signature:
-                    certificate = other_cert.certificate
+                    certificate = other_cert
                     break
-        private_key_str = convert_key_cer_to_pem(file_content, self.password)
-        start_index = private_key_str.find("Signing Key")
-        # cuando el archivo tiene mas de una firma electronica
-        # viene varias secciones con BEGIN ENCRYPTED PRIVATE KEY
-        # diferenciandose por:
-        # * Decryption Key
-        # * Signing Key
-        # asi que tomar desde Signing Key en caso de existir
-        if start_index >= 0:
-            private_key_str = private_key_str[start_index:]
-        start_index = private_key_str.find("-----BEGIN ENCRYPTED PRIVATE KEY-----")
-        private_key_str = private_key_str[start_index:]
-        private_key = serialization.load_pem_private_key(
-            private_key_str.encode(),
-            self.password.encode(),
-        )
         return private_key, certificate
 
     def action_validate_and_load(self):
@@ -154,11 +119,13 @@ class SriKeyType(models.Model):
             else ""
         )
         vals = {
+            # *_utc avoids the deprecated naive properties; strip tzinfo as
+            # context_timestamp expects a naive UTC datetime
             "issue_date": fields.Datetime.context_timestamp(
-                self, cert.not_valid_before
+                self, cert.not_valid_before_utc.replace(tzinfo=None)
             ).date(),
             "expire_date": fields.Datetime.context_timestamp(
-                self, cert.not_valid_after
+                self, cert.not_valid_after_utc.replace(tzinfo=None)
             ).date(),
             "subject_common_name": subject_common_name,
             "subject_serial_number": subject_serial_number,
@@ -234,7 +201,7 @@ class SriKeyType(models.Model):
         email_template = self.env.ref(
             "l10n_ec_account_edi.email_template_notify", False
         )
-        all_companies = self.env["res.company"].search([])
+        all_companies = self.env["res.company"].search([], limit=80)
         for company in all_companies:
             certificates = self.search(
                 [("company_id", "=", company.id), ("state", "=", "valid")]

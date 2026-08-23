@@ -1,7 +1,7 @@
 import logging
 import re
 
-from odoo import _, api, fields, models
+from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import float_compare
 
@@ -115,7 +115,9 @@ class AccountMove(models.Model):
                 cadena, rec.l10n_ec_electronic_authorization
             ):
                 raise UserError(
-                    _("Invalid provider authorization number, must be numeric only")
+                    self.env._(
+                        "Invalid provider authorization number, must be numeric only"
+                    )
                 )
 
     def _search_default_journal(self):
@@ -140,7 +142,7 @@ class AccountMove(models.Model):
         # avoid computing the currency before all it's dependences are set (like the
         # journal...)
         if self.env.cache.contains(self, self._fields["currency_id"]):
-            currency_id = self.currency_id.id or self._context.get(
+            currency_id = self.currency_id.id or self.env.context.get(
                 "default_currency_id"
             )
             if currency_id and currency_id != company.currency_id.id:
@@ -151,7 +153,7 @@ class AccountMove(models.Model):
             journal = self.env["account.journal"].search(domain, limit=1)
 
         if not journal:
-            error_msg = _(
+            error_msg = self.env._(
                 "No journal could be found in company %(company_name)s for any of "
                 "those types: %(journal_types)s",
                 company_name=company.display_name,
@@ -183,8 +185,10 @@ class AccountMove(models.Model):
             else False
         )
         pay_term_line_ids = self.line_ids.filtered(
-            lambda line: line.account_id.account_type
-            in ("asset_receivable", "liability_payable")
+            lambda line: (
+                line.account_id.account_type
+                in ("asset_receivable", "liability_payable")
+            )
         )
         partials = pay_term_line_ids.mapped(
             "matched_debit_ids"
@@ -246,7 +250,8 @@ class AccountMove(models.Model):
     def _l10n_ec_get_taxes_grouped_by_tax_group(self, exclude_withholding=True):
         self.ensure_one()
 
-        def filter_withholding_taxes(base_line, tax_data):
+        withhold_group_ids = []
+        if exclude_withholding:
             withhold_group_ids = (
                 self.env["account.tax.group"]
                 .search(
@@ -266,12 +271,15 @@ class AccountMove(models.Model):
                 .ids
             )
 
-            tax = tax_data["tax"]
+        def filter_withholding_taxes(base_line, tax_data):
+            return tax_data["tax"].tax_group_id.id not in withhold_group_ids
 
-            return tax not in withhold_group_ids
-
-        taxes_data = self._prepare_edi_tax_details(
-            filter_to_apply=exclude_withholding and filter_withholding_taxes or None,
+        # _prepare_edi_tax_details was removed in Odoo 17; use the aggregated
+        # tax details API. Grouping key defaults to the account.tax record.
+        taxes_data = self._prepare_invoice_aggregated_taxes(
+            filter_tax_values_to_apply=(
+                exclude_withholding and filter_withholding_taxes or None
+            ),
         )
         return taxes_data
 
@@ -319,15 +327,15 @@ class AccountMove(models.Model):
                         )
                 if product_not_quantity:
                     error_list.append(
-                        _(
+                        self.env._(
                             "You cannot validate an invoice with zero quantity. "
-                            "Please review the following items:\n%s"
+                            "Please review the following items:\n%(items)s",
+                            items="\n".join(product_not_quantity),
                         )
-                        % "\n".join(product_not_quantity)
                     )
                 if float_compare(move.amount_total, 0.0, precision_digits=2) <= 0:
                     error_list.append(
-                        _("You cannot validate an invoice with zero value.")
+                        self.env._("You cannot validate an invoice with zero value.")
                     )
                 if error_list:
                     raise UserError("\n".join(error_list))
@@ -397,7 +405,7 @@ class AccountMove(models.Model):
         if any(x._is_l10n_ec_is_purchase_liquidation() for x in self):
             template = self._get_mail_template()
             return {
-                "name": _("Send"),
+                "name": self.env._("Send"),
                 "type": "ir.actions.act_window",
                 "view_type": "form",
                 "view_mode": "form",
@@ -427,7 +435,7 @@ class AccountMove(models.Model):
         connection to the SRI is not possible
         """
         for receipt in self:
-            company = receipt.env.user.company_id
+            company = receipt.company_id or self.env.company
             client_ws = receipt.edi_document_ids.edi_format_id
 
             authorization_client = client_ws._l10n_ec_get_edi_ws_client(
@@ -440,7 +448,7 @@ class AccountMove(models.Model):
 
             if response is False:
                 raise ValidationError(
-                    _(
+                    self.env._(
                         "The connection to the SRI service is not possible. Please "
                         "check later."
                     )
@@ -452,7 +460,7 @@ class AccountMove(models.Model):
 
             if is_authorized:
                 raise ValidationError(
-                    _("The receipt is authorized. It cannot be cancelled.")
+                    self.env._("The receipt is authorized. It cannot be cancelled.")
                 )
 
         return super().button_cancel_posted_moves()

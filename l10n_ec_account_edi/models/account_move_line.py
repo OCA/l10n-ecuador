@@ -72,15 +72,15 @@ class AccountMoveLine(models.Model):
     def _l10n_ec_get_invoice_edi_taxes(self, taxes_data):
         tax_values = []
         EdiDocument = self.env["account.edi.document"]
-        for tax_data in taxes_data.get("tax_details", {}).values():
-            tax_values.append(EdiDocument._l10n_ec_prepare_tax_vals_edi(tax_data))
+        for tax, tax_data in taxes_data.get("tax_details", {}).items():
+            tax_values.append(EdiDocument._l10n_ec_prepare_tax_vals_edi(tax, tax_data))
         return tax_values
 
     def _l10n_ec_get_credit_note_edi_taxes(self, taxes_data):
         tax_values = []
         EdiDocument = self.env["account.edi.document"]
-        for tax_data in taxes_data.get("tax_details", {}).values():
-            tax_values.append(EdiDocument._l10n_ec_prepare_tax_vals_edi(tax_data))
+        for tax, tax_data in taxes_data.get("tax_details", {}).items():
+            tax_values.append(EdiDocument._l10n_ec_prepare_tax_vals_edi(tax, tax_data))
         return tax_values
 
     def l10n_ec_get_debit_note_edi_data(self, taxes_data):
