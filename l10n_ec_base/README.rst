@@ -62,12 +62,16 @@ Do not contact contributors directly about support or help with technical issues
 Credits
 =======
 
-Authors
--------
+Contributors
+------------
 
-* Renan Nazate
-* Gabriel
-* Leonardo
+- Carlos Lopez celm1990@gmail.com
+- Jhon Romero romerogonzaga21@gmail.com
+  (https://jhonromero26.vercel.app)
+- Luis Romero lojanet@gmail.com
+- Renan Nazate
+- Gabriel
+- Leonardo
 
 Maintainers
 -----------

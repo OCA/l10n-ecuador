@@ -15,7 +15,7 @@
                 <field
                     name="l10n_ec_sri_payment_id"
                     options="{'no_create': True, 'no_open': True}"
-                    invisible="country_code != 'EC' and type not in ('bank', 'cash')"
+                    invisible="country_code != 'EC' or type not in ('bank', 'cash')"
                     required="country_code == 'EC' and type in ('bank', 'cash')"
                 />
             </xpath>
