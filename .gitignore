@@ -4,8 +4,6 @@ __pycache__/
 /.venv
 /.pytest_cache
 /.ruff_cache
-vscode/
-venv/
 
 # C extensions
 *.so
@@ -88,11 +86,3 @@ docs/_build/
 
 # OCA rules
 !static/lib/
-
-# MemPalace (Claude Code plugin)
-mempalace.yaml
-entities.json
-
-# Local development (direnv + pyenv)
-.envrc
-.python-version

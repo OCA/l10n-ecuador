@@ -93,6 +93,7 @@ class SriKeyType(models.Model):
                     )
                 except ExtensionNotFound as ex:
                     _logger.debug(str(ex))
+                    continue
                 if extension.value.digital_signature:
                     certificate = other_cert
                     break
@@ -118,11 +119,13 @@ class SriKeyType(models.Model):
             else ""
         )
         vals = {
+            # *_utc avoids the deprecated naive properties; strip tzinfo as
+            # context_timestamp expects a naive UTC datetime
             "issue_date": fields.Datetime.context_timestamp(
-                self, cert.not_valid_before
+                self, cert.not_valid_before_utc.replace(tzinfo=None)
             ).date(),
             "expire_date": fields.Datetime.context_timestamp(
-                self, cert.not_valid_after
+                self, cert.not_valid_after_utc.replace(tzinfo=None)
             ).date(),
             "subject_common_name": subject_common_name,
             "subject_serial_number": subject_serial_number,

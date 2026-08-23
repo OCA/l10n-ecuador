@@ -90,8 +90,7 @@ class AccountEdiDocument(models.Model):
         )
 
     @api.model
-    def _l10n_ec_prepare_tax_vals_edi(self, tax_data):
-        tax = tax_data["grouping_key"]
+    def _l10n_ec_prepare_tax_vals_edi(self, tax, tax_data):
         base_amount = tax_data.get("base_amount_currency", 0.0)
         tax_amount = tax_data.get("tax_amount_currency", 0.0)
         rate = tax.amount
@@ -107,8 +106,8 @@ class AccountEdiDocument(models.Model):
     def l10n_ec_header_get_total_with_taxes(self, taxes_data):
         self.ensure_one()
         res = []
-        for tax_data in taxes_data.get("tax_details", {}).values():
-            tax_vals = self._l10n_ec_prepare_tax_vals_edi(tax_data)
+        for tax, tax_data in taxes_data.get("tax_details", {}).items():
+            tax_vals = self._l10n_ec_prepare_tax_vals_edi(tax, tax_data)
             res.append(tax_vals)
         return res
 
@@ -764,7 +763,13 @@ class AccountEdiDocument(models.Model):
             ]
         )
         for account_move in account_moves:
-            account_move.l10n_ec_send_email()
+            try:
+                account_move.l10n_ec_send_email()
+            except Exception:
+                _logger.exception(
+                    "Failed to send email for move %s", account_move.display_name
+                )
+                continue
 
         # Update documents with final consumer
         account_moves_with_final_consumer = self.env["account.move"].search(
