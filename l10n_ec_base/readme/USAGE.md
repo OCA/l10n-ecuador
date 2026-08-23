@@ -1,0 +1,1 @@
+The module doesn't require additional configurations.
