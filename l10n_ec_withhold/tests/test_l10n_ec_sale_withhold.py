@@ -1,6 +1,5 @@
 from dateutil.relativedelta import relativedelta
 
-from odoo import _
 from odoo.exceptions import UserError
 from odoo.tests import tagged
 from odoo.tests.common import Form
@@ -253,7 +252,7 @@ class TestL10nSaleWithhold(TestL10nECEdiCommon):
         self.partner_ruc.property_account_position_id = self.position_no_withhold
         invoice = self.get_invoice(self.partner_ruc)
         self.assertFalse(invoice.l10n_ec_withhold_active)
-        msj_expected = _(
+        msj_expected = self.env._(
             "Please select only invoice,what satisfies the requirements for create"
             " withhold"
         )

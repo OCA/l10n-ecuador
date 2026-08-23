@@ -1,6 +1,5 @@
 from unittest.mock import patch
 
-from odoo import _
 from odoo.exceptions import UserError
 from odoo.tests import tagged
 from odoo.tests.common import Form
@@ -81,7 +80,7 @@ class TestL10nPurchaseWithhold(TestL10nECEdiCommon):
         )
         self.assertFalse(invoice.l10n_ec_withhold_active)
         self.assertFalse(invoice2.l10n_ec_withhold_active)
-        msj_expected = _(
+        msj_expected = self.env._(
             "Please select only invoice ,what satisfies the requirements for create "
             "withhold"
         )
@@ -95,7 +94,7 @@ class TestL10nPurchaseWithhold(TestL10nECEdiCommon):
         self.company.property_account_position_id = self.position_no_withhold
         invoice = self._l10n_ec_create_in_invoice(self.partner_ruc, auto_post=True)
         self.assertFalse(invoice.l10n_ec_withhold_active)
-        msj_expected = _(
+        msj_expected = self.env._(
             "Please select only invoice , what satisfies the requirements for create "
             "withhold"
         )
@@ -119,7 +118,7 @@ class TestL10nPurchaseWithhold(TestL10nECEdiCommon):
         invoice.action_try_create_ecuadorian_withhold()
         wizard_form = self._prepare_new_wizard_withhold_purchase(invoice)
         wizard = wizard_form.save()
-        msj_expected = _("Please add some withholding lines before continue")
+        msj_expected = self.env._("Please add some withholding lines before continue")
         with self.assertRaisesRegex(UserError, msj_expected):
             wizard.button_validate()
 
@@ -186,7 +185,7 @@ class TestL10nPurchaseWithhold(TestL10nECEdiCommon):
         )
         self.assertTrue(invoice.l10n_ec_withhold_active)
         self.assertTrue(invoice2.l10n_ec_withhold_active)
-        msj_expected = _(
+        msj_expected = self.env._(
             "You can't create Withhold for some invoice,please select only a Invoice."
         )
         with self.assertRaisesRegex(UserError, msj_expected):

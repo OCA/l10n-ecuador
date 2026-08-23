@@ -1,4 +1,4 @@
-from odoo import _, api, fields, models
+from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import float_is_zero
 
@@ -36,7 +36,9 @@ class WizardCreatePurchaseWithhold(models.TransientModel):
         """
         self.ensure_one()
         if not self.withhold_line_ids:
-            raise UserError(_("Please add some withholding lines before continue"))
+            raise UserError(
+                self.env._("Please add some withholding lines before continue")
+            )
         tax_support_string = dict(
             self.withhold_line_ids._fields["l10n_ec_tax_support"].selection
         )
@@ -54,7 +56,7 @@ class WizardCreatePurchaseWithhold(models.TransientModel):
                     has_lines_with_tax_and_tax_support = True
             if not has_lines_with_tax_and_tax_support:
                 raise UserError(
-                    _(
+                    self.env._(
                         "The base amount for withholding is zero.\n"
                         "Review withholding lines with Tax Support: %s.\n"
                         "Please ensure the following:\n"
@@ -77,7 +79,7 @@ class WizardCreatePurchaseWithhold(models.TransientModel):
             for tax_vals in taxes_vals:
                 lines.append((0, 0, tax_vals))
         for invoice, total_counter in total_by_invoice.items():
-            move_name = _(
+            move_name = self.env._(
                 "RET: %(document_number)s Invoice: %(invoice_number)s",
                 document_number=self.document_number,
                 invoice_number=invoice.l10n_latam_document_number,
@@ -99,7 +101,7 @@ class WizardCreatePurchaseWithhold(models.TransientModel):
 
         withholding_vals.update({"line_ids": lines})
         new_withholding = self.env["account.move"].create(withholding_vals)
-        new_withholding._post()
+        new_withholding.action_post()
         invoices = self.withhold_line_ids.invoice_id
         invoices.write({"l10n_ec_withhold_ids": [(4, new_withholding.id)]})
         self._try_reconcile_withholding_moves(
@@ -128,14 +130,9 @@ class WizardPurchaseWithholdLine(models.TransientModel):
 
     @api.onchange("invoice_id", "tax_group_withhold_id", "l10n_ec_tax_support")
     def _onchange_withholding_base(self):
-        res = {
-            "value": {},
-            "warning": {},
-        }
-        # replace function to compute base_amount considering l10n_ec_tax_support
         if not self.l10n_ec_tax_support or not self.tax_group_withhold_id:
-            res["value"]["base_amount"] = 0.0
-            return res
+            self.base_amount = 0.0
+            return
         currency_prec = self.invoice_id.company_id.currency_id.rounding
         base_amount = 0.0
         for invoice_line in self.invoice_id.invoice_line_ids:
@@ -153,20 +150,23 @@ class WizardPurchaseWithholdLine(models.TransientModel):
                         invoice_line.price_total - invoice_line.price_subtotal
                     )
         if float_is_zero(base_amount, precision_rounding=currency_prec):
-            res["value"]["base_amount"] = 0.0
-            res["warning"] = {
-                "title": _("User Information"),
-                "message": _(
-                    "The base amount for withholding is zero. "
-                    "Please ensure the following:\n"
-                    " - The tax support of the invoice lines"
-                    "(or Tax support on the invoice) "
-                    "is equal to Tax support of the withholding line.\n"
-                    " - The invoice lines have taxes "
-                    "correctly configured(VAT or Profit)."
-                ),
+            # the "value" key of the onchange result is not supported anymore,
+            # assign the value directly and only return the warning
+            self.base_amount = 0.0
+            return {
+                "warning": {
+                    "title": self.env._("User Information"),
+                    "message": self.env._(
+                        "The base amount for withholding is zero. "
+                        "Please ensure the following:\n"
+                        " - The tax support of the invoice lines"
+                        "(or Tax support on the invoice) "
+                        "is equal to Tax support of the withholding line.\n"
+                        " - The invoice lines have taxes "
+                        "correctly configured(VAT or Profit)."
+                    ),
+                },
             }
-            return res
         self.base_amount = base_amount
 
     def _prepare_basis_vals(self, wizard, tax_data):

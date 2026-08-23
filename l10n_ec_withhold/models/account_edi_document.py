@@ -141,7 +141,10 @@ class AccountEdiDocument(models.Model):
         for line_key in invoice_line_data:
             invoice, tax_support = line_key
             withhold_lines = invoice_line_data[line_key]
-            invoice_taxes_data = invoice._prepare_edi_tax_details(
+            # _prepare_edi_tax_details was removed in Odoo 17; use the
+            # aggregated tax details API. Grouping key defaults to the
+            # account.tax record.
+            invoice_taxes_data = invoice._prepare_invoice_aggregated_taxes(
                 filter_invl_to_apply=filter_support_invoice_lines,
             )
             amount_total = abs(invoice_taxes_data.get("base_amount"))

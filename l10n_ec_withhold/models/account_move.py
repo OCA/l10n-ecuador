@@ -1,8 +1,7 @@
 import logging
 
-from odoo import _, api, fields, models
+from odoo import api, fields, models
 from odoo.exceptions import UserError
-from odoo.tools import frozendict
 from odoo.tools.safe_eval import safe_eval
 
 from .data import TAX_SUPPORT
@@ -110,7 +109,7 @@ class AccountMove(models.Model):
             )
             if other_withholdings > 1:
                 raise UserError(
-                    _(
+                    self.env._(
                         "You can't create other withholding "
                         "with same Number: %(ref)s for Customer: %(customer)s",
                         ref=move.ref,
@@ -148,7 +147,9 @@ class AccountMove(models.Model):
                     and doc.edi_format_id._get_move_applicability(move).get("cancel")
                 ):
                     raise UserError(
-                        _("You can't unlink this Withhold was authorized on SRI.")
+                        self.env._(
+                            "You can't unlink this Withhold was authorized on SRI."
+                        )
                     )
         return True
 
@@ -167,7 +168,7 @@ class AccountMove(models.Model):
                 )
                 if not move.l10n_ec_tax_support and lines_without_tax_support:
                     raise UserError(
-                        _(
+                        self.env._(
                             "Please fill a Tax Support "
                             "on Invoice: %s or on all Invoice lines",
                             move.display_name,
@@ -188,9 +189,8 @@ class AccountMove(models.Model):
         if any(move.is_purchase_withhold() for move in self):
             template = self._get_mail_template()
             return {
-                "name": _("Send"),
+                "name": self.env._("Send"),
                 "type": "ir.actions.act_window",
-                "view_type": "form",
                 "view_mode": "form",
                 "res_model": "account.move.send.wizard"
                 if len(self) == 1
@@ -214,7 +214,7 @@ class AccountMove(models.Model):
             form_id = self.env.ref(
                 "l10n_ec_withhold.view_account_move_withhold_form"
             ).id
-            action["name"] = _("Withhold")
+            action["name"] = self.env._("Withhold")
             action["views"] = [(form_id, "form")]
         return action
 
@@ -277,14 +277,14 @@ class AccountMove(models.Model):
         ):
             if len(self) > 1:
                 raise UserError(
-                    _(
+                    self.env._(
                         "You can't create Withhold for some invoice, "
                         "Please select only a Invoice."
                     )
                 )
             if self.commercial_partner_id.country_id.code != "EC":
                 raise UserError(
-                    _(
+                    self.env._(
                         "The Vendor is foreign, and currently "
                         "support is exclusively provided for withholdings "
                         "from Ecuadorian companies. "
@@ -299,7 +299,7 @@ class AccountMove(models.Model):
             action = self._action_create_sale_withhold_wizard()
         else:
             raise UserError(
-                _(
+                self.env._(
                     "Please select only invoice "
                     "what satisfies the requirements for create withhold"
                 )
@@ -357,7 +357,7 @@ class AccountMove(models.Model):
             "edit": False,
         }
         action["context"] = context
-        action["name"] = _("Withholding")
+        action["name"] = self.env._("Withholding")
         view_tree_id = self.env.ref(
             "l10n_ec_withhold.view_account_move_withhold_tree"
         ).id
@@ -446,27 +446,3 @@ class AccountMoveLine(models.Model):
         ):
             return self.move_id.l10n_ec_tax_support
         return self.l10n_ec_tax_support
-
-    def _compute_tax_key(self):
-        # group tax by l10n_ec_tax_support and invoice, for split taxes
-        res = super()._compute_tax_key()
-        for line in self.filtered("l10n_ec_invoice_withhold_id"):
-            line.tax_key = frozendict(
-                **line.tax_key,
-                l10n_ec_invoice_withhold_id=line.l10n_ec_invoice_withhold_id.id,
-                l10n_ec_tax_support=line._get_l10n_ec_tax_support(),
-            )
-        return res
-
-    def _compute_all_tax(self):
-        # take values from new key(see _compute_tax_key)
-        res = super()._compute_all_tax()
-        for line in self.filtered("l10n_ec_invoice_withhold_id"):
-            for key in list(line.compute_all_tax.keys()):
-                new_key = frozendict(
-                    **key,
-                    l10n_ec_invoice_withhold_id=line.l10n_ec_invoice_withhold_id.id,
-                    l10n_ec_tax_support=line._get_l10n_ec_tax_support(),
-                )
-                line.compute_all_tax[new_key] = line.compute_all_tax.pop(key, {})
-        return res
