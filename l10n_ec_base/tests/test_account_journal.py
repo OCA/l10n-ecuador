@@ -2,7 +2,7 @@ from odoo.exceptions import ValidationError
 from odoo.tests import Form, common
 
 
-class TestModelA(common.TransactionCase):
+class TestAccountJournal(common.TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

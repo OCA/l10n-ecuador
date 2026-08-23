@@ -3,7 +3,7 @@
     "summary": "Ecuadorian Localization",
     "category": "Account",
     "countries": ["ec"],
-    "author": "Odoo Community Association (OCA), Renan Nazate, Gabriel, Leonardo",
+    "author": "Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/l10n-ecuador",
     "license": "AGPL-3",
     "version": "19.0.1.0.0",

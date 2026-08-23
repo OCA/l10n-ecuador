@@ -1,10 +1,9 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-/venv
+/.venv
 /.pytest_cache
 /.ruff_cache
-.vscode
 
 # C extensions
 *.so
@@ -87,7 +86,3 @@ docs/_build/
 
 # OCA rules
 !static/lib/
-
-# MemPalace per-project files (issue #185)
-mempalace.yaml
-entities.json
