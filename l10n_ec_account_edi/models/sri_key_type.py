@@ -24,6 +24,18 @@ KEY_TO_PEM_CMD = (
 )
 
 
+def cert_naive_utc(cert, bound):
+    """Return the certificate validity bound as a naive UTC datetime.
+
+    ``*_utc`` properties require cryptography >= 42; older releases only
+    expose the deprecated naive attributes (also expressed in UTC).
+    """
+    value = getattr(cert, "not_valid_%s_utc" % bound, None)
+    if value is None:
+        value = getattr(cert, "not_valid_%s" % bound)
+    return value.replace(tzinfo=None) if value.tzinfo else value
+
+
 def convert_key_cer_to_pem(key, password):
     # TODO compute it from a python way
     with (
@@ -158,13 +170,11 @@ class SriKeyType(models.Model):
             else ""
         )
         vals = {
-            # *_utc avoids the deprecated naive properties; strip tzinfo as
-            # context_timestamp expects a naive UTC datetime
             "issue_date": fields.Datetime.context_timestamp(
-                self, cert.not_valid_before_utc.replace(tzinfo=None)
+                self, cert_naive_utc(cert, "before")
             ).date(),
             "expire_date": fields.Datetime.context_timestamp(
-                self, cert.not_valid_after_utc.replace(tzinfo=None)
+                self, cert_naive_utc(cert, "after")
             ).date(),
             "subject_common_name": subject_common_name,
             "subject_serial_number": subject_serial_number,
