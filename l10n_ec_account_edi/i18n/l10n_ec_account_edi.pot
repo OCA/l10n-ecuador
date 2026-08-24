@@ -14,20 +14,6 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: l10n_ec_account_edi
-#: model:ir.model.fields.selection,name:l10n_ec_account_edi.selection__res_company__l10n_ec_debit_note_version__1_0_0
-#: model:ir.model.fields.selection,name:l10n_ec_account_edi.selection__res_company__l10n_ec_invoice_version__1_0_0
-#: model:ir.model.fields.selection,name:l10n_ec_account_edi.selection__res_company__l10n_ec_liquidation_version__1_0_0
-msgid "1.0.0"
-msgstr ""
-
-#. module: l10n_ec_account_edi
-#: model:ir.model.fields.selection,name:l10n_ec_account_edi.selection__res_company__l10n_ec_credit_note_version__1_1_0
-#: model:ir.model.fields.selection,name:l10n_ec_account_edi.selection__res_company__l10n_ec_invoice_version__1_1_0
-#: model:ir.model.fields.selection,name:l10n_ec_account_edi.selection__res_company__l10n_ec_liquidation_version__1_1_0
-msgid "1.1.0"
-msgstr ""
-
-#. module: l10n_ec_account_edi
 #: model:ir.model.fields.selection,name:l10n_ec_account_edi.selection__res_company__l10n_ec_invoice_version__2_0_0
 msgid "2.0.0(Third Party Items)"
 msgstr ""
@@ -222,6 +208,11 @@ msgstr ""
 
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.res_config_settings_l10n_ec_edi
+msgid "<span class=\"o_form_label\">RUC Provider</span>"
+msgstr ""
+
+#. module: l10n_ec_account_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.res_config_settings_l10n_ec_edi
 msgid "<span class=\"o_form_label\">XML Document Version</span>"
 msgstr ""
 
@@ -291,6 +282,11 @@ msgstr ""
 #. module: l10n_ec_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.electronic_report_common_head
 msgid "<strong>R.U.C.:</strong>"
+msgstr ""
+
+#. module: l10n_ec_account_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.electronic_report_common_info_aditional
+msgid "<strong>RUC Proveedor: </strong>"
 msgstr ""
 
 #. module: l10n_ec_account_edi
@@ -870,6 +866,17 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_res_company__l10n_ec_liquidation_version
 #: model:ir.model.fields,field_description:l10n_ec_account_edi.field_res_config_settings__l10n_ec_liquidation_version
 msgid "Purchase Liquidation Version xml"
+msgstr ""
+
+#. module: l10n_ec_account_edi
+#: model:ir.model.fields,field_description:l10n_ec_account_edi.field_res_config_settings__l10n_ec_ruc_provider
+#: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.res_config_settings_l10n_ec_edi
+msgid "RUC Provider"
+msgstr ""
+
+#. module: l10n_ec_account_edi
+#: model_terms:ir.ui.view,arch_db:l10n_ec_account_edi.res_config_settings_l10n_ec_edi
+msgid "RUC of the provider of the electronic invoicing system."
 msgstr ""
 
 #. module: l10n_ec_account_edi
