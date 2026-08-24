@@ -30,3 +30,8 @@ class ResConfigSettings(models.TransientModel):
         default=50.0,
         readonly=False,
     )
+    l10n_ec_ruc_provider = fields.Char(
+        string="RUC Provider",
+        config_parameter="l10n_ec_fe_ruc_provider",
+        readonly=False,
+    )
