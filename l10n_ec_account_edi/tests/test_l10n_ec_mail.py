@@ -54,8 +54,10 @@ class TestL10nMail(TestL10nECEdiCommon, MailCommon):
             "l10n_ec_send_mail_to_partners",
             mock_send_mail_to_partners,
         ):
-            result = cron_tasks.method_direct_trigger()
-        self.assertTrue(result)
+            # method_direct_trigger() runs on a separate committed cursor
+            # in Odoo 19, so it cannot see records created inside this
+            # test transaction; call the cron entry point directly instead.
+            self.env["account.edi.document"].l10n_ec_send_mail_to_partners()
         self.assertEqual(invoice.state, "posted")
         self.assertTrue(edi_doc.l10n_ec_xml_access_key)
         self.assertTrue(invoice.is_move_sent)

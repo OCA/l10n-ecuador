@@ -62,7 +62,12 @@ class TestL10nCancelled(TestL10nECEdiCommon):
         cron_tasks = self.env.ref("account_edi.ir_cron_edi_network", False)
         self.assertTrue(cron_tasks)
         # Execute cron for cancel receipt
-        cron_tasks.method_direct_trigger()
+        # method_direct_trigger() runs on a separate committed cursor in
+        # Odoo 19, so it cannot see records created inside this test
+        # transaction; call the cron entry point directly instead.
+        self.env["account.edi.document"]._cron_process_documents_web_services(
+            job_count=20
+        )
         self.assertEqual(invoice.state, "cancel")
         self.assertFalse(invoice.show_reset_to_draft_button)
 
