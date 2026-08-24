@@ -50,6 +50,20 @@ class ResCompany(models.Model):
         string="Debit Note Version xml",
         default="1.0.0",
     )
+    
+    vat_provider = fields.Char(
+        string="RUC Proveedor Facturacion",
+        help="RUC of the provider for electronic documents",
+    )
+
+    def _l10n_ec_get_provider_ruc_additional_info(self):
+        self.ensure_one()
+        if not self.vat_provider:
+            return False
+        return {
+            "name": "RUC Proveedor",
+            "description": self.vat_provider,
+        }
 
     @api.model
     def l10n_ec_get_resolution_data(self, date=None):
@@ -58,7 +72,7 @@ class ResCompany(models.Model):
 
     @api.model
     def l10n_ec_action_unauthorized_documents_notification(self):
-        companies = self.search([], limit=80)
+        companies = self.search([])
         email_template = self.env.ref(
             "l10n_ec_account_edi.email_template_unauthorized_notify", False
         )

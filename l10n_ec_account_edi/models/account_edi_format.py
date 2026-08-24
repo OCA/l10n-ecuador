@@ -5,7 +5,7 @@ from datetime import datetime
 from zeep import Client
 from zeep.transports import Transport
 
-from odoo import api, models
+from odoo import _, api, models, tools
 from odoo.tools import float_compare, formatLang
 
 _logger = logging.getLogger(__name__)
@@ -71,7 +71,7 @@ class AccountEdiFormat(models.Model):
                 ]:
                     if not tax.l10n_ec_code_ats:
                         errors.append(
-                            self.env._(
+                            _(
                                 "You must set Code Base into Tax: %s",
                                 tax.display_name,
                             )
@@ -79,7 +79,7 @@ class AccountEdiFormat(models.Model):
                 else:
                     if not tax.l10n_ec_xml_fe_code:
                         errors.append(
-                            self.env._(
+                            _(
                                 "You must set Tax Code for Electronic Documents into "
                                 "Tax: %s",
                                 tax.display_name,
@@ -91,7 +91,7 @@ class AccountEdiFormat(models.Model):
                 and not journal.l10n_ec_sri_payment_id
             ):
                 errors.append(
-                    self.env._(
+                    _(
                         "You must set Payment Method SRI on Current document or "
                         "Journal: %s",
                         journal.display_name,
@@ -101,7 +101,7 @@ class AccountEdiFormat(models.Model):
             if document_type == "invoice" and document.move_type == "out_invoice":
                 if not company.l10n_ec_invoice_version:
                     errors.append(
-                        self.env._(
+                        _(
                             "You must set XML Version for Invoice into company %s",
                             company.display_name,
                         )
@@ -118,20 +118,22 @@ class AccountEdiFormat(models.Model):
                     == 1
                 ):
                     errors.append(
-                        self.env._(
+                        _(
                             "The amount total %(Total)s is bigger than "
-                            "%(Limit)s for final customer",
-                            Total=formatLang(
+                            "%(Limit)s for final customer"
+                        )
+                        % {
+                            "Total": formatLang(
                                 self.env,
                                 document.amount_total,
                                 currency_obj=company.currency_id,
                             ),
-                            Limit=formatLang(
+                            "Limit": formatLang(
                                 self.env,
                                 l10n_ec_final_consumer_limit,
                                 currency_obj=company.currency_id,
                             ),
-                        )
+                        }
                     )
             if (
                 document_type == "purchase_liquidation"
@@ -139,7 +141,7 @@ class AccountEdiFormat(models.Model):
             ):
                 if not company.l10n_ec_liquidation_version:
                     errors.append(
-                        self.env._(
+                        _(
                             "You must set XML Version for Purchase Liquidation into "
                             "company %s",
                             company.display_name,
@@ -148,7 +150,7 @@ class AccountEdiFormat(models.Model):
             if document_type == "debit_note" and document.move_type == "out_invoice":
                 if not company.l10n_ec_debit_note_version:
                     errors.append(
-                        self.env._(
+                        _(
                             "You must set XML Version for Debit Note into company %s",
                             company.display_name,
                         )
@@ -157,7 +159,7 @@ class AccountEdiFormat(models.Model):
                 # TODO YRO credit note add more validations
                 if not company.l10n_ec_credit_note_version:
                     errors.append(
-                        self.env._(
+                        _(
                             "You must set XML Version for Credit Note into company %s",
                             company.display_name,
                         )
@@ -172,28 +174,28 @@ class AccountEdiFormat(models.Model):
         contact_address = journal.l10n_ec_emission_address_id
         if not document.commercial_partner_id.vat:
             errors.append(
-                self.env._(
+                _(
                     "You must set vat identification for Partner: %s",
                     document.commercial_partner_id.display_name,
                 )
             )
         if not company.vat:
             errors.append(
-                self.env._(
+                _(
                     "You must set vat identification for company: %s",
                     company.display_name,
                 )
             )
         if not company.l10n_ec_key_type_id:
             errors.append(
-                self.env._(
+                _(
                     "You must set Electronic Certificate File into company: %s",
                     company.display_name,
                 )
             )
         if not contact_address:
             errors.append(
-                self.env._(
+                _(
                     "You must set Emission address into Journal: %s",
                     journal.display_name,
                 )
@@ -201,7 +203,7 @@ class AccountEdiFormat(models.Model):
         # direccion de establecimiento
         elif not contact_address.street:
             errors.append(
-                self.env._(
+                _(
                     "You must set street into Emission Address: %(concact_name)s "
                     "for Journal: %(journal_name)s",
                     concact_name=contact_address.display_name,
@@ -261,7 +263,7 @@ class AccountEdiFormat(models.Model):
                             {
                                 document: {
                                     "success": False,
-                                    "error": self.env._(
+                                    "error": _(
                                         "Can't connect to SRI Webservice, try in few "
                                         "minutes"
                                     ),
@@ -297,11 +299,11 @@ class AccountEdiFormat(models.Model):
                         )[:2]
                         errors.extend(msj)
             except Exception as ex:
-                _logger.error(traceback.format_exc())
+                _logger.error(tools.ustr(traceback.format_exc()))
                 errors.append(
-                    self.env._(
+                    _(
                         "EDI Error creating xml file: %s",
-                        str(ex),
+                        tools.ustr(ex),
                     )
                 )
             blocking_level = False
@@ -357,6 +359,6 @@ class AccountEdiFormat(models.Model):
             _logger.warning(
                 "Error in Connection with web services of SRI: %s. Error: %s",
                 ws_url,
-                str(e),
+                tools.ustr(e),
             )
         return wsClient

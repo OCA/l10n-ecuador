@@ -8,7 +8,7 @@ import pytz
 from lxml import etree
 from zeep.helpers import serialize_object
 
-from odoo import api, fields, models, tools
+from odoo import _, api, fields, models, tools
 from odoo.exceptions import UserError
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from odoo.tools import float_repr
@@ -155,7 +155,7 @@ class AccountEdiDocument(models.Model):
                 )
             else:
                 raise UserError(
-                    self.env._("Wrong XML File, Detail: \n%(error)s", error=str(e))
+                    _("Wrong XML File, Detail: \n%s") % tools.ustr(e)
                 ) from None
         return True
 

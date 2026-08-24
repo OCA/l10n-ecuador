@@ -36,6 +36,7 @@
         "views/account_move_view.xml",
         "views/res_config_settings_view.xml",
         "views/account_edi_document_view.xml",
+        "views/res_company_view.xml"
     ],
     "assets": {
         "web.report_assets_common": [

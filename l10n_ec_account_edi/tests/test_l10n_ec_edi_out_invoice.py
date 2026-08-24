@@ -294,6 +294,38 @@ class TestL10nOutInvoice(TestL10nECEdiCommon):
             invoice.l10n_ec_additional_information_move_ids[0].name, "Test"
         )
 
+    def test_l10n_ec_out_invoice_auto_add_provider_ruc(self):
+        """La factura de cliente agrega el RUC del proveedor en info adicional"""
+        self._setup_edi_company_ec()
+        self.company.write({"vat_provider": "1313109678001"})
+
+        invoice = self._l10n_ec_prepare_edi_out_invoice(auto_post=False)
+        self.assertTrue(
+            invoice.l10n_ec_additional_information_move_ids.filtered(
+                lambda line: line.name == "RUC Proveedor"
+                and line.description == "1313109678001"
+            )
+        )
+
+        form = self._l10n_ec_create_form_move(
+            move_type="out_refund",
+            internal_type="credit_note",
+            partner=self.partner_ruc,
+        )
+        form.l10n_ec_legacy_document_number = self.get_sequence_number()
+        form.l10n_ec_legacy_document_date = self.current_datetime
+        form.l10n_ec_legacy_document_authorization = (
+            self.number_authorization_electronic
+        )
+        form.l10n_ec_reason = "FA MOTIVO"
+        refund = form.save()
+        self.assertTrue(
+            refund.l10n_ec_additional_information_move_ids.filtered(
+                lambda line: line.name == "RUC Proveedor"
+                and line.description == "1313109678001"
+            )
+        )
+
     @patch_service_sri
     def test_l10n_ec_out_invoice_test(self):
         self._setup_edi_company_ec()

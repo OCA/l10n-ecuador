@@ -1,7 +1,7 @@
 import logging
 import re
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import float_compare
 
@@ -60,6 +60,47 @@ class AccountMove(models.Model):
         "l10n.ec.additional.information", "move_id", string="Additional Information"
     )
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._l10n_ec_add_provider_ruc_additional_information()
+        return records
+
+    def write(self, vals):
+        res = super().write(vals)
+        if any(field in vals for field in ("move_type", "company_id")):
+            self._l10n_ec_add_provider_ruc_additional_information()
+        return res
+
+    def _l10n_ec_add_provider_ruc_additional_information(self):
+        for move in self:
+            if move.move_type not in ("out_invoice", "out_refund"):
+                continue
+            info = move.company_id._l10n_ec_get_provider_ruc_additional_info()
+            if not info:
+                move.l10n_ec_additional_information_move_ids.filtered(
+                    lambda line: line.name == "RUC Proveedor"
+                ).unlink()
+                continue
+
+            auto_info = move.l10n_ec_additional_information_move_ids.filtered(
+                lambda line: line.name == "RUC Proveedor"
+            )
+            if auto_info and auto_info[0].description == info["description"]:
+                continue
+            if auto_info:
+                auto_info[0].write({"description": info["description"]})
+                if len(auto_info) > 1:
+                    auto_info[1:].unlink()
+                continue
+            self.env["l10n.ec.additional.information"].create(
+                {
+                    "name": info["name"],
+                    "description": info["description"],
+                    "move_id": move.id,
+                }
+            )
+
     @api.depends("company_id", "invoice_filter_type_domain")
     def _compute_suitable_journal_ids(self):
         res = super()._compute_suitable_journal_ids()
@@ -115,9 +156,7 @@ class AccountMove(models.Model):
                 cadena, rec.l10n_ec_electronic_authorization
             ):
                 raise UserError(
-                    self.env._(
-                        "Invalid provider authorization number, must be numeric only"
-                    )
+                    _("Invalid provider authorization number, must be numeric only")
                 )
 
     def _search_default_journal(self):
@@ -142,7 +181,7 @@ class AccountMove(models.Model):
         # avoid computing the currency before all it's dependences are set (like the
         # journal...)
         if self.env.cache.contains(self, self._fields["currency_id"]):
-            currency_id = self.currency_id.id or self.env.context.get(
+            currency_id = self.currency_id.id or self._context.get(
                 "default_currency_id"
             )
             if currency_id and currency_id != company.currency_id.id:
@@ -153,7 +192,7 @@ class AccountMove(models.Model):
             journal = self.env["account.journal"].search(domain, limit=1)
 
         if not journal:
-            error_msg = self.env._(
+            error_msg = _(
                 "No journal could be found in company %(company_name)s for any of "
                 "those types: %(journal_types)s",
                 company_name=company.display_name,
@@ -185,10 +224,8 @@ class AccountMove(models.Model):
             else False
         )
         pay_term_line_ids = self.line_ids.filtered(
-            lambda line: (
-                line.account_id.account_type
-                in ("asset_receivable", "liability_payable")
-            )
+            lambda line: line.account_id.account_type
+            in ("asset_receivable", "liability_payable")
         )
         partials = pay_term_line_ids.mapped(
             "matched_debit_ids"
@@ -327,15 +364,15 @@ class AccountMove(models.Model):
                         )
                 if product_not_quantity:
                     error_list.append(
-                        self.env._(
+                        _(
                             "You cannot validate an invoice with zero quantity. "
-                            "Please review the following items:\n%(items)s",
-                            items="\n".join(product_not_quantity),
+                            "Please review the following items:\n%s"
                         )
+                        % "\n".join(product_not_quantity)
                     )
                 if float_compare(move.amount_total, 0.0, precision_digits=2) <= 0:
                     error_list.append(
-                        self.env._("You cannot validate an invoice with zero value.")
+                        _("You cannot validate an invoice with zero value.")
                     )
                 if error_list:
                     raise UserError("\n".join(error_list))
@@ -405,7 +442,7 @@ class AccountMove(models.Model):
         if any(x._is_l10n_ec_is_purchase_liquidation() for x in self):
             template = self._get_mail_template()
             return {
-                "name": self.env._("Send"),
+                "name": _("Send"),
                 "type": "ir.actions.act_window",
                 "view_type": "form",
                 "view_mode": "form",
@@ -448,7 +485,7 @@ class AccountMove(models.Model):
 
             if response is False:
                 raise ValidationError(
-                    self.env._(
+                    _(
                         "The connection to the SRI service is not possible. Please "
                         "check later."
                     )
@@ -460,7 +497,7 @@ class AccountMove(models.Model):
 
             if is_authorized:
                 raise ValidationError(
-                    self.env._("The receipt is authorized. It cannot be cancelled.")
+                    _("The receipt is authorized. It cannot be cancelled.")
                 )
 
         return super().button_cancel_posted_moves()
