@@ -307,18 +307,11 @@ class TestL10nOutInvoice(TestL10nECEdiCommon):
             )
         )
 
-        form = self._l10n_ec_create_form_move(
+        refund = self._l10n_ec_create_form_move(
             move_type="out_refund",
             internal_type="credit_note",
             partner=self.partner_ruc,
-        )
-        form.l10n_ec_legacy_document_number = self.get_sequence_number()
-        form.l10n_ec_legacy_document_date = self.current_datetime
-        form.l10n_ec_legacy_document_authorization = (
-            self.number_authorization_electronic
-        )
-        form.l10n_ec_reason = "FA MOTIVO"
-        refund = form.save()
+        ).save()
         self.assertTrue(
             refund.l10n_ec_additional_information_move_ids.filtered(
                 lambda line: line.name == "RUC Proveedor"

@@ -24,18 +24,6 @@ KEY_TO_PEM_CMD = (
 )
 
 
-def cert_naive_utc(cert, bound):
-    """Return the certificate validity bound as a naive UTC datetime.
-
-    ``*_utc`` properties require cryptography >= 42; older releases only
-    expose the deprecated naive attributes (also expressed in UTC).
-    """
-    value = getattr(cert, "not_valid_%s_utc" % bound, None)
-    if value is None:
-        value = getattr(cert, "not_valid_%s" % bound)
-    return value.replace(tzinfo=None) if value.tzinfo else value
-
-
 def convert_key_cer_to_pem(key, password):
     # TODO compute it from a python way
     with (
@@ -92,11 +80,7 @@ class SriKeyType(models.Model):
             return None, None, None
         file_content = b64decode(self.file_content)
         try:
-            # load_key_and_certificates is available in every cryptography
-            # release; pkcs12.load_pkcs12() requires cryptography >= 39
-            private_key, certificate, additional_certs = (
-                pkcs12.load_key_and_certificates(file_content, self.password.encode())
-            )
+            p12 = pkcs12.load_pkcs12(file_content, self.password.encode())
         except Exception as ex:
             _logger.warning(tools.ustr(ex))
             raise UserError(
@@ -106,6 +90,7 @@ class SriKeyType(models.Model):
                 )
                 % (tools.ustr(ex))
             ) from None
+        certificate = p12.cert.certificate
         # revisar si el certificado tiene la extension digital_signature activada
         # caso contrario tomar del listado de certificados el primero que tengan esta
         # extension
@@ -121,16 +106,15 @@ class SriKeyType(models.Model):
             # cuando hay mas de un certificado, tomar el certificado correcto
             # este deberia tener entre las extensiones digital_signature = True
             # pero si el certificado solo tiene uno, devolvera None
-            for other_cert in additional_certs or []:
+            for other_cert in p12.additional_certs:
                 try:
-                    extension = other_cert.extensions.get_extension_for_oid(
+                    extension = other_cert.certificate.extensions.get_extension_for_oid(
                         ExtensionOID.KEY_USAGE
                     )
                 except ExtensionNotFound as ex:
                     _logger.debug(tools.ustr(ex))
-                    continue
                 if extension.value.digital_signature:
-                    certificate = other_cert
+                    certificate = other_cert.certificate
                     break
         private_key_str = convert_key_cer_to_pem(file_content, self.password)
         start_index = private_key_str.find("Signing Key")
@@ -171,10 +155,10 @@ class SriKeyType(models.Model):
         )
         vals = {
             "issue_date": fields.Datetime.context_timestamp(
-                self, cert_naive_utc(cert, "before")
+                self, cert.not_valid_before
             ).date(),
             "expire_date": fields.Datetime.context_timestamp(
-                self, cert_naive_utc(cert, "after")
+                self, cert.not_valid_after
             ).date(),
             "subject_common_name": subject_common_name,
             "subject_serial_number": subject_serial_number,

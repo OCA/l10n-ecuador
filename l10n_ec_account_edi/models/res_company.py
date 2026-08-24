@@ -50,7 +50,7 @@ class ResCompany(models.Model):
         string="Debit Note Version xml",
         default="1.0.0",
     )
-    
+
     vat_provider = fields.Char(
         string="RUC Proveedor Facturacion",
         help="RUC of the provider for electronic documents",

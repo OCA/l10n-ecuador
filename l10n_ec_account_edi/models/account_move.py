@@ -287,8 +287,7 @@ class AccountMove(models.Model):
     def _l10n_ec_get_taxes_grouped_by_tax_group(self, exclude_withholding=True):
         self.ensure_one()
 
-        withhold_group_ids = []
-        if exclude_withholding:
+        def filter_withholding_taxes(base_line, tax_data):
             withhold_group_ids = (
                 self.env["account.tax.group"]
                 .search(
@@ -308,15 +307,12 @@ class AccountMove(models.Model):
                 .ids
             )
 
-        def filter_withholding_taxes(base_line, tax_data):
-            return tax_data["tax"].tax_group_id.id not in withhold_group_ids
+            tax = tax_data["tax"]
 
-        # _prepare_edi_tax_details was removed in Odoo 17; use the aggregated
-        # tax details API. Grouping key defaults to the account.tax record.
-        taxes_data = self._prepare_invoice_aggregated_taxes(
-            filter_tax_values_to_apply=(
-                exclude_withholding and filter_withholding_taxes or None
-            ),
+            return tax not in withhold_group_ids
+
+        taxes_data = self._prepare_edi_tax_details(
+            filter_to_apply=exclude_withholding and filter_withholding_taxes or None,
         )
         return taxes_data
 
@@ -472,7 +468,7 @@ class AccountMove(models.Model):
         connection to the SRI is not possible
         """
         for receipt in self:
-            company = receipt.company_id or self.env.company
+            company = receipt.env.user.company_id
             client_ws = receipt.edi_document_ids.edi_format_id
 
             authorization_client = client_ws._l10n_ec_get_edi_ws_client(
