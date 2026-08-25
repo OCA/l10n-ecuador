@@ -349,10 +349,19 @@ class AccountEdiDocument(models.Model):
         # TODO: agregar logica para demas tipos de documento
         return xml_file
 
+    def _l10n_ec_get_ruc_provider(self):
+        return (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("l10n_ec_fe_ruc_provider", "")
+        )
+
     def _l10n_ec_get_info_additional(self):
         additional_information = self.move_id.l10n_ec_additional_information_move_ids
         info_data = []
-
+        ruc_provider = self._l10n_ec_get_ruc_provider()
+        if ruc_provider:
+            info_data.append({"name": "RUC Proveedor", "description": ruc_provider})
         for line in additional_information:
             info_data.append(
                 {
