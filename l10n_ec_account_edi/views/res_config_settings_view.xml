@@ -6,23 +6,12 @@
         <field name="inherit_id" ref="account.res_config_settings_view_form" />
         <field name="arch" type="xml">
             <xpath expr="//block[@id='invoicing_settings']" position="after">
-                <div id="l10n_ec_title" invisible="country_code != 'EC'">
-                    <h2>Ecuadorian Localization</h2>
-                </div>
-                <div
-                    id="l10n_ec_section"
-                    class="row mt16 o_settings_container"
-                    invisible="country_code != 'EC'"
-                >
-                    <div
-                        class="col-12 col-lg-6 o_setting_box"
-                        title="Electronic Invoicing Connection Parameters"
-                    >
-                        <div class="o_setting_left_pane" />
-                        <div class="o_setting_right_pane">
-                            <span
-                                class="o_form_label"
-                            >Electronic Invoicing Connection Parameters</span>
+                <block title="Ecuadorian Localization" invisible="country_code != 'EC'">
+                    <div id="l10n_ec_section">
+                        <setting
+                            string="Electronic Invoicing Connection Parameters"
+                            title="Electronic Invoicing Connection Parameters"
+                        >
                             <div class="content-group">
                                 <div class="row">
                                     <label
@@ -36,17 +25,11 @@
                                     />
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <div
-                        class="col-12 col-lg-6 o_setting_box"
-                        title="Electronic Certificate File"
-                    >
-                        <div class="o_setting_left_pane" />
-                        <div class="o_setting_right_pane">
-                            <span
-                                class="o_form_label"
-                            >Electronic Certificate File</span>
+                        </setting>
+                        <setting
+                            string="Electronic Certificate File"
+                            title="Electronic Certificate File"
+                        >
                             <div class="content-group">
                                 <div class="row">
                                     <label
@@ -61,13 +44,9 @@
                                     />
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                        </setting>
 <!--                    Configurar Limite del valor de factura a Consumidor Final -->
-                    <div class="col-12 col-lg-6 o_setting_box" title="Final Consumer">
-                        <div class="o_setting_left_pane" />
-                        <div class="o_setting_right_pane">
-                            <span class="o_form_label">Final Consumer</span>
+                        <setting string="Final Consumer" title="Final Consumer">
                             <div class="text-muted">
                                  Limit for billing in sales for final consumer, total amount
                             </div>
@@ -84,12 +63,8 @@
                                     />
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-lg-6 o_setting_box">
-                        <div class="o_setting_left_pane" />
-                        <div class="o_setting_right_pane">
-                            <span class="o_form_label">XML Document Version</span>
+                        </setting>
+                        <setting string="XML Document Version">
                             <div class="row col-12 oe_grey">
                                 <ul>
                                     <li>Versions 1.0.0 to 2 decimals</li>
@@ -133,9 +108,9 @@
                                     class="oe_in_line"
                                 />
                             </div>
-                        </div>
+                        </setting>
                     </div>
-                </div>
+                </block>
             </xpath>
         </field>
     </record>
