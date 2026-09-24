@@ -1,10 +1,18 @@
 from odoo.exceptions import ValidationError
-from odoo.tests import Form, common
+from odoo.tests import Form, tagged
+
+from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
 
-class TestModelA(common.TransactionCase):
+@tagged("post_install", "-at_install")
+class TestAccountJournal(AccountTestInvoicingCommon):
+    @classmethod
+    def setUpClass(cls):
+        # Configuración contable de Ecuador
+        cls.country_code = "EC"
+        super().setUpClass()
+
     def test_valid_l10n_ec_entity(self):
-        self.env.user.company_id = self.env.ref("base.demo_company_ec")
         journal_form = Form(self.env["account.journal"])
         journal_form.name = "nametest"
         journal_form.type = "sale"
@@ -23,7 +31,6 @@ class TestModelA(common.TransactionCase):
             journal_form.save()
 
     def test_l10n_ec_purchase_liquidation(self):
-        self.env.user.company_id = self.env.ref("base.demo_company_ec")
         journal_form = Form(self.env["account.journal"])
         journal_form.name = "purchase liquidation"
         journal_form.type = "purchase"
