@@ -1,0 +1,16 @@
+# Temporary reference to a pull request that is not merged yet.
+#
+# l10n_ec_account_edi hard-depends on l10n_ec_base, which is being migrated in
+# OCA/l10n-ecuador#101. CI resolves `depends` against the target branch, where
+# l10n_ec_base does not exist yet, so the tests would fail on
+# env.ref("l10n_ec_base.purchase_liquidation_ec") and
+# env.ref("l10n_ec_base.tax_group_vat_12").
+#
+# Remove this file by dropping the "[DON'T MERGE] test-requirements.txt" commit
+# once #101 is merged. The OCA CI linter deliberately fails while a temporary
+# reference is present; that red is expected and must not be suppressed.
+#
+# Format for >= v17: each addon is its own Python project with its own
+# pyproject.toml, so the subdirectory fragment is the module name itself.
+# See https://github.com/OCA/maintainer-tools/wiki/Use-temporary-reference(s)-to-another-pull-request(s)
+odoo-addon-l10n_ec_base @ git+https://github.com/OCA/l10n-ecuador.git@refs/pull/101/head#subdirectory=l10n_ec_base
