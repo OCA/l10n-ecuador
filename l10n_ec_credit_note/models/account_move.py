@@ -51,14 +51,14 @@ class AccountMove(models.Model):
 
         return account
 
-    def _stock_account_prepare_anglo_saxon_out_lines_vals(self):
+    def _stock_account_prepare_realtime_out_lines_vals(self):
         discount_credit_notes = self.filtered(
             lambda x: x.move_type in ["in_refund", "out_refund"]
             and x.l10n_ec_type_credit_note == "discount"
         )
         return super(
             AccountMove, self - discount_credit_notes
-        )._stock_account_prepare_anglo_saxon_out_lines_vals()
+        )._stock_account_prepare_realtime_out_lines_vals()
 
     def copy_data(self, default=None):
         res = super().copy_data(default=default)
@@ -68,7 +68,7 @@ class AccountMove(models.Model):
             l10n_ec_type_credit_note = copy_vals.get("l10n_ec_type_credit_note")
             move_type = copy_vals.get("move_type")
             if (
-                self._context.get("move_reverse_cancel")
+                self.env.context.get("move_reverse_cancel")
                 and move_type == "out_refund"
                 and l10n_ec_type_credit_note == "discount"
             ):
