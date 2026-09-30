@@ -1,3 +1,5 @@
+import logging
+
 from dateutil.relativedelta import relativedelta
 
 from odoo.exceptions import UserError
@@ -41,7 +43,28 @@ class TestL10nSaleWithhold(TestL10nECEdiCommon):
             self._setup_edi_company_ec()
         invoice = self._l10n_ec_prepare_edi_out_invoice(partner=partner, auto_post=True)
         edi_doc = invoice._get_edi_document(self.edi_format)
-        edi_doc._process_documents_web_services(with_commit=False)
+        if invoice.invoice_line_ids.tax_ids:
+            edi_doc._process_documents_web_services(with_commit=False)
+        else:
+            # An invoice with no taxes at all is deliberately SRI-invalid here:
+            # ``account.fiscal.position._map_tax()`` drops every source tax it
+            # has no mapping for, so a partner moved to a fiscal position
+            # without ``account_tax_ids`` (as
+            # ``test_l10n_ec_fail_when_invoice_no_require_withholding`` does)
+            # ends up with none. ``l10n_ec_header_get_total_with_taxes()``
+            # then returns an empty list, the EDI template omits
+            # ``<totalConImpuestos>`` -- which SRI's ``factura`` XSD declares
+            # mandatory -- and ``_l10n_ec_action_check_xsd()`` raises on the
+            # misplaced ``<importeTotal>``. ``_l10n_ec_post_move_edi()`` logs
+            # that traceback at ERROR, and the OCA checklog fails the run on any
+            # logged ERROR, so capture the expected record here:
+            # ``assertLogs`` swaps the logger's handlers and stops propagation,
+            # so the record never reaches Odoo's log handler.
+            with self.assertLogs(
+                "odoo.addons.l10n_ec_account_edi.models.account_edi_format",
+                level=logging.ERROR,
+            ):
+                edi_doc._process_documents_web_services(with_commit=False)
         return invoice
 
     def _prepare_new_wizard_withhold(
