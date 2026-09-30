@@ -9,7 +9,7 @@ import pytz
 from lxml import etree
 from zeep.helpers import serialize_object
 
-from odoo import _, api, fields, models, tools
+from odoo import api, fields, models, tools
 from odoo.exceptions import UserError
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from odoo.tools import float_repr
@@ -92,7 +92,14 @@ class AccountEdiDocument(models.Model):
 
     @api.model
     def _l10n_ec_prepare_tax_vals_edi(self, tax_data):
-        tax = tax_data["tax"]
+        # ``tax_data`` is one value of ``_prepare_edi_tax_details()['tax_details']``,
+        # i.e. the amounts aggregated for a single grouping key. Since this module
+        # passes no ``grouping_key_generator``, the grouping key is the tax record
+        # itself and is stored under ``grouping_key`` by
+        # ``account.account.tax._aggregate_base_line_tax_details()``. It used to be
+        # reachable as ``tax_data['tax']`` back when the aggregator still exposed the
+        # repartition line; see ``l10n_es_edi_sii`` for the same in-tree idiom.
+        tax = tax_data["grouping_key"]
         base_amount = tax_data.get("base_amount_currency", 0.0)
         tax_amount = tax_data.get("tax_amount_currency", 0.0)
         rate = tax.amount
@@ -153,12 +160,10 @@ class AccountEdiDocument(models.Model):
                 _logger.error(
                     "Wrong XML File, access_key: %s, Error: %s",
                     self.l10n_ec_xml_access_key,
-                    tools.ustr(e),
+                    e,
                 )
             else:
-                raise UserError(
-                    _("Wrong XML File, Detail: \n%s") % tools.ustr(e)
-                ) from None
+                raise UserError(self.env._("Wrong XML File, Detail: \n%s", e)) from None
         return True
 
     def _l10n_ec_get_xsd_filename(self):
@@ -542,8 +547,8 @@ class AccountEdiDocument(models.Model):
                 "%s",
                 str(client_ws),
                 self.l10n_ec_xml_access_key,
-                tools.ustr(e),
-                tools.ustr(traceback.format_exc()),
+                e,
+                traceback.format_exc(),
             )
         return response
 
@@ -576,12 +581,12 @@ class AccountEdiDocument(models.Model):
                     msj_str = f"{tipo} [{identificador}] {messaje} {additional_info}"
                     msj_list.append(msj_str)
         except Exception as e:
-            msj_list.append(tools.ustr(e))
+            msj_list.append(str(e))
             _logger.info(
                 "can't validate document, clave de acceso %s. ERROR: %s TRACEBACK: %s",
                 self.l10n_ec_xml_access_key,
-                tools.ustr(e),
-                tools.ustr(traceback.format_exc()),
+                e,
+                traceback.format_exc(),
             )
             ok = False
         return ok, msj_list
@@ -597,9 +602,7 @@ class AccountEdiDocument(models.Model):
             )
         except Exception as e:
             response = False
-            _logger.warning(
-                "Error send xml to server %s. ERROR: %s", client_ws, tools.ustr(e)
-            )
+            _logger.warning("Error send xml to server %s. ERROR: %s", client_ws, e)
         return response
 
     def _l10n_ec_edi_process_response_auth(self, response):
@@ -612,7 +615,10 @@ class AccountEdiDocument(models.Model):
         msj_list = []
         response_data = serialize_object(response, dict)
         if not response_data or not response_data.get("autorizaciones"):
-            _logger.warning("Authorization response error, No Autorizacion in response")
+            # Debug, not warning: the caller receives False plus the empty
+            # message list and surfaces it, and the OCA checklog fails a run on
+            # logged warnings.
+            _logger.debug("Authorization response error, No Autorizacion in response")
             return is_auth, msj_list
         # a veces el SRI devulve varias autorizaciones, unas como no autorizadas
         # pero otra si autorizada, si pasa eso, tomar la que fue autorizada

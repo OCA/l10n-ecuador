@@ -1,7 +1,7 @@
 import logging
 import re
 
-from odoo import _, api, fields, models
+from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import float_compare
 
@@ -113,7 +113,9 @@ class AccountMove(models.Model):
                 cadena, rec.l10n_ec_electronic_authorization
             ):
                 raise UserError(
-                    _("Invalid provider authorization number, must be numeric only")
+                    self.env._(
+                        "Invalid provider authorization number, must be numeric only"
+                    )
                 )
 
     def _search_default_journal(self):
@@ -138,7 +140,7 @@ class AccountMove(models.Model):
         # avoid computing the currency before all it's dependences are set (like the
         # journal...)
         if self.env.cache.contains(self, self._fields["currency_id"]):
-            currency_id = self.currency_id.id or self._context.get(
+            currency_id = self.currency_id.id or self.env.context.get(
                 "default_currency_id"
             )
             if currency_id and currency_id != company.currency_id.id:
@@ -149,7 +151,7 @@ class AccountMove(models.Model):
             journal = self.env["account.journal"].search(domain, limit=1)
 
         if not journal:
-            error_msg = _(
+            error_msg = self.env._(
                 "No journal could be found in company %(company_name)s for any of "
                 "those types: %(journal_types)s",
                 company_name=company.display_name,
@@ -263,10 +265,16 @@ class AccountMove(models.Model):
                 )
                 .ids
             )
-            return (
-                tax_values["tax_repartition_line"].tax_id.tax_group_id.id
-                not in withhold_group_ids
-            )
+            # ``_prepare_edi_tax_details()`` delegates to
+            # ``account.move._prepare_invoice_aggregated_taxes()``, which calls
+            # this filter with the new-style ``taxes_data`` entries: those expose
+            # ``tax``/``base``/``tax_amount``/``taxes`` and no longer carry a
+            # ``tax_repartition_line`` (see ``account/models/account_tax.py``
+            # ``_add_tax_details_in_base_lines``). ``tax_data`` is ``None`` for
+            # base lines without any tax, so keep those untouched.
+            if not tax_values:
+                return True
+            return tax_values["tax"].tax_group_id.id not in withhold_group_ids
 
         taxes_data = self._prepare_edi_tax_details(
             filter_to_apply=exclude_withholding and filter_withholding_taxes or None,
@@ -313,19 +321,19 @@ class AccountMove(models.Model):
                 ):
                     if float_compare(line.quantity, 0.0, precision_digits=2) <= 0:
                         product_not_quantity.append(
-                            "  - %s" % line.product_id.display_name
+                            f"  - {line.product_id.display_name}"
                         )
                 if product_not_quantity:
                     error_list.append(
-                        _(
+                        self.env._(
                             "You cannot validate an invoice with zero quantity. "
-                            "Please review the following items:\n%s"
+                            "Please review the following items:\n%s",
+                            "\n".join(product_not_quantity),
                         )
-                        % "\n".join(product_not_quantity)
                     )
                 if float_compare(move.amount_total, 0.0, precision_digits=2) <= 0:
                     error_list.append(
-                        _("You cannot validate an invoice with zero value.")
+                        self.env._("You cannot validate an invoice with zero value.")
                     )
                 if error_list:
                     raise UserError("\n".join(error_list))
@@ -393,27 +401,51 @@ class AccountMove(models.Model):
 
     def action_send_and_print(self):
         if any(x._is_l10n_ec_is_purchase_liquidation() for x in self):
-            template = self.env.ref(self._get_mail_template(), raise_if_not_found=False)
+            # Since 19.0 ``_get_mail_template()`` returns the ``mail.template``
+            # recordset itself, so it must not be fed back to ``env.ref()``.
+            template = self._get_mail_template()
             return {
-                "name": _("Send"),
+                "name": self.env._("Send"),
                 "type": "ir.actions.act_window",
-                "view_type": "form",
                 "view_mode": "form",
-                "res_model": "account.move.send",
+                # ``account.move.send`` is an AbstractModel since 19.0; the
+                # concrete single/batch wizards are the ones to open.
+                "res_model": (
+                    "account.move.send.wizard"
+                    if len(self) == 1
+                    else "account.move.send.batch.wizard"
+                ),
                 "target": "new",
                 "context": {
+                    "active_model": "account.move",
                     "active_ids": self.ids,
-                    "default_mail_template_id": template.id,
+                    # The 19.0 send wizard inherits ``template_id`` from
+                    # ``mail.composer.mixin``; its default context key is
+                    # ``default_template_id``.
+                    "default_template_id": template.id,
                 },
             }
         return super().action_send_and_print()
 
     def l10n_ec_send_email(self):
-        WizardInvoiceSent = self.env["account.move.send"]
         self.ensure_one()
-        res = self.with_context(discard_logo_check=True).action_invoice_sent()
-        context = res["context"]
-        send_mail = WizardInvoiceSent.with_context(**context).create({})
+        # Same construction as Odoo's own
+        # ``AccountTestInvoicingCommon._create_account_move_send_wizard_single``:
+        # the 19.0 send wizard is a TransientModel that picks the move up from
+        # the ``active_model``/``active_ids`` context, and creating it
+        # pre-fills the defaults the user would otherwise confirm by hand.
+        # ``allow_partners_without_mail`` is what ``action_invoice_sent()``
+        # used to inject into this context in 17.0; 19.0 still honours it in
+        # ``account.move.send._get_default_mail_partner_ids()``.
+        send_mail = (
+            self.env["account.move.send.wizard"]
+            .with_context(
+                active_model="account.move",
+                active_ids=self.ids,
+                allow_partners_without_mail=True,
+            )
+            .create({})
+        )
         # enviar factura automaticamente por correo
         send_mail.action_send_and_print()
 
@@ -436,7 +468,7 @@ class AccountMove(models.Model):
 
             if response is False:
                 raise ValidationError(
-                    _(
+                    self.env._(
                         "The connection to the SRI service is not possible. Please "
                         "check later."
                     )
@@ -448,7 +480,7 @@ class AccountMove(models.Model):
 
             if is_authorized:
                 raise ValidationError(
-                    _("The receipt is authorized. It cannot be cancelled.")
+                    self.env._("The receipt is authorized. It cannot be cancelled.")
                 )
 
         return super().button_cancel_posted_moves()

@@ -80,10 +80,10 @@
                         name="l10n_ec_additional_information_move_ids"
                         readonly="state != 'draft'"
                     >
-                        <tree editable="bottom">
+                        <list editable="bottom">
                             <field name="name" />
                             <field name="description" />
-                        </tree>
+                        </list>
                         <form>
                             <group>
                                 <field name="name" />
@@ -122,7 +122,6 @@
                     name="invisible"
                 >state != 'posted' or is_being_sent or invoice_pdf_report_id</attribute>
             </xpath>
-
         </field>
     </record>
     <record
@@ -131,7 +130,7 @@
     >
         <field name="name">Liquidation of Purchase</field>
         <field name="res_model">account.move</field>
-        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_mode">list,kanban,form</field>
         <field name="view_id" ref="account.view_invoice_tree" />
         <field name="search_view_id" ref="account.view_account_invoice_filter" />
         <field
@@ -158,7 +157,7 @@
         model="ir.actions.act_window.view"
     >
         <field name="sequence" eval="1" />
-        <field name="view_mode">tree</field>
+        <field name="view_mode">list</field>
         <field name="view_id" ref="account.view_invoice_tree" />
         <field name="act_window_id" ref="action_move_liquidation_of_purchases_type" />
     </record>
@@ -188,7 +187,7 @@
     <record id="action_move_debit_note_type" model="ir.actions.act_window">
         <field name="name">Debit Notes</field>
         <field name="res_model">account.move</field>
-        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_mode">list,kanban,form</field>
         <field name="view_id" ref="account.view_invoice_tree" />
         <field name="search_view_id" ref="account.view_account_invoice_filter" />
         <field
@@ -209,7 +208,7 @@
     </record>
     <record id="action_move_debit_note_tree" model="ir.actions.act_window.view">
         <field name="sequence" eval="1" />
-        <field name="view_mode">tree</field>
+        <field name="view_mode">list</field>
         <field name="view_id" ref="account.view_invoice_tree" />
         <field name="act_window_id" ref="action_move_debit_note_type" />
     </record>
@@ -225,5 +224,4 @@
         sequence="6"
         parent="account.menu_finance_receivables"
     />
-
 </odoo>

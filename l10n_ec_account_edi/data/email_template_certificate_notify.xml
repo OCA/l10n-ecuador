@@ -14,8 +14,8 @@
                 <br />
                 This email is to notify you that the certificate
                 <t t-out="object.name" /> is next to expire on <t
-                    t-out="object.expire_date"
-                />.
+                t-out="object.expire_date"
+            />.
                 <br />
                 If this certificate is not renewed, the system will not be able
                 to sign documents.
