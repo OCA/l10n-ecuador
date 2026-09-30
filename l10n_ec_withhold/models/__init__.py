@@ -5,3 +5,4 @@ from . import res_partner
 from . import account_fiscal_position
 from . import account_edi_document
 from . import account_chart_template
+from . import account_move_send

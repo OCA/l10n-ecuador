@@ -4,7 +4,9 @@
         <field name="model">account.fiscal.position</field>
         <field name="inherit_id" ref="l10n_ec_base.account_fiscal_position_form" />
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='company_id']" position="after">
+            <!-- Anchor on the second ``company_id`` node: the first one in
+                 ``account.view_account_position_form`` is ``invisible="1"``. -->
+            <xpath expr="//field[@name='auto_apply']" position="after">
                 <field name="l10n_ec_avoid_withhold" />
             </xpath>
         </field>

@@ -13,7 +13,9 @@ class AccountChartTemplate(models.AbstractModel):
         Esto cuando se instale el modulo la primera vez
         ya que no se puede cargar junto con el plan contable de l10n_ec
         """
-        all_companies = self.env["res.company"].search([("chart_template", "=", "ec")])
+        all_companies = self.env["res.company"].search_fetch(
+            [("chart_template", "=", "ec")]
+        )
         for company in all_companies:
             Template = self.with_company(company)
             Template._load_data(
