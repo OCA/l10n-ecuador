@@ -1,10 +1,19 @@
-from odoo.tests import common
-from odoo.tests.common import Form
+from odoo.tests import Form, tagged
+
+from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
 
-class TestAccountJournal(common.TransactionCase):
+@tagged("post_install_l10n", "post_install", "-at_install")
+class TestAccountJournal(AccountTestInvoicingCommon):
+    @classmethod
+    @AccountTestInvoicingCommon.setup_country("ec")
+    def setUpClass(cls):
+        # 19.0 no longer loads ``l10n_ec.demo_company_ec``: demo data is not
+        # installed by default, so the Ecuadorian company comes from the chart
+        # template instead. Same shape as ``l10n_ec_base``'s own journal test.
+        super().setUpClass()
+
     def test_l10n_ec_withholding(self):
-        self.env.user.company_id = self.env.ref("l10n_ec.demo_company_ec")
         journal_form = Form(self.env["account.journal"])
         journal_form.name = "Purchase Withholding"
         journal_form.code = "PUR-WH"

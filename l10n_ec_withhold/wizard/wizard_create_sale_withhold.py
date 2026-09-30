@@ -219,7 +219,11 @@ class WizardCreateSaleWithholdLine(models.TransientModel):
         ondelete="cascade",
     )
 
-    @api.onchange("invoice_id", "tax_group_withhold_id", "l10n_ec_tax_support")
+    # ``l10n_ec_tax_support`` is not a field of the sale withholding line: a
+    # sale withholding has no tax support, only the purchase one does (see
+    # ``l10n_ec.wizard.create.purchase.withhold.line``). Naming it here made
+    # the registry log "parameters must be field names -> not valid" on load.
+    @api.onchange("invoice_id", "tax_group_withhold_id")
     def _onchange_withholding_base(self):
         super()._onchange_withholding_base()
         currency_prec = self.invoice_id.company_id.currency_id.rounding

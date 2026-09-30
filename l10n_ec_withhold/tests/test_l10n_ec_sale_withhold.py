@@ -2,9 +2,9 @@ from dateutil.relativedelta import relativedelta
 
 from odoo import _
 from odoo.exceptions import UserError
-from odoo.tests import tagged
-from odoo.tests.common import Form
+from odoo.tests import Form, tagged
 
+from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.addons.l10n_ec_account_edi.tests.sri_response import patch_service_sri
 from odoo.addons.l10n_ec_account_edi.tests.test_edi_common import TestL10nECEdiCommon
 
@@ -12,11 +12,12 @@ from odoo.addons.l10n_ec_account_edi.tests.test_edi_common import TestL10nECEdiC
 @tagged("post_install_l10n", "post_install", "-at_install", "sale_withhold")
 class TestL10nSaleWithhold(TestL10nECEdiCommon):
     @classmethod
-    def setUpClass(
-        cls,
-        chart_template_ref="ec",
-    ):
-        super().setUpClass(chart_template_ref=chart_template_ref)
+    @AccountTestInvoicingCommon.setup_country("ec")
+    @AccountTestInvoicingCommon.setup_chart_template("ec")
+    def setUpClass(cls):
+        # 19.0 ``setUpClass()`` takes no arguments: country and chart template
+        # are set by decorators, not by a ``chart_template_ref`` parameter.
+        super().setUpClass()
         cls.WizardWithhold = cls.env["l10n_ec.wizard.create.sale.withhold"]
         cls.position_no_withhold = cls.env["account.fiscal.position"].create(
             {"name": "Withhold", "l10n_ec_avoid_withhold": True}
@@ -86,13 +87,14 @@ class TestL10nSaleWithhold(TestL10nECEdiCommon):
         self.assertEqual(wizard.partner_id, partner)
         self.assertEqual(wizard.document_number, "001-001-000000001")
         wizard.save().button_validate()
-        sale_withhold = self.env["account.move"].search(
+        sale_withhold = self.env["account.move"].search_fetch(
             [
                 ("partner_id", "=", wizard.partner_id.id),
                 ("ref", "=", wizard.document_number),
                 ("l10n_ec_withholding_type", "=", "sale"),
                 ("l10n_latam_internal_type", "=", "withhold"),
-            ]
+            ],
+            ["l10n_ec_withhold_line_ids"],
         )
         self.assertEqual(len(sale_withhold), 1)
         # Withhold of tax is 100% of tax amount of invoice
@@ -103,10 +105,17 @@ class TestL10nSaleWithhold(TestL10nECEdiCommon):
                         line.l10n_ec_withhold_tax_amount,
                         line.l10n_ec_invoice_withhold_id.amount_tax,
                     )
-                if tax.tax_group_id.l10n_ec_type == "withhold_income_sale":
+                # ``tax_sale_withhold_profit_303`` is ``tax_withhold_profit_303``,
+                # whose tax group is ``withhold_income_purchase``: the profit
+                # withholding is a percentage of the invoice's untaxed amount,
+                # not of its taxes. The 17.0 test compared against
+                # ``account.move.price_subtotal``, a field that has never
+                # existed on ``account.move``, so the branch was unreachable and
+                # never asserted anything.
+                if tax.tax_group_id.l10n_ec_type == "withhold_income_purchase":
                     self.assertEqual(
                         line.l10n_ec_withhold_tax_amount,
-                        line.l10n_ec_invoice_withhold_id.price_subtotal,
+                        invoice.amount_untaxed * -tax.amount / 100,
                     )
 
     def test_l10n_ec_fail_sale_withhold(self):
@@ -313,28 +322,31 @@ class TestL10nSaleWithhold(TestL10nECEdiCommon):
             line.tax_group_withhold_id = self.tax_sale_withhold_profit_303.tax_group_id
             line.tax_withhold_id = self.tax_sale_withhold_profit_303
         wizard.save().button_validate()
-        sale_withhold = self.env["account.move"].search(
+        sale_withhold = self.env["account.move"].search_fetch(
             [
                 ("partner_id", "=", wizard.partner_id.id),
                 ("ref", "=", wizard.document_number),
                 ("l10n_ec_withholding_type", "=", "sale"),
                 ("l10n_latam_internal_type", "=", "withhold"),
-            ]
+            ],
+            ["line_ids"],
         )
         self.assertEqual(len(sale_withhold), 1)
-        withholding_lines_invoice1 = self.env["account.move.line"].search(
+        withholding_lines_invoice1 = self.env["account.move.line"].search_fetch(
             [
                 ("move_id", "=", sale_withhold.id),
                 ("l10n_ec_invoice_withhold_id", "=", invoice1.id),
                 ("account_id.account_type", "=", "asset_receivable"),
-            ]
+            ],
+            ["balance"],
         )
-        withholding_lines_invoice2 = self.env["account.move.line"].search(
+        withholding_lines_invoice2 = self.env["account.move.line"].search_fetch(
             [
                 ("move_id", "=", sale_withhold.id),
                 ("l10n_ec_invoice_withhold_id", "=", invoice2.id),
                 ("account_id.account_type", "=", "asset_receivable"),
-            ]
+            ],
+            ["balance"],
         )
         self.assertEqual(abs(withholding_lines_invoice1.balance), 25)
         self.assertEqual(abs(withholding_lines_invoice2.balance), 17.5)

@@ -2,7 +2,6 @@ import logging
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
-from odoo.tools import frozendict
 from odoo.tools.safe_eval import safe_eval
 
 from .data import TAX_SUPPORT
@@ -460,27 +459,3 @@ class AccountMoveLine(models.Model):
         ):
             return self.move_id.l10n_ec_tax_support
         return self.l10n_ec_tax_support
-
-    def _compute_tax_key(self):
-        # group tax by l10n_ec_tax_support and invoice, for split taxes
-        res = super()._compute_tax_key()
-        for line in self.filtered("l10n_ec_invoice_withhold_id"):
-            line.tax_key = frozendict(
-                **line.tax_key,
-                l10n_ec_invoice_withhold_id=line.l10n_ec_invoice_withhold_id.id,
-                l10n_ec_tax_support=line._get_l10n_ec_tax_support(),
-            )
-        return res
-
-    def _compute_all_tax(self):
-        # take values from new key(see _compute_tax_key)
-        res = super()._compute_all_tax()
-        for line in self.filtered("l10n_ec_invoice_withhold_id"):
-            for key in list(line.compute_all_tax.keys()):
-                new_key = frozendict(
-                    **key,
-                    l10n_ec_invoice_withhold_id=line.l10n_ec_invoice_withhold_id.id,
-                    l10n_ec_tax_support=line._get_l10n_ec_tax_support(),
-                )
-                line.compute_all_tax[new_key] = line.compute_all_tax.pop(key, {})
-        return res

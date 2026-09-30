@@ -39,10 +39,25 @@ class WizardAbstractWithhold(models.AbstractModel):
                 and wizard.journal_id.l10n_ec_withholding_type == "purchase"
             ):
                 move = self.env["account.move"].new(self._prepare_withholding_vals())
-                move._set_next_sequence()
+                move.name = self._l10n_withhold_peek_next_sequence(move)
                 wizard.document_number = move.l10n_latam_document_number
             else:
                 wizard.document_number = False
+
+    def _l10n_withhold_peek_next_sequence(self, move):
+        """Return the number ``move`` would get, without consuming it.
+
+        19.0's ``_set_next_sequence()`` takes the chain lock with
+        ``UPDATE account_move SET name = ... WHERE id = self.id``, which cannot
+        run against the in-memory (``NewId``) move this wizard builds to
+        preview the number: psycopg2 raises ``can't adapt type 'NewId'``. The
+        wizard only previews, so compute the same value
+        ``_locked_increment()`` derives before it writes anything.
+        """
+        self.ensure_one()
+        format_string, format_values = move._get_next_sequence_format()
+        seq = format_values.pop("seq") + 1
+        return format_string.format(**format_values, seq=seq)
 
     def _prepare_withholding_vals(self):
         return {
