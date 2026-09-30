@@ -57,5 +57,7 @@ class AccountTax(models.Model):
         """
         if not line.l10n_ec_invoice_withhold_id:
             return
-        grouping_key["l10n_ec_invoice_withhold_id"] = line.l10n_ec_invoice_withhold_id.id
+        grouping_key["l10n_ec_invoice_withhold_id"] = (
+            line.l10n_ec_invoice_withhold_id.id
+        )
         grouping_key["l10n_ec_tax_support"] = line._get_l10n_ec_tax_support()

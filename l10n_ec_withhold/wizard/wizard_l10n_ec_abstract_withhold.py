@@ -1,4 +1,4 @@
-from odoo import _, api, fields, models
+from odoo import api, fields, models
 
 
 class WizardAbstractWithhold(models.AbstractModel):
@@ -71,9 +71,10 @@ class WizardAbstractWithhold(models.AbstractModel):
         }
 
     def _try_reconcile_withholding_moves(self, withholding, invoice, account_type):
-        assert account_type in ["asset_receivable", "liability_payable"], _(
-            "Account type not supported, this must be receivable or payable"
-        )
+        assert account_type in [
+            "asset_receivable",
+            "liability_payable",
+        ], self.env._("Account type not supported, this must be receivable or payable")
         aml_to_reconcile = invoice.line_ids.filtered(
             lambda line: line.account_id.account_type == account_type
         )
@@ -168,7 +169,7 @@ class WizardAbstractWithholdLine(models.AbstractModel):
             "quantity": 1.0,
             "price_unit": abs(tax_data.get("base")),
             "account_id": tax_data.get("account_id"),
-            "name": _("Counterpart RET %s", wizard.document_number),
+            "name": self.env._("Counterpart RET %s", wizard.document_number),
             "debit": debit,
             "credit": credit,
             "tax_ids": [],

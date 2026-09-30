@@ -1,6 +1,6 @@
 import logging
 
-from odoo import _, api, fields, models
+from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools.safe_eval import safe_eval
 
@@ -109,7 +109,7 @@ class AccountMove(models.Model):
             )
             if other_withholdings > 1:
                 raise UserError(
-                    _(
+                    self.env._(
                         "You can't create other withholding "
                         "with same Number: %(ref)s for Customer: %(customer)s",
                         ref=move.ref,
@@ -152,7 +152,9 @@ class AccountMove(models.Model):
                     )
                 ):
                     raise UserError(
-                        _("You can't unlink this Withhold was authorized on SRI.")
+                        self.env._(
+                            "You can't unlink this Withhold was authorized on SRI."
+                        )
                     )
         return True
 
@@ -171,7 +173,7 @@ class AccountMove(models.Model):
                 )
                 if not move.l10n_ec_tax_support and lines_without_tax_support:
                     raise UserError(
-                        _(
+                        self.env._(
                             "Please fill a Tax Support "
                             "on Invoice: %s or on all Invoice lines",
                             move.display_name,
@@ -227,7 +229,7 @@ class AccountMove(models.Model):
             form_id = self.env.ref(
                 "l10n_ec_withhold.view_account_move_withhold_form"
             ).id
-            action["name"] = _("Withhold")
+            action["name"] = self.env._("Withhold")
             action["views"] = [(form_id, "form")]
         return action
 
@@ -290,14 +292,14 @@ class AccountMove(models.Model):
         ):
             if len(self) > 1:
                 raise UserError(
-                    _(
+                    self.env._(
                         "You can't create Withhold for some invoice, "
                         "Please select only a Invoice."
                     )
                 )
             if self.commercial_partner_id.country_id.code != "EC":
                 raise UserError(
-                    _(
+                    self.env._(
                         "The Vendor is foreign, and currently "
                         "support is exclusively provided for withholdings "
                         "from Ecuadorian companies. "
@@ -312,7 +314,7 @@ class AccountMove(models.Model):
             action = self._action_create_sale_withhold_wizard()
         else:
             raise UserError(
-                _(
+                self.env._(
                     "Please select only invoice "
                     "what satisfies the requirements for create withhold"
                 )
@@ -370,7 +372,7 @@ class AccountMove(models.Model):
             "edit": False,
         }
         action["context"] = context
-        action["name"] = _("Withholding")
+        action["name"] = self.env._("Withholding")
         view_tree_id = self.env.ref(
             "l10n_ec_withhold.view_account_move_withhold_tree"
         ).id

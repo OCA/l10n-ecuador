@@ -1,4 +1,4 @@
-from odoo import _, api, fields, models
+from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import float_is_zero
 
@@ -36,7 +36,9 @@ class WizardCreatePurchaseWithhold(models.TransientModel):
         """
         self.ensure_one()
         if not self.withhold_line_ids:
-            raise UserError(_("Please add some withholding lines before continue"))
+            raise UserError(
+                self.env._("Please add some withholding lines before continue")
+            )
         tax_support_string = dict(
             self.withhold_line_ids._fields["l10n_ec_tax_support"].selection
         )
@@ -54,7 +56,7 @@ class WizardCreatePurchaseWithhold(models.TransientModel):
                     has_lines_with_tax_and_tax_support = True
             if not has_lines_with_tax_and_tax_support:
                 raise UserError(
-                    _(
+                    self.env._(
                         "The base amount for withholding is zero.\n"
                         "Review withholding lines with Tax Support: %s.\n"
                         "Please ensure the following:\n"
@@ -77,7 +79,7 @@ class WizardCreatePurchaseWithhold(models.TransientModel):
             for tax_vals in taxes_vals:
                 lines.append((0, 0, tax_vals))
         for invoice, total_counter in total_by_invoice.items():
-            move_name = _(
+            move_name = self.env._(
                 "RET: %(document_number)s Invoice: %(invoice_number)s",
                 document_number=self.document_number,
                 invoice_number=invoice.l10n_latam_document_number,
@@ -155,8 +157,8 @@ class WizardPurchaseWithholdLine(models.TransientModel):
         if float_is_zero(base_amount, precision_rounding=currency_prec):
             res["value"]["base_amount"] = 0.0
             res["warning"] = {
-                "title": _("User Information"),
-                "message": _(
+                "title": self.env._("User Information"),
+                "message": self.env._(
                     "The base amount for withholding is zero. "
                     "Please ensure the following:\n"
                     " - The tax support of the invoice lines"

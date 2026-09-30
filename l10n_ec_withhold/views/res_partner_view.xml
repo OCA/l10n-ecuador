@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <record id="view_partner_withhold_form" model="ir.ui.view">
         <field name="name">view.partner.property.withhold.form</field>
         <field name="model">res.partner</field>
@@ -10,11 +9,9 @@
                 expr="//field[@name='property_account_position_id']"
                 position="after"
             >
-
                 <field name="l10n_ec_avoid_withhold" />
                 <field name="l10n_ec_tax_support" />
             </xpath>
         </field>
     </record>
-
 </odoo>

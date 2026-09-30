@@ -112,5 +112,4 @@
     <template id="ec_edi_withhold_dividend_pay">
         <!--TO OVERRIDE-->
     </template>
-
 </odoo>
