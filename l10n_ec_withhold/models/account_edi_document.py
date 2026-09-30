@@ -50,7 +50,9 @@ class AccountEdiDocument(models.Model):
             ),
             "tipoIdentificacionSujetoRetenido": type_id,
             "tipoSujetoRetenido": self._l10n_ec_get_type_suject_withholding(type_id),
-            "parteRel": "NO",
+            "parteRel": "SI"
+            if withhold.commercial_partner_id.l10n_ec_related_party
+            else "NO",
             "razonSocialSujetoRetenido": self._l10n_ec_clean_str(
                 withhold.commercial_partner_id.name
             )[:300],

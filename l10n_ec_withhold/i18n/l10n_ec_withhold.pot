@@ -4,7 +4,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 17.0\n"
+"Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -181,7 +181,6 @@ msgstr ""
 #. module: l10n_ec_withhold
 #. odoo-python
 #: code:addons/l10n_ec_withhold/wizard/wizard_l10n_ec_abstract_withhold.py:0
-#, python-format
 msgid "Account type not supported, this must be receivable or payable"
 msgstr ""
 
@@ -212,14 +211,12 @@ msgstr ""
 #. module: l10n_ec_withhold
 #. odoo-python
 #: code:addons/l10n_ec_withhold/wizard/wizard_create_sale_withhold.py:0
-#, python-format
 msgid "Authorization is not valid. Should be length equal to 10 or 49"
 msgstr ""
 
 #. module: l10n_ec_withhold
 #. odoo-python
 #: code:addons/l10n_ec_withhold/wizard/wizard_create_sale_withhold.py:0
-#, python-format
 msgid "Authorization number not correspond to a withhold"
 msgstr ""
 
@@ -254,7 +251,6 @@ msgstr ""
 #. module: l10n_ec_withhold
 #. odoo-python
 #: code:addons/l10n_ec_withhold/wizard/wizard_l10n_ec_abstract_withhold.py:0
-#, python-format
 msgid "Counterpart RET %s"
 msgstr ""
 
@@ -298,10 +294,22 @@ msgid "Date"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_chart_template__display_name
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_edi_document__display_name
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_edi_format__display_name
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_fiscal_position__display_name
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_journal__display_name
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__display_name
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move_line__display_name
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move_send__display_name
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_tax__display_name
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_wizard_abstract_withhold__display_name
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_wizard_abstract_withhold_line__display_name
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_wizard_create_purchase_withhold__display_name
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_wizard_create_purchase_withhold_line__display_name
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_wizard_create_sale_withhold__display_name
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_wizard_create_sale_withhold_line__display_name
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_res_partner__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -320,7 +328,6 @@ msgstr ""
 #. module: l10n_ec_withhold
 #. odoo-python
 #: code:addons/l10n_ec_withhold/wizard/wizard_create_sale_withhold.py:0
-#, python-format
 msgid "Ecuadorian Document %s must be like 001-001-123456789"
 msgstr ""
 
@@ -352,10 +359,22 @@ msgid "Fiscal Position"
 msgstr ""
 
 #. module: l10n_ec_withhold
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_chart_template__id
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_edi_document__id
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_edi_format__id
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_fiscal_position__id
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_journal__id
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__id
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move_line__id
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move_send__id
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_tax__id
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_wizard_abstract_withhold__id
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_wizard_abstract_withhold_line__id
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_wizard_create_purchase_withhold__id
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_wizard_create_purchase_withhold_line__id
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_wizard_create_sale_withhold__id
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_wizard_create_sale_withhold_line__id
+#: model:ir.model.fields,field_description:l10n_ec_withhold.field_res_partner__id
 msgid "ID"
 msgstr ""
 
@@ -371,6 +390,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_wizard_create_sale_withhold__invoice_ids
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_wizard_create_sale_withhold_line__invoice_id
 msgid "Invoice"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#. odoo-python
+#: code:addons/l10n_ec_withhold/wizard/wizard_create_sale_withhold.py:0
+msgid "Invoice %(invoice)s already exist in withhold %(withhold)s"
 msgstr ""
 
 #. module: l10n_ec_withhold
@@ -410,7 +435,6 @@ msgstr ""
 #. module: l10n_ec_withhold
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_withhold_line_ids
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_withhold_line_ids
-#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_withhold_line_ids
 msgid "Lineas de retencion"
 msgstr ""
 
@@ -438,21 +462,19 @@ msgstr ""
 #. odoo-python
 #: code:addons/l10n_ec_withhold/tests/test_l10n_ec_purchase_withhold.py:0
 #: code:addons/l10n_ec_withhold/wizard/wizard_create_purchase_withhold.py:0
-#, python-format
+#: code:addons/l10n_ec_withhold/wizard/wizard_create_sale_withhold.py:0
 msgid "Please add some withholding lines before continue"
 msgstr ""
 
 #. module: l10n_ec_withhold
 #. odoo-python
 #: code:addons/l10n_ec_withhold/models/account_move.py:0
-#, python-format
 msgid "Please fill a Tax Support on Invoice: %s or on all Invoice lines"
 msgstr ""
 
 #. module: l10n_ec_withhold
 #. odoo-python
 #: code:addons/l10n_ec_withhold/wizard/wizard_create_sale_withhold.py:0
-#, python-format
 msgid "Please only select invoice of a same customer"
 msgstr ""
 
@@ -460,9 +482,7 @@ msgstr ""
 #. odoo-python
 #: code:addons/l10n_ec_withhold/models/account_move.py:0
 #: code:addons/l10n_ec_withhold/tests/test_l10n_ec_purchase_withhold.py:0
-#: code:addons/l10n_ec_withhold/tests/test_l10n_ec_purchase_withhold.py:0
 #: code:addons/l10n_ec_withhold/tests/test_l10n_ec_sale_withhold.py:0
-#, python-format
 msgid ""
 "Please select only invoice what satisfies the requirements for create "
 "withhold"
@@ -497,7 +517,7 @@ msgstr ""
 #. module: l10n_ec_withhold
 #. odoo-python
 #: code:addons/l10n_ec_withhold/wizard/wizard_create_purchase_withhold.py:0
-#, python-format
+#: code:addons/l10n_ec_withhold/wizard/wizard_create_sale_withhold.py:0
 msgid "RET: %(document_number)s Invoice: %(invoice_number)s"
 msgstr ""
 
@@ -535,15 +555,18 @@ msgstr ""
 #. module: l10n_ec_withhold
 #. odoo-python
 #: code:addons/l10n_ec_withhold/models/account_move.py:0
-#, python-format
 msgid "Send"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#: model:ir.model,name:l10n_ec_withhold.model_account_tax
+msgid "Tax"
 msgstr ""
 
 #. module: l10n_ec_withhold
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_tax_support
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_tax_support
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move_line__l10n_ec_tax_support
-#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_tax_support
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_wizard_create_purchase_withhold_line__l10n_ec_tax_support
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_res_partner__l10n_ec_tax_support
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_res_users__l10n_ec_tax_support
@@ -554,7 +577,6 @@ msgstr ""
 #: model:ir.model.fields,help:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_tax_support
 #: model:ir.model.fields,help:l10n_ec_withhold.field_account_move__l10n_ec_tax_support
 #: model:ir.model.fields,help:l10n_ec_withhold.field_account_move_line__l10n_ec_tax_support
-#: model:ir.model.fields,help:l10n_ec_withhold.field_account_payment__l10n_ec_tax_support
 #: model:ir.model.fields,help:l10n_ec_withhold.field_res_partner__l10n_ec_tax_support
 #: model:ir.model.fields,help:l10n_ec_withhold.field_res_users__l10n_ec_tax_support
 msgid "Tax support in invoice line"
@@ -563,7 +585,6 @@ msgstr ""
 #. module: l10n_ec_withhold
 #. odoo-python
 #: code:addons/l10n_ec_withhold/models/account_move.py:0
-#, python-format
 msgid ""
 "The Vendor is foreign, and currently support is exclusively provided for "
 "withholdings from Ecuadorian companies. Please review the country for the "
@@ -573,7 +594,6 @@ msgstr ""
 #. module: l10n_ec_withhold
 #. odoo-python
 #: code:addons/l10n_ec_withhold/wizard/wizard_create_purchase_withhold.py:0
-#, python-format
 msgid ""
 "The base amount for withholding is zero.\n"
 "Review withholding lines with Tax Support: %s.\n"
@@ -584,8 +604,15 @@ msgstr ""
 
 #. module: l10n_ec_withhold
 #. odoo-python
+#: code:addons/l10n_ec_withhold/wizard/wizard_create_sale_withhold.py:0
+msgid ""
+"The base amount for withholding is zero. Please ensure than invoice lines "
+"have taxescorrectly configured(VAT or Profit)."
+msgstr ""
+
+#. module: l10n_ec_withhold
+#. odoo-python
 #: code:addons/l10n_ec_withhold/wizard/wizard_create_purchase_withhold.py:0
-#, python-format
 msgid ""
 "The base amount for withholding is zero. Please ensure the following:\n"
 " - The tax support of the invoice lines(or Tax support on the invoice) is equal to Tax support of the withholding line.\n"
@@ -595,7 +622,6 @@ msgstr ""
 #. module: l10n_ec_withhold
 #. odoo-python
 #: code:addons/l10n_ec_withhold/wizard/wizard_create_sale_withhold.py:0
-#, python-format
 msgid "The selected invoice is paid or one of selected invoice is paid"
 msgstr ""
 
@@ -612,7 +638,7 @@ msgstr ""
 #. module: l10n_ec_withhold
 #. odoo-python
 #: code:addons/l10n_ec_withhold/wizard/wizard_create_purchase_withhold.py:0
-#, python-format
+#: code:addons/l10n_ec_withhold/wizard/wizard_create_sale_withhold.py:0
 msgid "User Information"
 msgstr ""
 
@@ -632,11 +658,15 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_withhold_ids
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_withhold_ids
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move_line__l10n_ec_withhold_id
-#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_withhold_ids
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_wizard_create_purchase_withhold_line__withhold_id
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_wizard_create_sale_withhold_line__withhold_id
-#, python-format
 msgid "Withhold"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#. odoo-python
+#: code:addons/l10n_ec_withhold/wizard/wizard_create_sale_withhold.py:0
+msgid "Withhold %s already exist"
 msgstr ""
 
 #. module: l10n_ec_withhold
@@ -667,8 +697,21 @@ msgstr ""
 
 #. module: l10n_ec_withhold
 #. odoo-python
+#: code:addons/l10n_ec_withhold/wizard/wizard_create_sale_withhold.py:0
+msgid ""
+"Withhold date: %(withhold_date)s should be equal or major that invoice date:"
+" %(invoice_date)s"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#. odoo-python
+#: code:addons/l10n_ec_withhold/wizard/wizard_create_sale_withhold.py:0
+msgid "Withhold not content selected invoices"
+msgstr ""
+
+#. module: l10n_ec_withhold
+#. odoo-python
 #: code:addons/l10n_ec_withhold/models/account_move.py:0
-#, python-format
 msgid "Withholding"
 msgstr ""
 
@@ -681,7 +724,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_withholding_type
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_journal__l10n_ec_withholding_type
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_withholding_type
-#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_withholding_type
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_wizard_abstract_withhold_line__tax_group_withhold_id
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_wizard_create_purchase_withhold_line__tax_group_withhold_id
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_l10n_ec_wizard_create_sale_withhold_line__tax_group_withhold_id
@@ -698,14 +740,12 @@ msgstr ""
 #. module: l10n_ec_withhold
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_withhold_count
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_withhold_count
-#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_withhold_count
 msgid "Withholds Count"
 msgstr ""
 
 #. module: l10n_ec_withhold
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_bank_statement_line__l10n_ec_withhold_active
 #: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_move__l10n_ec_withhold_active
-#: model:ir.model.fields,field_description:l10n_ec_withhold.field_account_payment__l10n_ec_withhold_active
 msgid "Withholds?"
 msgstr ""
 
@@ -738,7 +778,6 @@ msgstr ""
 #. odoo-python
 #: code:addons/l10n_ec_withhold/models/account_move.py:0
 #: code:addons/l10n_ec_withhold/tests/test_l10n_ec_purchase_withhold.py:0
-#, python-format
 msgid ""
 "You can't create Withhold for some invoice, Please select only a Invoice."
 msgstr ""
@@ -746,7 +785,6 @@ msgstr ""
 #. module: l10n_ec_withhold
 #. odoo-python
 #: code:addons/l10n_ec_withhold/models/account_move.py:0
-#, python-format
 msgid ""
 "You can't create other withholding with same Number: %(ref)s for Customer: "
 "%(customer)s"
@@ -755,6 +793,11 @@ msgstr ""
 #. module: l10n_ec_withhold
 #. odoo-python
 #: code:addons/l10n_ec_withhold/models/account_move.py:0
-#, python-format
 msgid "You can't unlink this Withhold was authorized on SRI."
+msgstr ""
+
+#. module: l10n_ec_withhold
+#. odoo-python
+#: code:addons/l10n_ec_withhold/models/account_move.py:0
+msgid "account.move.send.batch.wizard"
 msgstr ""

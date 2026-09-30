@@ -1,10 +1,11 @@
+import logging
+
 from dateutil.relativedelta import relativedelta
 
-from odoo import _
 from odoo.exceptions import UserError
-from odoo.tests import tagged
-from odoo.tests.common import Form
+from odoo.tests import Form, tagged
 
+from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.addons.l10n_ec_account_edi.tests.sri_response import patch_service_sri
 from odoo.addons.l10n_ec_account_edi.tests.test_edi_common import TestL10nECEdiCommon
 
@@ -12,11 +13,12 @@ from odoo.addons.l10n_ec_account_edi.tests.test_edi_common import TestL10nECEdiC
 @tagged("post_install_l10n", "post_install", "-at_install", "sale_withhold")
 class TestL10nSaleWithhold(TestL10nECEdiCommon):
     @classmethod
-    def setUpClass(
-        cls,
-        chart_template_ref="ec",
-    ):
-        super().setUpClass(chart_template_ref=chart_template_ref)
+    @AccountTestInvoicingCommon.setup_country("ec")
+    @AccountTestInvoicingCommon.setup_chart_template("ec")
+    def setUpClass(cls):
+        # 19.0 ``setUpClass()`` takes no arguments: country and chart template
+        # are set by decorators, not by a ``chart_template_ref`` parameter.
+        super().setUpClass()
         cls.WizardWithhold = cls.env["l10n_ec.wizard.create.sale.withhold"]
         cls.position_no_withhold = cls.env["account.fiscal.position"].create(
             {"name": "Withhold", "l10n_ec_avoid_withhold": True}
@@ -41,7 +43,28 @@ class TestL10nSaleWithhold(TestL10nECEdiCommon):
             self._setup_edi_company_ec()
         invoice = self._l10n_ec_prepare_edi_out_invoice(partner=partner, auto_post=True)
         edi_doc = invoice._get_edi_document(self.edi_format)
-        edi_doc._process_documents_web_services(with_commit=False)
+        if invoice.invoice_line_ids.tax_ids:
+            edi_doc._process_documents_web_services(with_commit=False)
+        else:
+            # An invoice with no taxes at all is deliberately SRI-invalid here:
+            # ``account.fiscal.position._map_tax()`` drops every source tax it
+            # has no mapping for, so a partner moved to a fiscal position
+            # without ``account_tax_ids`` (as
+            # ``test_l10n_ec_fail_when_invoice_no_require_withholding`` does)
+            # ends up with none. ``l10n_ec_header_get_total_with_taxes()``
+            # then returns an empty list, the EDI template omits
+            # ``<totalConImpuestos>`` -- which SRI's ``factura`` XSD declares
+            # mandatory -- and ``_l10n_ec_action_check_xsd()`` raises on the
+            # misplaced ``<importeTotal>``. ``_l10n_ec_post_move_edi()`` logs
+            # that traceback at ERROR, and the OCA checklog fails the run on any
+            # logged ERROR, so capture the expected record here:
+            # ``assertLogs`` swaps the logger's handlers and stops propagation,
+            # so the record never reaches Odoo's log handler.
+            with self.assertLogs(
+                "odoo.addons.l10n_ec_account_edi.models.account_edi_format",
+                level=logging.ERROR,
+            ):
+                edi_doc._process_documents_web_services(with_commit=False)
         return invoice
 
     def _prepare_new_wizard_withhold(
@@ -86,13 +109,14 @@ class TestL10nSaleWithhold(TestL10nECEdiCommon):
         self.assertEqual(wizard.partner_id, partner)
         self.assertEqual(wizard.document_number, "001-001-000000001")
         wizard.save().button_validate()
-        sale_withhold = self.env["account.move"].search(
+        sale_withhold = self.env["account.move"].search_fetch(
             [
                 ("partner_id", "=", wizard.partner_id.id),
                 ("ref", "=", wizard.document_number),
                 ("l10n_ec_withholding_type", "=", "sale"),
                 ("l10n_latam_internal_type", "=", "withhold"),
-            ]
+            ],
+            ["l10n_ec_withhold_line_ids"],
         )
         self.assertEqual(len(sale_withhold), 1)
         # Withhold of tax is 100% of tax amount of invoice
@@ -103,10 +127,17 @@ class TestL10nSaleWithhold(TestL10nECEdiCommon):
                         line.l10n_ec_withhold_tax_amount,
                         line.l10n_ec_invoice_withhold_id.amount_tax,
                     )
-                if tax.tax_group_id.l10n_ec_type == "withhold_income_sale":
+                # ``tax_sale_withhold_profit_303`` is ``tax_withhold_profit_303``,
+                # whose tax group is ``withhold_income_purchase``: the profit
+                # withholding is a percentage of the invoice's untaxed amount,
+                # not of its taxes. The 17.0 test compared against
+                # ``account.move.price_subtotal``, a field that has never
+                # existed on ``account.move``, so the branch was unreachable and
+                # never asserted anything.
+                if tax.tax_group_id.l10n_ec_type == "withhold_income_purchase":
                     self.assertEqual(
                         line.l10n_ec_withhold_tax_amount,
-                        line.l10n_ec_invoice_withhold_id.price_subtotal,
+                        invoice.amount_untaxed * -tax.amount / 100,
                     )
 
     def test_l10n_ec_fail_sale_withhold(self):
@@ -256,7 +287,7 @@ class TestL10nSaleWithhold(TestL10nECEdiCommon):
         self.partner_ruc.property_account_position_id = self.position_no_withhold
         invoice = self.get_invoice(self.partner_ruc)
         self.assertFalse(invoice.l10n_ec_withhold_active)
-        msj_expected = _(
+        msj_expected = self.env._(
             "Please select only invoice "
             "what satisfies the requirements for create withhold"
         )
@@ -313,28 +344,31 @@ class TestL10nSaleWithhold(TestL10nECEdiCommon):
             line.tax_group_withhold_id = self.tax_sale_withhold_profit_303.tax_group_id
             line.tax_withhold_id = self.tax_sale_withhold_profit_303
         wizard.save().button_validate()
-        sale_withhold = self.env["account.move"].search(
+        sale_withhold = self.env["account.move"].search_fetch(
             [
                 ("partner_id", "=", wizard.partner_id.id),
                 ("ref", "=", wizard.document_number),
                 ("l10n_ec_withholding_type", "=", "sale"),
                 ("l10n_latam_internal_type", "=", "withhold"),
-            ]
+            ],
+            ["line_ids"],
         )
         self.assertEqual(len(sale_withhold), 1)
-        withholding_lines_invoice1 = self.env["account.move.line"].search(
+        withholding_lines_invoice1 = self.env["account.move.line"].search_fetch(
             [
                 ("move_id", "=", sale_withhold.id),
                 ("l10n_ec_invoice_withhold_id", "=", invoice1.id),
                 ("account_id.account_type", "=", "asset_receivable"),
-            ]
+            ],
+            ["balance"],
         )
-        withholding_lines_invoice2 = self.env["account.move.line"].search(
+        withholding_lines_invoice2 = self.env["account.move.line"].search_fetch(
             [
                 ("move_id", "=", sale_withhold.id),
                 ("l10n_ec_invoice_withhold_id", "=", invoice2.id),
                 ("account_id.account_type", "=", "asset_receivable"),
-            ]
+            ],
+            ["balance"],
         )
         self.assertEqual(abs(withholding_lines_invoice1.balance), 25)
         self.assertEqual(abs(withholding_lines_invoice2.balance), 17.5)

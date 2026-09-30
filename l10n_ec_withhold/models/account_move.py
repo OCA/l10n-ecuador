@@ -1,8 +1,7 @@
 import logging
 
-from odoo import _, api, fields, models
+from odoo import api, fields, models
 from odoo.exceptions import UserError
-from odoo.tools import frozendict
 from odoo.tools.safe_eval import safe_eval
 
 from .data import TAX_SUPPORT
@@ -44,7 +43,9 @@ class AccountMove(models.Model):
         store=True,
     )
     l10n_ec_tax_support = fields.Selection(
-        TAX_SUPPORT, string="Tax Support", help="Tax support in invoice line"
+        TAX_SUPPORT,
+        string="Tax Support",
+        help="Tax support in invoice line",
     )
 
     @api.onchange("partner_id")
@@ -110,7 +111,7 @@ class AccountMove(models.Model):
             )
             if other_withholdings > 1:
                 raise UserError(
-                    _(
+                    self.env._(
                         "You can't create other withholding "
                         "with same Number: %(ref)s for Customer: %(customer)s",
                         ref=move.ref,
@@ -118,6 +119,7 @@ class AccountMove(models.Model):
                     )
                 )
 
+    @api.depends("restrict_mode_hash_table", "state", "inalterable_hash")
     def _compute_show_reset_to_draft_button(self):
         """
         Hide button reset to draft when withhold is cancelled
@@ -130,7 +132,9 @@ class AccountMove(models.Model):
                 if (
                     doc.state == "cancelled"
                     and doc.l10n_ec_authorization_date
-                    and doc.edi_format_id._get_move_applicability(move).get("cancel")
+                    and (doc.edi_format_id._get_move_applicability(move) or {}).get(
+                        "cancel"
+                    )
                 ):
                     move.show_reset_to_draft_button = False
                     break
@@ -145,10 +149,14 @@ class AccountMove(models.Model):
                 if (
                     doc.state == "cancelled"
                     and doc.l10n_ec_authorization_date
-                    and doc.edi_format_id._get_move_applicability(move).get("cancel")
+                    and (doc.edi_format_id._get_move_applicability(move) or {}).get(
+                        "cancel"
+                    )
                 ):
                     raise UserError(
-                        _("You can't unlink this Withhold was authorized on SRI.")
+                        self.env._(
+                            "You can't unlink this Withhold was authorized on SRI."
+                        )
                     )
         return True
 
@@ -167,7 +175,7 @@ class AccountMove(models.Model):
                 )
                 if not move.l10n_ec_tax_support and lines_without_tax_support:
                     raise UserError(
-                        _(
+                        self.env._(
                             "Please fill a Tax Support "
                             "on Invoice: %s or on all Invoice lines",
                             move.display_name,
@@ -186,17 +194,28 @@ class AccountMove(models.Model):
 
     def action_send_and_print(self):
         if any(move.is_purchase_withhold() for move in self):
-            template = self.env.ref(self._get_mail_template(), raise_if_not_found=False)
+            # Since 19.0 ``_get_mail_template()`` returns the ``mail.template``
+            # recordset itself, so it must not be fed back to ``env.ref()``.
+            template = self._get_mail_template()
             return {
-                "name": _("Send"),
+                "name": self.env._("Send"),
                 "type": "ir.actions.act_window",
-                "view_type": "form",
                 "view_mode": "form",
-                "res_model": "account.move.send",
+                # ``account.move.send`` is an AbstractModel since 19.0; the
+                # concrete single/batch wizards are the ones to open.
+                "res_model": (
+                    "account.move.send.wizard"
+                    if len(self) == 1
+                    else "account.move.send.batch.wizard"
+                ),
                 "target": "new",
                 "context": {
+                    "active_model": "account.move",
                     "active_ids": self.ids,
-                    "default_mail_template_id": template.id,
+                    # The 19.0 send wizard inherits ``template_id`` from
+                    # ``mail.composer.mixin``; its default context key is
+                    # ``default_template_id``.
+                    "default_template_id": template.id,
                 },
             }
         return super().action_send_and_print()
@@ -212,7 +231,7 @@ class AccountMove(models.Model):
             form_id = self.env.ref(
                 "l10n_ec_withhold.view_account_move_withhold_form"
             ).id
-            action["name"] = _("Withhold")
+            action["name"] = self.env._("Withhold")
             action["views"] = [(form_id, "form")]
         return action
 
@@ -275,14 +294,14 @@ class AccountMove(models.Model):
         ):
             if len(self) > 1:
                 raise UserError(
-                    _(
+                    self.env._(
                         "You can't create Withhold for some invoice, "
                         "Please select only a Invoice."
                     )
                 )
             if self.commercial_partner_id.country_id.code != "EC":
                 raise UserError(
-                    _(
+                    self.env._(
                         "The Vendor is foreign, and currently "
                         "support is exclusively provided for withholdings "
                         "from Ecuadorian companies. "
@@ -297,7 +316,7 @@ class AccountMove(models.Model):
             action = self._action_create_sale_withhold_wizard()
         else:
             raise UserError(
-                _(
+                self.env._(
                     "Please select only invoice "
                     "what satisfies the requirements for create withhold"
                 )
@@ -305,9 +324,9 @@ class AccountMove(models.Model):
         return action
 
     def _action_create_sale_withhold_wizard(self):
-        action = self.env.ref(
+        action = self.env["ir.actions.actions"]._for_xml_id(
             "l10n_ec_withhold.l10n_ec_wizard_sale_withhold_action_window"
-        ).read()[0]
+        )
         action["views"] = [
             (
                 self.env.ref(
@@ -324,9 +343,9 @@ class AccountMove(models.Model):
 
     def _action_create_purchase_withhold_wizard(self):
         self.ensure_one()
-        action = self.env.ref(
+        action = self.env["ir.actions.actions"]._for_xml_id(
             "l10n_ec_withhold.l10n_ec_wizard_purchase_withhold_action_window"
-        ).read()[0]
+        )
         action["views"] = [
             (
                 self.env.ref(
@@ -349,13 +368,15 @@ class AccountMove(models.Model):
 
     def action_show_l10n_ec_withholds(self):
         withhold_ids = self.l10n_ec_withhold_ids.ids
-        action = self.env.ref("account.action_move_journal_line").read()[0]
+        action = self.env["ir.actions.actions"]._for_xml_id(
+            "account.action_move_journal_line"
+        )
         context = {
             "create": False,
             "edit": False,
         }
         action["context"] = context
-        action["name"] = _("Withholding")
+        action["name"] = self.env._("Withholding")
         view_tree_id = self.env.ref(
             "l10n_ec_withhold.view_account_move_withhold_tree"
         ).id
@@ -366,8 +387,8 @@ class AccountMove(models.Model):
         action["views"] = [(view_form_id, "form")]
         action["res_id"] = withhold_ids[0]
         if len(withhold_ids) > 1:
-            action["view_mode"] = "tree,form"
-            action["views"] = [(view_tree_id, "tree"), (view_form_id, "form")]
+            action["view_mode"] = "list,form"
+            action["views"] = [(view_tree_id, "list"), (view_form_id, "form")]
             action["domain"] = [("id", "in", withhold_ids)]
 
         return action
@@ -444,27 +465,3 @@ class AccountMoveLine(models.Model):
         ):
             return self.move_id.l10n_ec_tax_support
         return self.l10n_ec_tax_support
-
-    def _compute_tax_key(self):
-        # group tax by l10n_ec_tax_support and invoice, for split taxes
-        res = super()._compute_tax_key()
-        for line in self.filtered("l10n_ec_invoice_withhold_id"):
-            line.tax_key = frozendict(
-                **line.tax_key,
-                l10n_ec_invoice_withhold_id=line.l10n_ec_invoice_withhold_id.id,
-                l10n_ec_tax_support=line._get_l10n_ec_tax_support(),
-            )
-        return res
-
-    def _compute_all_tax(self):
-        # take values from new key(see _compute_tax_key)
-        res = super()._compute_all_tax()
-        for line in self.filtered("l10n_ec_invoice_withhold_id"):
-            for key in list(line.compute_all_tax.keys()):
-                new_key = frozendict(
-                    **key,
-                    l10n_ec_invoice_withhold_id=line.l10n_ec_invoice_withhold_id.id,
-                    l10n_ec_tax_support=line._get_l10n_ec_tax_support(),
-                )
-                line.compute_all_tax[new_key] = line.compute_all_tax.pop(key, {})
-        return res

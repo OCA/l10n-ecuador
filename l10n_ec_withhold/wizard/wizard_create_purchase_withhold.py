@@ -1,4 +1,4 @@
-from odoo import _, api, fields, models
+from odoo import Command, api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import float_is_zero
 
@@ -36,7 +36,9 @@ class WizardCreatePurchaseWithhold(models.TransientModel):
         """
         self.ensure_one()
         if not self.withhold_line_ids:
-            raise UserError(_("Please add some withholding lines before continue"))
+            raise UserError(
+                self.env._("Please add some withholding lines before continue")
+            )
         tax_support_string = dict(
             self.withhold_line_ids._fields["l10n_ec_tax_support"].selection
         )
@@ -54,7 +56,7 @@ class WizardCreatePurchaseWithhold(models.TransientModel):
                     has_lines_with_tax_and_tax_support = True
             if not has_lines_with_tax_and_tax_support:
                 raise UserError(
-                    _(
+                    self.env._(
                         "The base amount for withholding is zero.\n"
                         "Review withholding lines with Tax Support: %s.\n"
                         "Please ensure the following:\n"
@@ -75,17 +77,15 @@ class WizardCreatePurchaseWithhold(models.TransientModel):
             total_by_invoice.setdefault(line.invoice_id, 0.0)
             total_by_invoice[line.invoice_id] += total_counter
             for tax_vals in taxes_vals:
-                lines.append((0, 0, tax_vals))
+                lines.append(Command.create(tax_vals))
         for invoice, total_counter in total_by_invoice.items():
-            move_name = _(
+            move_name = self.env._(
                 "RET: %(document_number)s Invoice: %(invoice_number)s",
                 document_number=self.document_number,
                 invoice_number=invoice.l10n_latam_document_number,
             )
             lines.append(
-                (
-                    0,
-                    0,
+                Command.create(
                     {
                         "partner_id": self.partner_id.id,
                         "account_id": self.partner_id.property_account_payable_id.id,
@@ -101,7 +101,7 @@ class WizardCreatePurchaseWithhold(models.TransientModel):
         new_withholding = self.env["account.move"].create(withholding_vals)
         new_withholding._post()
         invoices = self.withhold_line_ids.invoice_id
-        invoices.write({"l10n_ec_withhold_ids": [(4, new_withholding.id)]})
+        invoices.write({"l10n_ec_withhold_ids": [Command.link(new_withholding.id)]})
         self._try_reconcile_withholding_moves(
             new_withholding, invoices, "liability_payable"
         )
@@ -155,8 +155,8 @@ class WizardPurchaseWithholdLine(models.TransientModel):
         if float_is_zero(base_amount, precision_rounding=currency_prec):
             res["value"]["base_amount"] = 0.0
             res["warning"] = {
-                "title": _("User Information"),
-                "message": _(
+                "title": self.env._("User Information"),
+                "message": self.env._(
                     "The base amount for withholding is zero. "
                     "Please ensure the following:\n"
                     " - The tax support of the invoice lines"

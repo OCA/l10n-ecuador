@@ -1,7 +1,7 @@
 import datetime
 import re
 
-from odoo import _, api, fields, models
+from odoo import Command, api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import float_is_zero
 
@@ -29,12 +29,14 @@ class WizardCreateSaleWithhold(models.TransientModel):
             .filtered("l10n_ec_withhold_active")
         )
         if len(invoices.partner_id) > 1:
-            raise UserError(_("Please only select invoice of a same customer"))
+            raise UserError(self.env._("Please only select invoice of a same customer"))
         if any(invoice.payment_state == "paid" for invoice in invoices):
             raise UserError(
-                _("The selected invoice is paid or one of selected invoice is paid")
+                self.env._(
+                    "The selected invoice is paid or one of selected invoice is paid"
+                )
             )
-        defaults["invoice_ids"] = [(6, 0, invoices.ids)]
+        defaults["invoice_ids"] = [Command.set(invoices.ids)]
         defaults["partner_id"] = invoices.partner_id.id
         if len(invoices) == 1:
             defaults["invoice_id"] = invoices.id
@@ -64,7 +66,7 @@ class WizardCreateSaleWithhold(models.TransientModel):
                     )
                 else:
                     raise UserError(
-                        _("Authorization number not correspond to a withhold")
+                        self.env._("Authorization number not correspond to a withhold")
                     )
 
             self.validate_authorization()
@@ -84,8 +86,10 @@ class WizardCreateSaleWithhold(models.TransientModel):
             )
         else:
             raise UserError(
-                _("Ecuadorian Document %s must be like 001-001-123456789")
-                % (document_number)
+                self.env._(
+                    "Ecuadorian Document %s must be like 001-001-123456789",
+                    document_number,
+                )
             )
 
         return document_number
@@ -94,7 +98,9 @@ class WizardCreateSaleWithhold(models.TransientModel):
         authorization_len = len(self.electronic_authorization)
         if authorization_len not in [10, 49]:
             raise UserError(
-                _("Authorization is not valid. Should be length equal to 10 or 49")
+                self.env._(
+                    "Authorization is not valid. Should be length equal to 10 or 49"
+                )
             )
 
     def validate_repeated_invoice(self):
@@ -109,9 +115,10 @@ class WizardCreateSaleWithhold(models.TransientModel):
             )
             if result:
                 raise UserError(
-                    _(
-                        f"Invoice {line.invoice_id.name} already exist in withhold "
-                        f"{result.move_id.name}"
+                    self.env._(
+                        "Invoice %(invoice)s already exist in withhold %(withhold)s",
+                        invoice=line.invoice_id.name,
+                        withhold=result.move_id.name,
                     )
                 )
 
@@ -125,22 +132,28 @@ class WizardCreateSaleWithhold(models.TransientModel):
             ]
         )
         if withhold_count > 0:
-            raise UserError(_(f"Withhold {self.document_number} already exist"))
+            raise UserError(
+                self.env._("Withhold %s already exist", self.document_number)
+            )
 
     def validate_selected_invoices(self):
         if len(self.withhold_line_ids.invoice_id) != len(self.invoice_ids):
-            raise UserError(_("Withhold not content selected invoices"))
+            raise UserError(self.env._("Withhold not content selected invoices"))
 
     def validate(self):
         if not self.withhold_line_ids:
-            raise UserError(_("Please add some withholding lines before continue"))
+            raise UserError(
+                self.env._("Please add some withholding lines before continue")
+            )
         for invoice in self.invoice_ids:
             if self.issue_date < invoice.invoice_date:
                 raise UserError(
-                    _(
-                        f"Withhold date: {self.issue_date} "
+                    self.env._(
+                        "Withhold date: %(withhold_date)s "
                         "should be equal or major "
-                        f"that invoice date: {invoice.invoice_date}"
+                        "that invoice date: %(invoice_date)s",
+                        withhold_date=self.issue_date,
+                        invoice_date=invoice.invoice_date,
                     )
                 )
         self.validate_selected_invoices()
@@ -173,17 +186,15 @@ class WizardCreateSaleWithhold(models.TransientModel):
             total_by_invoice[line.invoice_id] += total_counter
             taxes_vals = line._get_withholding_line_vals(self)
             for tax_vals in taxes_vals:
-                lines.append((0, 0, tax_vals))
+                lines.append(Command.create(tax_vals))
         for invoice, total_counter in total_by_invoice.items():
-            move_name = _(
+            move_name = self.env._(
                 "RET: %(document_number)s Invoice: %(invoice_number)s",
                 document_number=self.document_number,
                 invoice_number=invoice.l10n_latam_document_number,
             )
             lines.append(
-                (
-                    0,
-                    0,
+                Command.create(
                     {
                         "partner_id": self.partner_id.id,
                         "account_id": self.partner_id.property_account_receivable_id.id,
@@ -199,7 +210,7 @@ class WizardCreateSaleWithhold(models.TransientModel):
         new_withholding = self.env["account.move"].create(withholding_vals)
         new_withholding.action_post()
         for invoice in total_by_invoice:
-            invoice.write({"l10n_ec_withhold_ids": [(4, new_withholding.id)]})
+            invoice.write({"l10n_ec_withhold_ids": [Command.link(new_withholding.id)]})
             self._try_reconcile_withholding_moves(
                 new_withholding, invoice, "asset_receivable"
             )
@@ -219,7 +230,11 @@ class WizardCreateSaleWithholdLine(models.TransientModel):
         ondelete="cascade",
     )
 
-    @api.onchange("invoice_id", "tax_group_withhold_id", "l10n_ec_tax_support")
+    # ``l10n_ec_tax_support`` is not a field of the sale withholding line: a
+    # sale withholding has no tax support, only the purchase one does (see
+    # ``l10n_ec.wizard.create.purchase.withhold.line``). Naming it here made
+    # the registry log "parameters must be field names -> not valid" on load.
+    @api.onchange("invoice_id", "tax_group_withhold_id")
     def _onchange_withholding_base(self):
         super()._onchange_withholding_base()
         currency_prec = self.invoice_id.company_id.currency_id.rounding
@@ -234,8 +249,8 @@ class WizardCreateSaleWithholdLine(models.TransientModel):
             }
             res["value"]["base_amount"] = 0.0
             res["warning"] = {
-                "title": _("User Information"),
-                "message": _(
+                "title": self.env._("User Information"),
+                "message": self.env._(
                     "The base amount for withholding is zero. "
                     "Please ensure than invoice lines have taxes"
                     "correctly configured(VAT or Profit)."
