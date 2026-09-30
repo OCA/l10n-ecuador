@@ -43,14 +43,17 @@ class TestL10nCancelled(TestL10nECEdiCommon):
         ):
             edi_doc._process_documents_web_services(with_commit=False)
 
-        with patch.object(
-            AccountEdiDocument,
-            "_l10n_ec_edi_send_xml_auth",
-            mock_l10n_ec_edi_send_xml_with_auth,
-        ), patch.object(
-            AccountEdiDocument,
-            "_l10n_ec_edi_process_response_auth",
-            mock_l10n_ec_edi_process_response_auth_cancelled,
+        with (
+            patch.object(
+                AccountEdiDocument,
+                "_l10n_ec_edi_send_xml_auth",
+                mock_l10n_ec_edi_send_xml_with_auth,
+            ),
+            patch.object(
+                AccountEdiDocument,
+                "_l10n_ec_edi_process_response_auth",
+                mock_l10n_ec_edi_process_response_auth_cancelled,
+            ),
         ):
             invoice.button_cancel_posted_moves()
 
@@ -58,8 +61,16 @@ class TestL10nCancelled(TestL10nECEdiCommon):
 
         cron_tasks = self.env.ref("account_edi.ir_cron_edi_network", False)
         self.assertTrue(cron_tasks)
-        # Execute cron for cancel receipt
-        cron_tasks.method_direct_trigger()
+        # Run the cancel job in this transaction. ``ir.cron.method_direct_trigger()``
+        # used to run the job on the caller's cursor (17.0), but since 19.0 it
+        # opens its own connection and commits there (ir_cron.py::_run_job and
+        # ``_callback``). The job therefore neither sees the ``to_cancel`` document
+        # this test has just written nor can it ``SELECT ... FOR UPDATE NOWAIT``
+        # that row, so ``_process_documents_web_services()`` swallows the LockError
+        # and processes nothing. Calling the same in-transaction entry point the
+        # rest of this suite uses keeps the assertion on real behaviour.
+        edi_doc._process_documents_web_services(with_commit=False)
+        self.assertEqual(edi_doc.state, "cancelled")
         self.assertEqual(invoice.state, "cancel")
         self.assertFalse(invoice.show_reset_to_draft_button)
 
@@ -89,9 +100,12 @@ class TestL10nCancelled(TestL10nECEdiCommon):
             edi_doc._process_documents_web_services(with_commit=False)
 
         # Receipt is authorized
-        with patch.object(
-            AccountEdiDocument,
-            "_l10n_ec_edi_send_xml_auth",
-            mock_l10n_ec_edi_send_xml_with_auth,
-        ), self.assertRaises(ValidationError):
+        with (
+            patch.object(
+                AccountEdiDocument,
+                "_l10n_ec_edi_send_xml_auth",
+                mock_l10n_ec_edi_send_xml_with_auth,
+            ),
+            self.assertRaises(ValidationError),
+        ):
             invoice.button_cancel_posted_moves()

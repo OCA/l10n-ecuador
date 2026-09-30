@@ -1,27 +1,77 @@
 import base64
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 import pytz
+from cryptography import x509
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.serialization import pkcs12
+from cryptography.x509.oid import NameOID
 
 from odoo.tests import tagged
-from odoo.tools import misc, os
 
 from odoo.addons.account_edi.tests.common import AccountEdiTestCommon
 
 from .test_common import TestL10nECCommon
 
 
+def _generate_test_p12(password=b"123456", expired=False):
+    """Generate a self-signed PKCS12 signature file for tests.
+
+    The SRI web services are mocked in tests, so a self-signed certificate
+    is enough to exercise the sign/verify algorithm end to end. Generating
+    it programmatically (instead of a static ``test.p12`` fixture) keeps the
+    suite immune to calendar expiry: validity is always relative to *now*.
+    """
+    key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    now = datetime.now(timezone.utc)
+    name = x509.Name(
+        [
+            x509.NameAttribute(NameOID.COMMON_NAME, "SERVICIO DE RENTAS INTERNAS"),
+            x509.NameAttribute(NameOID.SERIAL_NUMBER, "1760013210001"),
+        ]
+    )
+    cert = (
+        x509.CertificateBuilder()
+        .subject_name(name)
+        .issuer_name(name)
+        .public_key(key.public_key())
+        .serial_number(x509.random_serial_number())
+        .not_valid_before(now - timedelta(days=1))
+        .not_valid_after(
+            now - timedelta(days=1) if expired else now + timedelta(days=3650)
+        )
+        .add_extension(
+            x509.KeyUsage(
+                digital_signature=True,
+                content_commitment=False,
+                key_encipherment=False,
+                data_encipherment=False,
+                key_agreement=False,
+                key_cert_sign=False,
+                crl_sign=False,
+                encipher_only=False,
+                decipher_only=False,
+            ),
+            critical=True,
+        )
+        .sign(key, hashes.SHA256())
+    )
+    return pkcs12.serialize_key_and_certificates(
+        b"test",
+        key,
+        cert,
+        None,
+        serialization.BestAvailableEncryption(password),
+    )
+
+
 @tagged("post_install_l10n", "post_install", "-at_install")
 class TestL10nECEdiCommon(AccountEdiTestCommon, TestL10nECCommon):
     @classmethod
-    def setUpClass(
-        cls,
-        chart_template_ref="ec",
-        edi_format_ref="l10n_ec_account_edi.edi_format_ec_sri",
-    ):
-        super().setUpClass(
-            chart_template_ref=chart_template_ref, edi_format_ref=edi_format_ref
-        )
+    @AccountEdiTestCommon.setup_edi_format("l10n_ec_account_edi.edi_format_ec_sri")
+    def setUpClass(cls):
+        super().setUpClass()
         cls.env.user.tz = "America/Guayaquil"
         # Archivo xml básico
         cls.attachment = cls.env["ir.attachment"].create(
@@ -34,10 +84,9 @@ class TestL10nECEdiCommon(AccountEdiTestCommon, TestL10nECCommon):
             }
         )
 
-        file_path = os.path.join(
-            "l10n_ec_account_edi", "tests", "certificates", "test.p12"
-        )
-        file_content = misc.file_open(file_path, mode="rb").read()
+        # Self-signed signature generated on the fly: validity is relative
+        # to now, so the suite never breaks on fixture expiry again.
+        file_content = _generate_test_p12()
         # Crear certificado de firma electrónica válido
         cls.certificate = (
             cls.env["sri.key.type"]

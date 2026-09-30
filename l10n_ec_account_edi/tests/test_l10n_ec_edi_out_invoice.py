@@ -296,6 +296,11 @@ class TestL10nOutInvoice(TestL10nECEdiCommon):
 
     @patch_service_sri
     def test_l10n_ec_out_invoice_test(self):
+        def mock_edi_send_xml_auth_echo(edi_doc_instance, client_ws):
+            # Echo the generated key so the access-key field keeps its
+            # 49 chars; the default mock answers DUMMY_ACCESS_KEY instead.
+            return self._get_response_with_auth(edi_doc_instance)
+
         self._setup_edi_company_ec()
         self.company.write(
             {
@@ -304,7 +309,12 @@ class TestL10nOutInvoice(TestL10nECEdiCommon):
         )
         invoice = self._l10n_ec_prepare_edi_out_invoice(auto_post=True)
         edi_doc = invoice._get_edi_document(self.edi_format)
-        edi_doc._process_documents_web_services(with_commit=False)
+        with patch.object(
+            AccountEdiDocument,
+            "_l10n_ec_edi_send_xml_auth",
+            mock_edi_send_xml_auth_echo,
+        ):
+            edi_doc._process_documents_web_services(with_commit=False)
         self.assertEqual(invoice.state, "posted")
         # Enviroments
         # 1 = test
@@ -313,6 +323,11 @@ class TestL10nOutInvoice(TestL10nECEdiCommon):
 
     @patch_service_sri
     def test_l10n_ec_out_invoice_production(self):
+        def mock_edi_send_xml_auth_echo(edi_doc_instance, client_ws):
+            # Echo the generated key so the access-key field keeps its
+            # 49 chars; the default mock answers DUMMY_ACCESS_KEY instead.
+            return self._get_response_with_auth(edi_doc_instance)
+
         self._setup_edi_company_ec()
         self.company.write(
             {
@@ -321,7 +336,12 @@ class TestL10nOutInvoice(TestL10nECEdiCommon):
         )
         invoice = self._l10n_ec_prepare_edi_out_invoice(auto_post=True)
         edi_doc = invoice._get_edi_document(self.edi_format)
-        edi_doc._process_documents_web_services(with_commit=False)
+        with patch.object(
+            AccountEdiDocument,
+            "_l10n_ec_edi_send_xml_auth",
+            mock_edi_send_xml_auth_echo,
+        ):
+            edi_doc._process_documents_web_services(with_commit=False)
         self.assertEqual(invoice.state, "posted")
         # Enviroments
         # 1 = test

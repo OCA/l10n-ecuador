@@ -9,3 +9,13 @@ The `l10n_ec_account_edi` module is a crucial component in the Odoo ecosystem, s
 3. **Automated Submission:** The module streamlines the submission process of electronic invoices to the tax authorities' systems. It automates the communication and transmission of invoice data, reducing manual intervention and minimizing errors.
 
 4. **Real-time Validation:** Before submission, the module performs real-time validation checks to ensure that the generated electronic invoices comply with the current legal standards. This helps in identifying and rectifying issues proactively.
+
+## Known issues
+
+- The SRI authorization response field `numeroAutorizacion` normally equals
+  the generated *clave de acceso*, so the module reuses the single
+  `l10n_ec_xml_access_key` field instead of keeping a separate
+  `l10n_ec_authorization_number` field. The SRI value is only persisted when
+  it differs from the generated key (e.g. contingency). If a contingency flow
+  ever returns a divergent authorization number, it overwrites the access key
+  and that divergence is kept as a documented limitation.

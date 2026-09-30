@@ -28,6 +28,8 @@ class TestL10nMail(TestL10nECEdiCommon, MailCommon):
             )
             for company in all_companies:
                 instance.with_company(company).l10n_ec_send_mail_to_partner()
+            # Honour the return contract of the method being replaced.
+            return True
 
         partner = self.partner_with_email
         self._setup_edi_company_ec()
@@ -49,12 +51,22 @@ class TestL10nMail(TestL10nECEdiCommon, MailCommon):
         )
         self.assertTrue(cron_tasks)
 
+        # Run the cron's body in this transaction. ``ir.cron.method_direct_trigger()``
+        # used to run the job on the caller's cursor (17.0), but since 19.0 it opens
+        # its own connection and commits there, so it can neither see the invoice
+        # this test has just posted nor the ``patch.object`` below; the job would
+        # silently do nothing and every assertion after it would be vacuous. It is
+        # invoked as the cron's user, exactly like ``ir.cron._run_job()`` does.
         with patch.object(
             AccountEdiDocument,
             "l10n_ec_send_mail_to_partners",
             mock_send_mail_to_partners,
         ):
-            result = cron_tasks.method_direct_trigger()
+            result = (
+                self.env["account.edi.document"]
+                .with_user(cron_tasks.user_id)
+                .l10n_ec_send_mail_to_partners()
+            )
         self.assertTrue(result)
         self.assertEqual(invoice.state, "posted")
         self.assertTrue(edi_doc.l10n_ec_xml_access_key)
@@ -92,7 +104,13 @@ class TestL10nMail(TestL10nECEdiCommon, MailCommon):
         )
         self.assertTrue(cron_tasks)
 
-        result = cron_tasks.method_direct_trigger()
+        # Same reason as ``test_l10n_ec_cron_invoice``: the cron body has to run in
+        # this transaction for the company lookup below to be the thing under test.
+        result = (
+            self.env["account.edi.document"]
+            .with_user(cron_tasks.user_id)
+            .l10n_ec_send_mail_to_partners()
+        )
         self.assertTrue(result)
         self.assertEqual(invoice.state, "posted")
         self.assertTrue(edi_doc.l10n_ec_xml_access_key)

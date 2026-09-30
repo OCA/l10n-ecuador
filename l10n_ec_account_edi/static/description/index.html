@@ -374,7 +374,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:f737244628ab06661ac685e58557c63cbb17e71d927d00116d38a9d2c37975e1
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Beta" src="https://img.shields.io/badge/maturity-Beta-yellow.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/agpl-3.0-standalone.html"><img alt="License: AGPL-3" src="https://img.shields.io/badge/license-AGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OCA/l10n-ecuador/tree/17.0/l10n_ec_account_edi"><img alt="OCA/l10n-ecuador" src="https://img.shields.io/badge/github-OCA%2Fl10n--ecuador-lightgray.png?logo=github" /></a> <a class="reference external image-reference" href="https://translation.odoo-community.org/projects/l10n-ecuador-17-0/l10n-ecuador-17-0-l10n_ec_account_edi"><img alt="Translate me on Weblate" src="https://img.shields.io/badge/weblate-Translate%20me-F47D42.png" /></a> <a class="reference external image-reference" href="https://runboat.odoo-community.org/builds?repo=OCA/l10n-ecuador&amp;target_branch=17.0"><img alt="Try me on Runboat" src="https://img.shields.io/badge/runboat-Try%20me-875A7B.png" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Beta" src="https://img.shields.io/badge/maturity-Beta-yellow.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/agpl-3.0-standalone.html"><img alt="License: AGPL-3" src="https://img.shields.io/badge/license-AGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OCA/l10n-ecuador/tree/19.0/l10n_ec_account_edi"><img alt="OCA/l10n-ecuador" src="https://img.shields.io/badge/github-OCA%2Fl10n--ecuador-lightgray.png?logo=github" /></a> <a class="reference external image-reference" href="https://translation.odoo-community.org/projects/l10n-ecuador-19-0/l10n-ecuador-19-0-l10n_ec_account_edi"><img alt="Translate me on Weblate" src="https://img.shields.io/badge/weblate-Translate%20me-F47D42.png" /></a> <a class="reference external image-reference" href="https://runboat.odoo-community.org/builds?repo=OCA/l10n-ecuador&amp;target_branch=19.0"><img alt="Try me on Runboat" src="https://img.shields.io/badge/runboat-Try%20me-875A7B.png" /></a></p>
 <p>The <tt class="docutils literal">l10n_ec_account_edi</tt> module is a crucial component in the Odoo
 ecosystem, specifically tailored for businesses operating in Ecuador.
 This module facilitates Electronic Invoicing compliance with the
@@ -402,6 +402,19 @@ real-time validation checks to ensure that the generated electronic
 invoices comply with the current legal standards. This helps in
 identifying and rectifying issues proactively.</li>
 </ol>
+</div>
+<div class="section" id="known-issues">
+<h2>Known issues</h2>
+<ul class="simple">
+<li>The SRI authorization response field <tt class="docutils literal">numeroAutorizacion</tt> normally
+equals the generated <em>clave de acceso</em>, so the module reuses the
+single <tt class="docutils literal">l10n_ec_xml_access_key</tt> field instead of keeping a separate
+<tt class="docutils literal">l10n_ec_authorization_number</tt> field. The SRI value is only
+persisted when it differs from the generated key (e.g. contingency).
+If a contingency flow ever returns a divergent authorization number,
+it overwrites the access key and that divergence is kept as a
+documented limitation.</li>
+</ul>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">
@@ -418,6 +431,15 @@ Resolution NAC-DGERCGC26-00000027</p>
 <ul class="simple">
 <li>Go to <tt class="docutils literal">Invoicing &gt; Configuration &gt; Settings</tt>.</li>
 <li>In the <tt class="docutils literal">Ecuadorian Localization</tt> section, set the <tt class="docutils literal">RUC Provider</tt>.</li>
+</ul>
+<p>The SRI authorization number returned by the web service is stored
+automatically on each authorized electronic document, next to the
+authorization date. No manual configuration is needed</p>
+<ul class="simple">
+<li>Go to
+<tt class="docutils literal">Invoicing &gt; Configuration &gt; Ecuadorian SRI &gt; XML Electronic Documents</tt>.</li>
+<li>Check the <tt class="docutils literal">Authorization Number(EC)</tt> column of the list, or open a
+document to see it in the form.</li>
 </ul>
 </div>
 <div class="section" id="usage">
@@ -469,7 +491,7 @@ Invoicing in Ecuador,</p>
 <p>Bugs are tracked on <a class="reference external" href="https://github.com/OCA/l10n-ecuador/issues">GitHub Issues</a>.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
-<a class="reference external" href="https://github.com/OCA/l10n-ecuador/issues/new?body=module:%20l10n_ec_account_edi%0Aversion:%2017.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**">feedback</a>.</p>
+<a class="reference external" href="https://github.com/OCA/l10n-ecuador/issues/new?body=module:%20l10n_ec_account_edi%0Aversion:%2019.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**">feedback</a>.</p>
 <p>Do not contact contributors directly about support or help with technical issues.</p>
 </div>
 <div class="section" id="credits">
@@ -495,7 +517,7 @@ If you spotted it first, help us to smash it by providing a detailed and welcome
 <p>OCA, or the Odoo Community Association, is a nonprofit organization whose
 mission is to support the collaborative development of Odoo features and
 promote its widespread use.</p>
-<p>This module is part of the <a class="reference external" href="https://github.com/OCA/l10n-ecuador/tree/17.0/l10n_ec_account_edi">OCA/l10n-ecuador</a> project on GitHub.</p>
+<p>This module is part of the <a class="reference external" href="https://github.com/OCA/l10n-ecuador/tree/19.0/l10n_ec_account_edi">OCA/l10n-ecuador</a> project on GitHub.</p>
 <p>You are welcome to contribute. To learn how please visit <a class="reference external" href="https://odoo-community.org/page/Contribute">https://odoo-community.org/page/Contribute</a>.</p>
 </div>
 </div>
