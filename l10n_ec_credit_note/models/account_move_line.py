@@ -8,7 +8,7 @@ class AccountMoveLine(models.Model):
         res = super()._compute_account_id()
         for rec in self.filtered(
             lambda line: line.display_type == "product"
-            and line.company_id.country_code == "EC"
+            and line.move_id.country_code == "EC"
             and line.move_id.move_type == "out_refund"
         ):
             new_account = rec.move_id._get_account_product_line(

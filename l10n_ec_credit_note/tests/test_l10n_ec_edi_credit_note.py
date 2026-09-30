@@ -1,7 +1,7 @@
+from odoo import Command
 from odoo.tests import tagged
 
 from odoo.addons.l10n_ec_account_edi.tests.test_edi_common import TestL10nECEdiCommon
-from odoo.addons.stock_account.tests.test_stockvaluation import _create_accounting_data
 
 FORM_ID = "account.view_move_form"
 
@@ -11,22 +11,16 @@ class TestL10nClDte(TestL10nECEdiCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.discount_account_id = cls.env["account.account"].create(
-            {
-                "company_id": cls.company_data["company"].id,
-                "name": "Discount Account",
-                "account_type": "income",
-                "code": "411041104110",
-            }
+        company = cls.company_data["company"]
+        cls.discount_account_id = cls._create_account(
+            company, "411041104110", "Discount Account", "income"
         )
-        cls.return_account_id = cls.env["account.account"].create(
-            {
-                "company_id": cls.company_data["company"].id,
-                "name": "Return Account",
-                "account_type": "income",
-                "code": "411141114111",
-            }
+        cls.return_account_id = cls._create_account(
+            company, "411141114111", "Return Account", "income"
         )
+        # The Ecuadorian chart template already sets the stock valuation account,
+        # the stock journal and the default expense account on the company, so
+        # the COGS paths of stock_account are reachable without extra fixtures.
         cls.company.write(
             {
                 "l10n_ec_property_account_discount_id": cls.discount_account_id.id,
@@ -34,34 +28,33 @@ class TestL10nClDte(TestL10nECEdiCommon):
             }
         )
 
-        (
-            cls.stock_input_account,
-            cls.stock_output_account,
-            cls.stock_valuation_account,
-            cls.expense_account,
-            cls.stock_journal,
-        ) = _create_accounting_data(cls.env)
-
         cls.category = cls.env["product.category"].create(
             {
                 "name": "Test Category",
                 "property_cost_method": "average",
                 "property_valuation": "real_time",
-                "l10n_ec_property_account_return_id": cls.return_account_id,
-                "l10n_ec_property_account_discount_id": cls.discount_account_id,
-                "property_stock_account_input_categ_id": cls.stock_input_account.id,
-                "property_stock_account_output_categ_id": cls.stock_output_account.id,
-                "property_stock_valuation_account_id": cls.stock_valuation_account.id,
-                "property_stock_journal": cls.stock_journal.id,
+                "l10n_ec_property_account_return_id": cls.return_account_id.id,
+                "l10n_ec_property_account_discount_id": cls.discount_account_id.id,
             }
         )
 
         cls.product = cls.env["product.product"].create(
             {
                 "name": "Test Product",
-                "detailed_type": "product",
+                "is_storable": True,
                 "categ_id": cls.category.id,
                 "standard_price": 100,
+            }
+        )
+
+    @classmethod
+    def _create_account(cls, company, code, name, account_type):
+        return cls.env["account.account"].create(
+            {
+                "name": name,
+                "code": code,
+                "account_type": account_type,
+                "company_ids": [Command.set([company.id])],
             }
         )
 
@@ -69,7 +62,7 @@ class TestL10nClDte(TestL10nECEdiCommon):
         reversal_wizard = self.env["account.move.reversal"].create(
             {
                 "journal_id": invoice.journal_id.id,
-                "move_ids": [(6, 0, invoice.ids)],
+                "move_ids": [Command.set(invoice.ids)],
                 "l10n_ec_type_credit_note": credit_note_type,
             }
         )
@@ -88,7 +81,7 @@ class TestL10nClDte(TestL10nECEdiCommon):
         )
         new_move_ids = credit_note_wizard.new_move_ids
         if auto_post:
-            new_move_ids = invoice.reversal_move_id.filtered(
+            new_move_ids = invoice.reversal_move_ids.filtered(
                 lambda x: x.move_type == "out_refund"
             )
         return new_move_ids
@@ -136,7 +129,7 @@ class TestL10nClDte(TestL10nECEdiCommon):
 
     def test_create_invoice_and_credit_note_product_return(self):
         self.product.write(
-            {"l10n_ec_property_account_return_id": self.return_account_id}
+            {"l10n_ec_property_account_return_id": self.return_account_id.id}
         )
         new_move_ids = self.generate_credit_note("return", product=self.product)
         expected_account_id = self.product.l10n_ec_property_account_return_id
@@ -147,7 +140,7 @@ class TestL10nClDte(TestL10nECEdiCommon):
 
     def test_create_invoice_and_credit_note_product_discount(self):
         self.product.write(
-            {"l10n_ec_property_account_discount_id": self.discount_account_id}
+            {"l10n_ec_property_account_discount_id": self.discount_account_id.id}
         )
         new_move_ids = self.generate_credit_note("discount", product=self.product)
         expected_account_id = self.product.l10n_ec_property_account_discount_id
@@ -160,7 +153,7 @@ class TestL10nClDte(TestL10nECEdiCommon):
         self._setup_edi_company_ec()
         self.company.write({"anglo_saxon_accounting": True})
         self.product.write(
-            {"l10n_ec_property_account_discount_id": self.discount_account_id}
+            {"l10n_ec_property_account_discount_id": self.discount_account_id.id}
         )
         new_move_ids = self.generate_credit_note("discount", product=self.product)
         new_move_ids.action_post()

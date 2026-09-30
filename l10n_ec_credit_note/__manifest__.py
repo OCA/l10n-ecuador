@@ -4,7 +4,7 @@
     "author": "Odoo Community Association (OCA), Odoo-EC",
     "website": "https://github.com/OCA/l10n-ecuador",
     "license": "AGPL-3",
-    "version": "17.0.1.0.0",
+    "version": "19.0.1.0.0",
     "depends": [
         "account",
         "account_edi",
