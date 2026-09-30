@@ -1,0 +1,20 @@
+# Temporary references to pull requests that are not merged yet.
+#
+# l10n_ec_credit_note depends on two modules that are still in open pull requests:
+# l10n_ec_base (OCA/l10n-ecuador#101) and l10n_ec_account_edi (#102). CI resolves
+# `depends` against the target branch, where neither module exists yet, so the
+# install and the tests would fail without these references.
+#
+# Remove this file by dropping the "[DON'T MERGE] test-requirements.txt" commit
+# once both #101 and #102 are merged. The OCA CI linter deliberately fails while
+# a temporary reference is present; that red is expected and must not be
+# suppressed.
+#
+# Format for >= v17: each addon is its own Python project with its own
+# pyproject.toml, so the subdirectory fragment is the module name itself. Both
+# modules below were verified to carry their own pyproject.toml, and the repo has
+# no setup/ directory, so the older <=v16 forms do not apply.
+#
+# See https://github.com/OCA/maintainer-tools/wiki/Use-temporary-reference(s)-to-another-pull-request(s)
+odoo-addon-l10n_ec_base @ git+https://github.com/OCA/l10n-ecuador.git@refs/pull/101/head#subdirectory=l10n_ec_base
+odoo-addon-l10n_ec_account_edi @ git+https://github.com/OCA/l10n-ecuador.git@refs/pull/102/head#subdirectory=l10n_ec_account_edi
