@@ -1,0 +1,1 @@
+The `l10n_ec_base` module is an extension module for Odoo, specifically designed to complement and enhance the functionality of the existing `l10n_ec` module. The primary purpose of this module is to provide additional features and customization options related to the Ecuadorian localization, including the expansion of the chart of accounts and tax-related functionalities.

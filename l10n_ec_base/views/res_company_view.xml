@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="l10n_ec_view_company_form" model="ir.ui.view">
+        <field name="name">l10n_ec.view.company.form</field>
+        <field name="model">res.company</field>
+        <field name="priority" eval="100" />
+        <field name="inherit_id" ref="base.view_company_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field
+                    name="l10n_ec_business_name"
+                    placeholder="Business Name"
+                    invisible="country_code != 'EC'"
+                />
+            </xpath>
+            <xpath expr="//field[@name='vat']" position="replace">
+                <field name="vat" string="RUC" />
+                <field
+                    name="property_account_position_id"
+                    options="{'no_create': True}"
+                    invisible="country_code != 'EC'"
+                />
+                <field
+                    name="l10n_ec_retention_agent"
+                    placeholder="Empty if Not"
+                    invisible="country_code != 'EC'"
+                />
+                <field name="l10n_ec_regimen" invisible="country_code != 'EC'" />
+            </xpath>
+        </field>
+    </record>
+</odoo>
