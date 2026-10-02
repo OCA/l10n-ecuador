@@ -12,3 +12,7 @@ class ResPartner(models.Model):
     l10n_ec_tax_support = fields.Selection(
         TAX_SUPPORT, string="Tax Support", help="Tax support in invoice line"
     )
+    l10n_ec_related_party = fields.Boolean(
+        string="Related Party",
+        help="Related party (parteRel) in the SRI withholding certificate",
+    )
