@@ -29,6 +29,9 @@ class AccountEdiDocument(models.Model):
     l10n_ec_authorization_date = fields.Datetime(
         "Authorization Date", readonly=True, index=True
     )
+    l10n_ec_authorization_number = fields.Char(
+        "Authorization Number(EC)", size=49, readonly=True, index=True, copy=False
+    )
     l10n_ec_last_sent_date = fields.Datetime(
         "Last Sent Date", readonly=True, index=True
     )
@@ -656,7 +659,15 @@ class AccountEdiDocument(models.Model):
                 l10n_ec_authorization_date,
             )
             self.write(
-                {"l10n_ec_authorization_date": l10n_ec_authorization_date.strftime(DTF)}
+                {
+                    "l10n_ec_authorization_date": l10n_ec_authorization_date.strftime(
+                        DTF
+                    ),
+                    # tomar el numero de autorizacion que envia el SRI,
+                    # si no lo envia, se almacena False
+                    "l10n_ec_authorization_number": doc.get("numeroAutorizacion")
+                    or False,
+                }
             )
             break
         return is_auth, msj_list

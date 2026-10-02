@@ -46,6 +46,11 @@ class AccountMove(models.Model):
         string="Access Key(EC)",
         store=True,
     )
+    l10n_ec_authorization_number = fields.Char(
+        compute="_compute_l10n_ec_edi_document_data",
+        string="Authorization Number(EC)",
+        store=True,
+    )
     l10n_ec_is_edi_doc = fields.Boolean(
         string="Is Ecuadorian Electronic Document", default=False, copy=False
     )
@@ -91,6 +96,7 @@ class AccountMove(models.Model):
 
     @api.depends(
         "edi_document_ids.l10n_ec_authorization_date",
+        "edi_document_ids.l10n_ec_authorization_number",
         "edi_document_ids.l10n_ec_xml_access_key",
     )
     def _compute_l10n_ec_edi_document_data(self):
@@ -100,6 +106,9 @@ class AccountMove(models.Model):
             )
             note.l10n_ec_authorization_date = (
                 edi_doc.l10n_ec_authorization_date or False
+            )
+            note.l10n_ec_authorization_number = (
+                edi_doc.l10n_ec_authorization_number or False
             )
             note.l10n_ec_xml_access_key = edi_doc.l10n_ec_xml_access_key or ""
 
