@@ -1,0 +1,117 @@
+from unittest.mock import patch
+
+from odoo.tests import tagged
+
+from odoo.addons.l10n_ec_account_edi.models.account_edi_document import (
+    AccountEdiDocument,
+)
+from odoo.addons.mail.tests.common import MailCommon
+
+from .sri_response import patch_service_sri
+from .test_edi_common import TestL10nECEdiCommon
+
+
+@tagged("post_install_l10n", "post_install", "-at_install", "mail")
+class TestL10nMail(TestL10nECEdiCommon, MailCommon):
+    @patch_service_sri
+    def test_l10n_ec_cron_invoice(self):
+        def mock_l10n_ec_edi_send_xml_with_auth(edi_doc_instance, client_ws):
+            return self._get_response_with_auth(edi_doc_instance)
+
+        def mock_send_mail_to_partners(instance):
+            # search company with environment test instead of production
+            all_companies = instance.env["res.company"].search(
+                [
+                    ("partner_id.country_id.code", "=", "EC"),
+                    ("l10n_ec_type_environment", "=", "test"),
+                ]
+            )
+            for company in all_companies:
+                instance.with_company(company).l10n_ec_send_mail_to_partner()
+            # Honour the return contract of the method being replaced.
+            return True
+
+        partner = self.partner_with_email
+        self._setup_edi_company_ec()
+        invoice = self._l10n_ec_prepare_edi_out_invoice(
+            partner=partner, auto_post=False
+        )
+        invoice.action_post()
+        edi_doc = invoice._get_edi_document(self.edi_format)
+
+        with patch.object(
+            AccountEdiDocument,
+            "_l10n_ec_edi_send_xml_auth",
+            mock_l10n_ec_edi_send_xml_with_auth,
+        ):
+            edi_doc._process_documents_web_services(with_commit=False)
+
+        cron_tasks = self.env.ref(
+            "l10n_ec_account_edi.ir_cron_send_email_electronic_documents", False
+        )
+        self.assertTrue(cron_tasks)
+
+        # Run the cron's body in this transaction. ``ir.cron.method_direct_trigger()``
+        # used to run the job on the caller's cursor (17.0), but since 19.0 it opens
+        # its own connection and commits there, so it can neither see the invoice
+        # this test has just posted nor the ``patch.object`` below; the job would
+        # silently do nothing and every assertion after it would be vacuous. It is
+        # invoked as the cron's user, exactly like ``ir.cron._run_job()`` does.
+        with patch.object(
+            AccountEdiDocument,
+            "l10n_ec_send_mail_to_partners",
+            mock_send_mail_to_partners,
+        ):
+            result = (
+                self.env["account.edi.document"]
+                .with_user(cron_tasks.user_id)
+                .l10n_ec_send_mail_to_partners()
+            )
+        self.assertTrue(result)
+        self.assertEqual(invoice.state, "posted")
+        self.assertTrue(edi_doc.l10n_ec_xml_access_key)
+        self.assertTrue(invoice.is_move_sent)
+
+    @patch_service_sri
+    def test_l10n_ec_send_mail(self):
+        """
+        Test para cuando el entorno es de producción. No va a enviar
+        el correo porque los partners de prueba no tienen email y ademas
+        el cron busca compañías con:
+        "l10n_ec_type_environment", "=", "production"
+        """
+
+        def mock_l10n_ec_edi_send_xml_with_auth(edi_doc_instance, client_ws):
+            return self._get_response_with_auth(edi_doc_instance)
+
+        partner = self.partner_cf
+        self._setup_edi_company_ec()
+        invoice = self._l10n_ec_prepare_edi_out_invoice(
+            partner=partner, auto_post=False
+        )
+        invoice.action_post()
+        edi_doc = invoice._get_edi_document(self.edi_format)
+
+        with patch.object(
+            AccountEdiDocument,
+            "_l10n_ec_edi_send_xml_auth",
+            mock_l10n_ec_edi_send_xml_with_auth,
+        ):
+            edi_doc._process_documents_web_services(with_commit=False)
+
+        cron_tasks = self.env.ref(
+            "l10n_ec_account_edi.ir_cron_send_email_electronic_documents", False
+        )
+        self.assertTrue(cron_tasks)
+
+        # Same reason as ``test_l10n_ec_cron_invoice``: the cron body has to run in
+        # this transaction for the company lookup below to be the thing under test.
+        result = (
+            self.env["account.edi.document"]
+            .with_user(cron_tasks.user_id)
+            .l10n_ec_send_mail_to_partners()
+        )
+        self.assertTrue(result)
+        self.assertEqual(invoice.state, "posted")
+        self.assertTrue(edi_doc.l10n_ec_xml_access_key)
+        self.assertFalse(invoice.is_move_sent)
