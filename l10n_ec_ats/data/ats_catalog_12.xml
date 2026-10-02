@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- ====================================================================
+         Source: Catalogo_ATS.xls, sheet "TABLAS REFERENCIALES".
+         Columns: B = Porcentaje (stored as a fraction), C = Fecha Inicio (dd/mm/yyyy),
+         D = Fecha Fin (dd/mm/yyyy, empty = open)
+         Rows 232 to 236, one record per row, in source order.
+         Record ids are suffixed with the 1-based position in that order,
+         so ats_catalog_entry_<table>_<n> is row 232 + n - 1.
+         Every value below was read from the cell named above; nothing is
+         interpolated.
+    -->
+    <!--
+      * The sheet has no code column. The identity of a regime is its
+        percentage, so code is that percentage as two digits and
+        percentage is the source fraction multiplied by 100, which is
+        the unit the ATS field uses.
+    -->
+    <record id="ats_catalog_table_12" model="l10n.ec.ats.catalog.table">
+        <field name="code">12</field>
+        <field name="name">PROCENTAJE DE IVA</field>
+        <field
+            name="source_reference"
+        >Catalogo_ATS.xls / TABLAS REFERENCIALES / TABLA 12:  PROCENTAJE DE IVA (rows 232-236, title B230)</field>
+        <field name="in_scope">1</field>
+        <field name="entry_count">5</field>
+        <field name="load_order">70</field>
+    </record>
+    <record id="ats_catalog_entry_12_1" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_12" />
+        <field name="code">12</field>
+        <field name="percentage">12</field>
+        <field name="date_start">2000-01-01</field>
+        <field name="date_end">2001-05-31</field>
+    </record>
+    <record id="ats_catalog_entry_12_2" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_12" />
+        <field name="code">14</field>
+        <field name="percentage">14</field>
+        <field name="date_start">2001-06-01</field>
+        <field name="date_end">2001-08-31</field>
+    </record>
+    <record id="ats_catalog_entry_12_3" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_12" />
+        <field name="code">12</field>
+        <field name="percentage">12</field>
+        <field name="date_start">2001-09-01</field>
+        <field name="date_end">2016-05-31</field>
+    </record>
+    <record id="ats_catalog_entry_12_4" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_12" />
+        <field name="code">14</field>
+        <field name="percentage">14</field>
+        <field name="date_start">2016-06-01</field>
+        <field name="date_end">2017-05-31</field>
+    </record>
+    <record id="ats_catalog_entry_12_5" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_12" />
+        <field name="code">12</field>
+        <field name="percentage">12</field>
+        <field name="date_start">2017-06-01</field>
+    </record>
+</odoo>
