@@ -3,3 +3,7 @@ access_l10n_ec_ats_catalog_table_user,l10n.ec.ats.catalog.table user,model_l10n_
 access_l10n_ec_ats_catalog_table_admin,l10n.ec.ats.catalog.table admin,model_l10n_ec_ats_catalog_table,base.group_system,1,1,1,0
 access_l10n_ec_ats_catalog_entry_user,l10n.ec.ats.catalog.entry user,model_l10n_ec_ats_catalog_entry,base.group_user,1,0,0,0
 access_l10n_ec_ats_catalog_entry_admin,l10n.ec.ats.catalog.entry admin,model_l10n_ec_ats_catalog_entry,base.group_system,1,1,1,0
+access_l10n_ec_ats_income_withholding_concept_user,l10n.ec.ats.income.withholding.concept user,model_l10n_ec_ats_income_withholding_concept,base.group_user,1,0,0,0
+access_l10n_ec_ats_income_withholding_concept_admin,l10n.ec.ats.income.withholding.concept admin,model_l10n_ec_ats_income_withholding_concept,base.group_system,1,1,1,0
+access_l10n_ec_ats_income_withholding_rate_user,l10n.ec.ats.income.withholding.rate user,model_l10n_ec_ats_income_withholding_rate,base.group_user,1,0,0,0
+access_l10n_ec_ats_income_withholding_rate_admin,l10n.ec.ats.income.withholding.rate admin,model_l10n_ec_ats_income_withholding_rate,base.group_system,1,1,1,0

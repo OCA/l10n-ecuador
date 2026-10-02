@@ -25,5 +25,7 @@
         "data/ats_catalog_15.xml",
         "data/ats_catalog_20.xml",
         "data/ats_catalog_21.xml",
+        "data/ats_income_withholding_concepts.xml",
+        "data/ats_income_withholding_rates.xml",
     ],
 }
