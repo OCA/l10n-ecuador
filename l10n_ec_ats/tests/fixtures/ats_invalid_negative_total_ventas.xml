@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ats_invalid_negative_total_ventas.xml — DESPITE THE FILE NAME, THIS DOCUMENT
+  IS ACCEPTED. The file name records the intent of the case, not its verdict.
+
+  Rule exercised: totalVentasType, ats.xsd:1298-1303. Its pattern at
+  ats.xsd:1302 is
+    "[0-9]{1,12}\.[0-9]{2}|[0-9]{1,12}|[\-][0-9]{1,12}\.[0-9]{2}|[\-][0-9]{1,12}"
+  — the only amount type in the whole schema that carries the two negative
+  alternatives. The type has no minInclusive at all, so "-1500.00" validates.
+
+  Element under test: iva/totalVentas, ats.xsd:605-607.
+
+  THIS IS WHERE THE SCHEMA IS NOT THE NORM, and it is the asymmetry that makes
+  credit-note handling non-obvious: a negative totalVentas is legal while a
+  negative per-line amount is not (compare ats_invalid_negative_line_amount.xml,
+  where monedaType ats.xsd:1304-1310 sets minInclusive 0.0). The aggregate is
+  netted by the SRI, the lines are not. A builder that negates line amounts to
+  represent a credit note produces a file the schema rejects; a builder that
+  emits the negative total without touching the lines produces one it accepts.
+  Which of the two the SRI actually expects is a question for the business
+  validators of the Validaciones column, not for the XSD.
+-->
+<iva>
+    <TipoIDInformante>R</TipoIDInformante>
+    <IdInformante>1791311225001</IdInformante>
+    <razonSocial>COMERCIAL ANDINA SA</razonSocial>
+    <Anio>2024</Anio>
+    <Mes>03</Mes>
+    <totalVentas>-1500.00</totalVentas>
+    <codigoOperativo>IVA</codigoOperativo>
+    <compras>
+        <detalleCompras>
+            <codSustento>01</codSustento>
+            <tpIdProv>01</tpIdProv>
+            <idProv>1791311225001</idProv>
+            <tipoComprobante>01</tipoComprobante>
+            <denoProv>PROVEEDOR DEL SUR SA</denoProv>
+            <parteRel>NO</parteRel>
+            <fechaRegistro>15/03/2024</fechaRegistro>
+            <establecimiento>001</establecimiento>
+            <puntoEmision>001</puntoEmision>
+            <secuencial>000000001</secuencial>
+            <fechaEmision>15/03/2024</fechaEmision>
+            <autorizacion>123456789012</autorizacion>
+            <baseNoGraIva>0.00</baseNoGraIva>
+            <baseImponible>100.00</baseImponible>
+            <baseImpGrav>0.00</baseImpGrav>
+            <baseImpExe>0.00</baseImpExe>
+            <montoIce>0.00</montoIce>
+            <montoIva>15.00</montoIva>
+            <valorRetBienes>0.00</valorRetBienes>
+            <valorRetServicios>0.00</valorRetServicios>
+            <valRetServ100>0.00</valRetServ100>
+        </detalleCompras>
+    </compras>
+</iva>

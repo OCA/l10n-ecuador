@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ats_invalid_impossible_date.xml — DESPITE THE FILE NAME, THIS DOCUMENT IS
+  ACCEPTED. The file name records the intent of the case, not its verdict.
+
+  Rule exercised: fechaType, ats.xsd:16-24. Its only facet is the pattern at
+  ats.xsd:22-23,
+    "(0[1-9]|[12][0-9]|3[01])[/](0[1-9]|1[012])[/](19|20)\d\d"
+  which bounds the day to 01-31 and the month to 01-12 but never relates them
+  to the calendar. 31/02/2020 — February has no 31st — matches the pattern and
+  therefore validates.
+
+  Element under test: detalleCompras/fechaEmision, ats.xsd:738.
+  The same applies to fechaRegistro (ats.xsd:733) and to the whole fechaType
+  family used across every block, including the deprecated fechaEmiRet1 /
+  fechaEmiRet2 and the fechaPagoDiv split-payment date.
+
+  THIS IS WHERE THE SCHEMA IS NOT THE NORM: the XSD is a lexical shape, not a
+  calendar. A builder that hands the XSD an unvalidated string can produce a
+  document that passes every grammar check and is still rejected at SRI
+  reception. Date validity is one of the checks the business validators must
+  own.
+-->
+<iva>
+    <TipoIDInformante>R</TipoIDInformante>
+    <IdInformante>1791311225001</IdInformante>
+    <razonSocial>COMERCIAL ANDINA SA</razonSocial>
+    <Anio>2024</Anio>
+    <Mes>03</Mes>
+    <codigoOperativo>IVA</codigoOperativo>
+    <compras>
+        <detalleCompras>
+            <codSustento>01</codSustento>
+            <tpIdProv>01</tpIdProv>
+            <idProv>1791311225001</idProv>
+            <tipoComprobante>01</tipoComprobante>
+            <denoProv>PROVEEDOR DEL SUR SA</denoProv>
+            <parteRel>NO</parteRel>
+            <fechaRegistro>15/03/2024</fechaRegistro>
+            <establecimiento>001</establecimiento>
+            <puntoEmision>001</puntoEmision>
+            <secuencial>000000001</secuencial>
+            <fechaEmision>31/02/2020</fechaEmision>
+            <autorizacion>123456789012</autorizacion>
+            <baseNoGraIva>0.00</baseNoGraIva>
+            <baseImponible>100.00</baseImponible>
+            <baseImpGrav>0.00</baseImpGrav>
+            <baseImpExe>0.00</baseImpExe>
+            <montoIce>0.00</montoIce>
+            <montoIva>15.00</montoIva>
+            <valorRetBienes>0.00</valorRetBienes>
+            <valorRetServicios>0.00</valorRetServicios>
+            <valRetServ100>0.00</valRetServ100>
+        </detalleCompras>
+    </compras>
+</iva>
