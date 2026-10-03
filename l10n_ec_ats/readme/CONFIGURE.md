@@ -5,18 +5,114 @@ The module installs the `l10n.ec.temporal` abstract mixin and requires
 It adds no technical setting; the only user interface is the generation wizard,
 reachable from **Invoicing ‣ SRI ‣ ATS**.
 
+This document used to be one linear read of 620 lines, which is not a thing
+anyone can act on. It is now in three tiers, and you only need to know which
+one you are in:
+
+| Tier | Read it when | Length |
+| --- | --- | --- |
+| **1 — Set this up** | You are installing the module and want to generate a month | ~1 screen |
+| **2 — Know this about the catalog** | You touch catalog records, or a generation was refused for a catalog reason | ~4 screens |
+| **3 — Block semantics** | You are reading or changing a collector | a table, then a pointer |
+
+**Where the reasoning lives now.** Tier 3 does not restate *why* each block
+behaves as it does — that would be a fourth copy of a decision that already has
+to be kept in step with the code. Each rule points at its single home:
+
+| Question | Home |
+| --- | --- |
+| Which Odoo record fills which ATS element? | [`DESIGN.md`](https://github.com/OCA/l10n-ecuador/blob/19.0/l10n_ec_ats/readme/DESIGN.md) — the mapping table, all five blocks |
+| Why does this rule exist, and what was rejected? | [ADR 0002](https://github.com/OCA/l10n-ecuador/blob/19.0/l10n_ec_ats/docs/adr/0002-ats-design-decisions.md) |
+| What is open, unstated or contradictory in the source? | [`ROADMAP.md`](https://github.com/OCA/l10n-ecuador/blob/19.0/l10n_ec_ats/readme/ROADMAP.md) |
+| How do I generate, and what happens when it refuses? | [`USAGE.md`](https://github.com/OCA/l10n-ecuador/blob/19.0/l10n_ec_ats/readme/USAGE.md) |
+
+---
+
+# Tier 1 — Set this up
+
+## A journal needs an establishment, and `001` is the floor
+
+There is no `res.establishment` in `l10n-ecuador` nor in core `l10n_ec`, so an
+ATS establishment is derived from the journal pair `account.journal`'s
+`l10n_ec_entity` / `l10n_ec_emission`. Every EC company therefore needs those
+set on the journals it sells from, or the `ventasEstablecimiento` block will not
+carry those establishments — and `numEstabRuc` is the row count, so a missing
+establishment shrinks the header too.
+
+`000` is **never** valid. `l10n_ec_base` only checks length and `isnumeric()`,
+so `"000"` passes its constraint today; the collectors, the builder and the
+validators each refuse it independently. Tightening the upstream constraint is a
+separate proposal — see `ROADMAP.md`.
+
+## The tax support a purchase must carry
+
+`account.move.l10n_ec_tax_support` is `Char(size=2)`, **not** a dropdown, and it
+is **mandatory** on every document in the `compras` block. A purchase without
+one is refused with a message naming the bill, because `Tabla 5` requires exactly
+one code per document and ATS does not guess it. The rejection lists the codes
+the catalog accepts **for the period being reported**, read from the records.
+
+The field is a capture, not the authority — see *Tax support is captured, then
+validated here* under Tier 2 below for why.
+
+## The wizard
+
+`l10n.ec.ats.generate` takes a `company_id`, an `anio` and a `mes`, and
+`generate()` returns the action that downloads the archive. It opens from
+**Invoicing ‣ SRI ‣ ATS** and stays usable from an automated action, RPC or a
+shell.
+
+- **`anio` and `mes` are integers, and the field refuses an impossible period.**
+  `Catalogo_ATS.xls` / `ESQUEMA TIPO 1 Y 2` row 7 says the year *"debe
+  corresponder a periodos del 2000 en adelante"* and the ficha's `ESQUEMA` adds
+  *"Programa despliega calendario 2000 en adelante"*, so an earlier year is
+  refused on the field rather than discovered in the document. The month is
+  bounded by `mesType`'s own pattern.
+- **`mes` is captured as a number, not chosen from a list.** The code that
+  reaches the file is the `Tabla 01` row's own, read from the catalog, so the
+  wizard cannot disagree with the table the moment the SRI republishes it.
+- **`regimenMicroempresa` is derived, not configured.** It is emitted when the
+  company declares a `l10n_ec_regimen` **and** the `Tabla 01` row of the
+  reported month names a semestral regime — which is what the sheet's own
+  descriptions say for the two semestral months and do not say for the other
+  ten. No `{06, 12}` set is held in Python.
+- **The company must be an EC one with a RUC.** `IdInformante` is
+  `company.partner_id.vat`; the builder refuses an empty one, and ATS-11 applies
+  the RUC module 11 check digit to it, so a wrong digit stops generation.
+- **`warnings` is the report, not a blocker.** `generate()` writes every
+  non-blocking finding there and the form shows it beside the download. A grave
+  finding never reaches it — it stops generation, and every problem is listed in
+  one `UserError` rather than only the first.
+
+The wizard is a `TransientModel` and lives in `l10n_ec_ats/wizard/`, not in
+`models/`: the repository's mandatory `pylint_odoo` run enables
+`no-wizard-in-models`, which refuses a `TransientModel` declared under
+`models/`. `l10n_ec_withhold/wizard/` and `l10n_ec_account_edi/wizard/` are the
+existing precedent.
+
+---
+
+# Tier 2 — Know this about the catalog
+
+The mixin's semantics — inclusive windows, open-ended `date_end`, gap and
+overlap detection, the helper names — are in [`USAGE.md`](https://github.com/OCA/l10n-ecuador/blob/19.0/l10n_ec_ats/readme/USAGE.md) under
+*Catalog semantics*. What follows is what a **catalog record** needs.
+
 ## Effective-dated catalog entries
 
 Every `l10n.ec.ats.catalog.entry` carries a validity window. `date_start` is
 the first day the entry applies to and `date_end` the last one, both
 included; leaving `date_end` empty means the entry is still in force.
 
-The SRI publishes no validity date for the referred transaction types, for
-the month codes, for `Tabla 14`, `Tabla 15`, or for `Tabla 4` — the last one
-spells its `Fecha de vigencia` column `vacío` in all forty rows. Those
-entries carry `1900-01-01` in `date_start` as a **sentinel meaning "the
-source states no date"**, not as a real start date, and their `date_end` is
-empty. Do not read that date as business data and do not filter on it.
+**The SRI publishes no validity date for the referred transaction types, for the
+month codes, for `Tabla 14`, `Tabla 15`, or for `Tabla 4`** — the last one spells
+its `Fecha de vigencia` column `vacío` in all forty rows. Those entries carry
+`1900-01-01` in `date_start` as a **sentinel meaning "the source states no
+date"**, not as a real start date, and their `date_end` is empty. Do not read
+that date as business data and do not filter on it. `1900-01-01` was chosen over
+a plausible-looking date such as `2000-01-01` precisely because a sentinel must
+not be mistakable for real data; the full rationale, and the two rows whose real
+dates *are* stated in prose footnotes, are in `ROADMAP.md`.
 
 ## Catalog tables
 
@@ -26,7 +122,14 @@ against the loaded entries by the test suite so a truncated import cannot
 pass silently. `source_reference` names the sheet and row range every value
 came from.
 
-## Tax support (`codSustento`) is captured, then validated here
+**Table numbers are stored zero-padded** (`01`, `02`, `05`), and so are the entry
+codes of `Tabla 01`, `Tabla 02`, `Tabla 05` and `Tabla 13`. `Tabla 04` and
+`Tabla 11` store their entries **unpadded** (`1`, `9`, `10`). An unpadded table
+number matches nothing, and a lookup that matches nothing resolves to *absent*
+rather than raising — the worst shape a lookup failure can take, because a rate
+silently becomes "no rate" instead of an error.
+
+## Tax support is captured, then validated here
 
 `account.move.l10n_ec_tax_support` and `res.partner.l10n_ec_tax_support` are
 `Char(size=2)`, **not** dropdowns. That is deliberate, and it is what makes this
@@ -75,22 +178,22 @@ for a different concept from one era to the next**:
   else** — one field, `code`. It does **not** inherit `l10n.ec.temporal`:
   a code has no validity window, so it needs no sentinel date.
 - `l10n.ec.ats.income.withholding.rate` carries everything the SRI says about
-  a concept **within one era**: `description`, `family`, `percentage`, and the
-  window from the `l10n.ec.temporal` mixin.
+  a concept **within one era**: `description`, `family`, `percentage`,
+  `detail_group`, and the window from the `l10n.ec.temporal` mixin.
 
-**Description and family are era-scoped. Read them from the rate, never from
-the concept.** Code `341` is *Otras retenciones aplicables el 2%* through
-2014 and *Impuesto único a la exportación de banano de producción propia -
+**Description, family and grouping are era-scoped. Read them from the rate,
+never from the concept.** Code `341` is *Otras retenciones aplicables el 2%*
+through 2014 and *Impuesto único a la exportación de banano de producción propia -
 componente 2* from 2015. Code `303A` is *Utilización o aprovechamiento de la
-imagen o renombre* in the 2014-10 era and *Servicios profesionales prestados
-por sociedades residentes* from 2024-03. 106 of the 414 codes carry a different
-description in different eras, so a description on the concept would force
-one era's wording onto every era — a fact the SRI does not state. Nothing is
-merged, and no era borrows another era's value.
+imagen o renombre* in the 2014-10 era and *Servicios profesionales prestados por
+sociedades residentes* from 2024-03. 106 of the 414 codes carry a different
+description in different eras, so a description on the concept would force one
+era's wording onto every era — a fact the SRI does not state. Nothing is merged,
+and no era borrows another era's value.
 
 Read a rate through `_applicable_on(day)`, never directly. The ATS is filed
-per month, and the description, the family and the rate that apply all depend
-on that month.
+per month, and the description, the family, the rate and the sub-report group that
+apply all depend on that month.
 
 ### A period inside a concept's hole resolves to nothing
 
@@ -132,6 +235,11 @@ code's other eras corroborate it. Only `504G` is corroborated — `322` and
 `504F` read something else in every other era and never the value their
 fraction would give. Read the note; do not read the candidate as a rate.
 
+`fields.Float` reads a NULL column back as `0.0`, so `unresolved` and a
+legitimately exempt `0%` rate are indistinguishable in the ORM. The consistency
+constraint reads the stored column directly; see
+`l10n.ec.ats.income.withholding.rate._check_percentage_matches_unresolved`.
+
 ### `family` is optional, and empty where the era states none
 
 `family` mirrors `Tabla 15`: `residente` is code `01` (*pago a residente /
@@ -164,392 +272,7 @@ era's statement. Treat the family of any `5xx` code in the 2024-03-01 to
   imported as `unresolved` with an empty `source_note`, which is the only
   honest reading and the only rate in the table with nothing to go on.
 
-## The `ventas` block is aggregated, and its key is wider than the sheet's
-
-`ventas` is the one ATS block the SRI rolls up: one row per client and document
-type, with `numeroComprobantes` carrying the count and the bases and taxes the
-totals of every document folded into it. `l10n.ec.ats.collector.collect_ventas`
-and `collect_ventas_with_errors` read it that way.
-
-**The row key is `(tpIdCliente, idCliente, tipoComprobante, tipoEmision)`.**
-`CLAVE PRIMARIA (2)` marks the first three as general key components and does
-not list `tipoEmision` at all. The ficha settles what that leaves open:
-
-> se puede ingresar el mismo tipo de documento siempre que difiera de la
-> emisión de un mismo cliente en el período informado
-
-The same document type may be filed again for the same client in the same
-period **provided the emission type differs** — which is only satisfiable if a
-differing emission type produces a row of its own. Folding them would put a
-`tipoEmision` in the file that is true of one document out of two, or of
-neither, while `numeroComprobantes` claimed both.
-
-The key is computed from the **values that reach the file**, not from the partner
-record, so two client records carrying one identification aggregate into one row
-instead of producing two rows with the same primary key.
-
-### `tipoEmision` is read off the issuing journal
-
-The signal is a record: `account.journal.l10n_latam_use_documents`, the field
-core `l10n_ec` itself computes `l10n_ec_require_emission` from. A journal that
-issues documents files electronically; one that does not files physically, which
-is the same answer the ficha gives for *"when the emission question is not
-activated, place emission type F"*.
-
-`Tabla 20` rows are picked by a keyword from the row's own description rather
-than by a code held in Python — the same seam `Tabla 14` uses above — so the code
-that reaches the file is always the catalogue's. The suite pins that each keyword
-selects exactly one row.
-
-### A credit note is a row, not a minus sign
-
-`monedaType` has `minInclusive 0.0`, so no `ventas` line may go negative, and
-`detalleVentasType` has no element that could express a reversal except its
-`tipoComprobante`. A refund is therefore filed **under its own document type**
-with **absolute** amounts: the document type is what tells the SRI this reverses
-a sale. Negating the amounts would produce a document the schema rejects.
-
-The same catalogue row also decides the payment form. The ficha states that
-`formaPago` *"no aplica para los tipos de comprobantes Notas de Crédito (04)"*,
-so a credit-note row carries no `formasDePago` element at all.
-
-### Two fields are deliberately absent
-
-- **`baseImpExe`** — `detalleVentasType` has no exempt base element;
-  `detalleComprasType` does. An exempt sale therefore reports every base at zero
-  rather than inventing a bucket the document cannot carry.
-- **`compensaciones`** — condicional, and its type would come from `Tabla 21`,
-  which *is* loaded. Nothing in Odoo records an IVA compensation under the
-  solidarity law or on electronic money, so there is no record to read it from and
-  the key is omitted rather than filled with a default.
-
-### `valorRetIva` and `valorRetRenta` are the retentions *we* issued
-
-Only withholdings issued on the **sale** side are read
-(`l10n_ec_withholding_type == "sale"` plus a sale-side tax group), so the
-mirror-image purchase withholding a company may hold against the same document
-never reaches a sales row. The two sides are different events with different ATS
-elements: `valorRetIva` says what the client took off us, not what we took off a
-supplier.
-
-`valorRetRenta` resolves **no** `Tabla 3.10` rate, and deliberately so: unlike
-`air`, this block has no per-concept breakdown, so there is nowhere to put a code
-or a percentage and an unresolved rate cannot affect the total that is all the
-schema can express here. `valorRetIva` is checked against the `Tabla 11` shares
-in force for the reported day, but only when it is **not** `0.00`: the cell says
-to file `0.00` when there is no withholding, and a non-zero value matching no
-single share is an *alerta* rather than a grave finding. See `USAGE.md`.
-
-### `formasDePago` is not part of the key
-
-The payment form belongs to a **transaction**, not to a client, so it is not
-constant across a group. The ficha settles what to do with that: *"when a single
-transaction used more than one payment form, all of the payment forms used must
-be reported"*, and `formaPago` is unbounded. The row therefore carries the
-distinct forms of every document folded into it, in booking order, each resolved
-through `Tabla 13` for the reported day.
-
-### One filter the loaded catalogue cannot answer
-
-The ficha requires `ventas/tipoComprobante` to be a `Tabla 4` code *"filtered by
-`Código Secuencial Transacción` equal to 04, 05, 06, 07 and 19"* — the codes
-`Tabla 2` publishes as sale identifications. **`Tabla 4` stores two different
-columns for those two ideas**, and the purchase block's `codSustento`
-cross-check already uses one of them. What the collector asserts is therefore the
-part the catalogue can answer: that the code is a real `Tabla 4` row in force on
-the reported day. The filter itself is recorded for ATS-11 rather than
-approximated with a list of codes the module would then own.
-
-### `parteRelVtas` is not asked of the consumer sentinel
-
-The ficha displays `parteRel` only for the three identification types a person
-or company can hold, and `ats.xsd` makes the element optional — so the element is
-omitted for the final-consumer client rather than answered for it. Accepting that
-client is the opposite of the purchase rule and equally deliberate: `Tabla 2`
-publishes `9999999999999` as a sale identification, and the ficha's `idCliente`
-validation names *Consumidor Final* as a value the field may hold. Refusing it
-would make the most ordinary Ecuadorian sale impossible to file.
-
-## `ventasEstablecimiento` — one row per establishment, and one row too many
-
-`ventasEstablecimiento` has **no** `res.establishment` behind it. Neither
-`l10n-ecuador` nor core `l10n_ec` defines one, so `codEstab` is a **composite
-derivation** over records that do exist. It is the single seam to replace if an
-establishment model ever lands.
-
-### The set is the RUC set, not the selling set
-
-The establishment code is the **union of two record sets**:
-
-| Source | What it contributes |
-| --- | --- |
-| distinct `l10n_ec_entity` over the company's **active** journals | every establishment the taxpayer has configured, selling or not |
-| the entity segment of `l10n_latam_document_number` on the period's **posted sales** documents | every establishment a document was really filed under |
-
-The union is not belt-and-braces. Change a journal's `l10n_ec_entity` after a
-document was issued and the establishment that document was really filed under
-is left with no journal declaring it; reading only the journals would drop a
-real establishment from the count.
-
-Two asymmetries are deliberate:
-
-- **Sales documents only.** A vendor bill carries a `l10n_latam_document_number`
-  too, but that is the *supplier's* triple. The supplier's triple belongs to
-  `compras`; reading it here would file our establishments under other
-  companies' identifiers.
-- **Sales journals are not special-cased.** `numEstabRuc` counts
-  *establecimientos inscritos en el RUC*, so a purchase journal's establishment
-  counts too.
-
-A journal with an **empty** `l10n_ec_entity` is skipped, not emitted. That is a
-real shipped row: `l10n_ec_withhold/data/template/account.journal-ec.csv`
-seeds `sale_withhold_ec` with an empty entity and emission, and it is an active
-journal of every EC company.
-
-### An establishment that sold nothing still gets a row, at `0.00`
-
-> Se debe registrar el valor total de las ventas por establecimiento. Debe
-> generarse igual número de registros que el valor informado en el campo número
-> de establecimientos del sujeto pasivo, inscritos en el RUC.
-
-The row count is tied to `numEstabRuc`, and `numEstabRuc` counts establishments
-*in the RUC* — so **every** active establishment needs a row. Dropping the ones
-that did not sell would make `len(rows) != numEstabRuc`, which is exactly the
-check the ficha states. Their `ventasEstab` is `0.00`, which is a sourced zero
-and not a substituted one: nothing was sold there.
-
-### `ventasEstab` is **net**; `totalVentas` is **gross**
-
-This is the one place the two blocks legitimately disagree, and getting it
-backwards files a wrong number.
-
-`ESQUEMA TIPO 1 Y 2` row 103:
-
-> la sumatoria de los valores registrados en estos casilleros debe ser igual al
-> **valor neto (se restan los valores de NC)** de todas las ventas registradas,
-> **caso contrario error**
-
-and the ficha técnica, on the same field:
-
-> La sumatoria del total de ventas por los establecimientos **no puede ser
-> mayor** al valor registrado en el campo total ventas.
-
-A `<=` rule is only informative if a row can come out *below* `totalVentas`, so
-both sentences only make sense under the net reading. `ats.xsd` settles it:
-
-- `ventasEstab` is typed **`totalVentasType`** (`ats.xsd:1464`), the **only**
-  amount type in the schema whose pattern admits a leading minus. Its only
-  other users are `totalVentas` and `ivaComp`.
-- every `ventas` base is **`monedaType`**, `minInclusive 0.0` and no minus.
-
-So the SRI gave this one element the one type that can express a reversal.
-
-The result is an inequality, not an equality:
-
-```
-totalVentas  >=  sum(ventasEstab)
-```
-
-with equality exactly when the period holds no credit note, and a gap of
-**twice** the credit notes' bases when it does. `ventasEstab` may be negative —
-a company that credited more than it invoiced from one establishment has a
-genuinely negative net figure, and it is **not** clamped to `0.00`.
-
-### `totalVentas` is derived from the `ventas` rows, never re-aggregated
-
-`ESQUEMA` row 10 calls it a *casillero no editable* — a box that is not typed —
-and defines it as the sum of `baseNoGraIva`, `baseImponible` and `baseImpGrav`.
-Those are `monedaType`, so the total is **gross**: a credit note contributes its
-magnitude exactly as its invoice does.
-
-It is read out of the `ventas` collector's rows rather than re-aggregated from
-the documents. A second pass over the documents is precisely how a header and
-its own block would drift apart, so `collect_iva_header(ventas_rows,
-ventas_establecimiento_rows)` **requires both blocks** in its signature: the
-relationship between the header and the blocks is the entire content of these
-two fields, and neither can be obtained without the other.
-
-### `000` is refused, and here the schema agrees too
-
-`ventasEstabType` (`ats.xsd:1468`) and `numEstabRucType` (`ats.xsd:1482`) both
-carry `minExclusive 000`, so a file carrying one breaks the schema as well as
-the ficha. This is the **first** place the rule of §5.4b and the XSD agree — on
-`compras` and `anulados`, `establecimientoType` and `ptoEmisionType` carry only
-`[0-9]{3}` and would accept `000`.
-
-Enforcing it is still this collector's job, because **nothing upstream stops it
-being written**:
-
-```python
-# l10n_ec_base/models/account_journal.py:18
-if len(rec.l10n_ec_entity) < 3 or not rec.l10n_ec_entity.isnumeric():
-```
-
-`"000"` satisfies both. The seeded values are `001`, and no journal in the
-shipped data is set to `000` — but a user can set one today and it would
-propagate straight into the ATS. Tightening that constraint is a separate
-proposal against `l10n_ec_base`; see `ROADMAP.md`.
-
-`numEstabRuc` is **zero-padded to three digits** (`\d{3}`), so seven
-establishments are `007`, never `7`. A count of zero has no valid
-representation and blocks rather than emitting `000`.
-
-### `ivaComp` is omitted
-
-`Tabla 21` **is** loaded and in scope (two rows, effective-dated). Nothing in
-Odoo records an IVA compensation under the solidarity law or on electronic
-money, so there is no record to read the amount from and the key is omitted
-rather than defaulted to `0.00` — the same decision, and the same reason, as
-`compensaciones` on the `ventas` block. `ats.xsd:1465` makes `ivaComp`
-`minOccurs="0"`, so omitting it is also what the schema expects.
-
-The test suite pins the omission against the loaded catalog, so if a
-compensation ever becomes a recordable field the test fails and the decision is
-taken again on purpose rather than a real value being silently dropped.
-
-
-## `anulados` — one row per **contiguous run** of cancelled sequentials
-
-`l10n.ec.ats.collector.collect_anulados` and `collect_anulados_with_errors`
-read the cancelled-sales block. `detalleAnuladosType` (`ats.xsd:1312-1321`) is
-the only ATS block that files a **range** rather than a document, and it is the
-only one with **no date at all**: no `fechaEmision`, no `fechaRegistro`. All six
-of its elements are obligatory.
-
-### A range is an assertion about every document inside it
-
-This is the ficha técnica §2.5, not a preference:
-
-> Se debe considerar que se considerarán anulados los comprobantes que consten
-> dentro del rango informado. Para anular un solo comprobante, se debe indicar
-> este número en ambos campos.
-
-So cancelling 5, 6, 7 and 9 is **two** rows — `5`–`7` and `9`–`9` — and never one
-`5`–`9` row, because a range spanning a document that was *not* cancelled tells
-the SRI it was. A run breaks wherever the next sequential is not this one plus
-one, which is exactly where a still-valid document sits.
-
-The value the file carries is the record's own padded sequential, and the
-comparison is arithmetic on the numbers: `9` follows `8` whether they are stored
-as `8` or `000000008`.
-
-### The row key, and why a range rarely merges anything
-
-`CLAVE PRIMARIA (2)` rows 196–201 mark **all six** elements of this block as
-*componente de clave general*, `autorizacion` included, and the ficha requires
-3 to 49 digits of it on every row. The two range fields are derived, so it is
-the other four that have to be read as part of the key:
-
-> **`(establecimiento, puntoEmision, tipoComprobante, autorizacion)`**
-
-`autorizacion` is singular per row and every cancelled document carries its own
-from the SRI, so documents sharing a row must share it. Keying on it is what
-guarantees the number in the file belongs to **every** document in the range — a
-fact checkable against the records rather than assumed.
-
-The consequence is worth stating plainly, because the schema does not show it: a
-run can only ever merge documents that **share an authorization**, and under
-electronic invoicing each document gets its own. So in real data every row is a
-single document with its number repeated in both fields, exactly as the ficha
-prescribes for that case. Ranges are the physical-invoicing case, where one
-authorization covered a printed batch — the ficha says so of the field: *"el
-número de autorización que le otorga el SRI **para la impresión** de sus
-comprobantes"*.
-
-Two records claiming one document number is a data defect, not a second range:
-the six-element key would appear twice. The first is kept and the second is
-reported.
-
-### `tipoComprobante` is the cancelled document's own code
-
-`ESQUEMA` row 207 asks for *"uno de los códigos de la tabla 4, **sin filtro
-alguno**"* — no `codSustento`, no *Código Secuencial Transacción*, unlike the two
-sales-side rows which both name theirs. Any `Tabla 4` row passes, so the row
-carries `move.l10n_latam_document_type_id.code`, resolved against `Tabla 4` for
-the reported period.
-
-The plausible alternative is rejected on three counts:
-
-| Candidate | Why not |
-| --- | --- |
-| `Tabla 4` code `18` — *"Documentos autorizados utilizados en ventas **excepto N/C N/D**"* | It **excludes credit and debit notes by name**, and `out_refund` is in scope. Filing a cancelled credit note under `18` would assert the cancelled document was not a credit note, and `Tabla 4` names no other class covering it. |
-| `Tabla 2` code `18` — *"COMPROBANTES ANULADOS"* | Unreachable. It is the *transaction type* a `Tabla 2` identification is filed under, and this block has no `tpIdProv`, so the filter that selects it has no field to filter on. |
-| A fixed code held in Python | A hardcoded catalogue value, which the project forbids. A description keyword picking one row out of `Tabla 4` is an invention the SRI never states. |
-
-Odoo Enterprise's `ATS_SALE_DOCUMENT_TYPE = {'01': '18', '02': '18'}` maps every
-sale type to `18`, which is the reading this rejects. It is also a module-level
-literal in a block Enterprise **never emits** — `grep -c
-'secuencialInicio\|detalleAnulados'` over its `tax_report.py` returns `0` — so
-it records a belief, not an accepted filing. It also discards the difference
-between `01` and `02`.
-
-There is no `codSustento` cross-check the way `compras` has one: a cancelled
-document files no tax support, and code `18`'s own *Sustento tributario* column
-reads `ninguno`.
-
-### `secuencialFin` repeats `secuencialInicio` for a run of one
-
-`ESQUEMA` row 211 states the opposite — *"debe ser mayor a
-secuencialInicio"* — and the ficha técnica §2.5 settles it with the sentence
-written about this exact case: *"Para anular un solo comprobante, se debe
-indicar este número en ambos campos."* A strict reading of the table would make
-cancelling one document impossible to file.
-
-Note also that the ESQUEMA sheet spells this block's sixth element
-`autorización`, **with** an accent, while the schema spells it `autorizacion`.
-The schema wins: it is what the file has to satisfy.
-
-### What is selected, and what cannot be
-
-`move_type in ('out_invoice', 'out_refund')`, `state == 'cancel'`,
-`company_id`, and `move.date` inside the reported window.
-
-**`posted_before` excludes the cancelled draft.** `button_cancel` accepts a draft
-and sets `state = 'cancel'`, so `state` alone admits a document that was never
-issued, never authorized and never numbered — and Odoo shows it as `/`.
-`posted_before` is set in `_post` and by nothing else, so asking for it asks for
-the fact behind the `/` rather than inferring it from a display name.
-
-**`move.date` is the only selection date the block has.** With no
-`fechaRegistro` to file and no `fechaEmision` to reconcile, the accounting date
-is the only period evidence a row has. The window is still checked against the
-reported month with the same `_l10n_ec_reported_date` rule the other blocks use,
-so a caller passing a quarter gets the month's rows **plus** a named refusal for
-every document outside it. Dropping them silently would produce a file that is
-quietly missing documents. The error carries `field: "fechaRegistro"` for the
-same reason `ventasEstablecimiento`'s does: the block inherits the period
-requirement from document selection rather than from a field it does not emit.
-
-**What is not selected.** The ficha §2.5 excludes *"los comprobantes dados de
-baja a través del portal transaccional SRI en línea"*, and **no Odoo field
-records that**. See `ROADMAP.md`.
-
-### `000` is refused, and here the schema says nothing
-
-`establecimientoType` (`ats.xsd:26-30`) and `ptoEmisionType` (`ats.xsd:36-40`)
-are exactly the two carriers that constrain nothing but `[0-9]{3}`, with no
-`minExclusive 000`. Unlike `ventasEstablecimiento`, a file carrying one breaks
-**no** schema constraint — it only breaks the ficha, and nothing upstream stops
-it being written (`l10n_ec_base` checks only length and `isnumeric()`).
-
-A refused code takes the **whole document** out, never part of it: a document
-whose establishment is `000` has no establishment to file under, and folding it
-into a neighbouring one would file its sequential under the wrong establishment.
-
-A sequential that is not a number is refused too, and this block is the only
-reason to check: a range is opened and closed by comparing one sequential with
-the next, so a non-numeric one has to stop being usable here rather than at the
-schema.
-
-### Every error carries all four keys
-
-`move`, `journal`, `field` and `message`, on every error of this block. Nothing
-in it is a journal-level problem, so `journal` is always `False` and `move`
-always names the document — but the key is present, so a consumer can read either
-without a `KeyError`. The two blocks before this one build their dicts without
-`journal`; see `ROADMAP.md`.
-
-## The `air` sub-report groups are catalog data, not a Python list
+### `detail_group` names a sub-report; it never carries a code
 
 `l10n.ec.ats.income.withholding.rate.detail_group` is a `Selection` of **group
 names** — `dividend`, `banana`, or empty. It is loaded from
@@ -586,38 +309,91 @@ rather than from a list.
 
 Read it as `rate.detail_group` **after** resolving the rate for the reported
 period. Never from the concept: a concept has no window to resolve against.
+The reasoning, and the two things about it a maintainer should look at, are in
+`DESIGN.md` §2.1 and `ROADMAP.md`.
 
-## The generation wizard has three fields, one button and a warnings panel
+---
 
-`l10n.ec.ats.generate` takes a `company_id`, an `anio` and a `mes`, and
-`generate()` returns the action that downloads the archive. It opens from
-**Invoicing ‣ SRI ‣ ATS** and stays usable from an automated action, RPC or a
-shell.
+# Tier 3 — Block semantics
 
-- **`anio` and `mes` are integers, and the field refuses an impossible period.**
-  `Catalogo_ATS.xls` / `ESQUEMA TIPO 1 Y 2` row 7 says the year *"debe
-  corresponder a periodos del 2000 en adelante"* and the ficha's `ESQUEMA` adds
-  *"Programa despliega calendario 2000 en adelante"*, so an earlier year is
-  refused on the field rather than discovered in the document. The month is
-  bounded by `mesType`'s own pattern.
-- **`mes` is captured as a number, not chosen from a list.** The code that
-  reaches the file is the `Tabla 01` row's own, read from the catalog, so the
-  wizard cannot disagree with the table the moment the SRI republishes it.
-- **`regimenMicroempresa` is derived, not configured.** It is emitted when the
-  company declares a `l10n_ec_regimen` **and** the `Tabla 01` row of the
-  reported month names a semestral regime — which is what the sheet's own
-  descriptions say for the two semestral months and do not say for the other
-  ten. No `{06, 12}` set is held in Python.
-- **The company must be an EC one with a RUC.** `IdInformante` is
-  `company.partner_id.vat`; the builder refuses an empty one, and ATS-11 applies
-  the RUC module 11 check digit to it, so a wrong digit stops generation.
-- **`warnings` is the report, not a blocker.** `generate()` writes every
-  non-blocking finding there and the form shows it beside the download. A grave
-  finding never reaches it — it stops generation, and every problem is listed in
-  one `UserError` rather than only the first.
+One row per block, one line per rule, and a pointer to where the rule is
+derived. The full element-by-element mapping is in [`DESIGN.md`](https://github.com/OCA/l10n-ecuador/blob/19.0/l10n_ec_ats/readme/DESIGN.md); the
+decisions behind these rules are in
+[ADR 0002](https://github.com/OCA/l10n-ecuador/blob/19.0/l10n_ec_ats/docs/adr/0002-ats-design-decisions.md).
 
-The wizard is a `TransientModel` and lives in `l10n_ec_ats/wizard/`, not in
-`models/`: the repository's mandatory `pylint_odoo` run enables
-`no-wizard-in-models`, which refuses a `TransientModel` declared under
-`models/`. `l10n_ec_withhold/wizard/` and `l10n_ec_account_edi/wizard/` are the
-existing precedent.
+## `compras`
+
+| Rule | Where it comes from |
+| --- | --- |
+| One row **per document**; a document with any error yields **no** row | `DESIGN.md` §2 |
+| `establecimiento` / `puntoEmision` / `secuencial` are the **supplier's** triple, from `l10n_latam_document_number`, with the access key `[24:39]` as the documented recovery path | ADR 0002 §11 |
+| `autorizacion` is **refused**, never `'9999999999'` | ADR 0002 §11, §12 |
+| All six `Tabla 11` elements are emitted, defaulting to `0.00` — a **sourced** zero, because the catalog published no withholding at that rate | `DESIGN.md` §2 |
+| Amounts are **absolute**: `monedaType` has `minInclusive 0.0`, so a credit note is reduced, not negated | ADR 0002 §11 |
+| `air` is `minOccurs="0"`: no withholding means **no element**, never an empty one | ADR 0002 §6 |
+| `000` is refused on both three-digit halves, though `ats.xsd` accepts it there | ADR 0002 §8 |
+
+## `ventas`
+
+| Rule | Where it comes from |
+| --- | --- |
+| **Aggregated**, one row per `(tpIdCliente, idCliente, tipoComprobante, tipoEmision)` — the sheet marks three key components and does not list `tipoEmision`; the ficha settles the gap: *"se puede ingresar el mismo tipo de documento siempre que difiera de la emisión de un mismo cliente en el período informado"* | `DESIGN.md` §3 |
+| The key is computed from the **values that reach the file**, so two client records carrying one identification aggregate into one row | `DESIGN.md` §3 |
+| `tipoEmision` is read off the issuing journal's `l10n_latam_use_documents` — *"when the emission question is not activated, place emission type F"* | `DESIGN.md` §3 |
+| A credit note is a **row, not a minus sign**: filed under its own `tipoComprobante` with absolute amounts, and with **no** `formasDePago` (*"no aplica para los tipos de comprobantes Notas de Crédito (04)"*) | ADR 0002 §11, §6 |
+| **`baseImpExe` is absent** — `detalleVentasType` has no exempt base element, so an exempt sale reports every base at zero | `DESIGN.md` §3 |
+| **`compensaciones` is absent** — `Tabla 21` *is* loaded; nothing in Odoo records an IVA compensation, so the key is omitted rather than defaulted | `DESIGN.md` §3, §7 |
+| `valorRetIva` / `valorRetRenta` are what the **client** withheld: only sale-side withholdings are read, so the mirror-image purchase withholding never reaches a sales row | `DESIGN.md` §3 |
+| `valorRetRenta` resolves **no** `Tabla 3.10` rate, deliberately — the block has no per-concept breakdown, so there is nowhere to put a code or a rate | `DESIGN.md` §3 |
+| `formasDePago` is **not** part of the key: *"when a single transaction used more than one payment form, all of the payment forms used must be reported"*, and `formaPago` is unbounded | `DESIGN.md` §3 |
+| `parteRelVtas` is **omitted** for the final-consumer sentinel — `ats.xsd` makes it optional and the ficha displays it only for three identification types | `DESIGN.md` §3 |
+| One filter the loaded catalog **cannot** answer: `ventas/tipoComprobante` must be *"filtered by `Código Secuencial Transacción` equal to 04, 05, 06, 07 and 19"*, and `Tabla 4` stores two different columns for those two ideas. What is asserted is the part the catalog can answer — that the code is a real `Tabla 4` row in force on the reported day | `DESIGN.md` §3 |
+
+## `ventasEstablecimiento`
+
+| Rule | Where it comes from |
+| --- | --- |
+| `codEstab` is a **composite derivation** over records that do exist, because there is no `res.establishment` in `l10n-ecuador` nor in core `l10n_ec`. It is the single seam to replace if an establishment model ever lands | ADR 0002 §7 |
+| The code is the **union** of the distinct `l10n_ec_entity` over the company's **active** journals and the entity segment of `l10n_latam_document_number` on the period's **posted sales** documents. Change a journal's entity after a document was issued and reading only the journals drops a real establishment from the count | `DESIGN.md` §4 |
+| Two asymmetries are deliberate: **sales documents only** (a vendor bill carries the *supplier's* triple), and **sales journals are not special-cased** (`numEstabRuc` counts *establecimientos inscritos en el RUC*, so a purchase journal's establishment counts too) | `DESIGN.md` §4 |
+| A journal with an **empty** `l10n_ec_entity` is skipped, not emitted — `l10n_ec_withhold/data/template/account.journal-ec.csv` seeds `sale_withhold_ec` that way, and it is active in every EC company | `DESIGN.md` §4 |
+| An establishment that sold nothing still gets a row at `0.00`: *"debe generarse igual número de registros que el valor informado en el campo número de establecimientos del sujeto pasivo, inscritos en el RUC"* | `DESIGN.md` §4 |
+| **`ventasEstab` is net, `totalVentas` is gross**, and the ficha's ceiling binds only when a credit note exists. `ventasEstab` may be negative and is **not** clamped | ADR 0002 §2 |
+| `totalVentas` is read out of the `ventas` rows and **never** re-aggregated — `ESQUEMA` row 10 calls it a *casillero no editable* | ADR 0002 §2 |
+| `numEstabRuc` is **zero-padded to three digits** (`\d{3}`), so seven establishments are `007`, never `7`. A count of zero has no valid representation and blocks rather than emitting `000` | ADR 0002 §8 |
+| `ivaComp` is omitted for the same reason as `compensaciones`, and `ats.xsd` makes it `minOccurs="0"` | `DESIGN.md` §4, §7 |
+
+## `anulados`
+
+| Rule | Where it comes from |
+| --- | --- |
+| The only block that files a **range**, and the only one with **no date at all** — no `fechaEmision`, no `fechaRegistro`. All six of its elements are obligatory | `DESIGN.md` §5 |
+| **One row per contiguous run.** *"Se debe considerar que se considerarán anulados los comprobantes que consten dentro del rango informado"* — so cancelling 5, 6, 7 and 9 is **two** rows, never one `5`–`9` row | ADR 0002 §4 |
+| The row key is **`(establecimiento, puntoEmision, tipoComprobante, autorizacion)`** — `CLAVE PRIMARIA (2)` rows 196–201 mark all six elements as *componente de clave general*, and keying on the authorization is what guarantees it belongs to **every** document in the range | ADR 0002 §4 |
+| `tipoComprobante` is the cancelled document's **own** `Tabla 4` code — *"uno de los códigos de la tabla 4, **sin filtro alguno**"*. The plausible alternative, `Tabla 4` code `18`, is rejected on three counts: it excludes credit and debit notes **by name**, `Tabla 2` code `18` (*"COMPROBANTES ANULADOS"*) is unreachable because this block has no `tpIdProv`, and a fixed code would have to live in Python | `DESIGN.md` §5, ADR 0002 §12 |
+| `secuencialFin` **repeats** `secuencialInicio` for a run of one | ADR 0002 §3 |
+| The ESQUEMA sheet spells this block's sixth element `autorización`, **with** an accent; the schema spells it `autorizacion`. The schema wins — it is what the file has to satisfy | `DESIGN.md` §5 |
+| Selection: `move_type in ('out_invoice','out_refund')`, `state == 'cancel'`, `company_id`, and `move.date` inside the reported window | `DESIGN.md` §5 |
+| **`posted_before` excludes the cancelled draft.** `button_cancel` accepts a draft and sets `state = 'cancel'`, so `state` alone admits a document that was never issued, never authorized and never numbered — and Odoo shows it as `/` | `DESIGN.md` §5 |
+| `move.date` is the only selection date the block has, and the window is still checked against the reported month with the same rule the other blocks use. The error carries `field: "fechaRegistro"` because the block inherits the period requirement from document selection rather than from a field it does not emit | `DESIGN.md` §5 |
+| A refused `000` takes the **whole document** out, never part of it, and a sequential that is not a number is refused too — this block is the only reason to check, because a range is opened and closed by comparing one sequential with the next | `DESIGN.md` §5, ADR 0002 §8 |
+| **Not selected, and not implementable:** the ficha §2.5 excludes *"los comprobantes dados de baja a través del portal transaccional SRI en línea"*, and **no Odoo field records that** | `ROADMAP.md` |
+| Every error carries all four keys — `move`, `journal`, `field`, `message`. Nothing in this block is a journal-level problem, so `journal` is always `False`; the key is present so a consumer can read either without a `KeyError`. The two blocks before this one build their dicts without `journal` | `ROADMAP.md` |
+| Whether cancelled **withholdings** belong in this block is an open maintainer question, with Enterprise's treatment quoted as the reference for a future version | `ROADMAP.md` |
+
+## The `air` sub-report
+
+One row per income-withholding basis line; `air` is `maxOccurs="1"` holding
+unbounded `detalleAir`, so a document with several concepts carries them all in
+one row. `codRetAir` is `account.tax.l10n_ec_code_ats` on the **tax**, not on
+the tax group — every withholding group shares a generic `"1"`/`"2"`
+`l10n_ec_xml_fe_code` that says nothing about which concept was withheld.
+`porcentajeAir` is resolved from the `Tabla 3.10` rate for the reported period,
+and an unresolved rate is reported rather than completed.
+
+The five conditional elements — `fechaPagoDiv`, `imRentaSoc`, `anioUtDiv`,
+`numCajBan`, `precCajBan` — are the sub-report groups, loaded as era-scoped
+`detail_group` data. See
+the `detail_group` section under Tier 2
+above for the code table and why the grouping cannot be timeless, and ADR 0001
+§9 for the rejected alternatives.

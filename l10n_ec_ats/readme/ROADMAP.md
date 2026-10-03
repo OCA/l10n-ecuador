@@ -3,6 +3,48 @@
 Two tables live here: what is **not** in the catalog yet, and why, and the
 open questions a maintainer has to decide.
 
+## Out of scope in v1, with rationale and a v2 proposal
+
+Each entry states the evidence and what a future version would need. The table
+below is reproduced **verbatim** from the feature document's §4.2; the paragraphs
+around it are this module's own.
+
+| Block | Why out of v1 | Evidence | v2 proposal |
+|---|---|---|---|
+| **Rendimientos financieros (IFI's)** | Financial institutions under Superintendencia de Bancos / Economía Popular. **Excluded by explicit project decision — permanently, not deferred.** | ficha §1 bullets 5 & 8; `ats.xsd:632` `rendFinancieros` | None. Never implemented. |
+| **Recap** (card issuers) | `Tipo 2` contributor. Needs issuer-side card data (affiliated establishment, voucher, commission, consumption split) that has no Odoo representation. | ficha §2.6; `Tabla 2` codes 10/11; `CLAVE PRIMARIA` row 123 | `l10n.ec.card.issuer` + `l10n.ec.card.transaction` + affiliated-establishment model. Large; only for card issuers. |
+| **Fideicomisos / fondos** | Needs trustee administration (beneficiaries, yields, patrimony, distributions) absent from Odoo. | ficha §2.7; `Tabla 9` (23 trust types) | `l10n.ec.trust` + `l10n.ec.trust.beneficiary`. Only for `administradoras`. |
+| **Exportaciones / ingresos del exterior** | Needs FUE/DAU, distrito aduanero (`Tabla 6`), regímenes aduaneros (`Tabla 7.1`), FOB, refrendo. **No Odoo source** and no SRI EDI document for FUE. | ficha §2.4; `Tablas 6, 7.1, 10, 18, 19` | `l10n.ec.export.document` (FUE) + export fields on `account.move`. **Highest compliance risk of the four** — see §4.3. |
+| **Java plugin / DIMM webservice** | Out of scope per project decision. **Local `ats.xsd` validation IS in scope** and reuses the mechanism already in `l10n_ec_account_edi`. | `ats.plugin.1.19.0.zip` (Eclipse/OSGi, `ec.gob.sri.dimm.ats.*`, DIMM 1.19.0) | ADR `readme/adr/0001-ats-java-plugin-and-webservice.md`. When unblocked: a validation-only web service behind a validator interface, so the collection/builder layers stay untouched. |
+
+**One correction to the table above, which is reproduced verbatim and therefore
+cannot be edited.** Its last row cites the ADR for the Java plugin decision as
+`readme/adr/0001-ats-java-plugin-and-webservice.md`. That ADR now exists, at
+[`docs/adr/0001-ats-java-plugin-and-webservice.md`](docs/adr/0001-ats-java-plugin-and-webservice.md)
+— under `docs/adr/`, not `readme/adr/`. `oca-gen-addon-readme` renders only
+seven known fragments and treats `readme/` as a flat fragment directory, so an
+`adr/` subdirectory there would be at best ignored and at worst break the hook.
+The decision, the ADR number and the filename are unchanged; only the directory
+differs. The design decisions that reverse a filed return are recorded separately
+in [ADR 0002](docs/adr/0002-ats-design-decisions.md).
+
+Two of these need to be read carefully, because the obvious summary of them is
+wrong:
+
+- **`rendFinancieros` is not deferred.** It is *excluded by explicit project
+  decision — permanently, not deferred*, and it is the only row of the five with
+  no v2 proposal because there is nothing to propose.
+- **`exportaciones` is deferred on a data-model gap, not a policy one.** An
+  exporter cannot complete its ATS with v1, which is a real compliance exposure
+  for trading companies. The absence is recorded deliberately here rather than
+  left to be discovered at filing time.
+
+An **exporter** is therefore the one taxpayer v1 cannot serve. `rendFinancieros`
+is a banking institution and was excluded by the financial-institution rule;
+`exportaciones` was not, and is out for want of a data model. `DESIGN.md` §7
+lists every element that is declared absent from the shipped builder and what
+would have to exist before each could be emitted.
+
 ## Referential tables that are deliberately not loaded
 
 Only the tables an in-scope ATS block needs are loaded. The rest exist in
@@ -29,7 +71,7 @@ named. They are not entry counts: a later import must re-derive them.
 | `19` | Tipos de régimen fiscal del exterior | `TABLAS REFERENCIALES` | 3 | `B504:D506` | Foreign tax regime, same export block. |
 
 `Tabla 3.10` also remains unreconciled against
-`l10n_ec_base/data/account_tax_group_data.py`: its 162 concepts do not
+`l10n_ec_base/data/account_tax_group_data.py`: its 414 concepts do not
 reconcile with the 17 tax groups there, and all nine VAT groups carry the
 same XML FE code `"2"`. That is stated, not resolved — see the open questions
 below.
@@ -309,10 +351,30 @@ disagree is not.
 
 ## Deferred work
 
-Effective-dated taxes on `account.tax` itself — `l10n_ec_date_start` /
-`l10n_ec_date_end` plus `_l10n_ec_tax_for_date()` and a coverage report — are
-a separate proposal in `l10n_ec_base`, not in ATS v1. ATS reads the rate from
-the invoice line's own tax, so v1 is functionally independent of it.
+### Effective-dated taxes on `account.tax` — a separate proposal in `l10n_ec_base`
+
+The proposal below is reproduced **verbatim** from the feature document's §5.7.
+
+The rate-history problem is **wider than ATS**. `account.tax` has no temporal model, so reports 103, 104, 103/104 aggregations and ATS all read the current rate regardless of the document's date. The correct fix is localization-wide:
+
+- `l10n_ec_base`: `account.tax` gains `l10n_ec_date_start` / `l10n_ec_date_end` (localized names, shadowing nothing) plus `_l10n_ec_tax_for_date(date)`, and a constraint preventing overlapping windows within `(company_id, l10n_ec_code_ats)`.
+- A coverage report — the same idea as §5.6 Level 3 — listing, per period, which codes lack full coverage. This is the "control de que los datos están completos" the user asked for, applied to taxes rather than catalogs.
+- A migration from the current duplicate-record-plus-`active` pattern.
+
+**Why it is out of ATS v1 scope.** ATS reads the rate **from the invoice line's own tax**, not from the tax's validity window, so v1 is functionally independent. It also modifies a core model, which is a materially different review risk than a new addon and belongs in its own PR against `l10n_ec_base` (companion to PR #104). Recorded in `readme/ROADMAP.md`.
+
+What it means for this addon, stated plainly: **nothing changes here, and that
+is the reason it is not here.** ATS reads the rate from the invoice line's own
+tax (`_l10n_ec_taxed_amount` →
+`move._prepare_edi_tax_details`), never from a validity window, so the ATS
+generator is functionally independent of the proposal. What the proposal fixes is
+reports 103 and 104 and the 103/104 aggregation, which *do* read the current
+rate regardless of the document's date — a defect in those, not in this.
+
+ATS v1 does already own the mechanism the proposal would extend: the
+`l10n.ec.temporal` mixin, `_applicable_on()`, and the preflight that turns a
+coverage hole into a named refusal. When the proposal is taken up, the catalog
+side of the work is done.
 
 ## The wizard has a form view and a menu entry, and it reports warnings
 
