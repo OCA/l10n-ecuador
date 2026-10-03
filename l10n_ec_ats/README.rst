@@ -1629,7 +1629,7 @@ Credits
 Contributors
 ------------
 
-
+Christopher Ormaza chris.ormaza@gmail.com
 
 Maintainers
 -----------
@@ -1643,6 +1643,14 @@ This module is maintained by the OCA.
 OCA, or the Odoo Community Association, is a nonprofit organization whose
 mission is to support the collaborative development of Odoo features and
 promote its widespread use.
+
+.. |maintainer-cormaza| image:: https://github.com/cormaza.png?size=40px
+    :target: https://github.com/cormaza
+    :alt: cormaza
+
+Current `maintainer <https://odoo-community.org/page/maintainer-role>`__:
+
+|maintainer-cormaza| 
 
 This module is part of the `OCA/l10n-ecuador <https://github.com/OCA/l10n-ecuador/tree/19.0/l10n_ec_ats>`_ project on GitHub.
 
