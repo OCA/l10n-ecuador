@@ -253,6 +253,130 @@ Two other things the sheet does not support
   the only honest reading and the only rate in the table with nothing to
   go on.
 
+The ``ventas`` block is aggregated, and its key is wider than the sheet's
+-------------------------------------------------------------------------
+
+``ventas`` is the one ATS block the SRI rolls up: one row per client and
+document type, with ``numeroComprobantes`` carrying the count and the
+bases and taxes the totals of every document folded into it.
+``l10n.ec.ats.collector.collect_ventas`` and
+``collect_ventas_with_errors`` read it that way.
+
+**The row key is
+``(tpIdCliente, idCliente, tipoComprobante, tipoEmision)``.**
+``CLAVE PRIMARIA (2)`` marks the first three as general key components
+and does not list ``tipoEmision`` at all. The ficha settles what that
+leaves open:
+
+   se puede ingresar el mismo tipo de documento siempre que difiera de
+   la emisión de un mismo cliente en el período informado
+
+The same document type may be filed again for the same client in the
+same period **provided the emission type differs** — which is only
+satisfiable if a differing emission type produces a row of its own.
+Folding them would put a ``tipoEmision`` in the file that is true of one
+document out of two, or of neither, while ``numeroComprobantes`` claimed
+both.
+
+The key is computed from the **values that reach the file**, not from
+the partner record, so two client records carrying one identification
+aggregate into one row instead of producing two rows with the same
+primary key.
+
+``tipoEmision`` is read off the issuing journal
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The signal is a record: ``account.journal.l10n_latam_use_documents``,
+the field core ``l10n_ec`` itself computes ``l10n_ec_require_emission``
+from. A journal that issues documents files electronically; one that
+does not files physically, which is the same answer the ficha gives for
+*"when the emission question is not activated, place emission type F"*.
+
+``Tabla 20`` rows are picked by a keyword from the row's own description
+rather than by a code held in Python — the same seam ``Tabla 14`` uses
+above — so the code that reaches the file is always the catalogue's. The
+suite pins that each keyword selects exactly one row.
+
+A credit note is a row, not a minus sign
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``monedaType`` has ``minInclusive 0.0``, so no ``ventas`` line may go
+negative, and ``detalleVentasType`` has no element that could express a
+reversal except its ``tipoComprobante``. A refund is therefore filed
+**under its own document type** with **absolute** amounts: the document
+type is what tells the SRI this reverses a sale. Negating the amounts
+would produce a document the schema rejects.
+
+The same catalogue row also decides the payment form. The ficha states
+that ``formaPago`` *"no aplica para los tipos de comprobantes Notas de
+Crédito (04)"*, so a credit-note row carries no ``formasDePago`` element
+at all.
+
+Two fields are deliberately absent
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **``baseImpExe``** — ``detalleVentasType`` has no exempt base element;
+  ``detalleComprasType`` does. An exempt sale therefore reports every
+  base at zero rather than inventing a bucket the document cannot carry.
+- **``compensaciones``** — condicional, and its type would come from
+  ``Tabla 21``, which *is* loaded. Nothing in Odoo records an IVA
+  compensation under the solidarity law or on electronic money, so there
+  is no record to read it from and the key is omitted rather than filled
+  with a default.
+
+``valorRetIva`` and ``valorRetRenta`` are the retentions *we* issued
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Only withholdings issued on the **sale** side are read
+(``l10n_ec_withholding_type == "sale"`` plus a sale-side tax group), so
+the mirror-image purchase withholding a company may hold against the
+same document never reaches a sales row. The two sides are different
+events with different ATS elements: ``valorRetIva`` says what the client
+took off us, not what we took off a supplier.
+
+``valorRetRenta`` resolves **no** ``Tabla 3.10`` rate, and deliberately
+so: unlike ``air``, this block has no per-concept breakdown, so there is
+nowhere to put a code or a percentage and an unresolved rate cannot
+affect the total that is all the schema can express here.
+``valorRetIva`` is still checked against ``Tabla 11`` for the reported
+day — a rate the SRI never published is reported, not filed.
+
+``formasDePago`` is not part of the key
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The payment form belongs to a **transaction**, not to a client, so it is
+not constant across a group. The ficha settles what to do with that:
+*"when a single transaction used more than one payment form, all of the
+payment forms used must be reported"*, and ``formaPago`` is unbounded.
+The row therefore carries the distinct forms of every document folded
+into it, in booking order, each resolved through ``Tabla 13`` for the
+reported day.
+
+One filter the loaded catalogue cannot answer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ficha requires ``ventas/tipoComprobante`` to be a ``Tabla 4`` code
+*"filtered by ``Código Secuencial Transacción`` equal to 04, 05, 06, 07
+and 19"* — the codes ``Tabla 2`` publishes as sale identifications.
+**``Tabla 4`` stores two different columns for those two ideas**, and
+the purchase block's ``codSustento`` cross-check already uses one of
+them. What the collector asserts is therefore the part the catalogue can
+answer: that the code is a real ``Tabla 4`` row in force on the reported
+day. The filter itself is recorded for ATS-11 rather than approximated
+with a list of codes the module would then own.
+
+``parteRelVtas`` is not asked of the consumer sentinel
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ficha displays ``parteRel`` only for the three identification types
+a person or company can hold, and ``ats.xsd`` makes the element optional
+— so the element is omitted for the final-consumer client rather than
+answered for it. Accepting that client is the opposite of the purchase
+rule and equally deliberate: ``Tabla 2`` publishes ``9999999999999`` as
+a sale identification, and the ficha's ``idCliente`` validation names
+*Consumidor Final* as a value the field may hold. Refusing it would make
+the most ordinary Ecuadorian sale impossible to file.
+
 Usage
 =====
 

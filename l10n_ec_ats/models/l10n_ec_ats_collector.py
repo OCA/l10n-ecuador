@@ -45,6 +45,51 @@ BASE_TYPES = {
     "baseImpExe": ("exempt_vat",),
 }
 
+#: The same buckets for the ``ventas`` block, which is **narrower on purpose**.
+#:
+#: ``detalleVentasType`` has no ``baseImpExe`` element -- ``detalleComprasType``
+#: has one and this one does not -- so an exempt sale contributes to no bucket at
+#: all rather than to a bucket the schema cannot carry. Reusing :data:`BASE_TYPES`
+#: verbatim would emit an element the ATS document could not hold.
+VENTAS_BASE_TYPES = {
+    "baseNoGraIva": ("not_charged_vat",),
+    "baseImponible": ("zero_vat",),
+}
+
+#: ``account.tax.group.l10n_ec_type`` values routing a withheld amount into a
+#: ``ventas`` retention element.
+#:
+#: The mirror image of what the purchases collector keys on: ``valorRetIva`` is
+#: what *the client* withheld from us, so it is a **sale** withholding, booked
+#: against a sale-side tax group. A withholding attached to the same document on
+#: the purchase side is a different thing entirely and never reaches this map.
+SALE_WITHHOLDING_TYPES = {
+    "valorRetIva": "withhold_vat_sale",
+    "valorRetRenta": "withhold_income_sale",
+}
+
+#: ``account.journal.l10n_latam_use_documents`` mapped to the word ``Tabla 20``
+#: uses in that row's description.
+#:
+#: These are descriptions, not codes, following
+#: :data:`TABLA_14_KEYWORD_BY_COMPANY_TYPE` for the same reason: the code that
+#: reaches the file is always the catalogue row's own, and the word is only how
+#: that row is picked out. The ficha settles the mapping itself -- "when the
+#: emission question is not activated, place emission type F" -- and a journal
+#: that issues documents is one that emits electronically.
+TABLA_20_KEYWORD_BY_USES_DOCUMENTS = {
+    False: "FISICA",
+    True: "ELECTRONICA",
+}
+
+#: The phrase ``Tabla 4`` spells its credit-note row with.
+#:
+#: It says in so many words that ``formaPago`` "no aplica para los tipos de
+#: comprobantes Notas de Crédito (04)", so a credit-note row carries no payment
+#: form. The rule belongs to a *document type*, and this is how that row is found
+#: in the catalogue without this file holding the code.
+TABLA_4_CREDIT_NOTE_KEYWORD = "NOTA DE CR"
+
 #: The special consumption tax has its own amount field and its own group type.
 ICE_TYPES = ("ice",)
 
@@ -502,25 +547,33 @@ class L10nEcAtsCollector(models.AbstractModel):
         )
 
     @api.model
-    def _l10n_ec_id_prov(self, partner, report):
-        """``idProv``: the supplier's identification, placeholders rejected.
+    def _l10n_ec_id_prov(self, partner, report, *, field="idProv", subject=None):
+        """``idProv`` / ``idCliente``: the identification, placeholders rejected.
 
         The ficha names the sentinels for an exterior identification: they are not
-        an identification of anybody. Consumer Final is handled in
-        :meth:`_l10n_ec_tp_id_prov`, which has to refuse it anyway; what remains
-        here is the all-zero placeholder.
+        an identification of anybody. Consumer Final is handled where it has to be
+        refused anyway -- :meth:`_l10n_ec_tp_id_prov` on the purchase side, and
+        deliberately *not* on the sales side, where it is a real client type; what
+        remains here is the all-zero placeholder.
+
+        ``field`` and ``subject`` are the only things that differ between the two
+        blocks, so the check itself lives here once. An empty identification
+        reports nothing: :meth:`_l10n_ec_tp_id_prov` and
+        :meth:`_l10n_ec_tp_id_cliente` have already named the missing
+        identification by the time this runs.
         """
         vat = (partner.vat or "").strip()
         if not vat:
             return False
         if set(vat) == {"0"}:
             report(
-                "idProv",
+                field,
                 self.env._(
                     "%(vat)s is not a real identification number, so "
-                    "%(partner)s cannot be reported as a supplier.",
+                    "%(partner)s cannot be reported as %(subject)s.",
                     vat=vat,
                     partner=partner.display_name,
+                    subject=subject or self.env._("a supplier"),
                 ),
             )
             return False
@@ -574,13 +627,30 @@ class L10nEcAtsCollector(models.AbstractModel):
         return values
 
     @api.model
+    def _l10n_ec_description_contains(self, entry, keyword):
+        """Whether ``entry``'s catalogue description names ``keyword``.
+
+        A catalogue description is prose the SRI spells with accents -- *Facturación
+        Física*, *Ley Solidaridad -Zonas Afectadas* -- and a keyword is not, so
+        both sides are reduced to their ASCII letters before comparing, the
+        keyword case-insensitively. Only the comparison is affected: the code that
+        reaches the file is the row's own, accents and all.
+        """
+        plain = "".join(
+            character
+            for character in unicodedata.normalize("NFKD", entry.description or "")
+            if character.isascii() and (character.isalnum() or character.isspace())
+        )
+        return keyword in plain.upper()
+
+    @api.model
     def _l10n_ec_tabla_14_entry(self, partner, reported):
-        """The ``Tabla 14`` row matching the supplier's nature, or an empty set."""
+        """The ``Tabla 14`` row matching the partner's nature, or an empty set."""
         keyword = TABLA_14_KEYWORD_BY_COMPANY_TYPE.get(partner.company_type)
         if not keyword:
             return self.env["l10n.ec.ats.catalog.entry"]
         return self._l10n_ec_applicable_entries("14", reported).filtered(
-            lambda entry: keyword in (entry.description or "").upper()
+            lambda entry: self._l10n_ec_description_contains(entry, keyword)
         )[:1]
 
     # ------------------------------------------------------------------
@@ -818,16 +888,26 @@ class L10nEcAtsCollector(models.AbstractModel):
     # ------------------------------------------------------------------
 
     @api.model
-    def _l10n_ec_withholding_lines(self, move):
+    def _l10n_ec_withholding_lines(self, move, withholding_type):
         """The withholding basis lines booked against ``move``.
 
         ``l10n_ec_invoice_withhold_id`` is the only link a withholding carries
         back to the document it supports, so the collector follows it rather than
         guessing from dates or partners. Draft withholdings are ignored: a
-        withholding the company has not filed does not reduce the purchase.
+        withholding the company has not filed does not reduce the purchase or
+        the sale.
+
+        ``withholding_type`` is required rather than defaulted. A company can
+        hold both a purchase and a sale withholding against a document, and they
+        are different events with different ATS elements, so which one is wanted
+        is never a matter of taste: ``compras`` reads ``purchase``, ``ventas``
+        reads ``sale``.
         """
         withholdings = move.l10n_ec_withhold_ids.filtered(
-            lambda withhold: withhold.state == "posted"
+            lambda withhold: (
+                withhold.state == "posted"
+                and withhold.l10n_ec_withholding_type == withholding_type
+            )
         )
         return withholdings.line_ids.filtered(
             lambda line: (
@@ -857,7 +937,7 @@ class L10nEcAtsCollector(models.AbstractModel):
         values = {element: 0.0 for element in IVA_RETENTION_ELEMENTS.values()}
         errors = []
         applicable = self._l10n_ec_applicable_entries("11", reported)
-        for line in self._l10n_ec_withholding_lines(move):
+        for line in self._l10n_ec_withholding_lines(move, "purchase"):
             for tax in line.tax_ids.filtered(
                 lambda candidate: (
                     candidate.tax_group_id.l10n_ec_type == "withhold_vat_purchase"
@@ -927,7 +1007,7 @@ class L10nEcAtsCollector(models.AbstractModel):
         """
         entries = []
         errors = []
-        for line in self._l10n_ec_withholding_lines(move):
+        for line in self._l10n_ec_withholding_lines(move, "purchase"):
             for tax in line.tax_ids.filtered(
                 lambda candidate: (
                     candidate.tax_group_id.l10n_ec_type == "withhold_income_purchase"
@@ -1056,6 +1136,561 @@ class L10nEcAtsCollector(models.AbstractModel):
                 }
             ]
         return [{"formaPago": entries.code}], []
+
+    # ------------------------------------------------------------------
+    # Ventas -- the aggregated block
+    # ------------------------------------------------------------------
+
+    @api.model
+    def collect_ventas(self, company, date_start, date_finish):
+        """Return the ``ventas`` rows of one period, aggregated.
+
+        One row per ``(tpIdCliente, idCliente, tipoComprobante, tipoEmision)``,
+        not per document: ``numeroComprobantes`` carries the count and the bases
+        and taxes are the totals of every document folded into it. Two invoices
+        to the same client under the same document type are one row with a count
+        of two.
+
+        A group that cannot be completed without inventing a value is **left
+        out** as a whole, because a partially summed row would describe a set of
+        documents the company never had. Use :meth:`collect_ventas_with_errors`
+        to learn why.
+
+        :return: a list of dicts keyed by the ATS XML element names of
+            ``detalleVentasType``, so the builder is a straight mapping with no
+            renaming layer. Amounts are **absolute**: ``monedaType`` has
+            ``minInclusive 0.0``, so a credit note is reduced rather than negated
+            and is filed under its own ``tipoComprobante``.
+        """
+        rows, _errors = self.collect_ventas_with_errors(
+            company, date_start, date_finish
+        )
+        return rows
+
+    @api.model
+    def collect_ventas_with_errors(self, company, date_start, date_finish):
+        """Return ``(rows, errors)`` for one period.
+
+        Same two-layer shape as :meth:`collect_compras_with_errors`, and for the
+        same reason: one unusable document must not hide the other nineteen, so
+        the caller decides whether to abort (§5.6 Level 3) or to report and
+        continue. An error names the document it belongs to, which for an
+        aggregated row is the member that could not be filed rather than the
+        whole group.
+        """
+        rows = []
+        errors = []
+        for moves in self._l10n_ec_ventas_groups(company, date_start, date_finish):
+            row, group_errors = self._l10n_ec_ventas_row(moves, date_start)
+            errors.extend(group_errors)
+            if row:
+                rows.append(row)
+        return rows, errors
+
+    # ------------------------------------------------------------------
+    # Selection and grouping
+    # ------------------------------------------------------------------
+
+    @api.model
+    def _l10n_ec_ventas_moves(self, company, date_start, date_finish):
+        """Posted customer documents of ``company`` whose accounting date is in
+        the window.
+
+        ``out_refund`` is included and is not a special case: a credit note is
+        filed under its own document type, so it arrives here as an ordinary
+        document and is grouped like one.
+        """
+        return self.env["account.move"].search(
+            [
+                ("company_id", "=", company.id),
+                ("move_type", "in", ("out_invoice", "out_refund")),
+                ("state", "=", "posted"),
+                ("date", ">=", date_start),
+                ("date", "<=", date_finish),
+            ],
+            order="date, id",
+        )
+
+    @api.model
+    def _l10n_ec_ventas_groups(self, company, date_start, date_finish):
+        """The documents of the period, folded into their rows.
+
+        Insertion order follows ``_l10n_ec_ventas_moves``, so the rows come out in
+        the order the documents were booked rather than in an arbitrary one.
+        """
+        groups = {}
+        for move in self._l10n_ec_ventas_moves(company, date_start, date_finish):
+            groups.setdefault(self._l10n_ec_ventas_group_key(move), []).append(move)
+        return list(groups.values())
+
+    @api.model
+    def _l10n_ec_ventas_group_key(self, move):
+        """The tuple one ``detalleVentas`` row is aggregated by.
+
+        ``CLAVE PRIMARIA (2)`` marks exactly three general key components for this
+        block: ``tpIdCliente``, ``idCliente`` and ``tipoComprobante``.
+        ``tipoEmision`` is **not** among them -- the sheet does not list the field
+        at all, neither as a key component nor otherwise -- which would leave the
+        question of what happens to two documents that differ only in emission
+        type unanswered.
+
+        The ficha answers it: "se puede ingresar el mismo tipo de documento
+        siempre que difiera de la emisión de un mismo cliente en el período
+        informado" -- the same document type may be filed again for the same
+        client in the same period **provided the emission type differs**. That is
+        only satisfiable if a differing emission type produces a row of its own,
+        so the key is the sheet's three plus ``tipoEmision``.
+
+        Folding them instead would put a value in the file that is true of one
+        document out of two, or of neither, while ``numeroComprobantes`` claimed
+        both. That is the substitution this collector exists to refuse.
+
+        Keyed on the values that reach the file rather than on the partner
+        record, so two client records carrying one identification aggregate into
+        one row instead of producing two rows with the same primary key.
+        """
+        return (
+            PartnerIdTypeEc.get_ats_code_for_partner(
+                move.commercial_partner_id, "out_invoice"
+            ),
+            (move.commercial_partner_id.vat or "").strip(),
+            move.l10n_latam_document_type_id.code,
+            bool(move.journal_id.l10n_latam_use_documents),
+        )
+
+    # ------------------------------------------------------------------
+    # Row assembly
+    # ------------------------------------------------------------------
+
+    @api.model
+    def _l10n_ec_ventas_row(self, moves, period_start):
+        """Build one aggregated ``detalleVentas`` payload, or explain why not.
+
+        :return: ``(row, errors)``. ``row`` is ``{}`` whenever ``errors`` is
+            non-empty, and a single unusable member withholds the whole group:
+            the bases and taxes are sums, and a sum over a subset is not a number
+            the company ever had.
+        """
+        errors = []
+        representative = moves[0]
+        partner = representative.commercial_partner_id
+
+        def reporter(move):
+            """Report against ``move``, naming the document a problem belongs to.
+
+            For a group that is not the same thing as naming the group: a member
+            that cannot be filed is reported against itself, so whoever fixes the
+            month sees which document is at fault rather than a list of rows.
+            """
+
+            def report(field, message):
+                errors.append({"move": move, "field": field, "message": message})
+
+            return report
+
+        report = reporter(representative)
+
+        reported = period_start
+        for move in moves:
+            reported = self._l10n_ec_reported_date(move, period_start, errors)
+
+        # ``tpIdCliente`` and ``tipoComprobante`` are resolved for **every**
+        # member, so a document that cannot be filed is named on its own rather
+        # than hidden behind the one that happened to sort first.
+        tp_id_cliente = False
+        tipo_comprobante = False
+        for move in moves:
+            tp_id_cliente = self._l10n_ec_tp_id_cliente(
+                move.commercial_partner_id, reported, reporter(move)
+            )
+            tipo_comprobante = self._l10n_ec_tipo_comprobante_ventas(
+                move, reported, reporter(move)
+            )
+
+        row = {
+            "tpIdCliente": tp_id_cliente,
+            "idCliente": self._l10n_ec_id_cliente(partner, report),
+            "tipoComprobante": tipo_comprobante,
+            "tipoEmision": self._l10n_ec_tipo_emision(representative, reported, report),
+            "numeroComprobantes": len(moves),
+        }
+        # The ficha displays ``parteRel`` only for the three identification types
+        # a person or company can hold, and the consumer sentinel is not one of
+        # them. ``ats.xsd`` makes the element optional, so omitting it is both
+        # what the schema expects and what the ficha asks for.
+        if tp_id_cliente != PartnerIdTypeEc.FINAL_CONSUMER.value:
+            row["parteRelVtas"] = self._l10n_ec_parte_rel(partner)
+        row.update(self._l10n_ec_conditional_client(partner, reported, report))
+        row.update(self._l10n_ec_ventas_amounts(moves))
+
+        retentions, retention_errors = self._l10n_ec_ventas_retentions(moves, reported)
+        errors.extend(retention_errors)
+        row.update(retentions)
+
+        payments, payment_errors = self._l10n_ec_ventas_formas_de_pago(moves, reported)
+        errors.extend(payment_errors)
+        if payments and not self._l10n_ec_is_credit_note(tipo_comprobante, reported):
+            row["formasDePago"] = payments
+
+        # ``compensaciones`` is deliberately absent. It is condicional and its
+        # type comes from ``Tabla 21``, but nothing in Odoo records an IVA
+        # compensation under the solidarity law or on electronic money, so there
+        # is no record to read it from and the key is omitted rather than filled
+        # with a default. ``Tabla 21`` is loaded and available for the model that
+        # will carry it.
+        return (row if not errors else {}), errors
+
+    @api.model
+    def _l10n_ec_tp_id_cliente(self, partner, reported, report):
+        """``tpIdCliente``, resolved through ``Tabla 2`` for the period.
+
+        Which sale-side identification applies follows from the client's
+        identification, and core ``l10n_ec`` already knows that mapping --
+        ``PartnerIdTypeEc.get_ats_code_for_partner`` is what its own EDI documents
+        use -- so this collector does not decide it. The catalogue's job is to
+        confirm the code is a real ``Tabla 2`` row on that day and that the row
+        points at a transaction type that exists.
+
+        The final-consumer sentinel is **accepted** here, the opposite of the
+        purchase rule in :meth:`_l10n_ec_tp_id_prov`: ``Tabla 2`` publishes it as
+        a sale identification and the ficha's ``idCliente`` validation names
+        *Consumidor Final* as one of the values the field may hold. Refusing it
+        would make the most ordinary Ecuadorian sale impossible to file.
+        """
+        if not partner.vat:
+            report(
+                "tpIdCliente",
+                self.env._(
+                    "%(partner)s has no identification number, so it cannot be "
+                    "reported as a client.",
+                    partner=partner.display_name,
+                ),
+            )
+            return False
+        code = PartnerIdTypeEc.get_ats_code_for_partner(partner, "out_invoice")
+        if code is None:
+            report(
+                "tpIdCliente",
+                self.env._(
+                    "%(partner)s uses an identification type the ATS does not "
+                    "describe, so tpIdCliente cannot be derived from it.",
+                    partner=partner.display_name,
+                ),
+            )
+            return False
+        entry = self._l10n_ec_resolve_entry(
+            "02", code.value, reported, "tpIdCliente", report
+        )
+        if entry and not self._l10n_ec_transaction_type_resolves(entry, reported):
+            report(
+                "tpIdCliente",
+                self.env._(
+                    "Tabla 2 entry %(code)s points at transaction type "
+                    "%(types)s, which Tabla A does not define on %(when)s.",
+                    code=entry.code,
+                    types=entry.transaction_type_codes or "-",
+                    when=self._l10n_ec_fecha(reported),
+                ),
+            )
+            return False
+        return entry.code if entry else code.value
+
+    @api.model
+    def _l10n_ec_id_cliente(self, partner, report):
+        """``idCliente``: the client's identification.
+
+        The all-zero placeholder is rejected by the shared check; the consumer
+        sentinel is not, and the reasoning is in :meth:`_l10n_ec_tp_id_cliente`.
+        """
+        return self._l10n_ec_id_prov(
+            partner, report, field="idCliente", subject=self.env._("a client")
+        )
+
+    @api.model
+    def _l10n_ec_tipo_comprobante_ventas(self, move, reported, report):
+        """``tipoComprobante``, validated against ``Tabla 4`` for the period.
+
+        Unlike the purchase side there is no ``codSustento`` to cross-check, and
+        the ficha's own filter for this field -- *Tabla 4* filtered by *Código
+        Secuencial Transacción* equal to ``04``, ``05``, ``06``, ``07`` and
+        ``19``, which are the codes ``Tabla 2`` publishes as sale identifications
+        -- **cannot be evaluated from the loaded catalogue**: ``Tabla 4`` stores
+        two different columns for those two ideas, and the cross-check ATS-06
+        performs on the purchase side already uses one of them for ``Tabla 5``.
+        What is asserted here is therefore the part the catalogue can answer: that
+        the code is a real ``Tabla 4`` row in force on the reported day. The
+        filter is recorded for ATS-11 rather than approximated with a list of
+        codes this file would then own.
+        """
+        document_type = move.l10n_latam_document_type_id
+        code = document_type.code
+        if not code:
+            report(
+                "tipoComprobante",
+                self.env._(
+                    "%(move)s cannot be reported in the ATS: the document type "
+                    "is not set. Tabla 4 requires one.",
+                    move=move.display_name,
+                ),
+            )
+            return False
+        self._l10n_ec_resolve_entry("04", code, reported, "tipoComprobante", report)
+        return code
+
+    @api.model
+    def _l10n_ec_tipo_emision(self, move, reported, report):
+        """``tipoEmision``, resolved through ``Tabla 20`` for the period.
+
+        The signal is a record, not a flag invented here: the issuing journal's
+        own ``l10n_latam_use_documents`` -- the field core ``l10n_ec`` computes
+        ``l10n_ec_require_emission`` from. A journal that issues documents files
+        electronically; one that does not files physically, which is the same
+        answer the ficha gives for "when the emission question is not activated,
+        place emission type F".
+
+        The keyword only *selects* the ``Tabla 20`` row; the code that reaches the
+        file is that row's own.
+        """
+        journal = move.journal_id
+        uses_documents = bool(journal.l10n_latam_use_documents)
+        keyword = TABLA_20_KEYWORD_BY_USES_DOCUMENTS[uses_documents]
+        applicable = self._l10n_ec_applicable_entries("20", reported)
+        entries = applicable.filtered(
+            lambda entry: self._l10n_ec_description_contains(entry, keyword)
+        )
+        if len(entries) != 1:
+            report(
+                "tipoEmision",
+                self.env._(
+                    "%(move)s cannot be reported in the ATS: Tabla 20 has "
+                    "%(count)s rows in force on %(when)s for journal "
+                    "%(journal)s, which %(uses)s. Exactly one is required, and "
+                    "ATS will not guess the emission type. Codes in force that "
+                    "day: %(valid)s.",
+                    move=move.display_name,
+                    count=len(entries),
+                    when=self._l10n_ec_fecha(reported),
+                    journal=journal.display_name,
+                    uses=(
+                        self.env._("uses documents")
+                        if uses_documents
+                        else self.env._("does not use documents")
+                    ),
+                    valid=", ".join(sorted(applicable.mapped("code"))) or "-",
+                ),
+            )
+            return False
+        return entries.code
+
+    @api.model
+    def _l10n_ec_conditional_client(self, partner, reported, report):
+        """``tipoCliente`` and ``denoCli``, only for a client identified by
+        passport.
+
+        The ficha displays both only when ``tpIdCliente`` is the exterior
+        identification, which is exactly what ``PartnerIdTypeEc`` returns for the
+        passport member -- the same condition under which the purchase side
+        displays ``tipoProv`` and ``denoProv``. Neither is emitted otherwise: an
+        absent key means an absent element, never an empty one.
+        """
+        if (
+            PartnerIdTypeEc.get_ats_code_for_partner(partner, "out_invoice")
+            != PartnerIdTypeEc.OUT_PASSPORT
+        ):
+            return {}
+        values = {}
+        tipo_cliente = self._l10n_ec_tabla_14_entry(partner, reported)
+        if tipo_cliente:
+            values["tipoCliente"] = tipo_cliente.code
+        else:
+            report(
+                "tipoCliente",
+                self.env._(
+                    "%(partner)s is identified from abroad, so the ATS requires "
+                    "tipoCliente. Tabla 14 states no row matching a %(nature)s "
+                    "client on %(when)s.",
+                    partner=partner.display_name,
+                    nature=partner.company_type,
+                    when=self._l10n_ec_fecha(reported),
+                ),
+            )
+        if partner.name:
+            # ``denoCliType`` is ``[a-zA-Z0-9\\s]``, as ``denoProvType`` is.
+            values["denoCli"] = self._l10n_ec_strip_accents(partner.name)
+        return values
+
+    # ------------------------------------------------------------------
+    # Ventas amounts
+    # ------------------------------------------------------------------
+
+    @api.model
+    def _l10n_ec_ventas_amounts(self, moves):
+        """The three base buckets and the two tax amounts, summed over the group.
+
+        A base belongs to exactly one bucket and the split follows the tax group
+        on each line, read exactly as on the purchase side. What differs is the
+        aggregation -- one sum across every document in the row -- and the
+        buckets themselves: :data:`VENTAS_BASE_TYPES` has no exempt base because
+        ``detalleVentasType`` has no element for one.
+
+        Every value is absolute. ``monedaType`` has ``minInclusive 0.0`` and the
+        schema has no per-line negative, so a credit note is reported as
+        magnitudes under its own document type (§5.4).
+
+        ``montoIce`` is emitted even though ``ats.xsd`` makes it optional: the
+        ficha marks it obligatorio and spells the zero case out ("when the ICE
+        amount is zero, register 0.00"). A sum over no ICE lines really is zero,
+        so nothing is invented by emitting it -- and the schema being more
+        permissive than the norm is exactly the gap §5.4 exists for.
+        """
+        gravable = self._l10n_ec_gravable_vat_types()
+        buckets = dict(VENTAS_BASE_TYPES)
+        buckets["baseImpGrav"] = gravable
+        values = {
+            field: sum(
+                self._l10n_ec_taxed_amount(move, types, "base_amount") for move in moves
+            )
+            for field, types in buckets.items()
+        }
+        values["montoIva"] = sum(
+            self._l10n_ec_taxed_amount(move, gravable, "tax_amount") for move in moves
+        )
+        values["montoIce"] = sum(
+            self._l10n_ec_taxed_amount(move, ICE_TYPES, "tax_amount") for move in moves
+        )
+        return values
+
+    @api.model
+    def _l10n_ec_ventas_retentions(self, moves, reported):
+        """``valorRetIva`` and ``valorRetRenta``: what the **client** withheld.
+
+        Only withholdings issued on the **sale** side are read, and only the
+        sale-side tax groups, so the mirror-image purchase withholding a company
+        may hold against the same document is never added in. The two sides are
+        different events with different ATS elements; ``valorRetIva`` says what
+        the client took off us, not what we took off a supplier.
+
+        The purchase block splits its VAT withholding across six ``Tabla 11``
+        elements because it reports per document. This block carries a single
+        ``valorRetIva`` because the client withholds one amount against the whole
+        group. The rate each tax carries is still checked against ``Tabla 11`` for
+        the reported day -- a rate the SRI never published is reported, not filed
+        -- but there is no element left to choose.
+
+        ``valorRetRenta`` resolves no ``Tabla 3.10`` rate, and deliberately so:
+        unlike ``air``, this block has no per-concept breakdown, so there is
+        nowhere to put a code or a percentage and an unresolved rate cannot affect
+        the total that is all the schema can express here.
+        """
+        values = dict.fromkeys(SALE_WITHHOLDING_TYPES, 0.0)
+        errors = []
+        published = self._l10n_ec_applicable_entries("11", reported)
+        for move in moves:
+            for line in self._l10n_ec_withholding_lines(move, "sale"):
+                for tax, field in self._l10n_ec_sale_withholding_taxes(line.tax_ids):
+                    if field == "valorRetIva" and not self._l10n_ec_tabla_11_rate(
+                        tax, published, move, reported, errors
+                    ):
+                        continue
+                    values[field] += abs(line.l10n_ec_withhold_tax_amount)
+        return values, errors
+
+    @api.model
+    def _l10n_ec_sale_withholding_taxes(self, taxes):
+        """Pair each sale-side withholding tax with the element it feeds.
+
+        A tax group that belongs to neither side is not a retention this block
+        reports, and is skipped rather than reported: a purchase-side group on a
+        withholding linked to a sale is a data mistake somewhere, but it is not
+        this row's business to invent a reading for it.
+        """
+        return [
+            (tax, field)
+            for tax in taxes
+            for field, group_type in SALE_WITHHOLDING_TYPES.items()
+            if tax.tax_group_id.l10n_ec_type == group_type
+        ]
+
+    @api.model
+    def _l10n_ec_tabla_11_rate(self, tax, published, move, reported, errors):
+        """Whether ``tax``'s rate is a rate ``Tabla 11`` publishes on that day.
+
+        A VAT-withholding tax *is* its rate, so the check turns a tax row into a
+        **verified** rate rather than an assumed one. Exactly one ``Tabla 11``
+        entry must carry that percentage on the reported day; zero is a coverage
+        hole and more than one an overlap, and both are reported.
+        """
+        rate = abs(tax.amount)
+        entries = published.filtered(lambda entry: float(entry.percentage) == rate)
+        if len(entries) == 1:
+            return True
+        errors.append(
+            {
+                "move": move,
+                "field": "valorRetIva",
+                "message": self.env._(
+                    "%(move)s withholds VAT at %(rate)s%%, but Tabla 11 has "
+                    "%(count)s such rates in force on %(when)s. Exactly one is "
+                    "required; ATS will not file a retention under a rate the "
+                    "SRI never published.",
+                    move=move.display_name,
+                    rate=rate,
+                    count=len(entries),
+                    when=self._l10n_ec_fecha(reported),
+                ),
+            }
+        )
+        return False
+
+    @api.model
+    def _l10n_ec_ventas_formas_de_pago(self, moves, reported):
+        """``formasDePago``: every payment form the group's transactions used.
+
+        The payment form belongs to a **transaction**, not to a client, so it is
+        not part of the aggregation key and not constant across a group. The ficha
+        settles what to do with that: "when a single transaction used more than
+        one payment form, all of the payment forms used must be reported", and
+        ``formaPago`` is unbounded. So the row carries the distinct forms of every
+        document folded into it, in booking order.
+
+        Each document's own form is still resolved through ``Tabla 13`` for the
+        reported day by the shared helper, so a form the SRI does not publish that
+        month is reported against the document that stated it.
+        """
+        payments = []
+        seen = set()
+        errors = []
+        for move in moves:
+            move_payments, move_errors = self._l10n_ec_formas_de_pago(move, reported)
+            errors.extend(move_errors)
+            for payment in move_payments:
+                if payment["formaPago"] not in seen:
+                    seen.add(payment["formaPago"])
+                    payments.append(payment)
+        return payments, errors
+
+    @api.model
+    def _l10n_ec_is_credit_note(self, tipo_comprobante, reported):
+        """Whether ``tipo_comprobante`` names a credit note, per ``Tabla 4``.
+
+        The catalogue states that ``formaPago`` does not apply to a credit note,
+        so a credit-note row carries no payment form. The row is found in
+        ``Tabla 4`` by the phrase the SRI itself uses rather than by a code this
+        file would have to own, and ``ats.xsd`` makes the element optional either
+        way -- so the block-specific business rule and the grammar agree.
+        """
+        credit_notes = self._l10n_ec_applicable_entries("04", reported).filtered(
+            lambda entry: self._l10n_ec_description_contains(
+                entry, TABLA_4_CREDIT_NOTE_KEYWORD
+            )
+        )
+        return bool(
+            credit_notes.filtered(
+                lambda entry, wanted=tipo_comprobante: self._l10n_ec_same_code(
+                    entry.code, wanted
+                )
+            )
+        )
 
     # ------------------------------------------------------------------
     # Helpers
