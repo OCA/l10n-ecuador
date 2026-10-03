@@ -377,6 +377,170 @@ a sale identification, and the ficha's ``idCliente`` validation names
 *Consumidor Final* as a value the field may hold. Refusing it would make
 the most ordinary Ecuadorian sale impossible to file.
 
+``ventasEstablecimiento`` — one row per establishment, and one row too many
+---------------------------------------------------------------------------
+
+``ventasEstablecimiento`` has **no** ``res.establishment`` behind it.
+Neither ``l10n-ecuador`` nor core ``l10n_ec`` defines one, so
+``codEstab`` is a **composite derivation** over records that do exist.
+It is the single seam to replace if an establishment model ever lands.
+
+The set is the RUC set, not the selling set
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The establishment code is the **union of two record sets**:
+
++----------------------------------+----------------------------------+
+| Source                           | What it contributes              |
++==================================+==================================+
+| distinct ``l10n_ec_entity`` over | every establishment the taxpayer |
+| the company's **active**         | has configured, selling or not   |
+| journals                         |                                  |
++----------------------------------+----------------------------------+
+| the entity segment of            | every establishment a document   |
+| ``l10n_latam_document_number``   | was really filed under           |
+| on the period's **posted sales** |                                  |
+| documents                        |                                  |
++----------------------------------+----------------------------------+
+
+The union is not belt-and-braces. Change a journal's ``l10n_ec_entity``
+after a document was issued and the establishment that document was
+really filed under is left with no journal declaring it; reading only
+the journals would drop a real establishment from the count.
+
+Two asymmetries are deliberate:
+
+- **Sales documents only.** A vendor bill carries a
+  ``l10n_latam_document_number`` too, but that is the *supplier's*
+  triple. The supplier's triple belongs to ``compras``; reading it here
+  would file our establishments under other companies' identifiers.
+- **Sales journals are not special-cased.** ``numEstabRuc`` counts
+  *establecimientos inscritos en el RUC*, so a purchase journal's
+  establishment counts too.
+
+A journal with an **empty** ``l10n_ec_entity`` is skipped, not emitted.
+That is a real shipped row:
+``l10n_ec_withhold/data/template/account.journal-ec.csv`` seeds
+``sale_withhold_ec`` with an empty entity and emission, and it is an
+active journal of every EC company.
+
+An establishment that sold nothing still gets a row, at ``0.00``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Se debe registrar el valor total de las ventas por establecimiento.
+   Debe generarse igual número de registros que el valor informado en el
+   campo número de establecimientos del sujeto pasivo, inscritos en el
+   RUC.
+
+The row count is tied to ``numEstabRuc``, and ``numEstabRuc`` counts
+establishments *in the RUC* — so **every** active establishment needs a
+row. Dropping the ones that did not sell would make
+``len(rows) != numEstabRuc``, which is exactly the check the ficha
+states. Their ``ventasEstab`` is ``0.00``, which is a sourced zero and
+not a substituted one: nothing was sold there.
+
+``ventasEstab`` is **net**; ``totalVentas`` is **gross**
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is the one place the two blocks legitimately disagree, and getting
+it backwards files a wrong number.
+
+``ESQUEMA TIPO 1 Y 2`` row 103:
+
+   la sumatoria de los valores registrados en estos casilleros debe ser
+   igual al **valor neto (se restan los valores de NC)** de todas las
+   ventas registradas, **caso contrario error**
+
+and the ficha técnica, on the same field:
+
+   La sumatoria del total de ventas por los establecimientos **no puede
+   ser mayor** al valor registrado en el campo total ventas.
+
+A ``<=`` rule is only informative if a row can come out *below*
+``totalVentas``, so both sentences only make sense under the net
+reading. ``ats.xsd`` settles it:
+
+- ``ventasEstab`` is typed **``totalVentasType``** (``ats.xsd:1464``),
+  the **only** amount type in the schema whose pattern admits a leading
+  minus. Its only other users are ``totalVentas`` and ``ivaComp``.
+- every ``ventas`` base is **``monedaType``**, ``minInclusive 0.0`` and
+  no minus.
+
+So the SRI gave this one element the one type that can express a
+reversal.
+
+The result is an inequality, not an equality:
+
+::
+
+   totalVentas  >=  sum(ventasEstab)
+
+with equality exactly when the period holds no credit note, and a gap of
+**twice** the credit notes' bases when it does. ``ventasEstab`` may be
+negative — a company that credited more than it invoiced from one
+establishment has a genuinely negative net figure, and it is **not**
+clamped to ``0.00``.
+
+``totalVentas`` is derived from the ``ventas`` rows, never re-aggregated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``ESQUEMA`` row 10 calls it a *casillero no editable* — a box that is
+not typed — and defines it as the sum of ``baseNoGraIva``,
+``baseImponible`` and ``baseImpGrav``. Those are ``monedaType``, so the
+total is **gross**: a credit note contributes its magnitude exactly as
+its invoice does.
+
+It is read out of the ``ventas`` collector's rows rather than
+re-aggregated from the documents. A second pass over the documents is
+precisely how a header and its own block would drift apart, so
+``collect_iva_header(ventas_rows, ventas_establecimiento_rows)``
+**requires both blocks** in its signature: the relationship between the
+header and the blocks is the entire content of these two fields, and
+neither can be obtained without the other.
+
+``000`` is refused, and here the schema agrees too
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``ventasEstabType`` (``ats.xsd:1468``) and ``numEstabRucType``
+(``ats.xsd:1482``) both carry ``minExclusive 000``, so a file carrying
+one breaks the schema as well as the ficha. This is the **first** place
+the rule of §5.4b and the XSD agree — on ``compras`` and ``anulados``,
+``establecimientoType`` and ``ptoEmisionType`` carry only ``[0-9]{3}``
+and would accept ``000``.
+
+Enforcing it is still this collector's job, because **nothing upstream
+stops it being written**:
+
+.. code:: python
+
+   # l10n_ec_base/models/account_journal.py:18
+   if len(rec.l10n_ec_entity) < 3 or not rec.l10n_ec_entity.isnumeric():
+
+``"000"`` satisfies both. The seeded values are ``001``, and no journal
+in the shipped data is set to ``000`` — but a user can set one today and
+it would propagate straight into the ATS. Tightening that constraint is
+a separate proposal against ``l10n_ec_base``; see ``ROADMAP.md``.
+
+``numEstabRuc`` is **zero-padded to three digits** (``\d{3}``), so seven
+establishments are ``007``, never ``7``. A count of zero has no valid
+representation and blocks rather than emitting ``000``.
+
+``ivaComp`` is omitted
+~~~~~~~~~~~~~~~~~~~~~~
+
+``Tabla 21`` **is** loaded and in scope (two rows, effective-dated).
+Nothing in Odoo records an IVA compensation under the solidarity law or
+on electronic money, so there is no record to read the amount from and
+the key is omitted rather than defaulted to ``0.00`` — the same
+decision, and the same reason, as ``compensaciones`` on the ``ventas``
+block. ``ats.xsd:1465`` makes ``ivaComp`` ``minOccurs="0"``, so omitting
+it is also what the schema expects.
+
+The test suite pins the omission against the loaded catalog, so if a
+compensation ever becomes a recordable field the test fails and the
+decision is taken again on purpose rather than a real value being
+silently dropped.
+
 Usage
 =====
 
@@ -585,6 +749,84 @@ open questions below.
 
 Open questions
 --------------
+
+``totalVentas``: what does *"Solo Facturación Física F"* qualify?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``ESQUEMA TIPO 1 Y 2`` row 10 defines the header's ``totalVentas`` and
+then appends a clause that is explained nowhere in the workbook, the
+ficha técnica, or ``ats.xsd``. Verbatim:
+
+   Casillero no editable, debe ser igual a la sumatoria de los valores
+   registrados en los campos baseNoGraIva, Base Imponible y baseimpGrav.
+   **Solo Facturación Física F**
+
+The column is ``Validaciones``, so unlike a footnote it is a rule — yet
+a conditional on ``tipoEmision`` sitting in a *header* field is odd,
+because the header has no emission type: emission is reported per row of
+the ``ventas`` block, and a single period legitimately mixes electronic
+and physical issuance.
+
+Three readings are possible and nothing in the sources chooses between
+them:
+
+1. **Scoping the whole rule to physical issuance.** The three-bucket
+   derivation applies only when ``tipoEmision`` is ``F`` for the period,
+   and electronic invoicing derives ``totalVentas`` some other way this
+   project has not found.
+2. **A leftover from an earlier edition**, when the ATS covered only
+   physical invoicing. Nothing in the row's other clauses reads as
+   edition-specific.
+3. **A constraint on which rows may be summed** — e.g. that a
+   physical-only period may not mix emission types — rather than on the
+   total itself.
+
+**What ATS does, and why.** It applies reading 1's *derivation*
+literally and derives ``totalVentas`` as the sum of the three buckets
+over the ``ventas`` rows for the reported period, with no conditional on
+``tipoEmision``. That is the reading the fiche técnica's own prose
+supports independently — *"corresponde a la suma de los valores
+registrados en los campos: base Imponible IVA 0%, base Imponible IVA
+tarifa diferente de 0% y base Imponible no objeto de IVA"* — with no
+emission condition attached.
+
+Guessing reading 2 or 3 instead would mean inventing a derivation the
+SRI never published, which is the one thing this module refuses to do.
+**ATS-11 must resolve this before the wizard can be called complete for
+an electronic period.** If reading 1 is right, an electronic period's
+``totalVentas`` is currently wrong, and no test in this suite would
+catch it because the suite cannot know the alternative.
+
+Note the two sheets of the workbook agree verbatim:
+``ESQUEMA TIPO 1 Y 2`` row 10 and ``ESQUEMA REGIMEN RIMPE`` row 11 carry
+the same clause. It is not a typo in one sheet.
+
+The ``000`` establishment hole in ``l10n_ec_base``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``account.journal._constrains_l10n_ec_entity_emission``
+(``l10n_ec_base/models/account_journal.py:14-36``) checks only
+``len(value) < 3`` and ``not value.isnumeric()``:
+
+.. code:: python
+
+   if len(rec.l10n_ec_entity) < 3 or not rec.l10n_ec_entity.isnumeric():
+
+**``"000"`` satisfies both and is accepted today.** A user can set an
+establishment of ``000`` on a journal and ``l10n_ec_ats`` will
+faithfully propagate it into the ATS — which is why the collector
+refuses it itself rather than trusting the constraint.
+
+Verified across the shipped data: ``l10n_ec_base`` seeds
+``purchase_liquidation_ec`` ``001/001``; ``l10n_ec_withhold`` seeds
+``purchase_withhold_ec`` ``001/001`` and ``sale_withhold_ec`` with an
+**empty** entity and emission; the EC chart template creates no journal
+establishment at all. **No journal in any fixture or seed row is set to
+``000``** — the hole is only reachable by hand.
+
+The one-line tightening is a separate proposal against ``l10n_ec_base``,
+which is already merged (PR #101), so it cannot travel in this addon's
+PR.
 
 Two ``account.tax`` rows carry an ATS code that resolves to nothing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

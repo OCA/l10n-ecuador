@@ -36,6 +36,74 @@ below.
 
 ## Open questions
 
+### `totalVentas`: what does *"Solo Facturación Física F"* qualify?
+
+`ESQUEMA TIPO 1 Y 2` row 10 defines the header's `totalVentas` and then appends a
+clause that is explained nowhere in the workbook, the ficha técnica, or
+`ats.xsd`. Verbatim:
+
+> Casillero no editable, debe ser igual a la sumatoria de los valores registrados
+> en los campos baseNoGraIva, Base Imponible y baseimpGrav. **Solo Facturación
+> Física F**
+
+The column is `Validaciones`, so unlike a footnote it is a rule — yet a
+conditional on `tipoEmision` sitting in a *header* field is odd, because the
+header has no emission type: emission is reported per row of the `ventas` block,
+and a single period legitimately mixes electronic and physical issuance.
+
+Three readings are possible and nothing in the sources chooses between them:
+
+1. **Scoping the whole rule to physical issuance.** The three-bucket derivation
+   applies only when `tipoEmision` is `F` for the period, and electronic
+   invoicing derives `totalVentas` some other way this project has not found.
+2. **A leftover from an earlier edition**, when the ATS covered only physical
+   invoicing. Nothing in the row's other clauses reads as edition-specific.
+3. **A constraint on which rows may be summed** — e.g. that a physical-only
+   period may not mix emission types — rather than on the total itself.
+
+**What ATS does, and why.** It applies reading 1's *derivation* literally and
+derives `totalVentas` as the sum of the three buckets over the `ventas` rows for
+the reported period, with no conditional on `tipoEmision`. That is the reading
+the fiche técnica's own prose supports independently — *"corresponde a la suma de
+los valores registrados en los campos: base Imponible IVA 0%, base Imponible IVA
+tarifa diferente de 0% y base Imponible no objeto de IVA"* — with no emission
+condition attached.
+
+Guessing reading 2 or 3 instead would mean inventing a derivation the SRI never
+published, which is the one thing this module refuses to do. **ATS-11 must
+resolve this before the wizard can be called complete for an electronic
+period.** If reading 1 is right, an electronic period's `totalVentas` is
+currently wrong, and no test in this suite would catch it because the suite
+cannot know the alternative.
+
+Note the two sheets of the workbook agree verbatim: `ESQUEMA TIPO 1 Y 2` row 10
+and `ESQUEMA REGIMEN RIMPE` row 11 carry the same clause. It is not a typo in
+one sheet.
+
+### The `000` establishment hole in `l10n_ec_base`
+
+`account.journal._constrains_l10n_ec_entity_emission`
+(`l10n_ec_base/models/account_journal.py:14-36`) checks only
+`len(value) < 3` and `not value.isnumeric()`:
+
+```python
+if len(rec.l10n_ec_entity) < 3 or not rec.l10n_ec_entity.isnumeric():
+```
+
+**`"000"` satisfies both and is accepted today.** A user can set an establishment
+of `000` on a journal and `l10n_ec_ats` will faithfully propagate it into the
+ATS — which is why the collector refuses it itself rather than trusting the
+constraint.
+
+Verified across the shipped data: `l10n_ec_base` seeds `purchase_liquidation_ec`
+`001/001`; `l10n_ec_withhold` seeds `purchase_withhold_ec` `001/001` and
+`sale_withhold_ec` with an **empty** entity and emission; the EC chart template
+creates no journal establishment at all. **No journal in any fixture or seed row
+is set to `000`** — the hole is only reachable by hand.
+
+The one-line tightening is a separate proposal against `l10n_ec_base`, which is
+already merged (PR #101), so it cannot travel in this addon's PR.
+
 ### Two `account.tax` rows carry an ATS code that resolves to nothing
 
 `account.tax.l10n_ec_code_ats` is the source of `codRetAir` — the feature

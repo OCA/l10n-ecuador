@@ -56,6 +56,18 @@ VENTAS_BASE_TYPES = {
     "baseImponible": ("zero_vat",),
 }
 
+#: The three ``ventas`` base buckets ``totalVentas`` is **defined** as the sum
+#: of, in the order ``Catalogo_ATS.xls`` / ``ESQUEMA TIPO 1 Y 2`` row 10 names
+#: them: *"debe ser igual a la sumatoria de los valores registrados en los campos
+#: baseNoGraIva, Base Imponible y baseimpGrav"*.
+#:
+#: Held as a module constant rather than restated inside the header collector so
+#: the header and ``ventasEstab`` cannot disagree about which buckets count. The
+#: tax-group types behind each name are read at call time by
+#: :meth:`_l10n_ec_ventas_buckets` -- ``baseImpGrav`` covers every non-zero VAT
+#: group the localization may publish, which is not a list this file can own.
+VENTAS_TOTAL_BASE_FIELDS = ("baseNoGraIva", "baseImponible", "baseImpGrav")
+
 #: ``account.tax.group.l10n_ec_type`` values routing a withheld amount into a
 #: ``ventas`` retention element.
 #:
@@ -134,6 +146,15 @@ class L10nEcAtsCollector(models.AbstractModel):
     An ``AbstractModel`` gets no ``ir.model`` record, so it needs no ACL. It is
     also the seam the later collectors join: ``ventas``,
     ``ventasEstablecimiento`` and ``anulados`` add their methods to this model.
+
+    The ``ventasEstablecimiento`` block is where ``000`` finally meets the
+    schema. ``establecimientoType`` and ``ptoEmisionType`` carry only a
+    ``[0-9]{3}`` pattern, so ``000`` validates on ``compras`` and ``anulados``
+    and this collector has to refuse it on its own. ``ventasEstabType``
+    (``ats.xsd:1468``) and ``numEstabRucType`` (``ats.xsd:1482``) both carry
+    ``minExclusive 000``, so the rule is enforced here **and** by the schema --
+    which still does not make it optional, because ``account.journal`` accepts
+    ``000`` today and would otherwise propagate it straight into the file.
     """
 
     _name = "l10n.ec.ats.collector"
@@ -1543,9 +1564,7 @@ class L10nEcAtsCollector(models.AbstractModel):
         so nothing is invented by emitting it -- and the schema being more
         permissive than the norm is exactly the gap §5.4 exists for.
         """
-        gravable = self._l10n_ec_gravable_vat_types()
-        buckets = dict(VENTAS_BASE_TYPES)
-        buckets["baseImpGrav"] = gravable
+        buckets = self._l10n_ec_ventas_buckets()
         values = {
             field: sum(
                 self._l10n_ec_taxed_amount(move, types, "base_amount") for move in moves
@@ -1553,12 +1572,34 @@ class L10nEcAtsCollector(models.AbstractModel):
             for field, types in buckets.items()
         }
         values["montoIva"] = sum(
-            self._l10n_ec_taxed_amount(move, gravable, "tax_amount") for move in moves
+            self._l10n_ec_taxed_amount(
+                move, self._l10n_ec_gravable_vat_types(), "tax_amount"
+            )
+            for move in moves
         )
         values["montoIce"] = sum(
             self._l10n_ec_taxed_amount(move, ICE_TYPES, "tax_amount") for move in moves
         )
         return values
+
+    @api.model
+    def _l10n_ec_ventas_buckets(self):
+        """The three ``totalVentas`` base buckets, name to tax-group types.
+
+        One definition, shared by :meth:`_l10n_ec_ventas_amounts` and
+        :meth:`_l10n_ec_ventas_estab_amount`, because ``totalVentas`` and
+        ``ventasEstab`` are only comparable if both are built from the same three
+        buckets -- ``ESQUEMA`` row 10 names them for the header and row 103 for
+        the block, and neither row lists a fourth.
+
+        ``baseImpGrav`` is completed from the localization's own selection rather
+        than a literal: the SRI does not name the VAT groups, it names the
+        resulting rate, and this collector does not resolve rates. See
+        :meth:`_l10n_ec_gravable_vat_types`.
+        """
+        buckets = dict(VENTAS_BASE_TYPES)
+        buckets["baseImpGrav"] = self._l10n_ec_gravable_vat_types()
+        return buckets
 
     @api.model
     def _l10n_ec_ventas_retentions(self, moves, reported):
@@ -1690,6 +1731,405 @@ class L10nEcAtsCollector(models.AbstractModel):
                     entry.code, wanted
                 )
             )
+        )
+
+    # ------------------------------------------------------------------
+    # Ventas establecimiento -- one row per our own establishment
+    # ------------------------------------------------------------------
+
+    @api.model
+    def collect_ventas_establecimiento(self, company, date_start, date_finish):
+        """Return the ``ventasEstablecimiento`` rows of one period.
+
+        One row per ``codEstab``, which ``CLAVE PRIMARIA (2)`` row 94 marks as
+        this block's only general key component. Not per document and not per
+        client: the ficha ties the row count to a header field instead -- *"debe
+        generarse igual número de registros que el valor informado en el campo
+        número de establecimientos del sujeto pasivo, inscritos en el RUC"* --
+        so the row set is the taxpayer's **active RUC establishments**, not the
+        ones that happened to sell. An establishment with no sales is a row at
+        ``0.00``; omitting it would make ``len(rows) != numEstabRuc``, which is
+        the check the ficha states.
+
+        An establishment whose code may never be filed -- ``000`` -- is **left
+        out** and reported, because emitting it would mean emitting the
+        prohibition. Use :meth:`collect_ventas_establecimiento_with_errors` to
+        learn why.
+
+        :return: a list of dicts keyed by the ATS XML element names of
+            ``ventaEstType``: ``codEstab`` and ``ventasEstab``. ``ivaComp`` is
+            deliberately absent -- see :meth:`_l10n_ec_ventas_estab_row`.
+        """
+        rows, _errors = self.collect_ventas_establecimiento_with_errors(
+            company, date_start, date_finish
+        )
+        return rows
+
+    @api.model
+    def collect_ventas_establecimiento_with_errors(
+        self, company, date_start, date_finish
+    ):
+        """Return ``(rows, errors)`` for one period.
+
+        Same two-layer shape as the sibling blocks, and for the same reason: one
+        unusable document must not hide the rest of the month, so the caller
+        decides whether to abort (§5.6 Level 3) or to report and continue.
+
+        **One extension to the error dict.** The ATS-06 and ATS-07 blocks report
+        every problem against a ``move``, so their errors carry ``{"move",
+        "field", "message"}``. A bad ``l10n_ec_entity`` belongs to a **journal**
+        and to no document at all, so these errors always carry ``journal`` as
+        well and set ``move`` to ``False``. Every key is present on every error
+        from every block, so a consumer can read either without a ``KeyError``.
+        """
+        errors = []
+        moves = self._l10n_ec_ventas_moves(company, date_start, date_finish)
+        codes = self._l10n_ec_establishment_codes(company, moves, errors)
+        grouped = self._l10n_ec_group_moves_by_establishment(moves, codes)
+        rows = []
+        for code in codes:
+            row, row_errors = self._l10n_ec_ventas_estab_row(
+                code, grouped.get(code, self.env["account.move"]), date_start
+            )
+            errors.extend(row_errors)
+            if row:
+                rows.append(row)
+        return rows, errors
+
+    # ------------------------------------------------------------------
+    # Establishment derivation
+    # ------------------------------------------------------------------
+
+    @api.model
+    def _l10n_ec_company_journals(self, company):
+        """The company's active journals, the record-backed establishment set.
+
+        There is no ``res.establishment`` in ``l10n-ecuador`` nor in core
+        ``l10n_ec``; the nearest thing that exists is the journal pair
+        ``l10n_ec_entity`` / ``l10n_ec_emission`` on ``account.journal``. So the
+        *ours* side of the ATS establishment composite reads ``l10n_ec_entity``
+        here, and the supplier's side is read per document in
+        :meth:`_l10n_ec_document_triple`.
+
+        **Active** only. The ficha counts *"establecimientos en estado
+        activo"*, so a deactivated journal's establishment is not one this
+        period reports.
+        """
+        return self.env["account.journal"].search(
+            [("company_id", "=", company.id), ("active", "=", True)],
+            order="id",
+        )
+
+    @api.model
+    def _l10n_ec_establishment_codes(self, company, moves, errors):
+        """Every establishment of ours that may be filed this period, sorted.
+
+        §5.2's compound derivation: the distinct ``l10n_ec_entity`` over the
+        company's active journals, **unioned** with the entity segment of
+        ``l10n_latam_document_number`` on the sales documents of the period.
+
+        The union is not belt-and-braces. Changing a journal's entity after a
+        document was issued leaves the establishment that document was really
+        filed under with no journal declaring it any more, and reading only the
+        journals would drop a real establishment from the ``numEstabRuc`` count.
+        The recorded document number is the more authoritative of the two -- it
+        is what the SRI received -- so where the two disagree about which
+        documents belong to an establishment, the document number wins
+        (:meth:`_l10n_ec_group_moves_by_establishment`).
+
+        **The union is restricted to sales documents we issued.** A vendor bill
+        carries a ``l10n_latam_document_number`` too, but that number is the
+        *supplier's* triple (§5.8); reading it here would file our establishments
+        with the identifiers of other people's.
+
+        ``sale_withhold_ec`` is seeded with an **empty** entity and emission
+        (``l10n_ec_withhold/data/template/account.journal-ec.csv``) and is an
+        active journal of every EC company, so an empty value is skipped rather
+        than emitted: ``ventasEstabType`` is ``\\d{3}`` and a blank code would be
+        rejected by the schema as well as being meaningless.
+
+        Sorted rather than kept in discovery order because a *set* of
+        establishments has no natural order the way a list of documents has, and
+        a sorted code list is the deterministic one that reads the same on every
+        run.
+
+        :return: the codes to report, plus the ``000`` codes found on the way,
+            appended to ``errors`` and excluded from the result.
+        """
+        codes = set()
+        for journal in self._l10n_ec_company_journals(company):
+            self._l10n_ec_add_establishment(
+                journal.l10n_ec_entity, codes, errors, journal=journal
+            )
+        for move in moves:
+            triple = self._l10n_ec_triple_from_document_number(move)
+            if triple:
+                self._l10n_ec_add_establishment(triple[0], codes, errors, move=move)
+        return sorted(codes)
+
+    @api.model
+    def _l10n_ec_add_establishment(self, code, codes, errors, move=None, journal=None):
+        """Add ``code`` to ``codes``, or report why it may not be filed.
+
+        ``000`` is refused here and nowhere else in this block, so the rule has
+        exactly one seam. This is where §5.4b stops being theoretical: unlike
+        ``compras`` and ``anulados``, whose carriers the schema leaves
+        unconstrained, ``ventasEstabType`` (``ats.xsd:1468``) **does** carry
+        ``minExclusive 000`` -- so a file carrying one breaks the schema too.
+
+        It still has to be caught here, because nothing upstream stops it being
+        written: ``account.journal._constrains_l10n_ec_entity_emission``
+        (``l10n_ec_base/models/account_journal.py:18``) checks only
+        ``len(value) < 3`` and ``not value.isnumeric()``, and ``"000"`` satisfies
+        both.
+        """
+        if not code:
+            # The seeded ``sale_withhold_ec`` case: an active journal with no
+            # establishment at all. Not a reportable defect -- a company with no
+            # establishment to file is simply not an error here.
+            return
+        if set(code) == {"0"}:
+            errors.append(
+                {
+                    "move": move,
+                    "journal": journal,
+                    "field": "codEstab",
+                    "message": self.env._(
+                        "%(subject)s cannot be reported in the ATS: its "
+                        "establishment is %(code)s. The SRI numbers "
+                        "establishments from 001, and numEstabRuc and "
+                        "codEstab both carry minExclusive 000 in ats.xsd, so "
+                        "%(code)s is never valid in either place.",
+                        subject=journal.display_name if journal else move.display_name,
+                        code=code,
+                    ),
+                }
+            )
+            return
+        codes.add(code)
+
+    @api.model
+    def _l10n_ec_group_moves_by_establishment(self, moves, codes):
+        """Fold the period's sales documents into their establishment's row.
+
+        Keyed on the establishment the **recorded document number** names, not
+        on the issuing journal's current ``l10n_ec_entity``. A move whose
+        establishment has already been rejected is filed under no establishment
+        at all rather than being forced into a neighbouring row, which is what
+        keeps a rejected code from inflating a valid row's total.
+        """
+        grouped = {code: self.env["account.move"] for code in codes}
+        for move in moves:
+            triple = self._l10n_ec_triple_from_document_number(move)
+            code = triple[0] if triple else False
+            if code in grouped:
+                grouped[code] |= move
+        return grouped
+
+    # ------------------------------------------------------------------
+    # Establishment row assembly
+    # ------------------------------------------------------------------
+
+    @api.model
+    def _l10n_ec_ventas_estab_row(self, code, moves, period_start):
+        """Build one ``ventaEst`` payload, or explain why it cannot be.
+
+        :return: ``(row, errors)``. ``row`` is ``{}`` whenever ``errors`` is
+            non-empty: a total over a subset of the establishment's documents is
+            a figure the company never had, so a single unusable document
+            withholds the whole row.
+        """
+        errors = []
+        for move in moves:
+            self._l10n_ec_reported_date(move, period_start, errors)
+
+        def report(field, message):
+            errors.append(
+                {
+                    "move": moves[0] if moves else False,
+                    "journal": False,
+                    "field": field,
+                    "message": message,
+                }
+            )
+
+        for move in moves:
+            # The same ``Tabla 4`` guard the ``ventas`` block applies. A
+            # document the SRI never published for this period cannot sit inside
+            # a total that is filed as this period's sales.
+            self._l10n_ec_tipo_comprobante_ventas(move, period_start, report)
+        total = self._l10n_ec_ventas_estab_amount(moves)
+        if errors:
+            return {}, errors
+        # ``ivaComp`` is deliberately absent, exactly as ``compensaciones`` is on
+        # the ``ventas`` block. ``Tabla 21`` *is* loaded and in scope -- the
+        # omission is a decision about a missing **source**, not a missing table:
+        # nothing in Odoo records an IVA compensation under the solidarity law or
+        # on electronic money, so there is nothing to read it from. The ESQUEMA
+        # note says "si no existe valor colocar 0.00", but a ``0.00`` here would
+        # assert that no compensation happened, which is a claim about a fact
+        # this collector cannot see -- and ``ats.xsd:1465`` makes the element
+        # ``minOccurs="0"``, so omitting it is also what the schema expects.
+        # ``test_20`` pins the omission against the loaded catalog, so if a
+        # compensation ever becomes a record the test fails and the decision is
+        # taken again on purpose.
+        return {"codEstab": code, "ventasEstab": total}, errors
+
+    @api.model
+    def _l10n_ec_ventas_estab_amount(self, moves):
+        """The **net** sales total of one establishment over ``moves``.
+
+        Signed, and that is the whole point of this block. ``ESQUEMA`` row 103
+        requires the sum of the ``ventasEstab`` boxes to equal *"el valor neto
+        (se restan los valores de NC) de todas las ventas registradas"* -- the
+        **net** value, credit notes subtracted, *"caso contrario error"*. The
+        ficha's own ceiling agrees and is only informative under that reading:
+        *"la sumatoria del total de ventas por los establecimientos no puede ser
+        mayor al valor registrado en el campo total ventas"* states a ``<=``
+        against ``totalVentas``, which is only ever a real constraint when a row
+        can come out below it.
+
+        ``ats.xsd`` agrees too, and that is the clincher rather than a
+        coincidence: ``ventasEstab`` is typed ``totalVentasType``
+        (``ats.xsd:1464``), the **only** amount type in the whole schema whose
+        pattern admits a leading minus, while every ``ventas`` base is
+        ``monedaType`` with ``minInclusive 0.0``. The SRI gave this one element
+        the one type that can express a reversal, and gave it to no other.
+
+        So ``totalVentas`` -- gross, per ``ESQUEMA`` row 10 -- comes out **at or
+        above** this figure, and the two are equal exactly when the period holds
+        no credit note. A negative result is real: a company that credited more
+        than it invoiced from one establishment has a negative net figure, and
+        clamping it to ``0.00`` would state a number the company never had.
+
+        The same three buckets ``totalVentas`` sums, read through
+        :meth:`_l10n_ec_ventas_buckets`, and the **sign comes from the document
+        type** -- ``out_refund`` subtracts. That is the only place the reversal
+        lives: ``monedaType`` forbids a negative anywhere in ``detalleVentasType``,
+        so the ``ventas`` block can only carry a credit note as its own row.
+        """
+        total = 0.0
+        for move in moves:
+            sign = -1.0 if move.move_type == "out_refund" else 1.0
+            for types in self._l10n_ec_ventas_buckets().values():
+                total += sign * self._l10n_ec_taxed_amount(move, types, "base_amount")
+        return total
+
+    # ------------------------------------------------------------------
+    # The iva header -- numEstabRuc and totalVentas
+    # ------------------------------------------------------------------
+
+    @api.model
+    def collect_iva_header(self, ventas_rows, ventas_establecimiento_rows):
+        """Return the ``ivaType`` header fields both blocks feed.
+
+        ``numEstabRuc`` and ``totalVentas`` are **header** fields, not members of
+        the ``ventasEstablecimiento`` block, and each is defined in terms of a
+        block:
+
+        * ``numEstabRuc`` is the count of establishments, which is
+          ``len(ventas_establecimiento_rows)`` -- the ficha requires one row per
+          registered establishment, so the count *is* the row count.
+        * ``totalVentas`` is the sum of ``baseNoGraIva`` + ``baseImponible`` +
+          ``baseImpGrav`` over the ``ventas`` rows (``ESQUEMA`` row 10), so it
+          is read out of ``ventas_rows`` rather than re-derived from the
+          documents.
+
+        **Both blocks are therefore required arguments**, and that is the point
+        of the signature: the relationship between the header and the blocks is
+        the whole content of these two fields, so a caller cannot obtain one
+        without the other and cannot wire them to different periods by accident.
+        ``totalVentas`` is emphatically *not* re-aggregated here -- the ficha
+        calls it *"casillero no editable"*, and a second pass over the documents
+        is precisely how a header and its own block would drift apart.
+
+        Returns ``{}`` when the header cannot be completed. Use
+        :meth:`collect_iva_header_with_errors` to learn why.
+        """
+        header, _errors = self.collect_iva_header_with_errors(
+            ventas_rows, ventas_establecimiento_rows
+        )
+        return header
+
+    @api.model
+    def collect_iva_header_with_errors(self, ventas_rows, ventas_establecimiento_rows):
+        """Return ``(header, errors)``, the errors being header-level.
+
+        A header field that cannot be sourced blocks **the header**, not the
+        blocks: the rows are still correct and still reportable, and whoever
+        fixes the month should see them. The errors carry ``move`` and
+        ``journal`` as ``False`` because a header field belongs to neither.
+        """
+        errors = []
+        count = len(ventas_establecimiento_rows)
+        num_estab_ruc = self._l10n_ec_num_estab_ruc(count)
+        if not num_estab_ruc:
+            errors.append(
+                {
+                    "move": False,
+                    "journal": False,
+                    "field": "numEstabRuc",
+                    "message": self.env._(
+                        "numEstabRuc cannot be reported: no establishment could "
+                        "be filed for this period, and the ficha requires it to "
+                        "be greater than 000 -- the count of establishments "
+                        "registered in the RUC, which is never zero. Check the "
+                        "ventasEstablecimiento block: an establishment whose "
+                        "l10n_ec_entity is 000, or a sales document that cannot "
+                        "be filed, would empty it."
+                    ),
+                }
+            )
+        if errors:
+            return {}, errors
+        return {
+            "numEstabRuc": num_estab_ruc,
+            "totalVentas": self._l10n_ec_total_ventas(ventas_rows),
+        }, errors
+
+    @api.model
+    def _l10n_ec_num_estab_ruc(self, count):
+        """``numEstabRuc``: the establishment count, zero-padded to three digits.
+
+        ``numEstabRucType`` (``ats.xsd:1482``) is ``\\d{3}`` with
+        ``minExclusive 000``, so seven establishments are ``"007"`` and never
+        ``"7"``, and a count of **zero** has no valid representation at all.
+        ``False`` is returned for that case rather than ``"000"``: the ficha says
+        the field *"debe ser mayor a 000"*, the schema forbids ``000``, and the
+        only honest answer for an empty establishment set is that there is none
+        to report.
+        """
+        if not count:
+            return False
+        return str(count).zfill(3)
+
+    @api.model
+    def _l10n_ec_total_ventas(self, ventas_rows):
+        """``totalVentas``: the sum of the three base buckets over ``ventas_rows``.
+
+        ``ESQUEMA`` row 10, verbatim: *"Casillero no editable, debe ser igual a
+        la sumatoria de los valores registrados en los campos baseNoGraIva,
+        Base Imponible y baseimpGrav"*, and the ficha states the same three
+        fields in prose. Every amount involved is a ``monedaType``, so this total
+        is **gross**: a credit note contributes its magnitude exactly as its
+        invoice does, and the document type is what tells the SRI the difference.
+
+        Which is why it is **not** the same figure as the sum of
+        ``ventasEstab``, and why the two are only equal in a period with no
+        credit note. ``ESQUEMA`` row 103 defines the block figure as the net
+        value, so the gap between them is twice the credit notes' bases -- which
+        is the margin the ficha's *"no puede ser mayor"* allows, not a defect.
+
+        A missing bucket reads as zero rather than raising: the ``ventas`` rows
+        are what :meth:`_l10n_ec_ventas_amounts` produced, and it always emits
+        all three, so an absent key means a caller handed over rows this
+        collector did not build. Reading it as zero would be a substitution, so
+        it is not done silently -- see ``test_06``, which pins that the rows the
+        caller supplies are the ones that are summed.
+        """
+        return sum(
+            sum(row.get(field) or 0.0 for field in VENTAS_TOTAL_BASE_FIELDS)
+            for row in ventas_rows
         )
 
     # ------------------------------------------------------------------
