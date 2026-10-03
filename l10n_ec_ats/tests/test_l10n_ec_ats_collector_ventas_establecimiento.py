@@ -114,6 +114,43 @@ class TestL10nEcAtsCollectorVentasEstablecimiento(TestL10nECEdiCommon):
     # Fixtures
     # ------------------------------------------------------------------
 
+    #: Where the auto-generated document numbers start, so the first document a
+    #: test creates is ``{entity}-{emission}-000000001`` and the count of
+    #: documents a test made is readable off its last one.
+    _document_sequence_start = 1
+
+    def _next_document_number(self, journal):
+        """The next document number for a document issued through ``journal``.
+
+        Shaped the way this addon reads it -- ``{entity}-{emission}-{seq}``
+        with a **nine** digit sequential -- because
+        ``account.edi.document._l10n_ec_split_document_number`` pads each half
+        and the collector splits on exactly two dashes. The establishment and
+        the emission point come from the journal rather than from a constant,
+        because this block has **two** derivations of the establishment set --
+        the journals' ``l10n_ec_entity`` and the entity segment of the recorded
+        document number -- and both have to agree.
+
+        Why not the journal sequence: ``l10n_latam_invoice_document`` declares
+        ``_unique_name`` over ``(name, journal_id)`` for every posted move, so
+        two documents sharing a name in one journal collide. A sequence would
+        dodge that, but it cannot be written down, and ``test_12``/``test_18``
+        assert the entity and emission point read back off the document.
+
+        A per-instance counter, so it restarts for every test: each one rolls
+        back, so a counter outliving a test would only make the numbers depend
+        on the order the suite happened to run in.
+        """
+        journal.ensure_one()
+        self._document_sequence = (
+            getattr(self, "_document_sequence", self._document_sequence_start - 1) + 1
+        )
+        return "{}-{}-{:09d}".format(
+            journal.l10n_ec_entity or "001",
+            journal.l10n_ec_emission or "001",
+            self._document_sequence,
+        )
+
     @classmethod
     def _priced_product(cls, price):
         """A saleable product priced at ``price``.
@@ -167,6 +204,7 @@ class TestL10nEcAtsCollectorVentasEstablecimiento(TestL10nECEdiCommon):
         partner=None,
         taxes=None,
         products=None,
+        document_number=None,
         document_type="l10n_ec.ec_dt_01",
         sri_payment="l10n_ec.P1",
         posting_date=PERIOD[0],
@@ -179,21 +217,42 @@ class TestL10nEcAtsCollectorVentasEstablecimiento(TestL10nECEdiCommon):
         ``invoice_date`` are set **before** posting because both are readonly on
         a posted move, and the suite needs a 2016 window to prove the catalogs
         are resolved for the reported period rather than for today.
+
+        ``document_number`` defaults to ``None`` -- which means the next number
+        from :meth:`_next_document_number`, carrying **this** journal's
+        establishment and emission point, rather than whatever the journal
+        sequence happened to be at. That matters here more than anywhere else:
+        ``codEstab`` is read off the document as well as off the journal, so a
+        number naming a different establishment would move the sale into another
+        row. A test that needs an exact sequential passes it and that value
+        wins.
+
+        The number is written on the **saved record**, not on the form, and that
+        is forced rather than chosen: ``account_move_view.xml`` hides
+        ``l10n_latam_document_number`` once the journal has a ``highest_name``,
+        so a second ``Form`` in the same test refuses the assignment outright.
         """
         latam_type = self._document_type(document_type)
+        issuing_journal = journal or self.journal_sale
         form = self._l10n_ec_create_form_move(
             move_type="out_invoice",
             internal_type="invoice",
             partner=partner or self.partner_ruc,
             taxes=taxes,
             products=products,
-            journal=journal or self.journal_sale,
+            journal=issuing_journal,
             latam_document_type=latam_type,
             use_payment_term=False,
         )
         invoice = form.save()
         if document_type and not invoice.l10n_latam_document_type_id:
             invoice.l10n_latam_document_type_id = latam_type.id
+        invoice.write(
+            {
+                "l10n_latam_document_number": document_number
+                or self._next_document_number(issuing_journal)
+            }
+        )
         invoice.write(
             {
                 "date": posting_date,
@@ -263,6 +322,36 @@ class TestL10nEcAtsCollectorVentasEstablecimiento(TestL10nECEdiCommon):
         rows, errors = self._collect(period=period)
         self.assertFalse(errors, errors)
         return {row["codEstab"]: row for row in rows}
+
+    # ------------------------------------------------------------------
+    # The fixture numbers its own documents
+    # ------------------------------------------------------------------
+
+    def test_the_sale_fixture_gives_every_document_a_number_of_its_own(self):
+        """A name of its own, a way to ask for one, and the establishment the
+        journal declared.
+
+        This block keys on ``codEstab``, which has two derivations: the issuing
+        journal's ``l10n_ec_entity``, and the entity segment of the document's
+        own ``l10n_latam_document_number``. So the number a fixture hands out is
+        not cosmetic here -- it decides the row a document lands in, and
+        ``l10n_latam_invoice_document`` declares ``_unique_name`` over
+        ``(name, journal_id)`` for every posted move, so a duplicated ``name``
+        collides on a constraint the flush raises.
+        """
+        explicit = self._create_sale(document_number="001-001-000000900")
+        self.assertEqual(explicit.l10n_latam_document_number, "001-001-000000900")
+        first = self._create_sale()
+        second = self._create_sale()
+        self.assertEqual(first.l10n_latam_document_number, "001-001-000000001")
+        self.assertEqual(second.l10n_latam_document_number, "001-001-000000002")
+        # A second establishment gets its own prefix, read off its own journal.
+        other = self._second_sale_journal("002")
+        theirs = self._create_sale(journal=other)
+        self.assertEqual(theirs.l10n_latam_document_number, "002-001-000000003")
+        self.assertEqual(
+            self.Collector._l10n_ec_triple_from_document_number(theirs)[0], "002"
+        )
 
     # ------------------------------------------------------------------
     # Granularity: one row per codEstab

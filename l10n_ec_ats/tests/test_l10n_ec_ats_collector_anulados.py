@@ -119,6 +119,44 @@ class TestL10nEcAtsCollectorAnulados(TestL10nECEdiCommon):
     # Fixtures
     # ------------------------------------------------------------------
 
+    #: Where the auto-generated document numbers start, so the first document a
+    #: test creates is ``{entity}-{emission}-000000001`` and the count of
+    #: documents a test made is readable off its last one.
+    _document_sequence_start = 1
+
+    def _next_document_number(self, journal):
+        """The next document number for a document issued through ``journal``.
+
+        Shaped the way this addon reads it -- ``{entity}-{emission}-{seq}``
+        with a **nine** digit sequential -- because
+        ``account.edi.document._l10n_ec_split_document_number`` pads each half
+        and the collector splits on exactly two dashes. The establishment and
+        the emission point come from the journal rather than from a constant,
+        because ``establecimiento`` and ``puntoEmision`` are key components of
+        a row: a document whose number named another establishment would land in
+        another row (``test_05``).
+
+        Why not the journal sequence: this block is **arithmetic** on the
+        sequential -- a run is one range, a gap splits it, two records claiming
+        one number are refused -- and none of that is writable against a number
+        the fixture did not choose. Uniqueness comes with it:
+        ``l10n_latam_invoice_document`` declares ``_unique_name`` over
+        ``(name, journal_id)`` for every posted move.
+
+        A per-instance counter, so it restarts for every test: each one rolls
+        back, so a counter outliving a test would only make the numbers depend
+        on the order the suite happened to run in.
+        """
+        journal.ensure_one()
+        self._document_sequence = (
+            getattr(self, "_document_sequence", self._document_sequence_start - 1) + 1
+        )
+        return "{}-{}-{:09d}".format(
+            journal.l10n_ec_entity or "001",
+            journal.l10n_ec_emission or "001",
+            self._document_sequence,
+        )
+
     @classmethod
     def _priced_product(cls, price):
         """A saleable product priced at ``price``.
@@ -173,32 +211,52 @@ class TestL10nEcAtsCollectorAnulados(TestL10nECEdiCommon):
         partner=None,
         taxes=None,
         products=None,
+        document_number=None,
         document_type="l10n_ec.ec_dt_01",
         posting_date=PERIOD[0],
         journal=None,
     ):
         """Post one customer invoice, driven through the shared EDI fixture.
 
-        ``_l10n_ec_create_form_move`` is the path every sibling EDI test drives a
-        sale through, so it is reused rather than re-derived. ``date`` and
+        ``_l10n_ec_create_form_move`` is the path every sibling EDI test drives
+        a sale through, so it is reused rather than re-derived. ``date`` and
         ``invoice_date`` are set **before** posting because both are readonly on
         a posted move, and the suite needs a 2016 window to prove the catalogues
         are resolved for the reported period rather than for today.
+
+        ``document_number`` defaults to ``None`` -- which means the next number
+        from :meth:`_next_document_number`, carrying **this** journal's
+        establishment and emission point, rather than whatever the journal
+        sequence happened to be at. A test that needs an exact sequential
+        passes it and that value wins; :meth:`test_07` then writes ``name`` by
+        hand on purpose, which is the one place a repeated number is the point.
+
+        The number is written on the **saved record**, not on the form, and that
+        is forced rather than chosen: ``account_move_view.xml`` hides
+        ``l10n_latam_document_number`` once the journal has a ``highest_name``,
+        so a second ``Form`` in the same test refuses the assignment outright.
         """
         latam_type = self._document_type(document_type)
+        issuing_journal = journal or self.journal_sale
         form = self._l10n_ec_create_form_move(
             move_type="out_invoice",
             internal_type="invoice",
             partner=partner or self.partner_ruc,
             taxes=taxes,
             products=products,
-            journal=journal or self.journal_sale,
+            journal=issuing_journal,
             latam_document_type=latam_type,
             use_payment_term=False,
         )
         invoice = form.save()
         if document_type and not invoice.l10n_latam_document_type_id:
             invoice.l10n_latam_document_type_id = latam_type.id
+        invoice.write(
+            {
+                "l10n_latam_document_number": document_number
+                or self._next_document_number(issuing_journal)
+            }
+        )
         invoice.write({"date": posting_date, "invoice_date": posting_date})
         invoice.action_post()
         return invoice
@@ -292,6 +350,32 @@ class TestL10nEcAtsCollectorAnulados(TestL10nECEdiCommon):
     def _sequential_of(self, invoice):
         """The sequential this collector reads off ``invoice``."""
         return self.Collector._l10n_ec_triple_from_document_number(invoice)[2]
+
+    # ------------------------------------------------------------------
+    # The fixture numbers its own documents
+    # ------------------------------------------------------------------
+
+    def test_the_sale_fixture_gives_every_document_a_number_of_its_own(self):
+        """Consecutive, and therefore usable for the contiguity assertions.
+
+        Every test in this block is arithmetic on the ``secuencial``: a run is
+        one range, a gap splits it, and two records claiming one number are
+        refused. None of that is writable against a number the fixture did not
+        choose, which is why the counter is deterministic rather than a
+        timestamp. Uniqueness comes with it:
+        ``l10n_latam_invoice_document`` declares ``_unique_name`` over
+        ``(name, journal_id)`` for every posted move.
+        """
+        invoices = [self._create_sale() for _index in range(3)]
+        self.assertEqual(
+            [self._sequential_of(invoice) for invoice in invoices],
+            ["000000001", "000000002", "000000003"],
+        )
+        # An explicit number wins, which is what the access-key fallback test
+        # and the duplicate-sequential guard test need.
+        explicit = self._create_sale(document_number="001-001-000000900")
+        self.assertEqual(self._sequential_of(explicit), "000000900")
+        self.assertEqual(len({invoice.name for invoice in invoices}), 3)
 
     # ------------------------------------------------------------------
     # Contiguity: the core of the block

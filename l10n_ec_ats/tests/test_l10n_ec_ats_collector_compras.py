@@ -79,6 +79,44 @@ class TestL10nEcAtsCollectorCompras(TestL10nECEdiCommon):
     # Fixtures
     # ------------------------------------------------------------------
 
+    #: Where the auto-generated document numbers start, so the first document a
+    #: test creates is ``{entity}-{emission}-000000001`` and the count of
+    #: documents a test made is readable off its last one.
+    _document_sequence_start = 1
+
+    def _next_document_number(self, journal):
+        """The next document number for a document issued through ``journal``.
+
+        Shaped the way this addon reads it -- ``{entity}-{emission}-{seq}``
+        with a **nine** digit sequential -- because
+        ``account.edi.document._l10n_ec_split_document_number`` pads each half
+        and the collector splits on exactly two dashes. The establishment and
+        the emission point come from the journal rather than from a constant,
+        because a document is filed under the establishment its journal
+        declared.
+
+        Why not the journal sequence: ``l10n_latam_invoice_document`` declares
+        ``_unique_name_latam`` over ``(name, commercial_partner_id,
+        l10n_latam_document_type_id, company_id)`` for every posted purchase
+        document, so two bills to one supplier sharing a name collide -- and
+        the shared EDI fixture hands every caller the same constant number. A
+        sequence would dodge that, but it cannot be written down, and these
+        tests are arithmetic on ``secuencial``.
+
+        A per-instance counter, so it restarts for every test: each one rolls
+        back, so a counter outliving a test would only make the numbers depend
+        on the order the suite happened to run in.
+        """
+        journal.ensure_one()
+        self._document_sequence = (
+            getattr(self, "_document_sequence", self._document_sequence_start - 1) + 1
+        )
+        return "{}-{}-{:09d}".format(
+            journal.l10n_ec_entity or "001",
+            journal.l10n_ec_emission or "001",
+            self._document_sequence,
+        )
+
     def _catalog_codes(self, table_code, when):
         """``Tabla`` codes in force on ``when``, read from the catalog.
 
@@ -97,7 +135,7 @@ class TestL10nEcAtsCollectorCompras(TestL10nECEdiCommon):
         *,
         partner=None,
         taxes=None,
-        document_number="001-001-000000123",
+        document_number=None,
         tax_support="01",
         authorization="123456789012",
         posting_date=PERIOD[0],
@@ -123,6 +161,11 @@ class TestL10nEcAtsCollectorCompras(TestL10nECEdiCommon):
         * ``l10n_ec_tax_support`` is cleared **after** posting, because ``_post``
           refuses a purchase document with none; a bill whose support went
           missing is built by clearing it once the document is posted.
+
+        ``document_number`` defaults to ``None``, which means the next number
+        from :meth:`_next_document_number` rather than the one constant the
+        shared fixture falls back to. A test that needs an exact sequential
+        passes it and that value wins.
         """
         invoice = self._l10n_ec_create_in_invoice(
             partner or self.partner_ruc,
@@ -130,7 +173,8 @@ class TestL10nEcAtsCollectorCompras(TestL10nECEdiCommon):
             journal=self.journal_purchase,
             latam_document_type=self.env.ref("l10n_ec.ec_dt_01"),
             auto_post=False,
-            l10n_latam_document_number=document_number,
+            l10n_latam_document_number=document_number
+            or self._next_document_number(self.journal_purchase),
         )
         invoice.write(
             {"date": posting_date, "invoice_date": emission_date or posting_date}
@@ -245,6 +289,85 @@ class TestL10nEcAtsCollectorCompras(TestL10nECEdiCommon):
         withholding._post()
         bill.l10n_ec_withhold_ids = [(4, withholding.id)]
         return withholding
+
+    def _posted_name_groups(self, journal=None):
+        """Every ``name`` a posted move carries, with how many carry it.
+
+        ``l10n_latam_invoice_document`` declares **two** partial unique indexes
+        over a posted name: ``_unique_name`` on ``(name, journal_id)``, and
+        ``_unique_name_latam`` on ``(name, commercial_partner_id,
+        l10n_latam_document_type_id, company_id)`` for a purchase document
+        carrying a document type -- so the second is keyed on the **supplier**,
+        not the journal, and two bills to one partner collide across journals
+        too. Both keys are grouped here, and the count comes back with each
+        group so an empty result cannot be confused with a query that matched
+        nothing.
+
+        ``journal`` narrows the read to one journal, which is how a test proves
+        the query saw **its own** documents: the database ships posted entries
+        from the chart template and from every other company, so an unfiltered
+        row count proves nothing about the fixture.
+        """
+        self.env.flush_all()
+        self.env.cr.execute(
+            """
+            SELECT name, journal_id, commercial_partner_id,
+                   l10n_latam_document_type_id, company_id, COUNT(*) AS moves
+            FROM account_move
+            WHERE state = 'posted' AND name IS NOT NULL AND name != '/'
+              AND (%(journal_id)s::int IS NULL OR journal_id = %(journal_id)s)
+            GROUP BY name, journal_id, commercial_partner_id,
+                     l10n_latam_document_type_id, company_id
+            """,
+            {"journal_id": journal.id if journal is not None else None},
+        )
+        return self.env.cr.dictfetchall()
+
+    # ------------------------------------------------------------------
+    # The fixture numbers its own documents
+    # ------------------------------------------------------------------
+
+    def test_the_bill_fixture_gives_every_document_a_number_of_its_own(self):
+        """The invariant the shared EDI fixture cannot give us.
+
+        ``_l10n_ec_create_in_invoice`` falls back to one hardcoded
+        ``001-001-000000001`` when a caller names no number, and
+        ``l10n_latam_invoice_document`` declares
+        ``_unique_name_latam`` over ``(name, commercial_partner_id,
+        l10n_latam_document_type_id, company_id)`` for every posted purchase
+        document. So a second bill posted through this helper collides --
+        observed, not theorised: the flush raises
+        ``duplicate key value violates unique constraint
+        "account_move_unique_name_latam"``, which ``odoo.sql_db`` logs at ERROR
+        and which ``OCA_ENABLE_CHECKLOG_ODOO`` turns into a **job failure**.
+        The collector reads ``secuencial`` off ``name``, so the collision would
+        also file the wrong document number.
+
+        Three consecutive numbers, then the database's own answer.
+        """
+        bills = [self._create_bill() for _index in range(3)]
+        self.assertEqual(
+            [bill.l10n_latam_document_number for bill in bills],
+            ["001-001-000000001", "001-001-000000002", "001-001-000000003"],
+        )
+        self.assertEqual([bill.state for bill in bills], ["posted"] * 3)
+        # An explicit number still wins over the counter: the contiguity and
+        # historical-period tests name the exact sequential they need.
+        explicit = self._create_bill(document_number="001-001-000000900")
+        self.assertEqual(explicit.l10n_latam_document_number, "001-001-000000900")
+        # And the database agrees: four posted documents in this journal, four
+        # names, none shared. The count is asserted too, so an empty result
+        # cannot pass for "no duplicates" when it really meant "the query
+        # matched nothing".
+        mine = self._posted_name_groups(self.journal_purchase)
+        self.assertEqual(len(mine), 4, mine)
+        self.assertEqual([group for group in mine if group["moves"] > 1], [])
+        # And the same query over the whole database -- every journal, every
+        # company, the seeded chart-template entries included -- finds no group
+        # of two.
+        self.assertEqual(
+            [group for group in self._posted_name_groups() if group["moves"] > 1], []
+        )
 
     # ------------------------------------------------------------------
     # Row granularity and the primary key

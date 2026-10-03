@@ -118,6 +118,44 @@ class TestL10nEcAtsGenerate(TestL10nECEdiCommon):
     # Fixtures
     # ------------------------------------------------------------------
 
+    #: Where the auto-generated document numbers start, so the first document a
+    #: test creates is ``{entity}-{emission}-000000001`` and the count of
+    #: documents a test made is readable off its last one.
+    _document_sequence_start = 1
+
+    def _next_document_number(self, journal):
+        """The next document number for a document issued through ``journal``.
+
+        Shaped the way this addon reads it -- ``{entity}-{emission}-{seq}``
+        with a **nine** digit sequential -- because
+        ``account.edi.document._l10n_ec_split_document_number`` pads each half
+        and the collector splits on exactly two dashes. The establishment and
+        the emission point come from the journal rather than from a constant,
+        because a document is filed under the establishment its journal
+        declared.
+
+        Why not the journal sequence: ``l10n_latam_invoice_document`` declares
+        ``_unique_name_latam`` over ``(name, commercial_partner_id,
+        l10n_latam_document_type_id, company_id)`` for every posted purchase
+        document, so two bills to one supplier sharing a name collide -- and
+        the shared EDI fixture hands every caller the same constant number. A
+        sequence would dodge that, but it cannot be written down, and
+        ``test_10`` asserts on an exact ``secuencial``.
+
+        A per-instance counter, so it restarts for every test: each one rolls
+        back, so a counter outliving a test would only make the numbers depend
+        on the order the suite happened to run in.
+        """
+        journal.ensure_one()
+        self._document_sequence = (
+            getattr(self, "_document_sequence", self._document_sequence_start - 1) + 1
+        )
+        return "{}-{}-{:09d}".format(
+            journal.l10n_ec_entity or "001",
+            journal.l10n_ec_emission or "001",
+            self._document_sequence,
+        )
+
     def _wizard(self, period=CURRENT, company=None):
         """Create the wizard for ``period``, a ``(year, month)`` pair."""
         year, month = period
@@ -136,7 +174,7 @@ class TestL10nEcAtsGenerate(TestL10nECEdiCommon):
     def _create_bill(
         self,
         *,
-        document_number="001-001-000000123",
+        document_number=None,
         tax_support="01",
         authorization="123456789012",
         posting_date=None,
@@ -149,6 +187,12 @@ class TestL10nEcAtsGenerate(TestL10nECEdiCommon):
         so a value written beforehand is recomputed away. It is also the
         production shape -- nothing parses a vendor's XML yet, so on a vendor
         bill the number is typed in rather than derived.
+
+        ``document_number`` defaults to ``None``, which means the next number
+        from :meth:`_next_document_number` rather than the one constant the
+        shared EDI fixture falls back to. A test that needs an exact sequential
+        -- ``test_10``'s window boundary, the two-period comparison -- passes it
+        and that value wins.
         """
         invoice = self._l10n_ec_create_in_invoice(
             self.partner_ruc,
@@ -156,7 +200,8 @@ class TestL10nEcAtsGenerate(TestL10nECEdiCommon):
             journal=self.journal_purchase,
             latam_document_type=self.env.ref("l10n_ec.ec_dt_01"),
             auto_post=False,
-            l10n_latam_document_number=document_number,
+            l10n_latam_document_number=document_number
+            or self._next_document_number(self.journal_purchase),
         )
         invoice.write(
             {
@@ -170,11 +215,19 @@ class TestL10nEcAtsGenerate(TestL10nECEdiCommon):
             invoice.l10n_ec_authorization_number = authorization
         return invoice
 
-    def _create_sale(self, *, sri_payment="l10n_ec.P1", posting_date=None):
+    def _create_sale(
+        self, *, document_number=None, sri_payment="l10n_ec.P1", posting_date=None
+    ):
         """Post one customer invoice for the period.
 
         The SRI EDI format validates a sale we issue at posting time, which is
         why ``setUpClass`` configures the company through ``_setup_edi_company_ec``.
+
+        ``document_number`` defaults to ``None``, which means the next number
+        from :meth:`_next_document_number` rather than whatever the journal
+        sequence happened to be at. It is written on the **saved record** rather
+        than the form, because ``account_move_view.xml`` hides
+        ``l10n_latam_document_number`` once the journal has a ``highest_name``.
         """
         form = self._l10n_ec_create_form_move(
             move_type="out_invoice",
@@ -186,6 +239,12 @@ class TestL10nEcAtsGenerate(TestL10nECEdiCommon):
             use_payment_term=False,
         )
         invoice = form.save()
+        invoice.write(
+            {
+                "l10n_latam_document_number": document_number
+                or self._next_document_number(self.journal_sale)
+            }
+        )
         posting_date = posting_date or date(*CURRENT, 5)
         invoice.write(
             {
@@ -313,6 +372,35 @@ class TestL10nEcAtsGenerate(TestL10nECEdiCommon):
         names, members = self._archive(attachment)
         self.assertEqual(len(names), 1, names)
         return members[names[0]].decode("utf-8")
+
+    # ------------------------------------------------------------------
+    # The fixtures number their own documents
+    # ------------------------------------------------------------------
+
+    def test_every_document_the_fixtures_create_gets_a_number_of_its_own(self):
+        """One counter for the whole test, and no number twice.
+
+        ``_l10n_ec_create_in_invoice`` falls back to one hardcoded
+        ``001-001-000000001``, and ``l10n_latam_invoice_document`` declares
+        ``_unique_name_latam`` over ``(name, commercial_partner_id,
+        l10n_latam_document_type_id, company_id)`` for every posted purchase
+        document -- observed, not theorised: the second bill raises
+        ``duplicate key value violates unique constraint
+        "account_move_unique_name_latam"``, which ``odoo.sql_db`` logs at ERROR
+        and which ``OCA_ENABLE_CHECKLOG_ODOO`` turns into a job failure. The
+        wizard reads ``secuencial`` off ``name``, so the collision would put the
+        wrong document number in the file this suite exists to keep honest.
+        """
+        bill = self._create_bill()
+        sale = self._create_sale()
+        second = self._create_bill()
+        self.assertEqual(bill.l10n_latam_document_number, "001-001-000000001")
+        self.assertEqual(sale.l10n_latam_document_number, "001-001-000000002")
+        self.assertEqual(second.l10n_latam_document_number, "001-001-000000003")
+        self.assertEqual(bill.journal_id, second.journal_id)
+        # And an explicit number still wins, for the two-period and window tests.
+        pinned = self._create_bill(document_number="001-001-000000900")
+        self.assertEqual(pinned.l10n_latam_document_number, "001-001-000000900")
 
     # ------------------------------------------------------------------
     # Acceptance criterion 2: the file itself

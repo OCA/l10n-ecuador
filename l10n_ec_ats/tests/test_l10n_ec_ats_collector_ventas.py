@@ -84,6 +84,42 @@ class TestL10nEcAtsCollectorVentas(TestL10nECEdiCommon):
     # Fixtures
     # ------------------------------------------------------------------
 
+    #: Where the auto-generated document numbers start, so the first document a
+    #: test creates is ``{entity}-{emission}-000000001`` and the count of
+    #: documents a test made is readable off its last one.
+    _document_sequence_start = 1
+
+    def _next_document_number(self, journal):
+        """The next document number for a document issued through ``journal``.
+
+        Shaped the way this addon reads it -- ``{entity}-{emission}-{seq}``
+        with a **nine** digit sequential -- because
+        ``account.edi.document._l10n_ec_split_document_number`` pads each half
+        and the collector splits on exactly two dashes. The establishment and
+        the emission point come from the journal rather than from a constant,
+        because a document is filed under the establishment its journal
+        declared.
+
+        Why not the journal sequence: ``l10n_latam_invoice_document`` declares
+        ``_unique_name`` over ``(name, journal_id)`` for every posted move, so
+        two documents sharing a name in one journal collide. A sequence would
+        dodge that, but it cannot be written down, and these tests are
+        arithmetic on ``secuencial``.
+
+        A per-instance counter, so it restarts for every test: each one rolls
+        back, so a counter outliving a test would only make the numbers depend
+        on the order the suite happened to run in.
+        """
+        journal.ensure_one()
+        self._document_sequence = (
+            getattr(self, "_document_sequence", self._document_sequence_start - 1) + 1
+        )
+        return "{}-{}-{:09d}".format(
+            journal.l10n_ec_entity or "001",
+            journal.l10n_ec_emission or "001",
+            self._document_sequence,
+        )
+
     def _catalog_codes(self, table_code, when):
         """``Tabla`` codes in force on ``when``, read from the catalog.
 
@@ -128,6 +164,7 @@ class TestL10nEcAtsCollectorVentas(TestL10nECEdiCommon):
         *,
         partner=None,
         taxes=None,
+        document_number=None,
         document_type="l10n_ec.ec_dt_01",
         sri_payment="l10n_ec.P1",
         posting_date=PERIOD[0],
@@ -145,14 +182,27 @@ class TestL10nEcAtsCollectorVentas(TestL10nECEdiCommon):
         are readonly on a posted move, and the tests need a 2016 window to prove
         the catalogues are resolved for the reported period rather than for
         today.
+
+        ``document_number`` defaults to ``None``, which means the next number
+        from :meth:`_next_document_number` rather than whatever the journal
+        sequence happened to be at. A test that needs an exact sequential
+        passes it and that value wins.
+
+        The number is written on the **saved record**, not on the form, and that
+        is forced rather than chosen: ``account_move_view.xml`` hides
+        ``l10n_latam_document_number`` once the journal has a ``highest_name``,
+        so a second ``Form`` in the same test refuses the assignment outright.
+        Writing the record is also the honest order -- ``name`` is readonly on
+        the form once the journal uses documents.
         """
         latam_type = self._document_type(document_type)
+        issuing_journal = journal or self.journal_sale
         form = self._l10n_ec_create_form_move(
             move_type="out_invoice",
             internal_type="invoice",
             partner=partner or self.partner_ruc,
             taxes=taxes,
-            journal=journal or self.journal_sale,
+            journal=issuing_journal,
             latam_document_type=latam_type,
             use_payment_term=False,
         )
@@ -169,6 +219,12 @@ class TestL10nEcAtsCollectorVentas(TestL10nECEdiCommon):
             # entirely, because ``_l10n_ec_create_form_move`` only sets it on such
             # a journal. A physical document still has a ``tipoComprobante``.
             invoice.l10n_latam_document_type_id = latam_type.id
+        invoice.write(
+            {
+                "l10n_latam_document_number": document_number
+                or self._next_document_number(issuing_journal)
+            }
+        )
         invoice.write(
             {
                 "date": posting_date,
@@ -321,6 +377,28 @@ class TestL10nEcAtsCollectorVentas(TestL10nECEdiCommon):
         self.assertFalse(errors, errors)
         self.assertEqual(len(rows), 1, rows)
         return rows[0]
+
+    # ------------------------------------------------------------------
+    # The fixture numbers its own documents
+    # ------------------------------------------------------------------
+
+    def test_the_sale_fixture_gives_every_document_a_number_of_its_own(self):
+        """A name of its own, and a way to ask for one.
+
+        ``l10n_latam_invoice_document`` declares ``_unique_name`` over
+        ``(name, journal_id)`` for every posted move, so two documents sharing
+        a name in one journal collide -- and this collector derives
+        ``secuencial`` from ``name``, so a duplicate would file the wrong
+        document number. The ``document_number`` argument is what lets a test
+        that needs an exact sequential ask for one instead of reading back
+        whatever came.
+        """
+        explicit = self._create_sale(document_number="001-001-000000900")
+        self.assertEqual(explicit.l10n_latam_document_number, "001-001-000000900")
+        first = self._create_sale()
+        second = self._create_sale()
+        self.assertEqual(first.l10n_latam_document_number, "001-001-000000001")
+        self.assertEqual(second.l10n_latam_document_number, "001-001-000000002")
 
     # ------------------------------------------------------------------
     # Aggregation: the whole point of this block
