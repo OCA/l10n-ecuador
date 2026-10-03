@@ -1,0 +1,24 @@
+# Temporary references to pull requests that are not merged yet.
+#
+# l10n_ec_ats depends on l10n_ec_account_edi (#102) and l10n_ec_withhold
+# (#104), both still open. l10n_ec_base (#101) is merged and therefore needs
+# no reference here. CI resolves `depends` against the target branch, where
+# neither module exists yet, so the install and the tests fail without these
+# references -- pip reports "No matching distribution found for
+# odoo-addon-l10n_ec_account_edi==19.0.*", because the wheelhouse only carries
+# 15.0 and 17.0 for these modules.
+#
+# Remove this file by dropping the "[DON'T MERGE] test-requirements.txt" commit
+# once both #102 and #104 are merged. The OCA CI linter deliberately fails while
+# a temporary reference is present; that red is expected and must not be
+# suppressed.
+#
+# Format for >= v17: each addon is its own Python project with its own
+# pyproject.toml, so the subdirectory fragment is the module name itself. All
+# four modules in this repository were verified to carry their own
+# pyproject.toml, and the repo has no setup/ directory, so the older <=v16
+# forms do not apply.
+#
+# See https://github.com/OCA/maintainer-tools/wiki/Use-temporary-reference(s)-to-another-pull-request(s)
+odoo-addon-l10n_ec_account_edi @ git+https://github.com/OCA/l10n-ecuador.git@refs/pull/102/head#subdirectory=l10n_ec_account_edi
+odoo-addon-l10n_ec_withhold @ git+https://github.com/OCA/l10n-ecuador.git@refs/pull/104/head#subdirectory=l10n_ec_withhold
