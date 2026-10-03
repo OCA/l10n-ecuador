@@ -35,9 +35,12 @@ class L10nEcAtsIncomeWithholdingConcept(models.Model):
     _description = "SRI ATS Tabla 3.10 income withholding concept code"
     _order = "code"
 
+    _sql_constraints = [
+        ("code_uniq", "UNIQUE(code)", "The Tabla 3.10 code must be unique."),
+    ]
+
     code = fields.Char(
         required=True,
-        unique=True,
         index=True,
         help="The SRI ``Número de campo``, verbatim, alphanumeric suffixes "
         "included: ``303A``, ``323B1`` and ``323E2`` are real codes, not "

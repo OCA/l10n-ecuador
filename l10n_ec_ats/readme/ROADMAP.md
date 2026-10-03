@@ -36,6 +36,25 @@ below.
 
 ## Open questions
 
+### Two `account.tax` rows carry an ATS code that resolves to nothing
+
+`account.tax.l10n_ec_code_ats` is the source of `codRetAir` — the feature
+document's §5.3 corrected the field's own help text, which claims it conforms
+to `Tabla 5`; it does not, it holds `Tabla 3.10` concept codes. Two rows in the
+upstream `ec` chart template carry a code **`Tabla 3.10` does not define**:
+
+| Tax | `l10n_ec_code_ats` | `l10n_ec_code_base` | Problem |
+| --- | --- | --- | --- |
+| `income_tax_withholding_302` (*22% 302 WTH*) | `352` | `302` | The record is named after, and declares, concept `302`; the ATS code reads `352`, which no `Tabla 3.10` row states. |
+| `tax_ice_plastic_bag`, `tax_ice_reduced_plastic_bag` | `3680` | — | An ICE code on an ICE tax. `3680` is not an income-withholding concept, and neither tax is a withholding at all. |
+
+The collector reports both and refuses the row rather than resolving a rate for
+them, because there is nothing to resolve: inventing one would put a fabricated
+percentage in a filed return. `352` looks like a transposition of `302`, and the
+record's own name and `l10n_ec_code_base` both say so — but the correction
+belongs to the `l10n_ec` chart template, upstream in Odoo core, not to this
+addon, so it is recorded here rather than worked around.
+
 ### The `1900-01-01` sentinel
 
 `l10n.ec.temporal` makes `date_start` required. Five in-scope tables carry no

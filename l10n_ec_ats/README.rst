@@ -91,6 +91,53 @@ table, asserted against the loaded entries by the test suite so a
 truncated import cannot pass silently. ``source_reference`` names the
 sheet and row range every value came from.
 
+Tax support (``codSustento``) is captured, then validated here
+--------------------------------------------------------------
+
+``account.move.l10n_ec_tax_support`` and
+``res.partner.l10n_ec_tax_support`` are ``Char(size=2)``, **not**
+dropdowns. That is deliberate, and it is what makes this module's
+validation possible.
+
+They used to be ``Selection`` fields fed by a Python label list, which
+silently capped the codes a document could carry at whatever that list
+happened to contain. It stopped at ``13``, so ``Tabla 5`` codes ``14``
+(*Valores facturados por socios a operadoras de transporte*, in force
+from 2018-01-01) and ``15`` (*Pagos efectuados por consumos propios y de
+terceros de servicios digitales*, from 2020-06-01) could not be recorded
+on a purchase at all. **The authority for the code is the catalog; the
+field is only a capture.** ``l10n_ec_ats`` validates the captured code
+against ``Tabla 5`` resolved for the period being reported, and its
+rejection message lists the codes the catalog does accept — so the
+guidance a user gets comes from the records and cannot go stale.
+
+Two consequences worth knowing:
+
+- **A code outside ``Tabla 5`` for the reported period is refused**, not
+  filed. ``Tabla 5`` is effective-dated, so a code valid in 2018 is not
+  valid in 2016.
+- **The line-level ``account.move.line.l10n_ec_tax_support`` and the
+  withholding wizard line keep their ``Selection``.** They are
+  dropdowns, and the wizard builds its label map from the wizard *line*
+  field, so retyping ``account.move`` does not disturb it.
+
+``TAX_SUPPORT`` in ``l10n_ec_withhold`` is a label list, and it can drift
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``l10n_ec_withhold/models/data.py`` holds ``TAX_SUPPORT``, a Python
+literal of ``(code, label)`` pairs used by those dropdowns. It is
+**not** the authority, and **nothing keeps it in step with the
+catalog**. ``14`` and ``15`` were missing from it until the retyping
+above — that drift is exactly what this paragraph exists to stop
+recurring unnoticed.
+
+Its descriptions are transcribed from ``Catalogo_ATS.xls`` /
+``TABLAS REFERENCIALES``, the same source this module loads as records
+in ``data/ats_catalog_05.xml``, so the wording can be checked without
+guessing. If the SRI publishes a further ``Tabla 5`` code, add it there
+**and** let the catalog do the validating; the literal only needs to
+carry the label.
+
 Income withholding concepts (``Tabla 3.10``)
 --------------------------------------------
 
@@ -414,6 +461,45 @@ open questions below.
 
 Open questions
 --------------
+
+Two ``account.tax`` rows carry an ATS code that resolves to nothing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``account.tax.l10n_ec_code_ats`` is the source of ``codRetAir`` — the
+feature document's §5.3 corrected the field's own help text, which
+claims it conforms to ``Tabla 5``; it does not, it holds ``Tabla 3.10``
+concept codes. Two rows in the upstream ``ec`` chart template carry a
+code **``Tabla 3.10`` does not define**:
+
++---------------------------------+----------------------+-----------------------+--------------------+
+| Tax                             | ``l10n_ec_code_ats`` | ``l10n_ec_code_base`` | Problem            |
++=================================+======================+=======================+====================+
+| ``income_tax_withholding_302``  | ``352``              | ``302``               | The record is      |
+| (*22% 302 WTH*)                 |                      |                       | named after, and   |
+|                                 |                      |                       | declares, concept  |
+|                                 |                      |                       | ``302``; the ATS   |
+|                                 |                      |                       | code reads         |
+|                                 |                      |                       | ``352``, which no  |
+|                                 |                      |                       | ``Tabla 3.10`` row |
+|                                 |                      |                       | states.            |
++---------------------------------+----------------------+-----------------------+--------------------+
+| ``tax_ice_plastic_bag``,        | ``3680``             | —                     | An ICE code on an  |
+| ``tax_ice_reduced_plastic_bag`` |                      |                       | ICE tax. ``3680``  |
+|                                 |                      |                       | is not an          |
+|                                 |                      |                       | income-withholding |
+|                                 |                      |                       | concept, and       |
+|                                 |                      |                       | neither tax is a   |
+|                                 |                      |                       | withholding at     |
+|                                 |                      |                       | all.               |
++---------------------------------+----------------------+-----------------------+--------------------+
+
+The collector reports both and refuses the row rather than resolving a
+rate for them, because there is nothing to resolve: inventing one would
+put a fabricated percentage in a filed return. ``352`` looks like a
+transposition of ``302``, and the record's own name and
+``l10n_ec_code_base`` both say so — but the correction belongs to the
+``l10n_ec`` chart template, upstream in Odoo core, not to this addon, so
+it is recorded here rather than worked around.
 
 The ``1900-01-01`` sentinel
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

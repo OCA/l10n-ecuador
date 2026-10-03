@@ -25,6 +25,46 @@ against the loaded entries by the test suite so a truncated import cannot
 pass silently. `source_reference` names the sheet and row range every value
 came from.
 
+## Tax support (`codSustento`) is captured, then validated here
+
+`account.move.l10n_ec_tax_support` and `res.partner.l10n_ec_tax_support` are
+`Char(size=2)`, **not** dropdowns. That is deliberate, and it is what makes this
+module's validation possible.
+
+They used to be `Selection` fields fed by a Python label list, which silently
+capped the codes a document could carry at whatever that list happened to
+contain. It stopped at `13`, so `Tabla 5` codes `14` (*Valores facturados por
+socios a operadoras de transporte*, in force from 2018-01-01) and `15` (*Pagos
+efectuados por consumos propios y de terceros de servicios digitales*, from
+2020-06-01) could not be recorded on a purchase at all. **The authority for the
+code is the catalog; the field is only a capture.** `l10n_ec_ats` validates the
+captured code against `Tabla 5` resolved for the period being reported, and its
+rejection message lists the codes the catalog does accept — so the guidance a
+user gets comes from the records and cannot go stale.
+
+Two consequences worth knowing:
+
+- **A code outside `Tabla 5` for the reported period is refused**, not filed.
+  `Tabla 5` is effective-dated, so a code valid in 2018 is not valid in 2016.
+- **The line-level `account.move.line.l10n_ec_tax_support` and the withholding
+  wizard line keep their `Selection`.** They are dropdowns, and the wizard builds
+  its label map from the wizard *line* field, so retyping `account.move` does not
+  disturb it.
+
+### `TAX_SUPPORT` in `l10n_ec_withhold` is a label list, and it can drift
+
+`l10n_ec_withhold/models/data.py` holds `TAX_SUPPORT`, a Python literal of
+`(code, label)` pairs used by those dropdowns. It is **not** the authority, and
+**nothing keeps it in step with the catalog**. `14` and `15` were missing from it
+until the retyping above — that drift is exactly what this paragraph exists to
+stop recurring unnoticed.
+
+Its descriptions are transcribed from `Catalogo_ATS.xls` / `TABLAS
+REFERENCIALES`, the same source this module loads as records in
+`data/ats_catalog_05.xml`, so the wording can be checked without guessing. If the
+SRI publishes a further `Tabla 5` code, add it there **and** let the catalog do
+the validating; the literal only needs to carry the label.
+
 ## Income withholding concepts (`Tabla 3.10`)
 
 `Tabla 3.10` is split in two models, because the SRI **reuses a concept code
