@@ -191,6 +191,105 @@ Separately, `Tabla 4` gives codes `373` and `374` the same description,
 `Código Secuenciales Transacción` values. The catalog keeps both rows
 distinct and keeps the duplicate description.
 
+## Documents voided through the SRI's online portal are not implementable today
+
+Ficha técnica §2.5 opens the cancelled block with an exclusion the ATS cannot
+honour:
+
+> En esta sección se registrarán los comprobantes anulados en el período
+> informado, para los reportes mensuales, todos los comprobantes del mes; para
+> los reportes semestrales se reportarán todos los comprobantes del semestre.
+> **Excluye a los comprobantes dados de baja a través del portal transaccional
+> SRI en línea.**
+
+**Odoo has no field recording that.** A document withdrawn through the portal is
+an ordinary `state = 'cancel'` move in Odoo — nothing about the portal is
+recorded, nothing about the in-line cancellation is stored, and there is no
+portal-side receipt to import. So the collector's selection
+(`move_type in ('out_invoice', 'out_refund')`, `state == 'cancel'`,
+`posted_before`, `move.date` in the window) **cannot** tell the two apart, and a
+portal-voided document will be filed in the `anulados` block, which the SRI will
+reject.
+
+This is stated rather than worked around. Two ways to "fix" it were considered
+and both are worse than the gap:
+
+- **Guessing from the authorization.** A document that reached the SRI portal was
+  authorized, but so is every document that reached the web service, so the field
+  discriminates nothing. Reading `l10n_ec_authorization_date` or the access key
+  would exclude portal voids only by excluding ordinary cancellations too.
+- **Adding a field.** A `Boolean` on `account.move` recording how the document
+  was cancelled would be a usable design — and it is a field nothing in the tree
+  would ever set, so it would default to the wrong answer for every existing
+  document. It is a change to `l10n_ec_base` or to `l10n_ec_account_edi`, both of
+  which are merged addons, so it cannot travel in this addon's PR either.
+
+**What a maintainer has to decide.** Whether the ATS should offer the exclusion
+at all. If the answer is yes, the honest route is a field written by the user (or
+by an SRI-response hook that does not exist yet) plus a migration that cannot be
+back-filled — which means a maintainer's view on what a company with a portal
+void in its history is supposed to file. Until then the block is **over-inclusive
+on this one exclusion** and says so.
+
+## Should cancelled **withholdings** be in the `anulados` block?
+
+Odoo Enterprise's `_get_void_moves` collects two populations and adds both to the
+same list:
+
+1. cancelled sales documents, and
+2. cancelled **withholdings** — `move_type = 'entry'`, on a withholding journal,
+   with `l10n_ec_authorization_number != False`.
+
+**ATS v1 is sales documents only.** That is a scope decision, not an oversight,
+and it rests on three pieces of evidence:
+
+- **The ficha does not mention withholdings.** §2.5 says *"los comprobantes
+  anulados"* and describes the field as *"el número de autorización que le otorga
+  el SRI **para la impresión de sus comprobantes**"* — a series of sales
+  documents. Nothing in the block describes a retention certificate.
+- **`Tabla 4` code `18` is scoped away from them.** Its description is
+  *"Documentos autorizados utilizados en ventas **excepto N/C N/D**"*, and a
+  withholding certificate is neither a sales document nor a credit or debit
+  note. The nearest real code is `7`, *Comprobante de Retención*, whose
+  *Código Secuencial Transacción* column reads `ninguno` — it cannot be reached
+  from this block either.
+- **A retention has no `establecimiento`/`puntoEmision` series to cancel.** The
+  whole block is built on the printed-series triple. `l10n_ec_withhold` gives a
+  withholding a number, but nothing establishes it as a point in an issuable
+  series the way an invoice journal does.
+
+**Enterprise's treatment is the reference for a future version**, quoted rather
+than copied: `move_type = 'entry'` on a withholding journal with a non-empty
+`l10n_ec_authorization_number`, added to the same void list. If v2 includes them,
+that is the reference implementation — and it will need the same decision this
+block had to make about `tipoComprobante`, plus a source for the triple.
+
+## The `journal` key is not on every error of every block
+
+ATS-08's docstring on `collect_ventas_establecimiento_with_errors` states:
+
+> Every key is present on every error from every block, so a consumer can read
+> either without a `KeyError`.
+
+That is true of the errors **ATS-08 wrote** — `_l10n_ec_add_establishment`,
+`_l10n_ec_ventas_estab_row` and `collect_iva_header_with_errors` all carry
+`journal`. It is **not** true of the two blocks before it, and the claim as
+written overstates the state of the model. The dicts built by
+`_l10n_ec_compras_row`'s and `_l10n_ec_ventas_row`'s `report` closures, and by
+every helper that appends directly — `_l10n_ec_reported_date`,
+`_l10n_ec_iva_withholdings`, `_l10n_ec_formas_de_pago` — carry
+`{"move", "field", "message"}` and **no** `journal`.
+
+The `anulados` block honours the contract in full, so from here on new errors do;
+retrofitting the two older blocks is left out because it is a change to shipped,
+reviewed code with no behaviour gain beyond a `KeyError` that a consumer has not
+hit yet.
+
+**A maintainer has to pick one**: either retrofit the two older blocks and keep
+the contract as documented, or amend the ATS-08 docstring to say the contract
+applies from ATS-08 onwards. Both are fine; having the code and the docstring
+disagree is not.
+
 ## Deferred work
 
 Effective-dated taxes on `account.tax` itself — `l10n_ec_date_start` /

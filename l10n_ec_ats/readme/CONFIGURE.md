@@ -405,3 +405,143 @@ compensation ever becomes a recordable field the test fails and the decision is
 taken again on purpose rather than a real value being silently dropped.
 
 
+## `anulados` — one row per **contiguous run** of cancelled sequentials
+
+`l10n.ec.ats.collector.collect_anulados` and `collect_anulados_with_errors`
+read the cancelled-sales block. `detalleAnuladosType` (`ats.xsd:1312-1321`) is
+the only ATS block that files a **range** rather than a document, and it is the
+only one with **no date at all**: no `fechaEmision`, no `fechaRegistro`. All six
+of its elements are obligatory.
+
+### A range is an assertion about every document inside it
+
+This is the ficha técnica §2.5, not a preference:
+
+> Se debe considerar que se considerarán anulados los comprobantes que consten
+> dentro del rango informado. Para anular un solo comprobante, se debe indicar
+> este número en ambos campos.
+
+So cancelling 5, 6, 7 and 9 is **two** rows — `5`–`7` and `9`–`9` — and never one
+`5`–`9` row, because a range spanning a document that was *not* cancelled tells
+the SRI it was. A run breaks wherever the next sequential is not this one plus
+one, which is exactly where a still-valid document sits.
+
+The value the file carries is the record's own padded sequential, and the
+comparison is arithmetic on the numbers: `9` follows `8` whether they are stored
+as `8` or `000000008`.
+
+### The row key, and why a range rarely merges anything
+
+`CLAVE PRIMARIA (2)` rows 196–201 mark **all six** elements of this block as
+*componente de clave general*, `autorizacion` included, and the ficha requires
+3 to 49 digits of it on every row. The two range fields are derived, so it is
+the other four that have to be read as part of the key:
+
+> **`(establecimiento, puntoEmision, tipoComprobante, autorizacion)`**
+
+`autorizacion` is singular per row and every cancelled document carries its own
+from the SRI, so documents sharing a row must share it. Keying on it is what
+guarantees the number in the file belongs to **every** document in the range — a
+fact checkable against the records rather than assumed.
+
+The consequence is worth stating plainly, because the schema does not show it: a
+run can only ever merge documents that **share an authorization**, and under
+electronic invoicing each document gets its own. So in real data every row is a
+single document with its number repeated in both fields, exactly as the ficha
+prescribes for that case. Ranges are the physical-invoicing case, where one
+authorization covered a printed batch — the ficha says so of the field: *"el
+número de autorización que le otorga el SRI **para la impresión** de sus
+comprobantes"*.
+
+Two records claiming one document number is a data defect, not a second range:
+the six-element key would appear twice. The first is kept and the second is
+reported.
+
+### `tipoComprobante` is the cancelled document's own code
+
+`ESQUEMA` row 207 asks for *"uno de los códigos de la tabla 4, **sin filtro
+alguno**"* — no `codSustento`, no *Código Secuencial Transacción*, unlike the two
+sales-side rows which both name theirs. Any `Tabla 4` row passes, so the row
+carries `move.l10n_latam_document_type_id.code`, resolved against `Tabla 4` for
+the reported period.
+
+The plausible alternative is rejected on three counts:
+
+| Candidate | Why not |
+| --- | --- |
+| `Tabla 4` code `18` — *"Documentos autorizados utilizados en ventas **excepto N/C N/D**"* | It **excludes credit and debit notes by name**, and `out_refund` is in scope. Filing a cancelled credit note under `18` would assert the cancelled document was not a credit note, and `Tabla 4` names no other class covering it. |
+| `Tabla 2` code `18` — *"COMPROBANTES ANULADOS"* | Unreachable. It is the *transaction type* a `Tabla 2` identification is filed under, and this block has no `tpIdProv`, so the filter that selects it has no field to filter on. |
+| A fixed code held in Python | A hardcoded catalogue value, which the project forbids. A description keyword picking one row out of `Tabla 4` is an invention the SRI never states. |
+
+Odoo Enterprise's `ATS_SALE_DOCUMENT_TYPE = {'01': '18', '02': '18'}` maps every
+sale type to `18`, which is the reading this rejects. It is also a module-level
+literal in a block Enterprise **never emits** — `grep -c
+'secuencialInicio\|detalleAnulados'` over its `tax_report.py` returns `0` — so
+it records a belief, not an accepted filing. It also discards the difference
+between `01` and `02`.
+
+There is no `codSustento` cross-check the way `compras` has one: a cancelled
+document files no tax support, and code `18`'s own *Sustento tributario* column
+reads `ninguno`.
+
+### `secuencialFin` repeats `secuencialInicio` for a run of one
+
+`ESQUEMA` row 211 states the opposite — *"debe ser mayor a
+secuencialInicio"* — and the ficha técnica §2.5 settles it with the sentence
+written about this exact case: *"Para anular un solo comprobante, se debe
+indicar este número en ambos campos."* A strict reading of the table would make
+cancelling one document impossible to file.
+
+Note also that the ESQUEMA sheet spells this block's sixth element
+`autorización`, **with** an accent, while the schema spells it `autorizacion`.
+The schema wins: it is what the file has to satisfy.
+
+### What is selected, and what cannot be
+
+`move_type in ('out_invoice', 'out_refund')`, `state == 'cancel'`,
+`company_id`, and `move.date` inside the reported window.
+
+**`posted_before` excludes the cancelled draft.** `button_cancel` accepts a draft
+and sets `state = 'cancel'`, so `state` alone admits a document that was never
+issued, never authorized and never numbered — and Odoo shows it as `/`.
+`posted_before` is set in `_post` and by nothing else, so asking for it asks for
+the fact behind the `/` rather than inferring it from a display name.
+
+**`move.date` is the only selection date the block has.** With no
+`fechaRegistro` to file and no `fechaEmision` to reconcile, the accounting date
+is the only period evidence a row has. The window is still checked against the
+reported month with the same `_l10n_ec_reported_date` rule the other blocks use,
+so a caller passing a quarter gets the month's rows **plus** a named refusal for
+every document outside it. Dropping them silently would produce a file that is
+quietly missing documents. The error carries `field: "fechaRegistro"` for the
+same reason `ventasEstablecimiento`'s does: the block inherits the period
+requirement from document selection rather than from a field it does not emit.
+
+**What is not selected.** The ficha §2.5 excludes *"los comprobantes dados de
+baja a través del portal transaccional SRI en línea"*, and **no Odoo field
+records that**. See `ROADMAP.md`.
+
+### `000` is refused, and here the schema says nothing
+
+`establecimientoType` (`ats.xsd:26-30`) and `ptoEmisionType` (`ats.xsd:36-40`)
+are exactly the two carriers that constrain nothing but `[0-9]{3}`, with no
+`minExclusive 000`. Unlike `ventasEstablecimiento`, a file carrying one breaks
+**no** schema constraint — it only breaks the ficha, and nothing upstream stops
+it being written (`l10n_ec_base` checks only length and `isnumeric()`).
+
+A refused code takes the **whole document** out, never part of it: a document
+whose establishment is `000` has no establishment to file under, and folding it
+into a neighbouring one would file its sequential under the wrong establishment.
+
+A sequential that is not a number is refused too, and this block is the only
+reason to check: a range is opened and closed by comparing one sequential with
+the next, so a non-numeric one has to stop being usable here rather than at the
+schema.
+
+### Every error carries all four keys
+
+`move`, `journal`, `field` and `message`, on every error of this block. Nothing
+in it is a journal-level problem, so `journal` is always `False` and `move`
+always names the document — but the key is present, so a consumer can read either
+without a `KeyError`. The two blocks before this one build their dicts without
+`journal`; see `ROADMAP.md`.

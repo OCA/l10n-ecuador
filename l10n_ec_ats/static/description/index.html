@@ -428,35 +428,48 @@ catalog is complete.</p>
 <li><a class="reference internal" href="#ivacomp-is-omitted" id="toc-entry-25"><tt class="docutils literal">ivaComp</tt> is omitted</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#anulados-one-row-per-contiguous-run-of-cancelled-sequentials" id="toc-entry-26"><tt class="docutils literal">anulados</tt> — one row per <strong>contiguous run</strong> of cancelled sequentials</a><ul>
+<li><a class="reference internal" href="#a-range-is-an-assertion-about-every-document-inside-it" id="toc-entry-27">A range is an assertion about every document inside it</a></li>
+<li><a class="reference internal" href="#the-row-key-and-why-a-range-rarely-merges-anything" id="toc-entry-28">The row key, and why a range rarely merges anything</a></li>
+<li><a class="reference internal" href="#tipocomprobante-is-the-cancelled-document-s-own-code" id="toc-entry-29"><tt class="docutils literal">tipoComprobante</tt> is the cancelled document’s own code</a></li>
+<li><a class="reference internal" href="#secuencialfin-repeats-secuencialinicio-for-a-run-of-one" id="toc-entry-30"><tt class="docutils literal">secuencialFin</tt> repeats <tt class="docutils literal">secuencialInicio</tt> for a run of one</a></li>
+<li><a class="reference internal" href="#what-is-selected-and-what-cannot-be" id="toc-entry-31">What is selected, and what cannot be</a></li>
+<li><a class="reference internal" href="#is-refused-and-here-the-schema-says-nothing" id="toc-entry-32"><tt class="docutils literal">000</tt> is refused, and here the schema says nothing</a></li>
+<li><a class="reference internal" href="#every-error-carries-all-four-keys" id="toc-entry-33">Every error carries all four keys</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#usage" id="toc-entry-26">Usage</a><ul>
-<li><a class="reference internal" href="#validating-an-ats-document" id="toc-entry-27">Validating an ATS document</a></li>
-<li><a class="reference internal" href="#the-schema-is-grammar-not-the-norm" id="toc-entry-28">The schema is grammar, not the norm</a></li>
-<li><a class="reference internal" href="#catalog-semantics" id="toc-entry-29">Catalog semantics</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#known-issues-roadmap" id="toc-entry-30">Known issues / Roadmap</a></li>
-<li><a class="reference internal" href="#roadmap" id="toc-entry-31">Roadmap</a><ul>
-<li><a class="reference internal" href="#referential-tables-that-are-deliberately-not-loaded" id="toc-entry-32">Referential tables that are deliberately not loaded</a></li>
-<li><a class="reference internal" href="#open-questions" id="toc-entry-33">Open questions</a><ul>
-<li><a class="reference internal" href="#totalventas-what-does-solo-facturacion-fisica-f-qualify" id="toc-entry-34"><tt class="docutils literal">totalVentas</tt>: what does <em>“Solo Facturación Física F”</em> qualify?</a></li>
-<li><a class="reference internal" href="#the-000-establishment-hole-in-l10n-ec-base" id="toc-entry-35">The <tt class="docutils literal">000</tt> establishment hole in <tt class="docutils literal">l10n_ec_base</tt></a></li>
-<li><a class="reference internal" href="#two-account-tax-rows-carry-an-ats-code-that-resolves-to-nothing" id="toc-entry-36">Two <tt class="docutils literal">account.tax</tt> rows carry an ATS code that resolves to nothing</a></li>
-<li><a class="reference internal" href="#the-1900-01-01-sentinel" id="toc-entry-37">The <tt class="docutils literal"><span class="pre">1900-01-01</span></tt> sentinel</a></li>
-<li><a class="reference internal" href="#tabla-4-validity-dates-live-in-prose-footnotes" id="toc-entry-38"><tt class="docutils literal">Tabla 4</tt> validity dates live in prose footnotes</a></li>
-<li><a class="reference internal" href="#tabla-2-rows-that-name-no-transaction-type" id="toc-entry-39"><tt class="docutils literal">Tabla 2</tt> rows that name no transaction type</a></li>
-<li><a class="reference internal" href="#the-sri-contradicts-itself-on-tabla-4-tabla-5" id="toc-entry-40">The SRI contradicts itself on <tt class="docutils literal">Tabla 4</tt> ↔ <tt class="docutils literal">Tabla 5</tt></a></li>
-<li><a class="reference internal" href="#tabla-12-has-no-code-column" id="toc-entry-41"><tt class="docutils literal">Tabla 12</tt> has no code column</a></li>
-<li><a class="reference internal" href="#two-source-spellings-left-verbatim" id="toc-entry-42">Two source spellings left verbatim</a></li>
+<li><a class="reference internal" href="#usage" id="toc-entry-34">Usage</a><ul>
+<li><a class="reference internal" href="#validating-an-ats-document" id="toc-entry-35">Validating an ATS document</a></li>
+<li><a class="reference internal" href="#the-schema-is-grammar-not-the-norm" id="toc-entry-36">The schema is grammar, not the norm</a></li>
+<li><a class="reference internal" href="#catalog-semantics" id="toc-entry-37">Catalog semantics</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#deferred-work" id="toc-entry-43">Deferred work</a></li>
+<li><a class="reference internal" href="#known-issues-roadmap" id="toc-entry-38">Known issues / Roadmap</a></li>
+<li><a class="reference internal" href="#roadmap" id="toc-entry-39">Roadmap</a><ul>
+<li><a class="reference internal" href="#referential-tables-that-are-deliberately-not-loaded" id="toc-entry-40">Referential tables that are deliberately not loaded</a></li>
+<li><a class="reference internal" href="#open-questions" id="toc-entry-41">Open questions</a><ul>
+<li><a class="reference internal" href="#totalventas-what-does-solo-facturacion-fisica-f-qualify" id="toc-entry-42"><tt class="docutils literal">totalVentas</tt>: what does <em>“Solo Facturación Física F”</em> qualify?</a></li>
+<li><a class="reference internal" href="#the-000-establishment-hole-in-l10n-ec-base" id="toc-entry-43">The <tt class="docutils literal">000</tt> establishment hole in <tt class="docutils literal">l10n_ec_base</tt></a></li>
+<li><a class="reference internal" href="#two-account-tax-rows-carry-an-ats-code-that-resolves-to-nothing" id="toc-entry-44">Two <tt class="docutils literal">account.tax</tt> rows carry an ATS code that resolves to nothing</a></li>
+<li><a class="reference internal" href="#the-1900-01-01-sentinel" id="toc-entry-45">The <tt class="docutils literal"><span class="pre">1900-01-01</span></tt> sentinel</a></li>
+<li><a class="reference internal" href="#tabla-4-validity-dates-live-in-prose-footnotes" id="toc-entry-46"><tt class="docutils literal">Tabla 4</tt> validity dates live in prose footnotes</a></li>
+<li><a class="reference internal" href="#tabla-2-rows-that-name-no-transaction-type" id="toc-entry-47"><tt class="docutils literal">Tabla 2</tt> rows that name no transaction type</a></li>
+<li><a class="reference internal" href="#the-sri-contradicts-itself-on-tabla-4-tabla-5" id="toc-entry-48">The SRI contradicts itself on <tt class="docutils literal">Tabla 4</tt> ↔ <tt class="docutils literal">Tabla 5</tt></a></li>
+<li><a class="reference internal" href="#tabla-12-has-no-code-column" id="toc-entry-49"><tt class="docutils literal">Tabla 12</tt> has no code column</a></li>
+<li><a class="reference internal" href="#two-source-spellings-left-verbatim" id="toc-entry-50">Two source spellings left verbatim</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#bug-tracker" id="toc-entry-44">Bug Tracker</a></li>
-<li><a class="reference internal" href="#credits" id="toc-entry-45">Credits</a><ul>
-<li><a class="reference internal" href="#maintainers" id="toc-entry-46">Maintainers</a></li>
+<li><a class="reference internal" href="#documents-voided-through-the-sri-s-online-portal-are-not-implementable-today" id="toc-entry-51">Documents voided through the SRI’s online portal are not implementable today</a></li>
+<li><a class="reference internal" href="#should-cancelled-withholdings-be-in-the-anulados-block" id="toc-entry-52">Should cancelled <strong>withholdings</strong> be in the <tt class="docutils literal">anulados</tt> block?</a></li>
+<li><a class="reference internal" href="#the-journal-key-is-not-on-every-error-of-every-block" id="toc-entry-53">The <tt class="docutils literal">journal</tt> key is not on every error of every block</a></li>
+<li><a class="reference internal" href="#deferred-work" id="toc-entry-54">Deferred work</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bug-tracker" id="toc-entry-55">Bug Tracker</a></li>
+<li><a class="reference internal" href="#credits" id="toc-entry-56">Credits</a><ul>
+<li><a class="reference internal" href="#maintainers" id="toc-entry-57">Maintainers</a></li>
 </ul>
 </li>
 </ul>
@@ -905,15 +918,195 @@ decision is taken again on purpose rather than a real value being
 silently dropped.</p>
 </div>
 </div>
+<div class="section" id="anulados-one-row-per-contiguous-run-of-cancelled-sequentials">
+<h3><a class="toc-backref" href="#toc-entry-26"><tt class="docutils literal">anulados</tt> — one row per <strong>contiguous run</strong> of cancelled sequentials</a></h3>
+<p><tt class="docutils literal">l10n.ec.ats.collector.collect_anulados</tt> and
+<tt class="docutils literal">collect_anulados_with_errors</tt> read the cancelled-sales block.
+<tt class="docutils literal">detalleAnuladosType</tt> (<tt class="docutils literal"><span class="pre">ats.xsd:1312-1321</span></tt>) is the only ATS block
+that files a <strong>range</strong> rather than a document, and it is the only one
+with <strong>no date at all</strong>: no <tt class="docutils literal">fechaEmision</tt>, no <tt class="docutils literal">fechaRegistro</tt>. All
+six of its elements are obligatory.</p>
+<div class="section" id="a-range-is-an-assertion-about-every-document-inside-it">
+<h4><a class="toc-backref" href="#toc-entry-27">A range is an assertion about every document inside it</a></h4>
+<p>This is the ficha técnica §2.5, not a preference:</p>
+<blockquote>
+Se debe considerar que se considerarán anulados los comprobantes que
+consten dentro del rango informado. Para anular un solo comprobante,
+se debe indicar este número en ambos campos.</blockquote>
+<p>So cancelling 5, 6, 7 and 9 is <strong>two</strong> rows — <tt class="docutils literal">5</tt>–<tt class="docutils literal">7</tt> and
+<tt class="docutils literal">9</tt>–<tt class="docutils literal">9</tt> — and never one <tt class="docutils literal">5</tt>–<tt class="docutils literal">9</tt> row, because a range spanning a
+document that was <em>not</em> cancelled tells the SRI it was. A run breaks
+wherever the next sequential is not this one plus one, which is exactly
+where a still-valid document sits.</p>
+<p>The value the file carries is the record’s own padded sequential, and
+the comparison is arithmetic on the numbers: <tt class="docutils literal">9</tt> follows <tt class="docutils literal">8</tt> whether
+they are stored as <tt class="docutils literal">8</tt> or <tt class="docutils literal">000000008</tt>.</p>
+</div>
+<div class="section" id="the-row-key-and-why-a-range-rarely-merges-anything">
+<h4><a class="toc-backref" href="#toc-entry-28">The row key, and why a range rarely merges anything</a></h4>
+<p><tt class="docutils literal">CLAVE PRIMARIA (2)</tt> rows 196–201 mark <strong>all six</strong> elements of this
+block as <em>componente de clave general</em>, <tt class="docutils literal">autorizacion</tt> included, and
+the ficha requires 3 to 49 digits of it on every row. The two range
+fields are derived, so it is the other four that have to be read as part
+of the key:</p>
+<blockquote>
+<strong>``(establecimiento, puntoEmision, tipoComprobante, autorizacion)``</strong></blockquote>
+<p><tt class="docutils literal">autorizacion</tt> is singular per row and every cancelled document
+carries its own from the SRI, so documents sharing a row must share it.
+Keying on it is what guarantees the number in the file belongs to
+<strong>every</strong> document in the range — a fact checkable against the records
+rather than assumed.</p>
+<p>The consequence is worth stating plainly, because the schema does not
+show it: a run can only ever merge documents that <strong>share an
+authorization</strong>, and under electronic invoicing each document gets its
+own. So in real data every row is a single document with its number
+repeated in both fields, exactly as the ficha prescribes for that case.
+Ranges are the physical-invoicing case, where one authorization covered
+a printed batch — the ficha says so of the field: <em>“el número de
+autorización que le otorga el SRI</em> <strong>para la impresión</strong> <em>de sus
+comprobantes”</em>.</p>
+<p>Two records claiming one document number is a data defect, not a second
+range: the six-element key would appear twice. The first is kept and the
+second is reported.</p>
+</div>
+<div class="section" id="tipocomprobante-is-the-cancelled-document-s-own-code">
+<h4><a class="toc-backref" href="#toc-entry-29"><tt class="docutils literal">tipoComprobante</tt> is the cancelled document’s own code</a></h4>
+<p><tt class="docutils literal">ESQUEMA</tt> row 207 asks for <em>“uno de los códigos de la tabla 4,</em> <strong>sin
+filtro alguno</strong><em>“</em> — no <tt class="docutils literal">codSustento</tt>, no <em>Código Secuencial
+Transacción</em>, unlike the two sales-side rows which both name theirs. Any
+<tt class="docutils literal">Tabla 4</tt> row passes, so the row carries
+<tt class="docutils literal">move.l10n_latam_document_type_id.code</tt>, resolved against <tt class="docutils literal">Tabla 4</tt>
+for the reported period.</p>
+<p>The plausible alternative is rejected on three counts:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Candidate</th>
+<th class="head">Why not</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><tt class="docutils literal">Tabla 4</tt> code <tt class="docutils literal">18</tt> —
+<em>“Documentos autorizados
+utilizados en ventas</em> <strong>excepto
+N/C N/D</strong><em>“</em></td>
+<td>It <strong>excludes credit and debit
+notes by name</strong>, and
+<tt class="docutils literal">out_refund</tt> is in scope.
+Filing a cancelled credit note
+under <tt class="docutils literal">18</tt> would assert the
+cancelled document was not a
+credit note, and <tt class="docutils literal">Tabla 4</tt>
+names no other class covering
+it.</td>
+</tr>
+<tr><td><tt class="docutils literal">Tabla 2</tt> code <tt class="docutils literal">18</tt> —
+<em>“COMPROBANTES ANULADOS”</em></td>
+<td>Unreachable. It is the
+<em>transaction type</em> a <tt class="docutils literal">Tabla 2</tt>
+identification is filed under,
+and this block has no
+<tt class="docutils literal">tpIdProv</tt>, so the filter that
+selects it has no field to
+filter on.</td>
+</tr>
+<tr><td>A fixed code held in Python</td>
+<td>A hardcoded catalogue value,
+which the project forbids. A
+description keyword picking one
+row out of <tt class="docutils literal">Tabla 4</tt> is an
+invention the SRI never states.</td>
+</tr>
+</tbody>
+</table>
+<p>Odoo Enterprise’s <tt class="docutils literal">ATS_SALE_DOCUMENT_TYPE = {'01': '18', '02': '18'}</tt>
+maps every sale type to <tt class="docutils literal">18</tt>, which is the reading this rejects. It is
+also a module-level literal in a block Enterprise <strong>never emits</strong> —
+<tt class="docutils literal">grep <span class="pre">-c</span> <span class="pre">'secuencialInicio\|detalleAnulados'</span></tt> over its
+<tt class="docutils literal">tax_report.py</tt> returns <tt class="docutils literal">0</tt> — so it records a belief, not an
+accepted filing. It also discards the difference between <tt class="docutils literal">01</tt> and
+<tt class="docutils literal">02</tt>.</p>
+<p>There is no <tt class="docutils literal">codSustento</tt> cross-check the way <tt class="docutils literal">compras</tt> has one: a
+cancelled document files no tax support, and code <tt class="docutils literal">18</tt>’s own <em>Sustento
+tributario</em> column reads <tt class="docutils literal">ninguno</tt>.</p>
+</div>
+<div class="section" id="secuencialfin-repeats-secuencialinicio-for-a-run-of-one">
+<h4><a class="toc-backref" href="#toc-entry-30"><tt class="docutils literal">secuencialFin</tt> repeats <tt class="docutils literal">secuencialInicio</tt> for a run of one</a></h4>
+<p><tt class="docutils literal">ESQUEMA</tt> row 211 states the opposite — <em>“debe ser mayor a
+secuencialInicio”</em> — and the ficha técnica §2.5 settles it with the
+sentence written about this exact case: <em>“Para anular un solo
+comprobante, se debe indicar este número en ambos campos.”</em> A strict
+reading of the table would make cancelling one document impossible to
+file.</p>
+<p>Note also that the ESQUEMA sheet spells this block’s sixth element
+<tt class="docutils literal">autorización</tt>, <strong>with</strong> an accent, while the schema spells it
+<tt class="docutils literal">autorizacion</tt>. The schema wins: it is what the file has to satisfy.</p>
+</div>
+<div class="section" id="what-is-selected-and-what-cannot-be">
+<h4><a class="toc-backref" href="#toc-entry-31">What is selected, and what cannot be</a></h4>
+<p><tt class="docutils literal">move_type in ('out_invoice', 'out_refund')</tt>, <tt class="docutils literal">state == 'cancel'</tt>,
+<tt class="docutils literal">company_id</tt>, and <tt class="docutils literal">move.date</tt> inside the reported window.</p>
+<p><strong>``posted_before`` excludes the cancelled draft.</strong> <tt class="docutils literal">button_cancel</tt>
+accepts a draft and sets <tt class="docutils literal">state = 'cancel'</tt>, so <tt class="docutils literal">state</tt> alone admits
+a document that was never issued, never authorized and never numbered —
+and Odoo shows it as <tt class="docutils literal">/</tt>. <tt class="docutils literal">posted_before</tt> is set in <tt class="docutils literal">_post</tt> and by
+nothing else, so asking for it asks for the fact behind the <tt class="docutils literal">/</tt> rather
+than inferring it from a display name.</p>
+<p><strong>``move.date`` is the only selection date the block has.</strong> With no
+<tt class="docutils literal">fechaRegistro</tt> to file and no <tt class="docutils literal">fechaEmision</tt> to reconcile, the
+accounting date is the only period evidence a row has. The window is
+still checked against the reported month with the same
+<tt class="docutils literal">_l10n_ec_reported_date</tt> rule the other blocks use, so a caller
+passing a quarter gets the month’s rows <strong>plus</strong> a named refusal for
+every document outside it. Dropping them silently would produce a file
+that is quietly missing documents. The error carries
+<tt class="docutils literal">field: &quot;fechaRegistro&quot;</tt> for the same reason
+<tt class="docutils literal">ventasEstablecimiento</tt>’s does: the block inherits the period
+requirement from document selection rather than from a field it does not
+emit.</p>
+<p><strong>What is not selected.</strong> The ficha §2.5 excludes <em>“los comprobantes
+dados de baja a través del portal transaccional SRI en línea”</em>, and <strong>no
+Odoo field records that</strong>. See <tt class="docutils literal">ROADMAP.md</tt>.</p>
+</div>
+<div class="section" id="is-refused-and-here-the-schema-says-nothing">
+<h4><a class="toc-backref" href="#toc-entry-32"><tt class="docutils literal">000</tt> is refused, and here the schema says nothing</a></h4>
+<p><tt class="docutils literal">establecimientoType</tt> (<tt class="docutils literal"><span class="pre">ats.xsd:26-30</span></tt>) and <tt class="docutils literal">ptoEmisionType</tt>
+(<tt class="docutils literal"><span class="pre">ats.xsd:36-40</span></tt>) are exactly the two carriers that constrain nothing
+but <tt class="docutils literal"><span class="pre">[0-9]{3}</span></tt>, with no <tt class="docutils literal">minExclusive 000</tt>. Unlike
+<tt class="docutils literal">ventasEstablecimiento</tt>, a file carrying one breaks <strong>no</strong> schema
+constraint — it only breaks the ficha, and nothing upstream stops it
+being written (<tt class="docutils literal">l10n_ec_base</tt> checks only length and <tt class="docutils literal">isnumeric()</tt>).</p>
+<p>A refused code takes the <strong>whole document</strong> out, never part of it: a
+document whose establishment is <tt class="docutils literal">000</tt> has no establishment to file
+under, and folding it into a neighbouring one would file its sequential
+under the wrong establishment.</p>
+<p>A sequential that is not a number is refused too, and this block is the
+only reason to check: a range is opened and closed by comparing one
+sequential with the next, so a non-numeric one has to stop being usable
+here rather than at the schema.</p>
+</div>
+<div class="section" id="every-error-carries-all-four-keys">
+<h4><a class="toc-backref" href="#toc-entry-33">Every error carries all four keys</a></h4>
+<p><tt class="docutils literal">move</tt>, <tt class="docutils literal">journal</tt>, <tt class="docutils literal">field</tt> and <tt class="docutils literal">message</tt>, on every error of this
+block. Nothing in it is a journal-level problem, so <tt class="docutils literal">journal</tt> is
+always <tt class="docutils literal">False</tt> and <tt class="docutils literal">move</tt> always names the document — but the key is
+present, so a consumer can read either without a <tt class="docutils literal">KeyError</tt>. The two
+blocks before this one build their dicts without <tt class="docutils literal">journal</tt>; see
+<tt class="docutils literal">ROADMAP.md</tt>.</p>
+</div>
+</div>
 </div>
 <div class="section" id="usage">
-<h2><a class="toc-backref" href="#toc-entry-26">Usage</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-34">Usage</a></h2>
 <p>This module currently ships the <tt class="docutils literal">l10n.ec.temporal</tt> mixin, the SRI
 referential catalogs, and the ATS schema layer. There is nothing to
 configure and no menu, no wizard and no ATS builder yet: document
 generation arrives in a later task of the same project.</p>
 <div class="section" id="validating-an-ats-document">
-<h3><a class="toc-backref" href="#toc-entry-27">Validating an ATS document</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-35">Validating an ATS document</a></h3>
 <p><tt class="docutils literal">l10n_ec_ats.schema</tt> exposes the schema layer and nothing else. No
 model, no menu, no configuration:</p>
 <pre class="code python literal-block">
@@ -931,7 +1124,7 @@ it did not just build. <tt class="docutils literal">errors</tt> is empty exactly
 true.</p>
 </div>
 <div class="section" id="the-schema-is-grammar-not-the-norm">
-<h3><a class="toc-backref" href="#toc-entry-28">The schema is grammar, not the norm</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-36">The schema is grammar, not the norm</a></h3>
 <p><tt class="docutils literal">data/xsd/ats.xsd</tt> is the schema the SRI publishes. It is shipped
 normalized, because the repository’s own quality gate
 (<tt class="docutils literal"><span class="pre">trailing-whitespace</span></tt>, <tt class="docutils literal"><span class="pre">end-of-file-fixer</span></tt>,
@@ -975,7 +1168,7 @@ required: this one for grammar, and one built from the SRI catalog’s
 <tt class="docutils literal">Validaciones</tt> column for the business rules.</p>
 </div>
 <div class="section" id="catalog-semantics">
-<h3><a class="toc-backref" href="#toc-entry-29">Catalog semantics</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-37">Catalog semantics</a></h3>
 <p>The semantics the rest of the ATS work depends on are these:</p>
 <ul class="simple">
 <li>A window is <strong>inclusive of both endpoints</strong>. A record applies on date
@@ -1001,14 +1194,14 @@ fields plus:</p>
 </div>
 </div>
 <div class="section" id="known-issues-roadmap">
-<h2><a class="toc-backref" href="#toc-entry-30">Known issues / Roadmap</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-38">Known issues / Roadmap</a></h2>
 </div>
 <div class="section" id="roadmap">
-<h2><a class="toc-backref" href="#toc-entry-31">Roadmap</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-39">Roadmap</a></h2>
 <p>Two tables live here: what is <strong>not</strong> in the catalog yet, and why, and
 the open questions a maintainer has to decide.</p>
 <div class="section" id="referential-tables-that-are-deliberately-not-loaded">
-<h3><a class="toc-backref" href="#toc-entry-32">Referential tables that are deliberately not loaded</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-40">Referential tables that are deliberately not loaded</a></h3>
 <p>Only the tables an in-scope ATS block needs are loaded. The rest exist
 in <tt class="docutils literal">Catalogo_ATS.xls</tt> and serve blocks the feature document excludes,
 so loading them would be speculative: entries nobody reads, that a
@@ -1194,9 +1387,9 @@ the same XML FE code <tt class="docutils literal">&quot;2&quot;</tt>. That is st
 open questions below.</p>
 </div>
 <div class="section" id="open-questions">
-<h3><a class="toc-backref" href="#toc-entry-33">Open questions</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-41">Open questions</a></h3>
 <div class="section" id="totalventas-what-does-solo-facturacion-fisica-f-qualify">
-<h4><a class="toc-backref" href="#toc-entry-34"><tt class="docutils literal">totalVentas</tt>: what does <em>“Solo Facturación Física F”</em> qualify?</a></h4>
+<h4><a class="toc-backref" href="#toc-entry-42"><tt class="docutils literal">totalVentas</tt>: what does <em>“Solo Facturación Física F”</em> qualify?</a></h4>
 <p><tt class="docutils literal">ESQUEMA TIPO 1 Y 2</tt> row 10 defines the header’s <tt class="docutils literal">totalVentas</tt> and
 then appends a clause that is explained nowhere in the workbook, the
 ficha técnica, or <tt class="docutils literal">ats.xsd</tt>. Verbatim:</p>
@@ -1242,7 +1435,7 @@ catch it because the suite cannot know the alternative.</p>
 the same clause. It is not a typo in one sheet.</p>
 </div>
 <div class="section" id="the-000-establishment-hole-in-l10n-ec-base">
-<h4><a class="toc-backref" href="#toc-entry-35">The <tt class="docutils literal">000</tt> establishment hole in <tt class="docutils literal">l10n_ec_base</tt></a></h4>
+<h4><a class="toc-backref" href="#toc-entry-43">The <tt class="docutils literal">000</tt> establishment hole in <tt class="docutils literal">l10n_ec_base</tt></a></h4>
 <p><tt class="docutils literal">account.journal._constrains_l10n_ec_entity_emission</tt>
 (<tt class="docutils literal"><span class="pre">l10n_ec_base/models/account_journal.py:14-36</span></tt>) checks only
 <tt class="docutils literal">len(value) &lt; 3</tt> and <tt class="docutils literal">not value.isnumeric()</tt>:</p>
@@ -1264,7 +1457,7 @@ which is already merged (PR #101), so it cannot travel in this addon’s
 PR.</p>
 </div>
 <div class="section" id="two-account-tax-rows-carry-an-ats-code-that-resolves-to-nothing">
-<h4><a class="toc-backref" href="#toc-entry-36">Two <tt class="docutils literal">account.tax</tt> rows carry an ATS code that resolves to nothing</a></h4>
+<h4><a class="toc-backref" href="#toc-entry-44">Two <tt class="docutils literal">account.tax</tt> rows carry an ATS code that resolves to nothing</a></h4>
 <p><tt class="docutils literal">account.tax.l10n_ec_code_ats</tt> is the source of <tt class="docutils literal">codRetAir</tt> — the
 feature document’s §5.3 corrected the field’s own help text, which
 claims it conforms to <tt class="docutils literal">Tabla 5</tt>; it does not, it holds <tt class="docutils literal">Tabla 3.10</tt>
@@ -1322,7 +1515,7 @@ transposition of <tt class="docutils literal">302</tt>, and the record’s own n
 it is recorded here rather than worked around.</p>
 </div>
 <div class="section" id="the-1900-01-01-sentinel">
-<h4><a class="toc-backref" href="#toc-entry-37">The <tt class="docutils literal"><span class="pre">1900-01-01</span></tt> sentinel</a></h4>
+<h4><a class="toc-backref" href="#toc-entry-45">The <tt class="docutils literal"><span class="pre">1900-01-01</span></tt> sentinel</a></h4>
 <p><tt class="docutils literal">l10n.ec.temporal</tt> makes <tt class="docutils literal">date_start</tt> required. Five in-scope tables
 carry no date in the source at all: the referred transaction types and
 the month codes have no date column, <tt class="docutils literal">Tabla 14</tt> and <tt class="docutils literal">Tabla 15</tt> have
@@ -1337,7 +1530,7 @@ data. A decision to change it belongs in the mixin’s field help, which
 is where a reader looks first.</p>
 </div>
 <div class="section" id="tabla-4-validity-dates-live-in-prose-footnotes">
-<h4><a class="toc-backref" href="#toc-entry-38"><tt class="docutils literal">Tabla 4</tt> validity dates live in prose footnotes</a></h4>
+<h4><a class="toc-backref" href="#toc-entry-46"><tt class="docutils literal">Tabla 4</tt> validity dates live in prose footnotes</a></h4>
 <p>The <tt class="docutils literal">Fecha de vigencia</tt> column is empty for every row, yet rows
 <tt class="docutils literal">B91</tt> and <tt class="docutils literal">B92</tt> state in prose that code <tt class="docutils literal">364</tt> is in force from
 <tt class="docutils literal">01/04/2017</tt> and that code <tt class="docutils literal">375</tt> was in force from <tt class="docutils literal">01/12/2020</tt> to
@@ -1349,7 +1542,7 @@ the SRI publishes the column, the whole table reads as undated. Worth a
 maintainer’s view.</p>
 </div>
 <div class="section" id="tabla-2-rows-that-name-no-transaction-type">
-<h4><a class="toc-backref" href="#toc-entry-39"><tt class="docutils literal">Tabla 2</tt> rows that name no transaction type</a></h4>
+<h4><a class="toc-backref" href="#toc-entry-47"><tt class="docutils literal">Tabla 2</tt> rows that name no transaction type</a></h4>
 <p><tt class="docutils literal">Tabla 2</tt> states, per row, which transaction type of the referred
 tables applies. Six of the seven names it uses appear there verbatim;
 two do not:</p>
@@ -1365,7 +1558,7 @@ does not carry at all.</li>
 reports them: an unresolvable lookup must raise, not invent.</p>
 </div>
 <div class="section" id="the-sri-contradicts-itself-on-tabla-4-tabla-5">
-<h4><a class="toc-backref" href="#toc-entry-40">The SRI contradicts itself on <tt class="docutils literal">Tabla 4</tt> ↔ <tt class="docutils literal">Tabla 5</tt></a></h4>
+<h4><a class="toc-backref" href="#toc-entry-48">The SRI contradicts itself on <tt class="docutils literal">Tabla 4</tt> ↔ <tt class="docutils literal">Tabla 5</tt></a></h4>
 <p><tt class="docutils literal">Tabla 4</tt> column F says document <tt class="docutils literal">375</tt> (liquidación de compra RISE)
 is supported by sustentos <tt class="docutils literal">01</tt> through <tt class="docutils literal">08</tt>. None of <tt class="docutils literal">Tabla 5</tt>’s
 rows <tt class="docutils literal">D97</tt> to <tt class="docutils literal">D104</tt> names <tt class="docutils literal">375</tt> back. Every other pair in the two
@@ -1374,7 +1567,7 @@ and the gap is asserted in the test suite, so a future release that
 closes it changes the assertion rather than passing unnoticed.</p>
 </div>
 <div class="section" id="tabla-12-has-no-code-column">
-<h4><a class="toc-backref" href="#toc-entry-41"><tt class="docutils literal">Tabla 12</tt> has no code column</a></h4>
+<h4><a class="toc-backref" href="#toc-entry-49"><tt class="docutils literal">Tabla 12</tt> has no code column</a></h4>
 <p>The sheet identifies a VAT regime by its percentage only. The entry
 <tt class="docutils literal">code</tt> is therefore that percentage rendered as two digits (<tt class="docutils literal">12</tt>,
 <tt class="docutils literal">14</tt>) and <tt class="docutils literal">percentage</tt> is the source fraction multiplied by 100,
@@ -1382,7 +1575,7 @@ because the ATS field is a whole percent. This is the only table whose
 <tt class="docutils literal">code</tt> repeats across rows.</p>
 </div>
 <div class="section" id="two-source-spellings-left-verbatim">
-<h4><a class="toc-backref" href="#toc-entry-42">Two source spellings left verbatim</a></h4>
+<h4><a class="toc-backref" href="#toc-entry-50">Two source spellings left verbatim</a></h4>
 <p><tt class="docutils literal">Tabla 12</tt>’s title reads <tt class="docutils literal">PROCENTAJE DE IVA</tt> — <tt class="docutils literal">PROCENTAJE</tt>, not
 <tt class="docutils literal">PORCENTAJE</tt>. The <tt class="docutils literal">name</tt> field reproduces it rather than correcting
 it, because a catalog value nobody can trace to a cell is a value nobody
@@ -1393,8 +1586,111 @@ different <tt class="docutils literal">Código Secuenciales Transacción</tt> va
 both rows distinct and keeps the duplicate description.</p>
 </div>
 </div>
+<div class="section" id="documents-voided-through-the-sri-s-online-portal-are-not-implementable-today">
+<h3><a class="toc-backref" href="#toc-entry-51">Documents voided through the SRI’s online portal are not implementable today</a></h3>
+<p>Ficha técnica §2.5 opens the cancelled block with an exclusion the ATS
+cannot honour:</p>
+<blockquote>
+En esta sección se registrarán los comprobantes anulados en el
+período informado, para los reportes mensuales, todos los
+comprobantes del mes; para los reportes semestrales se reportarán
+todos los comprobantes del semestre. <strong>Excluye a los comprobantes
+dados de baja a través del portal transaccional SRI en línea.</strong></blockquote>
+<p><strong>Odoo has no field recording that.</strong> A document withdrawn through the
+portal is an ordinary <tt class="docutils literal">state = 'cancel'</tt> move in Odoo — nothing about
+the portal is recorded, nothing about the in-line cancellation is
+stored, and there is no portal-side receipt to import. So the
+collector’s selection (<tt class="docutils literal">move_type in ('out_invoice', 'out_refund')</tt>,
+<tt class="docutils literal">state == 'cancel'</tt>, <tt class="docutils literal">posted_before</tt>, <tt class="docutils literal">move.date</tt> in the window)
+<strong>cannot</strong> tell the two apart, and a portal-voided document will be
+filed in the <tt class="docutils literal">anulados</tt> block, which the SRI will reject.</p>
+<p>This is stated rather than worked around. Two ways to “fix” it were
+considered and both are worse than the gap:</p>
+<ul class="simple">
+<li><strong>Guessing from the authorization.</strong> A document that reached the SRI
+portal was authorized, but so is every document that reached the web
+service, so the field discriminates nothing. Reading
+<tt class="docutils literal">l10n_ec_authorization_date</tt> or the access key would exclude portal
+voids only by excluding ordinary cancellations too.</li>
+<li><strong>Adding a field.</strong> A <tt class="docutils literal">Boolean</tt> on <tt class="docutils literal">account.move</tt> recording how
+the document was cancelled would be a usable design — and it is a
+field nothing in the tree would ever set, so it would default to the
+wrong answer for every existing document. It is a change to
+<tt class="docutils literal">l10n_ec_base</tt> or to <tt class="docutils literal">l10n_ec_account_edi</tt>, both of which are
+merged addons, so it cannot travel in this addon’s PR either.</li>
+</ul>
+<p><strong>What a maintainer has to decide.</strong> Whether the ATS should offer the
+exclusion at all. If the answer is yes, the honest route is a field
+written by the user (or by an SRI-response hook that does not exist yet)
+plus a migration that cannot be back-filled — which means a maintainer’s
+view on what a company with a portal void in its history is supposed to
+file. Until then the block is <strong>over-inclusive on this one exclusion</strong>
+and says so.</p>
+</div>
+<div class="section" id="should-cancelled-withholdings-be-in-the-anulados-block">
+<h3><a class="toc-backref" href="#toc-entry-52">Should cancelled <strong>withholdings</strong> be in the <tt class="docutils literal">anulados</tt> block?</a></h3>
+<p>Odoo Enterprise’s <tt class="docutils literal">_get_void_moves</tt> collects two populations and adds
+both to the same list:</p>
+<ol class="arabic simple">
+<li>cancelled sales documents, and</li>
+<li>cancelled <strong>withholdings</strong> — <tt class="docutils literal">move_type = 'entry'</tt>, on a
+withholding journal, with <tt class="docutils literal">l10n_ec_authorization_number != False</tt>.</li>
+</ol>
+<p><strong>ATS v1 is sales documents only.</strong> That is a scope decision, not an
+oversight, and it rests on three pieces of evidence:</p>
+<ul class="simple">
+<li><strong>The ficha does not mention withholdings.</strong> §2.5 says <em>“los
+comprobantes anulados”</em> and describes the field as <em>“el número de
+autorización que le otorga el SRI</em> <strong>para la impresión de sus
+comprobantes</strong><em>“</em> — a series of sales documents. Nothing in the
+block describes a retention certificate.</li>
+<li><strong>``Tabla 4`` code ``18`` is scoped away from them.</strong> Its description
+is <em>“Documentos autorizados utilizados en ventas</em> <strong>excepto N/C
+N/D</strong><em>“</em>, and a withholding certificate is neither a sales document
+nor a credit or debit note. The nearest real code is <tt class="docutils literal">7</tt>,
+<em>Comprobante de Retención</em>, whose <em>Código Secuencial Transacción</em>
+column reads <tt class="docutils literal">ninguno</tt> — it cannot be reached from this block
+either.</li>
+<li><strong>A retention has no ``establecimiento``/``puntoEmision`` series to
+cancel.</strong> The whole block is built on the printed-series triple.
+<tt class="docutils literal">l10n_ec_withhold</tt> gives a withholding a number, but nothing
+establishes it as a point in an issuable series the way an invoice
+journal does.</li>
+</ul>
+<p><strong>Enterprise’s treatment is the reference for a future version</strong>, quoted
+rather than copied: <tt class="docutils literal">move_type = 'entry'</tt> on a withholding journal
+with a non-empty <tt class="docutils literal">l10n_ec_authorization_number</tt>, added to the same
+void list. If v2 includes them, that is the reference implementation —
+and it will need the same decision this block had to make about
+<tt class="docutils literal">tipoComprobante</tt>, plus a source for the triple.</p>
+</div>
+<div class="section" id="the-journal-key-is-not-on-every-error-of-every-block">
+<h3><a class="toc-backref" href="#toc-entry-53">The <tt class="docutils literal">journal</tt> key is not on every error of every block</a></h3>
+<p>ATS-08’s docstring on <tt class="docutils literal">collect_ventas_establecimiento_with_errors</tt>
+states:</p>
+<blockquote>
+Every key is present on every error from every block, so a consumer
+can read either without a <tt class="docutils literal">KeyError</tt>.</blockquote>
+<p>That is true of the errors <strong>ATS-08 wrote</strong> —
+<tt class="docutils literal">_l10n_ec_add_establishment</tt>, <tt class="docutils literal">_l10n_ec_ventas_estab_row</tt> and
+<tt class="docutils literal">collect_iva_header_with_errors</tt> all carry <tt class="docutils literal">journal</tt>. It is <strong>not</strong>
+true of the two blocks before it, and the claim as written overstates
+the state of the model. The dicts built by <tt class="docutils literal">_l10n_ec_compras_row</tt>’s
+and <tt class="docutils literal">_l10n_ec_ventas_row</tt>’s <tt class="docutils literal">report</tt> closures, and by every helper
+that appends directly — <tt class="docutils literal">_l10n_ec_reported_date</tt>,
+<tt class="docutils literal">_l10n_ec_iva_withholdings</tt>, <tt class="docutils literal">_l10n_ec_formas_de_pago</tt> — carry
+<tt class="docutils literal">{&quot;move&quot;, &quot;field&quot;, &quot;message&quot;}</tt> and <strong>no</strong> <tt class="docutils literal">journal</tt>.</p>
+<p>The <tt class="docutils literal">anulados</tt> block honours the contract in full, so from here on new
+errors do; retrofitting the two older blocks is left out because it is a
+change to shipped, reviewed code with no behaviour gain beyond a
+<tt class="docutils literal">KeyError</tt> that a consumer has not hit yet.</p>
+<p><strong>A maintainer has to pick one</strong>: either retrofit the two older blocks
+and keep the contract as documented, or amend the ATS-08 docstring to
+say the contract applies from ATS-08 onwards. Both are fine; having the
+code and the docstring disagree is not.</p>
+</div>
 <div class="section" id="deferred-work">
-<h3><a class="toc-backref" href="#toc-entry-43">Deferred work</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-54">Deferred work</a></h3>
 <p>Effective-dated taxes on <tt class="docutils literal">account.tax</tt> itself — <tt class="docutils literal">l10n_ec_date_start</tt>
 / <tt class="docutils literal">l10n_ec_date_end</tt> plus <tt class="docutils literal">_l10n_ec_tax_for_date()</tt> and a coverage
 report — are a separate proposal in <tt class="docutils literal">l10n_ec_base</tt>, not in ATS v1. ATS
@@ -1403,7 +1699,7 @@ independent of it.</p>
 </div>
 </div>
 <div class="section" id="bug-tracker">
-<h2><a class="toc-backref" href="#toc-entry-44">Bug Tracker</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-55">Bug Tracker</a></h2>
 <p>Bugs are tracked on <a class="reference external" href="https://github.com/OCA/l10n-ecuador/issues">GitHub Issues</a>.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
@@ -1411,9 +1707,9 @@ If you spotted it first, help us to smash it by providing a detailed and welcome
 <p>Do not contact contributors directly about support or help with technical issues.</p>
 </div>
 <div class="section" id="credits">
-<h2><a class="toc-backref" href="#toc-entry-45">Credits</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-56">Credits</a></h2>
 <div class="section" id="maintainers">
-<h3><a class="toc-backref" href="#toc-entry-46">Maintainers</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-57">Maintainers</a></h3>
 <p>This module is maintained by the OCA.</p>
 <a class="reference external image-reference" href="https://odoo-community.org">
 <img alt="Odoo Community Association" src="https://odoo-community.org/logo.png" />

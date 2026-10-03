@@ -679,12 +679,12 @@ class L10nEcAtsCollector(models.AbstractModel):
     # ------------------------------------------------------------------
 
     @api.model
-    def _l10n_ec_document_triple(self, move, report):
+    def _l10n_ec_document_triple(self, move, report, *, missing_message=None):
         """``establecimiento``, ``puntoEmision`` and ``secuencial``: the
         **supplier's**, from the document number recorded on the bill.
 
-        ATS files the vendor's establishment, not ours. The triple is typed on the
-        bill because nothing parses a vendor's XML yet (§5.8).
+        ATS files the vendor's establishment, not ours. The triple is typed on
+        the bill because nothing parses a vendor's XML yet (§5.8).
 
         The access key is the documented recovery path when the number is
         missing: ``l10n_ec_generate_access_key`` lays a key out as
@@ -695,6 +695,12 @@ class L10nEcAtsCollector(models.AbstractModel):
         ``000`` is refused on both three-digit halves. The XSD accepts it; the
         ficha does not (§5.4b), and a file the SRI rejects is worse than a
         refusal to generate one.
+
+        **``missing_message`` exists because two blocks need this.** The ``anulados``
+        block reads the *same* field for *our own* triple, so it supplies its own
+        sentence: a document with no number here is one we issued and not one a
+        vendor sent us, and the advice that helps in each case is not the same.
+        The check itself stays here, once.
         """
         triple = self._l10n_ec_triple_from_document_number(move)
         if not triple:
@@ -702,7 +708,8 @@ class L10nEcAtsCollector(models.AbstractModel):
         if not triple:
             report(
                 "establecimiento",
-                self.env._(
+                missing_message
+                or self.env._(
                     "%(move)s cannot be reported in the ATS: the supplier's "
                     "document number is not set and its access key does not "
                     "carry one either. Record the number on the bill as "
@@ -770,7 +777,7 @@ class L10nEcAtsCollector(models.AbstractModel):
         return access_key[24:27], access_key[27:30], access_key[30:39]
 
     @api.model
-    def _l10n_ec_autorizacion(self, move, report):
+    def _l10n_ec_autorizacion(self, move, report, *, missing_message=None):
         """``autorizacion``: the supplier's SRI authorization number.
 
         The ficha requires it and ``autorizacionType`` accepts 3 to 49 digits.
@@ -779,12 +786,19 @@ class L10nEcAtsCollector(models.AbstractModel):
         number"; ATS refuses instead (§5.9.1), since a fabricated authorization in
         a filed return is worse than a missing file. §5.8 explains why this is
         often empty in practice: nothing parses a vendor's XML yet.
+
+        **``missing_message`` exists because two blocks need this.** The
+        ``anulados`` block reads the same field for **our own** cancelled
+        document, where an empty value means the SRI never authorized the
+        document rather than that a vendor's number was never typed in -- so it
+        supplies its own sentence. The refusal stays here, once.
         """
         authorization = (move.l10n_ec_authorization_number or "").strip()
         if not authorization:
             report(
                 "autorizacion",
-                self.env._(
+                missing_message
+                or self.env._(
                     "%(move)s cannot be reported in the ATS: the supplier's "
                     "authorization number is not set. ATS will not invent one. "
                     "Record it on the bill, or leave the document out of the "
@@ -1442,6 +1456,23 @@ class L10nEcAtsCollector(models.AbstractModel):
         the code is a real ``Tabla 4`` row in force on the reported day. The
         filter is recorded for ATS-11 rather than approximated with a list of
         codes this file would then own.
+        """
+        return self._l10n_ec_tipo_comprobante_tabla_4(move, reported, report)
+
+    @api.model
+    def _l10n_ec_tipo_comprobante_tabla_4(self, move, reported, report):
+        """``tipoComprobante`` as a ``Tabla 4`` row in force on ``reported``.
+
+        The one assertion both sale-side blocks can make, and the only part they
+        share: the document's own code is a real ``Tabla 4`` row on the reported
+        day. The filter each block puts on top of that is a different rule with
+        different evidence -- the ``ventas`` one cannot be evaluated from the
+        loaded catalogue, while ``anulados`` states *"sin filtro alguno"* -- so
+        each keeps its own docstring and only the lookup is shared.
+
+        ``_l10n_ec_resolve_entry`` is the read, and it requires **exactly one**
+        entry: zero is a coverage hole, more than one an overlap, and both are
+        reported rather than a row being filed on whichever one sorted first.
         """
         document_type = move.l10n_latam_document_type_id
         code = document_type.code
@@ -2131,6 +2162,478 @@ class L10nEcAtsCollector(models.AbstractModel):
             sum(row.get(field) or 0.0 for field in VENTAS_TOTAL_BASE_FIELDS)
             for row in ventas_rows
         )
+
+    # ------------------------------------------------------------------
+    # Comprobantes anulados -- one row per contiguous run of cancelled sequentials
+    # ------------------------------------------------------------------
+
+    @api.model
+    def collect_anulados(self, company, date_start, date_finish):
+        """Return the ``anulados`` rows of one period, one per contiguous run.
+
+        ``detalleAnuladosType`` (``ats.xsd:1312-1321``) is the only ATS block that
+        files a **range** rather than a document: ``secuencialInicio`` and
+        ``secuencialFin``, with **no** ``fechaEmision`` and **no**
+        ``fechaRegistro`` to reconcile against anything.
+
+        **A range is an assertion about every document inside it.** The ficha
+        técnica §2.5 says so in so many words: *"Se debe considerar que se
+        considerarán anulados los comprobantes que consten dentro del rango
+        informado."* So a range spanning a document that was **not** cancelled
+        tells the SRI it was, and cancelling 5, 6, 7 and 9 is **two** rows --
+        ``5``-``7`` and ``9``-``9`` -- never one ``5``-``9`` row. That is decided
+        by the ficha rather than inferred from the schema, which constrains the
+        two numbers by nothing more than ``\\d{1,9}``.
+
+        A document that cannot be completed without inventing a value is **left
+        out**, because emitting it would mean emitting the invention. Use
+        :meth:`collect_anulados_with_errors` to learn why.
+
+        :return: a list of dicts keyed by the ATS XML element names of
+            ``detalleAnuladosType``, so the builder is a straight mapping with no
+            renaming layer.
+        """
+        rows, _errors = self.collect_anulados_with_errors(
+            company, date_start, date_finish
+        )
+        return rows
+
+    @api.model
+    def collect_anulados_with_errors(self, company, date_start, date_finish):
+        """Return ``(rows, errors)`` for one period.
+
+        Same two-layer shape as the sibling blocks, and for the same reason: one
+        unusable document must not hide the rest of the month, so the caller
+        decides whether to abort (§5.6 Level 3) or to report and continue.
+
+        **A refused document is left out of the ranges entirely**, and that is a
+        correctness requirement rather than a convenience. A range must be built
+        only from documents that will actually appear in the file, or a row would
+        span a document the file never reports -- the very false assertion the
+        ficha's sentence forbids. So the groups, and the runs inside them, are
+        assembled from the documents that produced no error, and the errors are
+        all still returned. A document left out is named, not dropped in silence.
+
+        **One extension to the error dict.** ATS-08 documented a contract that
+        every error of every block carries ``move``, ``journal``, ``field`` and
+        ``message``, so a consumer can read ``move: False, journal: <record>``
+        for a journal-level problem without a ``KeyError``. This block honours
+        it. The two blocks before it build their dicts without ``journal``;
+        see :meth:`_l10n_ec_anulado_document`.
+        """
+        documents, errors = self._l10n_ec_anulados_documents(
+            company, date_start, date_finish
+        )
+        rows = [
+            self._l10n_ec_anulados_row(run)
+            for group in self._l10n_ec_anulados_groups(documents)
+            for run in self._l10n_ec_anulados_runs(group, errors)
+        ]
+        return rows, errors
+
+    # ------------------------------------------------------------------
+    # Selection
+    # ------------------------------------------------------------------
+
+    @api.model
+    def _l10n_ec_anulados_moves(self, company, date_start, date_finish):
+        """The period's cancelled **sales** documents of ``company``.
+
+        ``state == 'cancel'`` is Odoo's own record that the document was
+        withdrawn, and the ficha's wording for the block is *"los comprobantes
+        anulados en el período informado"*. The window is the reported period and
+        nothing else: ``detalleAnuladosType`` carries no date at all, so
+        ``move.date`` is the only thing a row can be selected by, and the ficha
+        says the block holds *"todos los comprobantes del mes"*.
+
+        ``out_refund`` is selected alongside ``out_invoice``, as on the ``ventas``
+        block -- a cancelled credit note is a cancelled document of its own, and
+        this block has no other way to record it.
+
+        **``posted_before`` is what excludes the cancelled draft.**
+        ``button_cancel`` accepts a draft and sets ``state = 'cancel'``, so
+        ``state`` alone admits a document that was never issued, never authorized
+        and never numbered -- and Odoo shows such a document as ``/``.
+        ``posted_before`` is set in ``_post`` and by nothing else, so asking for
+        it asks for the fact behind the ``/`` rather than inferring the fact from
+        a display name.
+
+        **What this cannot exclude.** Ficha §2.5 also states *"Excluye a los
+        comprobantes dados de baja a través del portal transaccional SRI en
+        línea"*, and **no Odoo field records that**. A document voided through
+        the SRI's online portal is ``state = 'cancel'`` here and is reported
+        here, which the SRI will reject. The field to filter on does not exist;
+        inventing one would be worse than the gap, so it is recorded in
+        ``readme/ROADMAP.md`` instead.
+        """
+        return self.env["account.move"].search(
+            [
+                ("company_id", "=", company.id),
+                ("move_type", "in", ("out_invoice", "out_refund")),
+                ("state", "=", "cancel"),
+                ("posted_before", "=", True),
+                ("date", ">=", date_start),
+                ("date", "<=", date_finish),
+            ],
+            order="date, id",
+        )
+
+    # ------------------------------------------------------------------
+    # Per-document resolution
+    # ------------------------------------------------------------------
+
+    @api.model
+    def _l10n_ec_anulados_documents(self, company, date_start, date_finish):
+        """The period's cancelled sales documents, each resolved or refused.
+
+        :return: ``(documents, errors)``, where ``documents`` holds only the
+            documents that produced no error, in booking order.
+        """
+        documents = []
+        errors = []
+        for move in self._l10n_ec_anulados_moves(company, date_start, date_finish):
+            values, move_errors = self._l10n_ec_anulado_document(move, date_start)
+            errors.extend(move_errors)
+            if values:
+                documents.append(values)
+        return documents, errors
+
+    @api.model
+    def _l10n_ec_anulado_document(self, move, period_start):
+        """One cancelled document's share of a row, or why it has none.
+
+        Every problem found is reported, not just the first, so somebody fixing a
+        month sees the whole list in one pass.
+
+        :return: ``(values, errors)``. ``values`` is ``{}`` whenever ``errors`` is
+            non-empty, which is what keeps a refused document out of every range.
+        """
+        errors = []
+
+        def report(field, message):
+            errors.append(
+                {
+                    "move": move,
+                    # No problem in this block is a journal-level one: all six
+                    # elements describe a document. The key is present anyway,
+                    # because the contract is that every error of every block
+                    # carries all four and a consumer reads either without a
+                    # ``KeyError``.
+                    "journal": False,
+                    "field": field,
+                    "message": message,
+                }
+            )
+
+        reported = self._l10n_ec_anulados_reported_date(move, period_start, errors)
+        values = {"move": move}
+        values.update(self._l10n_ec_anulado_triple(move, report))
+        values["tipoComprobante"] = self._l10n_ec_tipo_comprobante_anulados(
+            move, reported, report
+        )
+        values["autorizacion"] = self._l10n_ec_autorizacion(
+            move,
+            report,
+            missing_message=self.env._(
+                "%(move)s cannot be reported in the ATS: no authorization "
+                "number is recorded on it. The SRI issues that number when it "
+                "authorizes the document, so one that carries none was never "
+                "authorized -- ATS will not invent it, and the document is left "
+                "out of the range instead of being folded into one.",
+                move=move.display_name,
+            ),
+        )
+        return (values if not errors else {}), errors
+
+    @api.model
+    def _l10n_ec_anulados_reported_date(self, move, period_start, errors):
+        """``_l10n_ec_reported_date``, in this block's four-key error shape.
+
+        The shared check appends its own dict, and the two blocks before this
+        one build theirs without ``journal``. Staging the call and re-appending
+        keeps **one** rule -- the accounting date must equal the reported month --
+        and **one** error shape for the block. It is the same rule
+        ``ventasEstablecimiento`` already applies, which likewise carries no
+        ``fechaRegistro`` of its own: the block inherits the period requirement
+        from document selection rather than from a field it does not emit.
+        """
+        staged = []
+        reported = self._l10n_ec_reported_date(move, period_start, staged)
+        errors.extend(
+            {
+                "move": error["move"],
+                "journal": False,
+                "field": error["field"],
+                "message": error["message"],
+            }
+            for error in staged
+        )
+        return reported
+
+    @api.model
+    def _l10n_ec_anulado_triple(self, move, report):
+        """``establecimiento``, ``puntoEmision`` and ``secuencial``, or nothing.
+
+        The same field ``compras`` reads for the **supplier's** triple, read here
+        for **ours**, through :meth:`_l10n_ec_document_triple` -- which owns the
+        access-key fallback (§5.2) and the ``000`` refusal (§5.4b) -- with a
+        missing-number sentence of its own, because a document with no triple
+        here is one we issued and not one a vendor sent us.
+
+        **All three or none.** A ``000`` establishment leaves the document with
+        no establishment to file it under, and folding it into a neighbouring
+        one would file its sequential under the wrong establishment. So a partial
+        triple is not a partial identity: the document is refused. The ``000``
+        error is already recorded by the shared helper, so nothing is reported
+        twice.
+
+        The sequential must also be a **number**, which the purchase block has no
+        reason to check and this one does: a range is opened and closed by
+        comparing one sequential with the next, and nothing else here would catch
+        it. ``_l10n_ec_triple_from_document_number`` accepts any three non-empty
+        halves, which is right for ``compras`` -- there the builder is where a
+        malformed ``secuencial`` meets ``\\d{1,9}``.
+        """
+        triple = self._l10n_ec_document_triple(
+            move,
+            report,
+            missing_message=self.env._(
+                "%(move)s cannot be reported in the ATS: it carries no document "
+                "number, and its access key does not carry one either. ATS "
+                "reads the establishment, the emission point and the sequential "
+                "from the number the SRI received, so a cancelled document has "
+                "to keep it.",
+                move=move.display_name,
+            ),
+        )
+        if not all(field in triple for field in ("establecimiento", "puntoEmision")):
+            return {}
+        if not triple["secuencial"].isdigit():
+            report(
+                "secuencialInicio",
+                self.env._(
+                    "%(move)s cannot be reported in the ATS: its sequential "
+                    "%(sequence)s is not a number, and a range is opened and "
+                    "closed by comparing one sequential with the next. Record "
+                    "the number on the document as ESTABLISHMENT-POINT-"
+                    "SEQUENTIAL.",
+                    move=move.display_name,
+                    sequence=triple["secuencial"],
+                ),
+            )
+            return {}
+        return triple
+
+    @api.model
+    def _l10n_ec_tipo_comprobante_anulados(self, move, reported, report):
+        """``tipoComprobante``: the cancelled document's **own** ``Tabla 4`` code.
+
+        ``ESQUEMA`` row 207 asks for *"uno de los códigos de la tabla 4, **sin
+        filtro alguno**"* -- no ``codSustento``, no ``Código Secuencial
+        Transacción``, unlike the two sales-side rows which both name theirs. Any
+        ``Tabla 4`` row passes, which is what makes the document's own code the
+        right one to carry.
+
+        **The obvious alternative is rejected.** ``Tabla 4`` code ``18`` reads
+        *"Documentos autorizados utilizados en ventas excepto N/C N/D"* and
+        ``Tabla 2`` code ``18`` reads *"COMPROBANTES ANULADOS"*, so a fixed
+        ``18`` looks plausible. Three things rule it out:
+
+        * **The ``Tabla 2`` row is unreachable.** It is the *transaction type* a
+          ``Tabla 2`` identification is filed under, and ``detalleAnuladosType``
+          has no ``tpIdProv`` -- so the filter that selects it has no field to
+          filter on. The only thing this block can read from ``Tabla 2`` is the
+          empty ``transaction_type_codes`` of a row nothing here resolves.
+        * **Code ``18`` excludes credit and debit notes by name**, and
+          ``out_refund`` is in scope. Filing a cancelled credit note under ``18``
+          would assert that the cancelled document was not a credit note -- a
+          substitution, and the only available one, since ``Tabla 4`` names no
+          other class that covers them.
+        * **A fixed code would have to live in Python** (§4.4 forbids hardcoded
+          catalogue values), or be picked out by a description keyword that this
+          file would then own and that the SRI never states. The document's own
+          code needs no constant at all, and it is what the ESQUEMA's own field
+          name asks for: *"Código tipo de Comprobante anulado"*, singular, the
+          type of the cancelled document.
+
+        Odoo Enterprise's ``ATS_SALE_DOCUMENT_TYPE = {'01': '18', '02': '18'}``
+        maps every sale type to ``18``, which is the reading this rejects -- and
+        it is a module-level literal in a block Enterprise **never emits**:
+        ``grep -c 'secuencialInicio\\|detalleAnulados'`` over its ``tax_report.py``
+        returns ``0``. So it records what someone believed while writing a
+        mapping they never ran, not what the SRI accepts. Note also what it
+        discards: sending both ``01`` and ``02`` to ``18`` loses the distinction
+        between a factura and a nota de venta.
+
+        Resolved against ``Tabla 4`` for the reported period, and with **no**
+        ``codSustento`` cross-check the way ``compras`` has one: a cancelled
+        document files no tax support, and code ``18``'s own ``Sustento
+        tributario`` column reads ``ninguno``.
+        """
+        return self._l10n_ec_tipo_comprobante_tabla_4(move, reported, report)
+
+    # ------------------------------------------------------------------
+    # Grouping and run splitting
+    # ------------------------------------------------------------------
+
+    @api.model
+    def _l10n_ec_anulados_groups(self, documents):
+        """The resolved documents folded into the groups a range is built in.
+
+        Insertion order follows :meth:`_l10n_ec_anulados_documents`, so the rows
+        come out in the order the documents were booked rather than in an
+        arbitrary one.
+        """
+        groups = {}
+        for document in documents:
+            groups.setdefault(self._l10n_ec_anulados_group_key(document), []).append(
+                document
+            )
+        return list(groups.values())
+
+    @api.model
+    def _l10n_ec_anulados_group_key(self, document):
+        """The tuple one ``detalleAnulados`` range is aggregated over.
+
+        **All six elements of this block are general key components.**
+        ``CLAVE PRIMARIA (2)`` rows 196-201 mark ``tipoComprobante``,
+        ``establecimiento``, ``puntoEmision``, ``secuencialInicio``,
+        ``secuencialFin`` **and** ``autorizacion`` as *componente de clave
+        general*, so no two rows may agree on fewer than six values.
+
+        Two of those are derived rather than declared -- the range is what the
+        runs compute -- and it is the other four that have to be read as part of
+        the key:
+
+        * ``autorizacion`` is **singular per row**, three to forty-nine digits of
+          it obligatory on every row, and every cancelled document carries its
+          own from the SRI. So documents sharing a row must share it, which
+          means a group spanning two documents is not one row: the row would
+          state one document's authorization for a set it may not cover. Keying
+          on it is what guarantees the number in the file belongs to **every**
+          document in the range -- a fact checkable against the records instead
+          of assumed.
+        * ``tipoComprobante``, ``establecimiento`` and ``puntoEmision`` are the
+          other three axes the SRI keys rows on, so folding across any of them
+          would put a value in the file that is true of one document out of two,
+          or of neither.
+
+        The consequence is worth stating, because the schema does not show it: a
+        run can only ever merge documents that **share an authorization**, and
+        under electronic invoicing each document gets its own. So in real data
+        every row is a single document with its number repeated in both fields --
+        exactly what the ficha prescribes for that case. Ranges are the
+        physical-invoicing case, where one authorization covered a printed batch.
+
+        The ficha's §2.5 prose does not state this grouping. The normative key
+        table does, and it is the same table ``ventas``' own row key was read
+        from.
+        """
+        return (
+            document["establecimiento"],
+            document["puntoEmision"],
+            document["tipoComprobante"],
+            document["autorizacion"],
+        )
+
+    @api.model
+    def _l10n_ec_anulados_runs(self, group, errors):
+        """One group's documents, split into runs of consecutive sequentials.
+
+        Ordered by sequential rather than kept in booking order, because the rule
+        is about the numbers: *"Cuando se registra un grupo de comprobantes que
+        posean secuencial seguido"*. A run breaks wherever the next sequential is
+        not this one plus one -- which is exactly where a document that was **not**
+        cancelled sits, and where the range has to stop rather than swallow it.
+
+        The comparison is arithmetic on the numbers rather than on the padded
+        strings, because contiguity is a property of the value: ``9`` follows ``8``
+        whether they are stored as ``8`` or ``000000008``. The value that reaches
+        the file is still the record's own padded form, which
+        ``secuencialType``'s ``\\d{1,9}`` accepts.
+
+        A repeated sequential is a data defect, not a range: two cancelled records
+        claiming one document would file the same six-element primary key twice,
+        which ``CLAVE PRIMARIA`` forbids. The first is kept and the second is
+        reported, so the file stays valid and the defect is still named.
+        """
+        runs = []
+        seen = set()
+        for document in sorted(group, key=self._l10n_ec_sequential_number):
+            number = self._l10n_ec_sequential_number(document)
+            if number in seen:
+                errors.append(
+                    {
+                        "move": document["move"],
+                        "journal": False,
+                        "field": "secuencialInicio",
+                        "message": self.env._(
+                            "%(move)s cannot be reported in the ATS: another "
+                            "cancelled document already claims sequential "
+                            "%(sequence)s of establishment %(establishment)s "
+                            "and emission point %(point)s. Two records claiming "
+                            "one document is a data error to fix, not a second "
+                            "range.",
+                            move=document["move"].display_name,
+                            sequence=document["secuencial"],
+                            establishment=document["establecimiento"],
+                            point=document["puntoEmision"],
+                        ),
+                    }
+                )
+                continue
+            seen.add(number)
+            if runs and number == self._l10n_ec_sequential_number(runs[-1][-1]) + 1:
+                runs[-1].append(document)
+            else:
+                runs.append([document])
+        return runs
+
+    @api.model
+    def _l10n_ec_sequential_number(self, document):
+        """The sequential as the integer contiguity is judged on.
+
+        ``secuencialType`` is ``xsd:integer`` with ``minInclusive 1``, so the
+        sequential is a positive integer wearing up to nine digits of padding --
+        and the padding is not part of the number. Refusing a non-numeric one is
+        :meth:`_l10n_ec_anulado_triple`'s job, which is why this can convert
+        without a guard of its own.
+        """
+        return int(document["secuencial"])
+
+    # ------------------------------------------------------------------
+    # Row assembly
+    # ------------------------------------------------------------------
+
+    @api.model
+    def _l10n_ec_anulados_row(self, run):
+        """Build one ``detalleAnulados`` payload: the run's first and last.
+
+        The four group values are read off the first member because the group key
+        **was built from exactly these values** -- so every member of a run agrees
+        on them by construction, not by a second check that could drift.
+
+        ``secuencialFin`` repeats ``secuencialInicio`` for a run of one, which
+        ``ESQUEMA`` row 211 contradicts -- *"debe ser mayor a
+        secuencialInicio"* -- and the ficha técnica §2.5 settles it: *"Para anular
+        un solo comprobante, se debe indicar este número en ambos campos."* The
+        prose is the sentence written about this exact case, and a strict reading
+        of the table would make cancelling one document impossible to file.
+
+        The six keys are the six elements of ``detalleAnuladosType``, and the
+        element the ESQUEMA sheet spells ``autorización`` with an accent is
+        spelled ``autorizacion`` here because the schema is what the file has to
+        satisfy.
+        """
+        first = run[0]
+        return {
+            "tipoComprobante": first["tipoComprobante"],
+            "establecimiento": first["establecimiento"],
+            "puntoEmision": first["puntoEmision"],
+            "secuencialInicio": first["secuencial"],
+            "secuencialFin": run[-1]["secuencial"],
+            "autorizacion": first["autorizacion"],
+        }
 
     # ------------------------------------------------------------------
     # Helpers
