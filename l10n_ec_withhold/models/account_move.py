@@ -42,8 +42,15 @@ class AccountMove(models.Model):
         compute="_compute_l10n_ec_withhold_active",
         store=True,
     )
-    l10n_ec_tax_support = fields.Selection(
-        TAX_SUPPORT, string="Tax Support", help="Tax support in invoice line"
+    l10n_ec_tax_support = fields.Char(
+        string="Tax Support",
+        size=2,
+        help="Tax support in invoice line. A Tabla 5 code, captured as typed: "
+        "it used to be a dropdown built from a Python label list, which capped "
+        "the codes a document could carry at whatever that list happened to "
+        "hold and made the two codes the SRI added later unrecordable. "
+        "l10n_ec_ats validates the captured code against the Tabla 5 catalog "
+        "for the period being reported.",
     )
 
     @api.onchange("partner_id")
