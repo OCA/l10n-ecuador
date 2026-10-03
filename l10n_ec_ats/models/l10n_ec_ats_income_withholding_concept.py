@@ -35,9 +35,13 @@ class L10nEcAtsIncomeWithholdingConcept(models.Model):
     _description = "SRI ATS Tabla 3.10 income withholding concept code"
     _order = "code"
 
-    _sql_constraints = [
-        ("code_uniq", "UNIQUE(code)", "The Tabla 3.10 code must be unique."),
-    ]
+    # The attribute name is kept as ``_code_uniq`` so the generated database
+    # constraint keeps the name ``_sql_constraints`` gave it. Renaming the
+    # attribute would add a second constraint and orphan the first.
+    _code_uniq = models.Constraint(
+        "UNIQUE(code)",
+        "The Tabla 3.10 code must be unique.",
+    )
 
     code = fields.Char(
         required=True,
