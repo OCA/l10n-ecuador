@@ -78,6 +78,14 @@ ATS_XML_TRAILER = "\n"
 ATS_ROOT_ELEMENT = "iva"
 ATS_INDENT = "    "
 
+#: The payload key the informante's own header travels under. ``header`` and **not**
+#: ``ATS_ROOT_ELEMENT``: the two are the same *word* but not the same thing, and
+#: conflating them is what let the two shipped layers disagree in the first place.
+#: ``iva`` names the element the header is rendered into; ``header`` names where the
+#: mapping sits in a collector payload. A caller who reaches for the element name
+#: gets a key the builder refuses as unknown, which is the honest failure.
+ATS_HEADER_KEY = "header"
+
 #: ``codigoOperativoType`` (ats.xsd) enumerates exactly one value and
 #: ``TipoIDInformante``'s inline type enumerates exactly one. These are the two
 #: literals §4.4 permits: a single-value enumeration has no catalogue row to be
@@ -1135,15 +1143,41 @@ def _render_header(root, header, payload, where):
             _render_element(root, field, value, f"{where}.{field.name}")
 
 
+def ats_header(payload):
+    """The informante's own header, read from a collector payload.
+
+    **The single place the header key is decided.** :func:`build_ats_xml` and
+    :func:`l10n_ec_ats.validators.validate_ats` both walk a payload for the same
+    document, and for a while they read the header under different keys -- the
+    builder from ``header`` and the validator from ``iva``, the element name. Every
+    header rule, ``IdInformante``'s RUC check digit among them, was therefore
+    evaluated against an empty header and silently reported nothing, and a caller
+    had to paper over the gap by handing the validator a second view of the same
+    dict. One function, one key, no alias: a mismatch can no longer exist between
+    two layers, because there is only one thing left to disagree about.
+
+    Pure and total. A payload with no header yields ``{}`` rather than raising,
+    because the validator walks whatever it is given and must report the header's
+    own violations rather than die on a ``KeyError``; :func:`build_ats_xml` keeps
+    its own mandatory-header refusal, which is a different question and stays
+    there.
+    """
+    if not isinstance(payload, dict):
+        return {}
+    header = payload.get(ATS_HEADER_KEY) or {}
+    return header if isinstance(header, dict) else {}
+
+
 def build_ats_xml(payload):
     """Render one ATS document from one collector payload.
 
-    :param payload: a dict with a ``header`` key plus one key per block the
-        collector produced. ``compras`` is ``collect_compras()``'s rows,
-        ``ventas`` is ``collect_ventas()``'s, ``ventasEstablecimiento`` is
-        ``collect_ventas_establecimiento()``'s and ``anulados`` is
-        ``collect_anulados()``'s; the header is the wizard's scalars merged with
-        ``collect_iva_header()``'s ``numEstabRuc`` and ``totalVentas``.
+    :param payload: a dict with a :data:`ATS_HEADER_KEY` (``header``) key plus
+        one key per block the collector produced. ``compras`` is
+        ``collect_compras()``'s rows, ``ventas`` is ``collect_ventas()``'s,
+        ``ventasEstablecimiento`` is ``collect_ventas_establecimiento()``'s and
+        ``anulados`` is ``collect_anulados()``'s; the header is the wizard's
+        scalars merged with ``collect_iva_header()``'s ``numEstabRuc`` and
+        ``totalVentas``. :func:`ats_header` is how every other layer reads it.
 
         **A block that is absent from the payload produces no element, and a block
         that is present but empty produces an empty one** -- with
@@ -1158,7 +1192,7 @@ def build_ats_xml(payload):
     """
     if not isinstance(payload, dict):
         raise AtsBuilderError(f"the payload must be a dict of blocks, not {payload!r}")
-    known = {"header", *ATS_BLOCKS}
+    known = {ATS_HEADER_KEY, *ATS_BLOCKS}
     for name in payload:
         if name not in known:
             _refuse(
@@ -1168,15 +1202,15 @@ def build_ats_xml(payload):
                 "would drop the block from the filed document, so it is refused "
                 "instead",
             )
-    if "header" not in payload:
+    if ATS_HEADER_KEY not in payload:
         _refuse(
             "payload",
-            AtsField(name="header", kind=ATS_BLOCK),
+            AtsField(name=ATS_HEADER_KEY, kind=ATS_BLOCK),
             "is mandatory: every ATS document opens with the informante's own "
             "identification",
         )
     root = ElementTree.Element(ATS_ROOT_ELEMENT)
-    _render_header(root, payload["header"], payload, ATS_ROOT_ELEMENT)
+    _render_header(root, payload[ATS_HEADER_KEY], payload, ATS_ROOT_ELEMENT)
     ElementTree.indent(root, space=ATS_INDENT)
     body = ElementTree.tostring(root, encoding="unicode")
     return ATS_XML_DECLARATION + "\n" + body + ATS_XML_TRAILER

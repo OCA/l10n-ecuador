@@ -64,7 +64,8 @@ Nothing to configure.
 
 The module installs the ``l10n.ec.temporal`` abstract mixin and requires
 ``l10n_ec_base``, ``l10n_ec_account_edi`` and ``l10n_ec_withhold`` to be
-installed. It exposes no user interface and adds no technical setting.
+installed. It adds no technical setting; the only user interface is the
+generation wizard, reachable from **Invoicing ‣ SRI ‣ ATS**.
 
 Effective-dated catalog entries
 -------------------------------
@@ -338,8 +339,11 @@ took off us, not what we took off a supplier.
 so: unlike ``air``, this block has no per-concept breakdown, so there is
 nowhere to put a code or a percentage and an unresolved rate cannot
 affect the total that is all the schema can express here.
-``valorRetIva`` is still checked against ``Tabla 11`` for the reported
-day — a rate the SRI never published is reported, not filed.
+``valorRetIva`` is checked against the ``Tabla 11`` shares in force for
+the reported day, but only when it is **not** ``0.00``: the cell says to
+file ``0.00`` when there is no withholding, and a non-zero value
+matching no single share is an *alerta* rather than a grave finding. See
+``USAGE.md``.
 
 ``formasDePago`` is not part of the key
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -727,13 +731,245 @@ present, so a consumer can read either without a ``KeyError``. The two
 blocks before this one build their dicts without ``journal``; see
 ``ROADMAP.md``.
 
+The ``air`` sub-report groups are catalog data, not a Python list
+-----------------------------------------------------------------
+
+``l10n.ec.ats.income.withholding.rate.detail_group`` is a ``Selection``
+of **group names** — ``dividend``, ``banana``, or empty. It is loaded
+from ``data/ats_income_withholding_rates.xml``, on the 99 of the 3149
+rate rows it applies to, and it exists because
+``validators.validate_compras_row`` **raises** ``ValueError`` when an
+``air`` row carries one of the five conditional elements and the caller
+supplied no ``AirConditionalCodes``: a check that cannot be made must
+not be allowed to look covered.
+
+``Catalogo_ATS.xlsx`` carries **no column** saying which ``codRetAir``
+needs which sub-report, and it cannot be derived from the concept
+either. The SRI reuses a code across eras:
+
++---------+-----------------------------+-----------------------------+
+| Code    | Before 2015-03-01           | From 2015-03-01             |
++=========+=============================+=============================+
+| ``340`` | *Otras retenciones          | *Impuesto único a la        |
+|         | aplicables el 1%*           | exportación de banano de    |
+|         |                             | producción propia -         |
+|         |                             | componente 2*               |
++---------+-----------------------------+-----------------------------+
+| ``341`` | *Otras retenciones          | the same, componente 2      |
+|         | aplicables el 2%*           |                             |
++---------+-----------------------------+-----------------------------+
+| ``342`` | *Otras retenciones          | *Impuesto único a la        |
+|         | aplicables el 8%*           | exportación de banano       |
+|         |                             | producido por terceros*     |
++---------+-----------------------------+-----------------------------+
+| ``327`` | *Por venta de combustibles  | *Dividendos distribuidos a  |
+|         | a comercializadoras*        | personas naturales          |
+|         |                             | residentes*                 |
++---------+-----------------------------+-----------------------------+
+
+A timeless list of codes would file a banana sub-report against a 2013
+concept that was not one, and would file none at all for the concept
+that was. So the grouping is a **dated fact about an era**, which is why
+it lives on the rate — the model that already carries the window — and
+not on the concept, which is a code registry with no dates at all.
+
+**The candidate set is the ficha's eight codes; each era is then kept
+only when that era's own description names the thing.** Eighteen of the
+117 eras of those codes do not, and they carry no group on purpose.
+Three codes have an era hole the SRI itself created — ``330``, ``341``
+and ``342`` are dropped from 2020 — so they are in no group for a
+current period, and the wizard resolves that from the data rather than
+from a list.
+
+Read it as ``rate.detail_group`` **after** resolving the rate for the
+reported period. Never from the concept: a concept has no window to
+resolve against.
+
+The generation wizard has three fields, one button and a warnings panel
+-----------------------------------------------------------------------
+
+``l10n.ec.ats.generate`` takes a ``company_id``, an ``anio`` and a
+``mes``, and ``generate()`` returns the action that downloads the
+archive. It opens from **Invoicing ‣ SRI ‣ ATS** and stays usable from
+an automated action, RPC or a shell.
+
+- **``anio`` and ``mes`` are integers, and the field refuses an
+  impossible period.** ``Catalogo_ATS.xls`` / ``ESQUEMA TIPO 1 Y 2`` row
+  7 says the year *"debe corresponder a periodos del 2000 en adelante"*
+  and the ficha's ``ESQUEMA`` adds *"Programa despliega calendario 2000
+  en adelante"*, so an earlier year is refused on the field rather than
+  discovered in the document. The month is bounded by ``mesType``'s own
+  pattern.
+- **``mes`` is captured as a number, not chosen from a list.** The code
+  that reaches the file is the ``Tabla 01`` row's own, read from the
+  catalog, so the wizard cannot disagree with the table the moment the
+  SRI republishes it.
+- **``regimenMicroempresa`` is derived, not configured.** It is emitted
+  when the company declares a ``l10n_ec_regimen`` **and** the
+  ``Tabla 01`` row of the reported month names a semestral regime —
+  which is what the sheet's own descriptions say for the two semestral
+  months and do not say for the other ten. No ``{06, 12}`` set is held
+  in Python.
+- **The company must be an EC one with a RUC.** ``IdInformante`` is
+  ``company.partner_id.vat``; the builder refuses an empty one, and
+  ATS-11 applies the RUC module 11 check digit to it, so a wrong digit
+  stops generation.
+- **``warnings`` is the report, not a blocker.** ``generate()`` writes
+  every non-blocking finding there and the form shows it beside the
+  download. A grave finding never reaches it — it stops generation, and
+  every problem is listed in one ``UserError`` rather than only the
+  first.
+
+The wizard is a ``TransientModel`` and lives in ``l10n_ec_ats/wizard/``,
+not in ``models/``: the repository's mandatory ``pylint_odoo`` run
+enables ``no-wizard-in-models``, which refuses a ``TransientModel``
+declared under ``models/``. ``l10n_ec_withhold/wizard/`` and
+``l10n_ec_account_edi/wizard/`` are the existing precedent.
+
 Usage
 =====
 
-This module currently ships the ``l10n.ec.temporal`` mixin, the SRI
-referential catalogs, and the ATS schema layer. There is nothing to
-configure and no menu, no wizard and no ATS builder yet: document
-generation arrives in a later task of the same project.
+This module ships the ``l10n.ec.temporal`` mixin, the effective-dated
+SRI referential catalogs, the collectors, the builder, the business
+validators, the schema layer, and the wizard that composes them.
+
+Generating a month
+------------------
+
+``l10n.ec.ats.generate`` takes a company, a year and a month, and
+produces one ``AT{mmaaaa}.zip`` holding a single XML that passes
+``ats.xsd``:
+
+.. code:: python
+
+   wizard = env["l10n.ec.ats.generate"].create(
+       {"company_id": company.id, "anio": 2026, "mes": 8}
+   )
+   action = wizard.generate()   # {"type": "ir.actions.act_url", "url": "/web/content/<id>?download=true"}
+
+The same call works from a form, a menu entry, an automated action, RPC
+or a shell. In the interface it is **Invoicing ‣ SRI ‣ ATS**, a dialog
+asking for the company, the year and the month with a single
+**Generate** button.
+
+The archive name follows ficha técnica §1.2: ``AT`` then the month then
+the year, both zero-padded, no separator and no special character, so
+March 2026 is ``AT032026.zip``. Inside it there is exactly one member,
+``AT{mmaaaa}.xml``. The file is attached to the wizard record and
+downloaded through ``/web/content``, so the bytes a user saves are the
+bytes that were validated.
+
+When generation is refused
+--------------------------
+
+Everything wrong with a period arrives in **one** ``UserError``,
+numbered, and no file is produced. One error per lookup would make a bad
+period unreadable, and a file that quietly omitted the unusable
+documents is the failure the project exists to prevent. The message
+always ends by saying that nothing was assumed.
+
+Four things stop generation, and each names the table, the code and the
+window:
+
++----------------------------------+----------------------------------+
+| What                             | How it is reached                |
++==================================+==================================+
+| a **catalog gap** — no entry     | shipped data: ``Tabla 13``       |
+| covers the reported day          | publishes the card payment forms |
+|                                  | from 2016-05-01, so a sale       |
+|                                  | declaring form ``20`` in March   |
+|                                  | 2016 cannot be filed             |
++----------------------------------+----------------------------------+
+| a **catalog overlap** — two      | the wizard's preflight resolves  |
+| entries claim the same day       | ``Tabla 12`` as a whole, because |
+|                                  | a second regime in force at once |
+|                                  | is an overlap even under a       |
+|                                  | different code                   |
++----------------------------------+----------------------------------+
+| an **``unresolved``              | the preflight reads the concepts |
+| ``Tabla 3.10`` rate** — the      | off the **documents**, before    |
+| source states no single number   | collection drops anything; 1689  |
+|                                  | of the 3149 rates carry no       |
+|                                  | percentage                       |
++----------------------------------+----------------------------------+
+| **missing source data** — a      | the collectors return the error  |
+| field no record can supply       | rather than raising, and the     |
+|                                  | wizard aggregates it. A vendor   |
+|                                  | bill with no SRI authorization   |
+|                                  | is the canonical case: Odoo      |
+|                                  | Enterprise fabricates            |
+|                                  | ``'9999999999'`` and ATS refuses |
+|                                  | the file                         |
++----------------------------------+----------------------------------+
+
+The period itself is refused earlier, by the field: a year before 2000
+or a month outside 1..12 never reaches a collector.
+
+Warnings do not block
+---------------------
+
+``ESQUEMA`` row 22 calls a ``montoIva`` that differs from
+``baseImpGrav x porcentajeIva`` a *mensaje de advertencia*, while the
+six IVA-withholding rows call an excess over ``montoIva`` *grave*. Both
+come back from ``l10n.ec.ats.generate._l10n_ec_run()`` as
+``(attachment, violations)``; only the ``blocking`` ones stop the file,
+and both severities are returned so a caller can report an *alerta*
+without refusing a return the SRI would accept.
+
+**``generate()`` writes the non-blocking ones into the wizard's
+``warnings`` field, which the form renders.** They are not an exception:
+an *alerta* by definition does not stop a return the SRI accepts, and
+raising one would make an acceptable return unfileable. Odoo 19 has no
+non-raising user-facing exception to use instead — ``odoo.exceptions``
+carries no ``Warning`` and no ``Notification``, and
+``from odoo.exceptions import Warning`` is what the repository's
+mandatory ``odoo-exception-warning`` check exists to refuse. The
+``{"warning": ...}`` dict a button returns is the **onchange** contract
+(``odoo.orm.models._onchange_eval``), and nothing in the action path
+reads it. So the download still happens and the findings are on screen
+next to the button that produced them.
+
+.. code:: python
+
+   action = wizard.generate()
+   if wizard.warnings:
+       _logger.info(wizard.warnings)
+
+A programmatic caller can skip the field and read the severities itself:
+
+.. code:: python
+
+   attachment, violations = wizard._l10n_ec_run()
+   for violation in violations:
+       _logger.info("%s -- %s", violation.rule, violation)
+
+Reading a historical period
+---------------------------
+
+The reported period is the **only** input. Every catalog read resolves
+through ``_applicable_on(last day of the reported month)``, so loading
+2016-06 against a file of ``Tabla 12``'s 14% regime, ``Tabla 3.10``'s 8%
+``porcentajeAir`` for concept ``304`` and the ``Tabla 13`` forms of that
+month produces a genuinely different document from 2026-08 — not the
+same file with a different header. The test
+``test_historical_period_files_a_different_document`` pins exactly that:
+two periods, one fixture, and the only value that differs is the one
+read out of the catalog.
+
+**``valorRetIva`` of ``0.00`` is not an error.** ``ESQUEMA`` row 24
+reads *"Debe ser igual a la baseImpGrav aplicando el porcentajeIva
+(tabla 11). El valor puede ser mayor o igual,* **si no existe valor
+colocar 0.00**\ *"*. The cell sanctions ``0.00`` explicitly, so a
+``ventas`` row whose client withheld **no** IVA is filed as ``0.00`` and
+produces no finding — which matters because a company whose clients do
+not withhold IVA is most companies, and refusing those rows would make a
+sales period unfileable. A **non-zero** value is checked against the
+``Tabla 11`` shares in force for the reported period and a value
+matching no single share is an *alerta*, never a grave one: a row
+aggregates every withholding for one client and document type, so a
+blend of regimes is legitimate, and exceeding a share is what *"puede
+ser mayor o igual"* exists to permit. See ``ROADMAP.md`` for the reading
+this replaced.
 
 Validating an ATS document
 --------------------------
@@ -1014,6 +1250,23 @@ The one-line tightening is a separate proposal against ``l10n_ec_base``,
 which is already merged (PR #101), so it cannot travel in this addon's
 PR.
 
+**What ATS does about it, now that generation exists.** Two independent
+layers catch the ``000``, and neither trusts the other:
+
+1. the collectors refuse it while assembling a row, so the establishment
+   never reaches a payload;
+2. ATS-11's ``establecimiento.no_000`` sweep refuses it anywhere in the
+   payload, and ``validate_estab_codes`` walks the tree by **element**
+   name so it cannot fire on ``codSustento`` or ``tipoProv`` — two
+   different code spaces where ``00`` is a different question.
+
+The wizard turns either refusal into the same aggregated ``UserError``,
+so a journal set to ``000`` produces a message naming the journal and
+the field rather than a file. **The gap stays open in ``l10n_ec_base``
+on purpose**: tightening ``_constrains_l10n_ec_entity_emission`` is a
+change to merged code and needs its own PR against ``19.0``. ATS v1 is
+self-contained either way, which is what §5.4b asks for.
+
 Two ``account.tax`` rows carry an ATS code that resolves to nothing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1251,6 +1504,109 @@ Effective-dated taxes on ``account.tax`` itself — ``l10n_ec_date_start``
 report — are a separate proposal in ``l10n_ec_base``, not in ATS v1. ATS
 reads the rate from the invoice line's own tax, so v1 is functionally
 independent of it.
+
+The wizard has a form view and a menu entry, and it reports warnings
+--------------------------------------------------------------------
+
+Resolved. ``views/l10n_ec_ats_generate_views.xml`` carries the form, the
+action and a menuitem under ``l10n_ec.sri_menu``, the same root
+``l10n_ec_account_edi`` hangs its documents off, so the feature is where
+somebody filing to the SRI already looks.
+
+The warnings came with it. ``_l10n_ec_run()`` returns
+``(attachment, violations)`` for exactly that reason, and ``generate()``
+was discarding the second element — an *alerta* was computed and then
+dropped, which is indistinguishable from the check never having run.
+``generate()`` now writes them to the wizard's ``warnings`` field and
+the form renders it. The file still downloads; a finding never blocks a
+return the SRI accepts.
+
+**Odoo 19 has no non-raising user-facing exception, which is why a field
+and not a ``Warning``.** ``odoo.exceptions`` carries no ``Warning`` and
+no ``Notification`` — the only warning-shaped class in it is
+``RedirectWarning``, and that is for redirecting, not for reporting.
+``from odoo.exceptions import Warning`` is precisely what the mandatory
+``odoo-exception-warning`` check exists to refuse. The
+``{"warning": {"title", "message", "type"}}`` dict is real, but it is
+the **onchange** contract: ``odoo.orm.models._onchange_eval`` reads it,
+and ``addons/web/models/models.py`` formats it in ``onchange()``.
+Nothing in the action path consumes it on a button's return value. A
+stored field on the transient wizard is the channel that survives to a
+real user in this version.
+
+``validators.validate_ats`` and ``builder.build_ats_xml`` read the header under one key
+---------------------------------------------------------------------------------------
+
+Resolved. The two layers disagreed — the builder from
+``payload["header"]``, the validator from ``payload["iva"]`` — and the
+consequences were worse than a collision. The wizard papered over it
+with ``L10nEcAtsGenerate._l10n_ec_validation_payload``, a second view of
+the same dict carrying both keys. But the *validator* was the only
+caller that ever got the alias, so on the real pipeline the header
+arrived **empty** on the validator side and every rule in
+``validate_header`` — ``IdInformante``'s RUC check digit among them —
+evaluated against nothing and reported nothing. A direct call to the
+validator passed its tests precisely because the test built the payload
+in the shape the validator wanted.
+
+``builder.ats_header(payload)`` is now the single place the key is
+decided, and both ``build_ats_xml`` and ``validate_ats`` go through it.
+There is no alias left in the wizard, and a mismatch between the two
+layers is no longer expressible.
+
+``ATS_HEADER_KEY`` is ``"header"`` and **not** the root element name
+``iva``, which is the temptation that caused this: ``iva`` names the
+element the header is rendered *into*, ``header`` names where the
+mapping sits in a payload. Same word, different thing.
+
+A ``ventas`` row with no client-side IVA withholding
+----------------------------------------------------
+
+Resolved the other way from what ATS-11 shipped, and it is a behaviour
+change.
+
+``ESQUEMA`` row 24 reads: *"Debe ser igual a la baseImpGrav aplicando el
+porcentajeIva (tabla 11).* **El valor puede ser mayor o igual**\ *, si
+no existe valor colocar 0.00"*. ATS-11 read *"puede ser mayor o igual"*
+as a **floor** on the lowest ``Tabla 11`` share in force, so
+``valorRetIva = 0.00`` against a non-zero ``baseImpGrav`` was a
+``SEVERITY_ERROR``.
+
+**That reading is not shippable.** The cell sanctions ``0.00``
+explicitly — *"si no existe valor colocar 0.00"* is what to file when
+there is no withholding — so a floor makes the cell's own sanctioned
+value an error and the two clauses cannot both hold. And the floor
+refuses every sale whose client withheld nothing, which is most sales,
+so a company could not file a sales period at all.
+
+What replaced it: ``0.00`` produces no finding; a value equal to
+``baseImpGrav`` times one ``Tabla 11`` share **in force for the reported
+period** is clean; anything else is the existing ``SEVERITY_WARNING``.
+**There is no grave branch left on this field.** *"Puede ser mayor o
+igual"* is now read for what it is for — over-withholding is tolerated —
+and the ``air`` block already reads its own ``valRetAir`` this way,
+exempting ``0.00`` instead of reconciling it against ``porcentajeAir``.
+
+The shares are still resolved through the catalog for the period, so the
+comparison is never against a literal.
+
+Two ``Tabla 3.10`` groupings the SRI does not state
+---------------------------------------------------
+
+``detail_group`` is loaded for eight codes from the ficha técnica's
+prose. Two things about it are worth a maintainer's eye:
+
+- **The ficha's list is timeless and the codes are not.** It names
+  ``330``, ``341`` and ``342`` as dividend/banana concepts; all three
+  were dropped by the SRI from 2020 and are in no group for a current
+  period. The grouping follows the eras, which is right, but it means
+  the ficha's list cannot be read as "these eight codes always need a
+  sub-report".
+- **The selection rule is the era's own description.** An era is grouped
+  only when the sheet's description for *that era* names dividends or
+  ``banano``, which is checkable against a cell and leaves eighteen eras
+  ungrouped. A different reading of the ficha would group a different
+  set, and nothing in the source chooses between them.
 
 Bug Tracker
 ===========

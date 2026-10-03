@@ -96,7 +96,7 @@ from dataclasses import field as dataclass_field
 from datetime import date, datetime
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation, localcontext
 
-from .builder import ATS_ESTABLECIMIENTO_RECAP_NAME
+from .builder import ATS_ESTABLECIMIENTO_RECAP_NAME, ats_header
 
 ATS_DATE_FORMAT = "%d/%m/%Y"
 
@@ -1354,16 +1354,36 @@ def validate_ventas_row(row, period, *, reader, where="ventas"):
     ``montoIva`` -- *"Debe ser igual a la baseImpGrav aplicando el porcentajeIva
     (tabla 12). Si difiere en mas o menos generar mensaje de advertencia"*.
     ``valorRetIva`` -- *"Debe ser igual a la baseImpGrav aplicando el
-    porcentajeIva (tabla 11). El valor puede ser mayor o igual"*.
+    porcentajeIva (tabla 11). El valor puede ser mayor o igual, si no existe
+    valor colocar 0.00"*.
 
-    The last one is a **floor**, and the floor is the **lowest** ``Tabla 11``
-    percentage in force for the period. The row aggregates every client-side IVA
-    withholding for one client and one document type, so it can be a mix of
-    regimes: a single higher rate is not an error, and neither is a blend. What
-    the cell's *"puede ser mayor o igual"* forbids is filing **less** than the
-    smallest share the SRI published, which would mean a withholding that never
-    happened. A value that matches no single share raises an alerta, because the
-    cell's first sentence asks for the exact product.
+    **The last cell contradicts a floor reading inside one sentence.** Read
+    *"el valor puede ser mayor o igual"* as a lower bound and the sanctioned
+    ``0.00`` of *"si no existe valor colocar 0.00"* becomes an error whenever
+    ``baseImpGrav`` is non-zero -- the two clauses cannot both hold. And the
+    consequence is not academic: a floor on the lowest ``Tabla 11`` share refuses
+    **every sale whose client withheld nothing**, which is most sales, so a
+    company could not file a sales period at all and the message would blame the
+    company rather than the rule.
+
+    So *"puede ser mayor o igual"* is read for what it is for -- **over-withholding
+    is tolerated** -- and not as a bound on the field. Three cases follow:
+
+    * ``0.00`` is what the cell says to file when there is no withholding, so it
+      produces no finding at all. The ``air`` block already reads its own
+      withholding the same way: :func:`_validate_air_row` exempts a ``valRetAir``
+      of ``0.00`` rather than reconciling it against ``porcentajeAir``.
+    * a value equal to ``baseImpGrav`` times one ``Tabla 11`` share **in force for
+      the reported period** is the cell's own product and is clean.
+    * anything else is a ``SEVERITY_WARNING``. The row aggregates every
+      client-side withholding for one client and document type, so a blend of
+      regimes legitimately matches no single share, and exceeding a share is
+      precisely what the *"may be greater or equal"* clause tolerates -- so it is
+      reported and never blocked.
+
+    **There is no grave branch left on this field.** The shares are resolved
+    through :func:`resolve_rates` for the period, so the comparison is against the
+    percentages the SRI published then and never against a literal.
     """
     period = AtsPeriod.of(period)
     found = []
@@ -1412,37 +1432,25 @@ def validate_ventas_row(row, period, *, reader, where="ventas"):
             )
         )
     withheld = _money(row.get("valorRetIva"), "valorRetIva")
-    rates = resolve_rates(reader, TABLA_IVA_RETENTION, period.catalog_probe)
-    if rates:
-        shares = [_share(base_gravada, rate) for rate in rates.values()]
-        floor = min(shares)
-        if withheld < floor:
-            found.append(
-                _error(
-                    "ventas.valor_ret_iva",
-                    "valorRetIva",
-                    f"is {withheld}, below the {floor} that the lowest "
-                    f"Tabla {TABLA_IVA_RETENTION} share of baseImpGrav "
-                    f"{base_gravada} is on {period.label}. The cell says the "
-                    f"value may be greater or equal, never less",
-                    where=where,
-                    base=base_gravada,
-                    minimo=floor,
-                    declarado=withheld,
-                )
-            )
-        elif withheld not in shares:
+    if withheld:
+        # Zero is not reconciled at all: it is what the cell says to file when the
+        # client withheld nothing, so there is no product to disagree with.
+        rates = resolve_rates(reader, TABLA_IVA_RETENTION, period.catalog_probe)
+        shares = sorted(_share(base_gravada, rate) for rate in rates.values())
+        if withheld not in shares:
             found.append(
                 _warning(
                     "ventas.valor_ret_iva",
                     "valorRetIva",
                     f"is {withheld}, which matches none of the Tabla "
-                    f"{TABLA_IVA_RETENTION} shares of baseImpGrav {base_gravada} "
-                    f"({sorted(shares)}) in force on {period.label}. It is above "
-                    f"the floor, so it is an alerta and not an error",
+                    f"{TABLA_IVA_RETENTION} shares of baseImpGrav "
+                    f"{base_gravada} ({shares}) in force on {period.label}. A "
+                    f"blend of regimes and a value above a share are both "
+                    f"allowed by the cell -- it says the value may be greater or "
+                    f"equal -- so this is an alerta and never a grave finding",
                     where=where,
                     base=base_gravada,
-                    minimo=floor,
+                    declared_shares=shares,
                     declarado=withheld,
                 )
             )
@@ -1480,6 +1488,12 @@ def validate_ats(payload, period, *, env, air_codes=None):
     ``fideicomisos`` and ``rendFinancieros`` are withheld by the builder (§4.2),
     so walking them would be walking elements that cannot be present.
 
+    The header comes from :func:`~l10n_ec_ats.builder.ats_header` -- **the same
+    accessor :func:`~l10n_ec_ats.builder.build_ats_xml` uses** -- so the two
+    layers cannot read the header under different keys. They once did, and every
+    rule in :func:`validate_header` below, ``IdInformante``'s RUC check digit
+    included, was then evaluated against an empty mapping and reported nothing.
+
     The ``000`` sweep runs first and over the whole tree, because it is the rule
     that decides whether a document may be filed at all and its answer changes how
     every other field should be read.
@@ -1490,7 +1504,7 @@ def validate_ats(payload, period, *, env, air_codes=None):
     found = list(validate_estab_codes(payload))
     found.extend(
         validate_header(
-            payload.get("iva") or {},
+            ats_header(payload),
             period,
             payload.get("ventas") or (),
             payload.get("ventasEstablecimiento") or (),

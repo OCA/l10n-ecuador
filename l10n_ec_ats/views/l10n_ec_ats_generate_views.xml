@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!--
+        The one seam a user can reach. Every other layer of this addon
+        (collector, builder, validators, schema) is reachable only from
+        here or from a shell, so a wizard nobody can open is a wizard nobody
+        has proved works on real company data.
+
+        Two things the form carries that the pipeline alone could not:
+
+        * **The period is a field, not a shell argument.** ``company_id``, ``anio``
+          and ``mes`` are what ATS-12's acceptance is written against, and the
+          ficha's own ``2000`` floor is enforced by a constraint on them, so an
+          impossible period is refused as you type rather than after a full
+          collection pass.
+
+        * **The warnings are shown rather than discarded.** ATS-11 defines a
+          severity that is reported and does not stop generation, and
+          ``_l10n_ec_run()`` returns every violation for exactly that reason. A
+          non-blocking finding that nothing renders is indistinguishable from one
+          that never happened, which is why ``generate()`` writes them into
+          ``warnings`` instead of discarding them: the file still downloads, and
+          the person who is about to send it to the SRI can read what the SRI may
+          question first.
+    -->
+
+    <record id="l10n_ec_ats_generate_view_form" model="ir.ui.view">
+        <field name="name">l10n.ec.ats.generate.form</field>
+        <field name="model">l10n.ec.ats.generate</field>
+        <field name="arch" type="xml">
+            <form string="Generate ATS">
+                <group>
+                    <group>
+                        <field name="company_id" />
+                        <field name="anio" />
+                        <field name="mes" />
+                    </group>
+                    <group string="File">
+                        <div class="text-muted">
+                            <p>
+                                One ATS document per reported month, filed as
+                                <code>AT{mm}{yyyy}.zip</code> holding one XML that
+                                satisfies <code>ats.xsd</code>. Nothing is
+                                resolved from a literal: every catalogue value is
+                                read for the reported period, and a value that
+                                cannot be resolved stops generation rather than
+                                being assumed.
+                            </p>
+                        </div>
+                    </group>
+                </group>
+                <field name="warnings" nolabel="1" readonly="1" />
+                <footer>
+                    <button
+                        name="generate"
+                        type="object"
+                        string="Generate"
+                        class="btn-primary"
+                    />
+                    <button string="Discard" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="l10n_ec_ats_generate_action" model="ir.actions.act_window">
+        <field name="name">ATS</field>
+        <field name="res_model">l10n.ec.ats.generate</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="l10n_ec_ats_generate_view_form" />
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+        id="l10n_ec_ats_generate_menu"
+        name="ATS"
+        parent="l10n_ec.sri_menu"
+        action="l10n_ec_ats_generate_action"
+        sequence="10"
+    />
+</odoo>

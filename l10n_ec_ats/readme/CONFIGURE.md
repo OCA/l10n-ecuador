@@ -2,7 +2,8 @@ Nothing to configure.
 
 The module installs the `l10n.ec.temporal` abstract mixin and requires
 `l10n_ec_base`, `l10n_ec_account_edi` and `l10n_ec_withhold` to be installed.
-It exposes no user interface and adds no technical setting.
+It adds no technical setting; the only user interface is the generation wizard,
+reachable from **Invoicing ‣ SRI ‣ ATS**.
 
 ## Effective-dated catalog entries
 
@@ -234,8 +235,10 @@ supplier.
 `valorRetRenta` resolves **no** `Tabla 3.10` rate, and deliberately so: unlike
 `air`, this block has no per-concept breakdown, so there is nowhere to put a code
 or a percentage and an unresolved rate cannot affect the total that is all the
-schema can express here. `valorRetIva` is still checked against `Tabla 11` for
-the reported day — a rate the SRI never published is reported, not filed.
+schema can express here. `valorRetIva` is checked against the `Tabla 11` shares
+in force for the reported day, but only when it is **not** `0.00`: the cell says
+to file `0.00` when there is no withholding, and a non-zero value matching no
+single share is an *alerta* rather than a grave finding. See `USAGE.md`.
 
 ### `formasDePago` is not part of the key
 
@@ -545,3 +548,76 @@ in it is a journal-level problem, so `journal` is always `False` and `move`
 always names the document — but the key is present, so a consumer can read either
 without a `KeyError`. The two blocks before this one build their dicts without
 `journal`; see `ROADMAP.md`.
+
+## The `air` sub-report groups are catalog data, not a Python list
+
+`l10n.ec.ats.income.withholding.rate.detail_group` is a `Selection` of **group
+names** — `dividend`, `banana`, or empty. It is loaded from
+`data/ats_income_withholding_rates.xml`, on the 99 of the 3149 rate rows it
+applies to, and it exists because
+`validators.validate_compras_row` **raises** `ValueError` when an `air` row
+carries one of the five conditional elements and the caller supplied no
+`AirConditionalCodes`: a check that cannot be made must not be allowed to look
+covered.
+
+`Catalogo_ATS.xlsx` carries **no column** saying which `codRetAir` needs which
+sub-report, and it cannot be derived from the concept either. The SRI reuses a
+code across eras:
+
+| Code | Before 2015-03-01 | From 2015-03-01 |
+| --- | --- | --- |
+| `340` | *Otras retenciones aplicables el 1%* | *Impuesto único a la exportación de banano de producción propia - componente 2* |
+| `341` | *Otras retenciones aplicables el 2%* | the same, componente 2 |
+| `342` | *Otras retenciones aplicables el 8%* | *Impuesto único a la exportación de banano producido por terceros* |
+| `327` | *Por venta de combustibles a comercializadoras* | *Dividendos distribuidos a personas naturales residentes* |
+
+A timeless list of codes would file a banana sub-report against a 2013 concept
+that was not one, and would file none at all for the concept that was. So the
+grouping is a **dated fact about an era**, which is why it lives on the rate —
+the model that already carries the window — and not on the concept, which is a
+code registry with no dates at all.
+
+**The candidate set is the ficha's eight codes; each era is then kept only when
+that era's own description names the thing.** Eighteen of the 117 eras of those
+codes do not, and they carry no group on purpose. Three codes have an era hole
+the SRI itself created — `330`, `341` and `342` are dropped from 2020 — so they
+are in no group for a current period, and the wizard resolves that from the data
+rather than from a list.
+
+Read it as `rate.detail_group` **after** resolving the rate for the reported
+period. Never from the concept: a concept has no window to resolve against.
+
+## The generation wizard has three fields, one button and a warnings panel
+
+`l10n.ec.ats.generate` takes a `company_id`, an `anio` and a `mes`, and
+`generate()` returns the action that downloads the archive. It opens from
+**Invoicing ‣ SRI ‣ ATS** and stays usable from an automated action, RPC or a
+shell.
+
+- **`anio` and `mes` are integers, and the field refuses an impossible period.**
+  `Catalogo_ATS.xls` / `ESQUEMA TIPO 1 Y 2` row 7 says the year *"debe
+  corresponder a periodos del 2000 en adelante"* and the ficha's `ESQUEMA` adds
+  *"Programa despliega calendario 2000 en adelante"*, so an earlier year is
+  refused on the field rather than discovered in the document. The month is
+  bounded by `mesType`'s own pattern.
+- **`mes` is captured as a number, not chosen from a list.** The code that
+  reaches the file is the `Tabla 01` row's own, read from the catalog, so the
+  wizard cannot disagree with the table the moment the SRI republishes it.
+- **`regimenMicroempresa` is derived, not configured.** It is emitted when the
+  company declares a `l10n_ec_regimen` **and** the `Tabla 01` row of the
+  reported month names a semestral regime — which is what the sheet's own
+  descriptions say for the two semestral months and do not say for the other
+  ten. No `{06, 12}` set is held in Python.
+- **The company must be an EC one with a RUC.** `IdInformante` is
+  `company.partner_id.vat`; the builder refuses an empty one, and ATS-11 applies
+  the RUC module 11 check digit to it, so a wrong digit stops generation.
+- **`warnings` is the report, not a blocker.** `generate()` writes every
+  non-blocking finding there and the form shows it beside the download. A grave
+  finding never reaches it — it stops generation, and every problem is listed in
+  one `UserError` rather than only the first.
+
+The wizard is a `TransientModel` and lives in `l10n_ec_ats/wizard/`, not in
+`models/`: the repository's mandatory `pylint_odoo` run enables
+`no-wizard-in-models`, which refuses a `TransientModel` declared under
+`models/`. `l10n_ec_withhold/wizard/` and `l10n_ec_account_edi/wizard/` are the
+existing precedent.

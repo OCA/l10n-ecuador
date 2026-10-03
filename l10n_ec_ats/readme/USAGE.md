@@ -1,7 +1,105 @@
-This module currently ships the `l10n.ec.temporal` mixin, the SRI referential
-catalogs, and the ATS schema layer. There is nothing to configure and no menu,
-no wizard and no ATS builder yet: document generation arrives in a later task of
-the same project.
+This module ships the `l10n.ec.temporal` mixin, the effective-dated SRI
+referential catalogs, the collectors, the builder, the business validators, the
+schema layer, and the wizard that composes them.
+
+## Generating a month
+
+`l10n.ec.ats.generate` takes a company, a year and a month, and produces one
+`AT{mmaaaa}.zip` holding a single XML that passes `ats.xsd`:
+
+```python
+wizard = env["l10n.ec.ats.generate"].create(
+    {"company_id": company.id, "anio": 2026, "mes": 8}
+)
+action = wizard.generate()   # {"type": "ir.actions.act_url", "url": "/web/content/<id>?download=true"}
+```
+
+The same call works from a form, a menu entry, an automated action, RPC or a
+shell. In the interface it is **Invoicing ‣ SRI ‣ ATS**, a dialog asking for the
+company, the year and the month with a single **Generate** button.
+
+The archive name follows ficha técnica §1.2: `AT` then the month then the year,
+both zero-padded, no separator and no special character, so March 2026 is
+`AT032026.zip`. Inside it there is exactly one member, `AT{mmaaaa}.xml`. The
+file is attached to the wizard record and downloaded through `/web/content`, so
+the bytes a user saves are the bytes that were validated.
+
+## When generation is refused
+
+Everything wrong with a period arrives in **one** `UserError`, numbered, and no
+file is produced. One error per lookup would make a bad period unreadable, and a
+file that quietly omitted the unusable documents is the failure the project
+exists to prevent. The message always ends by saying that nothing was assumed.
+
+Four things stop generation, and each names the table, the code and the window:
+
+| What | How it is reached |
+| --- | --- |
+| a **catalog gap** — no entry covers the reported day | shipped data: `Tabla 13` publishes the card payment forms from 2016-05-01, so a sale declaring form `20` in March 2016 cannot be filed |
+| a **catalog overlap** — two entries claim the same day | the wizard's preflight resolves `Tabla 12` as a whole, because a second regime in force at once is an overlap even under a different code |
+| an **`unresolved` `Tabla 3.10` rate** — the source states no single number | the preflight reads the concepts off the **documents**, before collection drops anything; 1689 of the 3149 rates carry no percentage |
+| **missing source data** — a field no record can supply | the collectors return the error rather than raising, and the wizard aggregates it. A vendor bill with no SRI authorization is the canonical case: Odoo Enterprise fabricates `'9999999999'` and ATS refuses the file |
+
+The period itself is refused earlier, by the field: a year before 2000 or a
+month outside 1..12 never reaches a collector.
+
+## Warnings do not block
+
+`ESQUEMA` row 22 calls a `montoIva` that differs from
+`baseImpGrav x porcentajeIva` a *mensaje de advertencia*, while the six
+IVA-withholding rows call an excess over `montoIva` *grave*. Both come back from
+`l10n.ec.ats.generate._l10n_ec_run()` as `(attachment, violations)`; only the
+`blocking` ones stop the file, and both severities are returned so a caller can
+report an *alerta* without refusing a return the SRI would accept.
+
+**`generate()` writes the non-blocking ones into the wizard's `warnings` field,
+which the form renders.** They are not an exception: an *alerta* by definition
+does not stop a return the SRI accepts, and raising one would make an acceptable
+return unfileable. Odoo 19 has no non-raising user-facing exception to use
+instead — `odoo.exceptions` carries no `Warning` and no `Notification`, and
+`from odoo.exceptions import Warning` is what the repository's mandatory
+`odoo-exception-warning` check exists to refuse. The `{"warning": ...}` dict a
+button returns is the **onchange** contract (`odoo.orm.models._onchange_eval`),
+and nothing in the action path reads it. So the download still happens and the
+findings are on screen next to the button that produced them.
+
+```python
+action = wizard.generate()
+if wizard.warnings:
+    _logger.info(wizard.warnings)
+```
+
+A programmatic caller can skip the field and read the severities itself:
+
+```python
+attachment, violations = wizard._l10n_ec_run()
+for violation in violations:
+    _logger.info("%s -- %s", violation.rule, violation)
+```
+
+## Reading a historical period
+
+The reported period is the **only** input. Every catalog read resolves through
+`_applicable_on(last day of the reported month)`, so loading 2016-06 against a
+file of `Tabla 12`'s 14% regime, `Tabla 3.10`'s 8% `porcentajeAir` for concept
+`304` and the `Tabla 13` forms of that month produces a genuinely different
+document from 2026-08 — not the same file with a different header. The test
+`test_historical_period_files_a_different_document` pins exactly that: two
+periods, one fixture, and the only value that differs is the one read out of the
+catalog.
+
+**`valorRetIva` of `0.00` is not an error.** `ESQUEMA` row 24 reads *"Debe ser
+igual a la baseImpGrav aplicando el porcentajeIva (tabla 11). El valor puede ser
+mayor o igual, **si no existe valor colocar 0.00**"*. The cell sanctions `0.00`
+explicitly, so a `ventas` row whose client withheld **no** IVA is filed as
+`0.00` and produces no finding — which matters because a company whose clients
+do not withhold IVA is most companies, and refusing those rows would make a sales
+period unfileable. A **non-zero** value is checked against the `Tabla 11` shares
+in force for the reported period and a value matching no single share is an
+*alerta*, never a grave one: a row aggregates every withholding for one client
+and document type, so a blend of regimes is legitimate, and exceeding a share is
+what *"puede ser mayor o igual"* exists to permit. See `ROADMAP.md` for the
+reading this replaced.
 
 ## Validating an ATS document
 

@@ -729,18 +729,34 @@ class TestMontoIva(TestValidatorsCommon):
 
 class TestValorRetIva(TestValidatorsCommon):
     """``valorRetIva = baseImpGrav x porcentajeIva`` from ``Tabla 11``, and
-    *"el valor puede ser mayor o igual"*: below the lowest share in force is an
-    error, a value matching no single share is a difference."""
+    *"el valor puede ser mayor o igual"*: ``0.00`` is sanctioned, a value
+    matching no single share in force is an alerta, and there is no grave branch
+    left on this field."""
 
-    def test_below_the_floor_is_refused(self):
-        violation = _of(
-            validate_ventas_row(
-                _ventas_row(valorRetIva="99.99"), CURRENT, reader=self.reader
-            ),
-            "ventas.valor_ret_iva",
-        )[0]
-        self.assertEqual(violation.severity, SEVERITY_ERROR)
-        self.assertEqual(violation.facts["minimo"], Decimal("100.00"))
+    def test_a_zero_retention_against_a_taxed_base_is_not_a_finding(self):
+        """*"Si no existe valor colocar 0.00"* -- the cell says so to file.
+
+        There is no withholding to reconcile, so there is no product to disagree
+        with and ``0.00`` produces **no violation at all**. The base is a taxed
+        ``1000.00`` on purpose: against a zero base a clean result would prove
+        nothing, because zero would be the only arithmetically possible answer.
+
+        This is the case a floor reading refuses. *"El valor puede ser mayor o
+        igual"* read as a lower bound turns the cell's own ``0.00`` into an
+        error on **every sale whose client withheld nothing** -- most sales -- so
+        the company could not file a sales period at all and the message would
+        blame the company rather than the rule.
+        """
+        found = validate_ventas_row(
+            _ventas_row(baseImpGrav="1000.00", valorRetIva="0.00"),
+            CURRENT,
+            reader=self.reader,
+        )
+        self.assertNotIn("ventas.valor_ret_iva", _rules(found))
+        # Asserted on the whole row, not on the one rule: an exemption proved by
+        # "the rule we care about is quiet" is also satisfied by a second,
+        # unrelated finding masking it.
+        self.assertEqual(_rules(found), [])
 
     def test_another_single_rate_share_is_accepted(self):
         """The row aggregates every withholding for one client and document
@@ -1077,8 +1093,12 @@ class TestPurity(TestValidatorsCommon):
     """§6: a validator that rewrites its input is not a validator."""
 
     def test_validate_ats_does_not_mutate_the_payload(self):
+        # The header is keyed "header", the one key ``ats_header`` resolves. It
+        # carries deliberately bad values so the header rules actually fire: a
+        # mutation check that never reads the header cannot catch a rewriter
+        # living there.
         payload = {
-            "iva": {
+            "header": {
                 "TipoIDInformante": "R",
                 "IdInformante": RUC_BAD_VERIFIER,
                 "razonSocial": "COMERCIAL DEL SUR CIA LTDA",
@@ -1138,13 +1158,28 @@ class TestAggregate(TestValidatorsCommon):
     """``validate_ats`` walks every in-scope block once."""
 
     def test_a_clean_payload_reports_nothing(self):
+        """``[]`` from a fully-populated header is a verdict, not a non-event.
+
+        Every rule in :func:`~..validators.validate_header` is
+        **presence-guarded** -- behind ``if declared_anio:``, ``if num_estab:``,
+        ``if "totalVentas" in header`` -- so an **absent** header satisfies all of
+        them trivially and returns the identical ``[]``. A clean-payload test
+        written against a header the aggregator never read is therefore green for
+        a reason that has nothing to do with the payload being clean, and it stays
+        green when the header stops being read at all.
+
+        The second half of the test is what makes the first half mean something:
+        the *same* payload with one header scalar broken must report, so the rules
+        demonstrably ran over real content.
+        """
         payload = {
-            "iva": {
+            "header": {
                 "TipoIDInformante": "R",
                 "IdInformante": RUC_SOCIEDAD,
                 "razonSocial": "COMERCIAL DEL SUR CIA LTDA",
                 "Anio": "2026",
                 "Mes": "08",
+                "regimenMicroempresa": "SI",
                 "numEstabRuc": "001",
                 "totalVentas": "1000.00",
                 "codigoOperativo": "IVA",
@@ -1165,9 +1200,64 @@ class TestAggregate(TestValidatorsCommon):
         }
         self.assertEqual(validate_ats(payload, CURRENT, env=self.env), [])
 
+        broken = copy.deepcopy(payload)
+        broken["header"]["numEstabRuc"] = "002"
+        self.assertIn(
+            "periodo.num_estab_ruc_recuento",
+            _rules(validate_ats(broken, CURRENT, env=self.env)),
+        )
+
+    def test_a_broken_informante_ruc_in_the_header_block_is_reported(self):
+        """The recurrence guard: the header block is genuinely walked.
+
+        **Why this test exists.** ``validate_ats`` and ``build_ats_xml`` once read
+        the header under different keys -- the builder from ``header``, the
+        validator from ``iva``, the element name. Every rule in
+        :func:`~..validators.validate_header`, ``IdInformante``'s RUC check digit
+        among them, was then evaluated against an **empty** mapping. Because every
+        one of those rules is presence-guarded, an empty header is not a loud
+        failure: it is a clean run. The suite stayed green, and the suite was
+        wrong -- it asserted that a block nobody read produced nothing, which is
+        what an unwalked block always produces.
+
+        So the regression to catch is not "a header rule misbehaves". It is
+        **"the header stopped being read and the presence guards hid it"**, and
+        only a test that *expects a violation* can catch it: a payload valid in
+        every respect except a deliberately broken ``IdInformante`` verifier must
+        report ``identificacion.ruc``. If the header is skipped, this returns
+        ``[]`` and fails.
+
+        It goes through :func:`~..validators.validate_ats`, **not**
+        :func:`~..validators.validate_header` directly, on purpose. The unit tests
+        of ``validate_header`` passed throughout the regression -- they handed it
+        the header as an argument -- so only a test that lets the aggregator pick
+        the key can observe the two layers disagreeing.
+        """
+        payload = {
+            "header": {
+                "TipoIDInformante": "R",
+                # Same nine-digit body as RUC_SOCIEDAD, verifier altered to 2: the
+                # shape is valid, the module 11 is not.
+                "IdInformante": RUC_BAD_VERIFIER,
+                "razonSocial": "COMERCIAL DEL SUR CIA LTDA",
+                "Anio": "2026",
+                "Mes": "08",
+                "regimenMicroempresa": "SI",
+                "numEstabRuc": "001",
+                "totalVentas": "0.00",
+                "codigoOperativo": "IVA",
+            },
+            "ventasEstablecimiento": [{"codEstab": "001", "ventasEstab": "0.00"}],
+        }
+        found = validate_ats(payload, CURRENT, env=self.env)
+        self.assertEqual(_rules(found), ["identificacion.ruc"])
+        # And the breach is blocking, not advisory: an informante RUC that does not
+        # add up is a grave finding, so generation must stop.
+        self.assertEqual(blocking(found), tuple(found))
+
     def test_every_block_is_walked(self):
         payload = {
-            "iva": {
+            "header": {
                 "Anio": "1999",
                 "numEstabRuc": "000",
                 "totalVentas": "1.00",
@@ -1204,12 +1294,13 @@ class TestAggregate(TestValidatorsCommon):
         must validate.
         """
         payload = {
-            "iva": {
+            "header": {
                 "TipoIDInformante": "R",
                 "IdInformante": RUC_SOCIEDAD,
                 "razonSocial": "COMERCIAL DEL SUR CIA LTDA",
                 "Anio": "2026",
                 "Mes": "08",
+                "regimenMicroempresa": "SI",
                 "numEstabRuc": "001",
                 "totalVentas": "0.00",
                 "codigoOperativo": "IVA",
@@ -1227,6 +1318,16 @@ class TestAggregate(TestValidatorsCommon):
             ],
         }
         self.assertEqual(validate_ats(payload, CURRENT, env=self.env), [])
+
+        # The header in *this* payload is live rather than absent, so the [] above
+        # is a verdict on a real block: there are no ventas rows, so any non-zero
+        # totalVentas is a sumatoria mismatch and nothing else can fire.
+        broken = copy.deepcopy(payload)
+        broken["header"]["totalVentas"] = "0.01"
+        self.assertEqual(
+            _rules(validate_ats(broken, CURRENT, env=self.env)),
+            ["total_ventas.sumatoria"],
+        )
 
     def test_the_period_floor_constant_is_the_one_the_cell_states(self):
         self.assertEqual(ATS_PERIOD_YEAR_FLOOR, 2000)
@@ -1372,30 +1473,61 @@ class TestTriangulation(TestValidatorsCommon):
             _of(found, "compras.retenciones_tope")[0].severity, SEVERITY_ERROR
         )
 
-    def test_the_floor_for_valor_ret_iva_moves_with_the_period(self):
-        """``Tabla 11``'s lowest share in force differs by period.
+    def test_the_accepted_valor_ret_iva_shares_follow_the_reported_period(self):
+        """What survives of the removed floor is **temporality**: which shares are
+        accepted depends on the period being filed, not on a constant.
 
-        In 2015-03 only the 30%, 70% and 100% rows existed, so the floor is 30%
-        of the base; in 2026-08 the 10% row exists too and the floor drops. A
-        flat floor would refuse a valid 2015 filing or pass a broken one.
+        ``Tabla 11`` code ``11`` (50%) opened on 2016-01-01. So the *same*
+        declared ``valorRetIva`` of ``500.00`` on the *same* base of ``1000.00``
+        is the cell's own product in 2026 and matches no share at all in 2015-03.
+        A flat share set -- one resolved on any single day, or a literal -- would
+        give both periods the same answer and pass a filing the SRI would not.
+
+        The two accepted sets are then read from the rule's own reconciliation
+        data, so the claim is about the sets and not about one hand-picked value.
         """
-        old_floor = _of(
-            validate_ventas_row(
-                _ventas_row(valorRetIva="150.00"),
-                BEFORE_TABLA11_CODES_9_AND_10,
-                reader=self.reader,
-            ),
+        fifty_percent = _ventas_row(valorRetIva="500.00")
+
+        self.assertNotIn(
             "ventas.valor_ret_iva",
+            _rules(validate_ventas_row(fifty_percent, CURRENT, reader=self.reader)),
         )
-        self.assertTrue(old_floor)
-        new_floor = _of(
-            validate_ventas_row(
-                _ventas_row(valorRetIva="150.00"), CURRENT, reader=self.reader
-            ),
+        self.assertIn(
             "ventas.valor_ret_iva",
+            _rules(
+                validate_ventas_row(
+                    fifty_percent,
+                    BEFORE_TABLA11_CODES_9_AND_10,
+                    reader=self.reader,
+                )
+            ),
         )
-        self.assertEqual(new_floor[0].facts["minimo"], Decimal("100.00"))
-        self.assertNotEqual(old_floor[0].facts["minimo"], new_floor[0].facts["minimo"])
+
+        def accepted_shares(period):
+            return _of(
+                validate_ventas_row(
+                    _ventas_row(valorRetIva="150.00"), period, reader=self.reader
+                ),
+                "ventas.valor_ret_iva",
+            )[0].facts["declared_shares"]
+
+        old_shares = accepted_shares(BEFORE_TABLA11_CODES_9_AND_10)
+        new_shares = accepted_shares(CURRENT)
+        self.assertEqual(
+            old_shares, [Decimal("300.00"), Decimal("700.00"), Decimal("1000.00")]
+        )
+        self.assertEqual(
+            new_shares,
+            [
+                Decimal("100.00"),
+                Decimal("200.00"),
+                Decimal("300.00"),
+                Decimal("500.00"),
+                Decimal("700.00"),
+                Decimal("1000.00"),
+            ],
+        )
+        self.assertNotEqual(old_shares, new_shares)
 
     def test_a_cent_over_a_share_is_a_difference_and_a_cent_under_is_not(self):
         """The comparison is on two decimals, which is what the document carries.

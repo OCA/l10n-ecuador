@@ -88,6 +88,29 @@ class L10nEcAtsIncomeWithholdingRate(models.Model):
         help="The source cell verbatim, for a rate the sheet does not state "
         "as a single number. Empty when the cell was a number.",
     )
+    detail_group = fields.Selection(
+        selection=[
+            ("dividend", "Dividend payment extension"),
+            ("banana", "Banana export extension"),
+        ],
+        help="Which ``air`` sub-report this concept's era requires, if any. "
+        "**A group name, never a code.**\n\n"
+        "The ``air`` block has two conditional extensions: a dividend "
+        "withholding adds ``fechaPagoDiv`` / ``imRentaSoc`` / ``anioUtDiv``, and "
+        "a banana one adds ``numCajBan`` / ``precCajBan``. ``Catalogo_ATS.xls`` "
+        "carries **no column** saying which ``codRetAir`` needs which, and it "
+        "cannot be derived from the concept either -- the SRI reuses codes "
+        "across eras, so ``338`` is *Compra local de banano a productor* in 2016 "
+        "and *Producción y venta local de banano producido o no por el mismo "
+        "sujeto* from 2020, while ``340`` is *Otras retenciones aplicables el "
+        "1%* until 2015 and a banana concept from 2015 on.\n\n"
+        "The grouping is therefore a **dated fact about an era**, which is why "
+        "it lives here next to the window rather than on the concept: one "
+        "concept can need one extension in one era and none in another. It is a "
+        "name rather than a code because the code is ``concept_id.code`` -- "
+        "publishing it here too would be the same fact stated twice, and the "
+        "two could drift.",
+    )
 
     @api.constrains("percentage", "unresolved")
     def _check_percentage_matches_unresolved(self):

@@ -104,6 +104,23 @@ is set to `000`** — the hole is only reachable by hand.
 The one-line tightening is a separate proposal against `l10n_ec_base`, which is
 already merged (PR #101), so it cannot travel in this addon's PR.
 
+**What ATS does about it, now that generation exists.** Two independent layers
+catch the `000`, and neither trusts the other:
+
+1. the collectors refuse it while assembling a row, so the establishment never
+   reaches a payload;
+2. ATS-11's `establecimiento.no_000` sweep refuses it anywhere in the payload,
+   and `validate_estab_codes` walks the tree by **element** name so it cannot
+   fire on `codSustento` or `tipoProv` — two different code spaces where `00` is
+   a different question.
+
+The wizard turns either refusal into the same aggregated `UserError`, so a
+journal set to `000` produces a message naming the journal and the field rather
+than a file. **The gap stays open in `l10n_ec_base` on purpose**: tightening
+`_constrains_l10n_ec_entity_emission` is a change to merged code and needs its
+own PR against `19.0`. ATS v1 is self-contained either way, which is what §5.4b
+asks for.
+
 ### Two `account.tax` rows carry an ATS code that resolves to nothing
 
 `account.tax.l10n_ec_code_ats` is the source of `codRetAir` — the feature
@@ -296,3 +313,93 @@ Effective-dated taxes on `account.tax` itself — `l10n_ec_date_start` /
 `l10n_ec_date_end` plus `_l10n_ec_tax_for_date()` and a coverage report — are
 a separate proposal in `l10n_ec_base`, not in ATS v1. ATS reads the rate from
 the invoice line's own tax, so v1 is functionally independent of it.
+
+## The wizard has a form view and a menu entry, and it reports warnings
+
+Resolved. `views/l10n_ec_ats_generate_views.xml` carries the form, the action and
+a menuitem under `l10n_ec.sri_menu`, the same root `l10n_ec_account_edi` hangs
+its documents off, so the feature is where somebody filing to the SRI already
+looks.
+
+The warnings came with it. `_l10n_ec_run()` returns `(attachment, violations)`
+for exactly that reason, and `generate()` was discarding the second element — an
+*alerta* was computed and then dropped, which is indistinguishable from the check
+never having run. `generate()` now writes them to the wizard's `warnings` field
+and the form renders it. The file still downloads; a finding never blocks a
+return the SRI accepts.
+
+**Odoo 19 has no non-raising user-facing exception, which is why a field and not
+a `Warning`.** `odoo.exceptions` carries no `Warning` and no `Notification` — the
+only warning-shaped class in it is `RedirectWarning`, and that is for redirecting,
+not for reporting. `from odoo.exceptions import Warning` is precisely what the
+mandatory `odoo-exception-warning` check exists to refuse. The
+`{"warning": {"title", "message", "type"}}` dict is real, but it is the
+**onchange** contract: `odoo.orm.models._onchange_eval` reads it, and
+`addons/web/models/models.py` formats it in `onchange()`. Nothing in the action
+path consumes it on a button's return value. A stored field on the transient
+wizard is the channel that survives to a real user in this version.
+
+## `validators.validate_ats` and `builder.build_ats_xml` read the header under one key
+
+Resolved. The two layers disagreed — the builder from `payload["header"]`, the
+validator from `payload["iva"]` — and the consequences were worse than a
+collision. The wizard papered over it with
+`L10nEcAtsGenerate._l10n_ec_validation_payload`, a second view of the same dict
+carrying both keys. But the *validator* was the only caller that ever got the
+alias, so on the real pipeline the header arrived **empty** on the validator side
+and every rule in `validate_header` — `IdInformante`'s RUC check digit among them
+— evaluated against nothing and reported nothing. A direct call to the validator
+passed its tests precisely because the test built the payload in the shape the
+validator wanted.
+
+`builder.ats_header(payload)` is now the single place the key is decided, and both
+`build_ats_xml` and `validate_ats` go through it. There is no alias left in the
+wizard, and a mismatch between the two layers is no longer expressible.
+
+`ATS_HEADER_KEY` is `"header"` and **not** the root element name `iva`, which is
+the temptation that caused this: `iva` names the element the header is rendered
+*into*, `header` names where the mapping sits in a payload. Same word, different
+thing.
+
+## A `ventas` row with no client-side IVA withholding
+
+Resolved the other way from what ATS-11 shipped, and it is a behaviour change.
+
+`ESQUEMA` row 24 reads: *"Debe ser igual a la baseImpGrav aplicando el
+porcentajeIva (tabla 11). **El valor puede ser mayor o igual**, si no existe
+valor colocar 0.00"*. ATS-11 read *"puede ser mayor o igual"* as a **floor** on
+the lowest `Tabla 11` share in force, so `valorRetIva = 0.00` against a non-zero
+`baseImpGrav` was a `SEVERITY_ERROR`.
+
+**That reading is not shippable.** The cell sanctions `0.00` explicitly — *"si no
+existe valor colocar 0.00"* is what to file when there is no withholding — so a
+floor makes the cell's own sanctioned value an error and the two clauses cannot
+both hold. And the floor refuses every sale whose client withheld nothing, which
+is most sales, so a company could not file a sales period at all.
+
+What replaced it: `0.00` produces no finding; a value equal to `baseImpGrav` times
+one `Tabla 11` share **in force for the reported period** is clean; anything else
+is the existing `SEVERITY_WARNING`. **There is no grave branch left on this
+field.** *"Puede ser mayor o igual"* is now read for what it is for —
+over-withholding is tolerated — and the `air` block already reads its own
+`valRetAir` this way, exempting `0.00` instead of reconciling it against
+`porcentajeAir`.
+
+The shares are still resolved through the catalog for the period, so the
+comparison is never against a literal.
+
+## Two `Tabla 3.10` groupings the SRI does not state
+
+`detail_group` is loaded for eight codes from the ficha técnica's prose. Two
+things about it are worth a maintainer's eye:
+
+- **The ficha's list is timeless and the codes are not.** It names `330`, `341`
+  and `342` as dividend/banana concepts; all three were dropped by the SRI from
+  2020 and are in no group for a current period. The grouping follows the eras,
+  which is right, but it means the ficha's list cannot be read as "these eight
+  codes always need a sub-report".
+- **The selection rule is the era's own description.** An era is grouped only
+  when the sheet's description for *that era* names dividends or `banano`, which
+  is checkable against a cell and leaves eighteen eras ungrouped. A different
+  reading of the ficha would group a different set, and nothing in the source
+  chooses between them.

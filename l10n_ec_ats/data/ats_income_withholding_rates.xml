@@ -98,6 +98,85 @@
       inside one resolves to no rate at all.
     -->
 
+    <!-- ====================================================================
+         Source: Ficha Tecnica Transaccional Simplificado ATS, the ``air``
+         block's two conditional extensions, read together with
+         Catalogo_ATS.xlsx / sheet "TABLAS RETENCIONES" (Tabla 3.10).
+
+         WHERE THESE GROUPS COME FROM
+         ============================
+         validators.AirConditionalCodes is a seam ATS-11 left open: which
+         codRetAir codes carry the dividend sub-report (fechaPagoDiv,
+         imRentaSoc, anioUtDiv) and which carry the banana one (numCajBan,
+         precCajBan). validate_compras_row raises ValueError rather than skip
+         the check when an air row carries one of those five elements and the
+         caller supplied no codes, because a check that cannot be made must not
+         look covered.
+
+         Catalogo_ATS.xlsx carries NO column saying which code needs which
+         sub-report, and the grouping cannot be derived from the concept
+         either. The SRI reuses a code across eras: 338 is "Compra local de
+         banano a productor" through 2019 and "Produccion y venta local de
+         banano producido o no por el mismo sujeto" from 2020, while 340 is
+         "Otras retenciones aplicables el 1%" until 2014-09-30 and a banana
+         concept from 2015-03-01. A timeless list of codes would file a banana
+         sub-report against a 2013 concept that was not one, and would file no
+         sub-report at all for the concept that actually was.
+
+         So the grouping is a DATED FACT ABOUT AN ERA, which is why each one lands on
+         the l10n.ec.ats.income.withholding.rate row it applies to — the model that already carries
+         the window — and not on the concept, which is a code registry with no
+         dates at all.
+
+         WHY THESE CODES
+         ================
+         The ficha técnica states the codes in prose, and that prose is the
+         authority for WHICH codes need a sub-report. All eight of them exist as
+         loaded concepts; none had to be invented:
+
+           dividend   327  330  504A  504D
+           banana     338  340  341  342
+
+         WHY THESE ERAS
+         ==============
+         The candidate set is the ficha's eight codes, and then EACH ERA is kept
+         only when that era's own description, as the sheet spells it for that
+         era, actually names the thing. Eighteen eras do not, and they are left
+         without a group on purpose:
+
+           327  2009-01-01..2015-02-28   "Por venta de combustibles a comercializadoras"
+           340  2009-01-01..2014-09-30   "Otras retenciones aplicables el 1%"
+           341  2009-01-01..2015-02-28   "Otras retenciones aplicables el 2%"
+           342  2009-01-01..2014-09-30   "Otras retenciones aplicables el 8%"
+
+         So the same code 340 is a banana concept from 2015-03-01 and in no
+         group at all before it. That is not a gap in the data — it is what the
+         source states, and filling it would file a sub-report the SRI never
+         asked for.
+
+         FOUR OF THE EIGHT HAVE AN ERA HOLE THE SRI ITSELF CREATED
+         =========================================================
+         A concept is not in force in every era, and the group follows:
+
+           330  last rate ends 2020-03-31  -> no dividend group from 2020-04
+           341  last rate ends 2019-12-31  -> no banana group from 2020
+           342  last rate ends 2019-12-31  -> no banana group from 2020
+
+         The other five are continuous from their first era to an open-ended
+         one — 327 from 2009, 338 and 340 from 2015, 504A from 2014 and 504D
+         from 2015 — so the wizard resolves a dividend group and a banana group
+         for a current period, each from the codes the SRI still publishes.
+
+         A GROUP NAME, NEVER A CODE
+         ==========================
+         detail_group holds "dividend" or "banana". Acceptance criterion 3
+         forbids a business code as a Python literal and criterion 4 permits
+         one in data/ and tests — but storing the code here as well would
+         state the same fact twice, in two places that could drift. The code is
+         concept_id.code, and the group is resolved from the rate that carries
+         the window.
+    -->
+
     <record
         id="ats_income_withholding_rate_b06_r005"
         model="l10n.ec.ats.income.withholding.rate"
@@ -11689,6 +11768,7 @@
         id="ats_income_withholding_rate_b00_r053"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r053" />
         <field
             name="description"
@@ -11702,6 +11782,7 @@
         id="ats_income_withholding_rate_b01_r053"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r053" />
         <field
             name="description"
@@ -11716,6 +11797,7 @@
         id="ats_income_withholding_rate_b02_r053"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r053" />
         <field
             name="description"
@@ -11730,6 +11812,7 @@
         id="ats_income_withholding_rate_b03_r053"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r053" />
         <field
             name="description"
@@ -11744,6 +11827,7 @@
         id="ats_income_withholding_rate_b04_r053"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r053" />
         <field
             name="description"
@@ -11758,6 +11842,7 @@
         id="ats_income_withholding_rate_b05_r052"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r053" />
         <field
             name="description"
@@ -11774,6 +11859,7 @@
         id="ats_income_withholding_rate_b06_r053"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r053" />
         <field
             name="description"
@@ -11790,6 +11876,7 @@
         id="ats_income_withholding_rate_b07_r052"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r053" />
         <field
             name="description"
@@ -11806,6 +11893,7 @@
         id="ats_income_withholding_rate_b08_r050"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r053" />
         <field
             name="description"
@@ -11822,6 +11910,7 @@
         id="ats_income_withholding_rate_b09_r050"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r053" />
         <field
             name="description"
@@ -11838,6 +11927,7 @@
         id="ats_income_withholding_rate_b10_r051"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r053" />
         <field
             name="description"
@@ -11854,6 +11944,7 @@
         id="ats_income_withholding_rate_b11_r051"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r053" />
         <field
             name="description"
@@ -11870,6 +11961,7 @@
         id="ats_income_withholding_rate_b12_r051"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r053" />
         <field
             name="description"
@@ -11886,6 +11978,7 @@
         id="ats_income_withholding_rate_b13_r051"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r053" />
         <field
             name="description"
@@ -11902,6 +11995,7 @@
         id="ats_income_withholding_rate_b14_r051"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r053" />
         <field
             name="description"
@@ -11918,6 +12012,7 @@
         id="ats_income_withholding_rate_b15_r046"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r053" />
         <field
             name="description"
@@ -11935,6 +12030,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b16_r046"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r053" />
         <field
             name="description"
@@ -12506,6 +12602,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b12_r054"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b12_r054" />
         <field
             name="description"
@@ -12519,6 +12616,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b13_r054"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b12_r054" />
         <field
             name="description"
@@ -12532,6 +12630,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b14_r054"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b12_r054" />
         <field
             name="description"
@@ -12548,6 +12647,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b15_r049"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b12_r054" />
         <field
             name="description"
@@ -12565,6 +12665,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b16_r049"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b12_r054" />
         <field
             name="description"
@@ -16125,6 +16226,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b00_r071"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r071" />
         <field
             name="description"
@@ -16138,6 +16240,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b01_r071"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r071" />
         <field
             name="description"
@@ -16152,6 +16255,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b02_r071"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r071" />
         <field
             name="description"
@@ -16166,6 +16270,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b03_r071"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r071" />
         <field
             name="description"
@@ -16180,6 +16285,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b04_r071"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r071" />
         <field
             name="description"
@@ -16194,6 +16300,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b05_r070"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r071" />
         <field
             name="description"
@@ -16208,6 +16315,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b06_r071"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r071" />
         <field
             name="description"
@@ -16222,6 +16330,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b07_r070"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r071" />
         <field
             name="description"
@@ -16236,6 +16345,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b08_r068"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r071" />
         <field
             name="description"
@@ -16250,6 +16360,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b09_r068"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r071" />
         <field
             name="description"
@@ -16264,6 +16375,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b10_r069"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r071" />
         <field
             name="description"
@@ -16278,6 +16390,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b11_r069"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r071" />
         <field
             name="description"
@@ -16292,6 +16405,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b12_r070"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r071" />
         <field
             name="description"
@@ -16306,6 +16420,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b13_r070"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r071" />
         <field name="description">Compra local de banano a productor</field>
         <field name="family">residente</field>
@@ -16320,6 +16435,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b14_r070"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r071" />
         <field name="description">Compra local de banano a productor</field>
         <field name="family">residente</field>
@@ -16334,6 +16450,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b15_r066"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r071" />
         <field name="description">Compra local de banano a productor</field>
         <field name="family">residente</field>
@@ -16348,6 +16465,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b16_r066"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r071" />
         <field name="description">Compra local de banano a productor</field>
         <field name="family">residente</field>
@@ -16418,6 +16536,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b00_r072"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r072" />
         <field name="description">Impuesto único a la exportación de banano</field>
         <field name="family">residente</field>
@@ -16428,6 +16547,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b01_r072"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r072" />
         <field name="description">Impuesto único a la exportación de banano</field>
         <field name="family">residente</field>
@@ -16439,6 +16559,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b02_r072"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r072" />
         <field name="description">Impuesto único a la exportación de banano</field>
         <field name="family">residente</field>
@@ -16450,6 +16571,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b03_r072"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r072" />
         <field name="description">Impuesto único a la exportación de banano</field>
         <field name="family">residente</field>
@@ -16461,6 +16583,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b04_r072"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r072" />
         <field name="description">Impuesto único a la exportación de banano</field>
         <field name="family">residente</field>
@@ -16472,6 +16595,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b05_r071"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r072" />
         <field name="description">Impuesto único a la exportación de banano</field>
         <field name="family">residente</field>
@@ -16483,6 +16607,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b06_r072"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r072" />
         <field name="description">Impuesto único a la exportación de banano</field>
         <field name="family">residente</field>
@@ -16494,6 +16619,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b07_r071"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r072" />
         <field name="description">Impuesto único a la exportación de banano</field>
         <field name="family">residente</field>
@@ -16505,6 +16631,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b08_r069"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r072" />
         <field name="description">Impuesto único a la exportación de banano</field>
         <field name="family">residente</field>
@@ -16516,6 +16643,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b09_r069"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r072" />
         <field name="description">Impuesto único a la exportación de banano</field>
         <field name="family">residente</field>
@@ -16527,6 +16655,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b10_r070"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r072" />
         <field name="description">Impuesto único a la exportación de banano</field>
         <field name="family">residente</field>
@@ -16538,6 +16667,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b11_r070"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r072" />
         <field name="description">Impuesto único a la exportación de banano</field>
         <field name="family">residente</field>
@@ -16549,6 +16679,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b12_r071"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r072" />
         <field name="description">Impuesto único a la exportación de banano</field>
         <field name="family">residente</field>
@@ -16560,6 +16691,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b13_r072"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r072" />
         <field
             name="description"
@@ -16576,6 +16708,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b14_r072"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r072" />
         <field
             name="description"
@@ -16592,6 +16725,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b15_r068"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r072" />
         <field
             name="description"
@@ -16608,6 +16742,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b16_r068"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r072" />
         <field
             name="description"
@@ -16689,6 +16824,7 @@ Agosto 2015 en adelante: Acorde a tabla progresiva según resolución NAC-DGERCG
         id="ats_income_withholding_rate_b13_r073"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b13_r073" />
         <field
             name="description"
@@ -16706,6 +16842,7 @@ Si hay la marca de "relacionada" no puede ser menor al 2%</field>
         id="ats_income_withholding_rate_b14_r073"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b13_r073" />
         <field
             name="description"
@@ -16723,6 +16860,7 @@ Si hay la marca de "relacionada" no puede ser menor al 2%</field>
         id="ats_income_withholding_rate_b15_r069"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b13_r073" />
         <field
             name="description"
@@ -16740,6 +16878,7 @@ Si hay la marca de "relacionada" no puede ser menor al 2%</field>
         id="ats_income_withholding_rate_b16_r069"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b13_r073" />
         <field
             name="description"
@@ -16809,6 +16948,7 @@ Si hay la marca de "relacionada" no puede ser menor al 2%</field>
         id="ats_income_withholding_rate_b13_r074"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b13_r074" />
         <field
             name="description"
@@ -16824,6 +16964,7 @@ Si hay la marca de "relacionada" no puede ser menor al 2%</field>
         id="ats_income_withholding_rate_b14_r074"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b13_r074" />
         <field
             name="description"
@@ -16839,6 +16980,7 @@ Si hay la marca de "relacionada" no puede ser menor al 2%</field>
         id="ats_income_withholding_rate_b15_r070"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b13_r074" />
         <field
             name="description"
@@ -16854,6 +16996,7 @@ Si hay la marca de "relacionada" no puede ser menor al 2%</field>
         id="ats_income_withholding_rate_b16_r070"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">banana</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b13_r074" />
         <field
             name="description"
@@ -31269,6 +31412,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China)</field>
         id="ats_income_withholding_rate_b00_r094"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r094" />
         <field
             name="description"
@@ -31283,6 +31427,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b01_r094"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r094" />
         <field
             name="description"
@@ -31298,6 +31443,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b02_r094"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r094" />
         <field
             name="description"
@@ -31313,6 +31459,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b03_r094"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r094" />
         <field
             name="description"
@@ -31328,6 +31475,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b04_r094"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r094" />
         <field
             name="description"
@@ -31341,6 +31489,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b05_r093"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r094" />
         <field
             name="description"
@@ -31357,6 +31506,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b06_r093"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r094" />
         <field
             name="description"
@@ -31373,6 +31523,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b07_r092"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r094" />
         <field
             name="description"
@@ -31389,6 +31540,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b08_r091"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r094" />
         <field
             name="description"
@@ -31405,6 +31557,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b09_r090"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r094" />
         <field
             name="description"
@@ -31421,6 +31574,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b10_r092"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r094" />
         <field
             name="description"
@@ -31437,6 +31591,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b11_r091"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r094" />
         <field
             name="description"
@@ -31453,6 +31608,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b12_r091"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r094" />
         <field
             name="description"
@@ -31469,6 +31625,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b13_r093"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r094" />
         <field
             name="description"
@@ -31485,6 +31642,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b14_r093"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r094" />
         <field
             name="description"
@@ -31501,6 +31659,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b15_r086"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r094" />
         <field name="description">Pago al exterior - Dividendos a sociedades</field>
         <field name="family">no_residente</field>
@@ -31515,6 +31674,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b16_r083"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r094" />
         <field
             name="description"
@@ -31531,6 +31691,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b17_r074"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r094" />
         <field
             name="description"
@@ -32062,6 +32223,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b00_r097"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r097" />
         <field
             name="description"
@@ -32076,6 +32238,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b01_r097"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r097" />
         <field
             name="description"
@@ -32091,6 +32254,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b02_r097"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r097" />
         <field
             name="description"
@@ -32106,6 +32270,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b03_r097"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r097" />
         <field
             name="description"
@@ -32121,6 +32286,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b04_r097"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r097" />
         <field
             name="description"
@@ -32134,6 +32300,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b05_r096"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r097" />
         <field
             name="description"
@@ -32150,6 +32317,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b06_r096"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r097" />
         <field
             name="description"
@@ -32166,6 +32334,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b07_r095"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r097" />
         <field
             name="description"
@@ -32182,6 +32351,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b08_r094"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r097" />
         <field
             name="description"
@@ -32198,6 +32368,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b09_r093"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r097" />
         <field
             name="description"
@@ -32214,6 +32385,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b10_r095"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r097" />
         <field
             name="description"
@@ -32230,6 +32402,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b11_r094"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r097" />
         <field
             name="description"
@@ -32246,6 +32419,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b12_r094"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r097" />
         <field
             name="description"
@@ -32262,6 +32436,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b13_r096"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r097" />
         <field
             name="description"
@@ -32278,6 +32453,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b14_r096"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r097" />
         <field
             name="description"
@@ -32291,6 +32467,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b15_r089"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r097" />
         <field name="description">Pago al exterior - Dividendos a fideicomisos</field>
         <field name="family">no_residente</field>
@@ -32306,6 +32483,7 @@ Las tarifas 3 y 8 aplica únicamente  bajo el CDI con China</field>
         id="ats_income_withholding_rate_b16_r086"
         model="l10n.ec.ats.income.withholding.rate"
     >
+        <field name="detail_group">dividend</field>
         <field name="concept_id" ref="ats_income_withholding_concept_b00_r097" />
         <field
             name="description"
