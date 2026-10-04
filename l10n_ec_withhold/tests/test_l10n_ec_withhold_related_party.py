@@ -1,3 +1,4 @@
+from odoo import fields
 from odoo.tests import tagged
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
@@ -29,19 +30,42 @@ class TestL10nWithholdRelatedParty(TestL10nECEdiCommon):
         )
 
     def _create_partner_withhold_edi_document(self, partner):
-        """Return the EDI document of a purchase withhold issued to ``partner``.
+        """Return the EDI document a posted purchase withhold owns for ``partner``.
 
-        Mirrors the vals the purchase withhold wizard builds in
-        ``_prepare_withholding_vals()`` without going through the wizard: the
-        ``parteRel`` assertion lives in the document header, so no withholding
-        tax line is needed. The basis/counterpart pair below exists only to
-        satisfy the balance and post rules.
+        The document is created by ``_post()``, never by hand. Core
+        ``account_edi`` creates it -- ``account.move._post`` walks
+        ``journal_id.edi_format_ids`` and asks ``_get_move_applicability`` --
+        and this module adds the branch that admits a withhold
+        (``l10n_ec_withhold/models/account_edi_format.py`` returns a mapping
+        for ``move.is_purchase_withhold()``). Creating an
+        ``account.edi.document`` by hand would assert against a record the
+        production flow never builds by hand, and would keep passing even if
+        posting stopped producing one.
+
+        That only holds while the move really posts, which is the subtle part:
+
+        * ``self.current_date`` is captured in ``TestL10nECCommon.setUpClass()``
+          *before* ``TestL10nECEdiCommon.setUpClass()`` switches the user
+          timezone to ``America/Guayaquil``. So it holds the UTC date, while
+          ``account.move._post(soft=True)`` compares ``move.date`` against the
+          Guayaquil date. Between 19:00 and 24:00 Guayaquil time the UTC date is
+          one day ahead, ``_post`` classifies the move as future, sets
+          ``auto_post = 'at_date'``, returns without posting, and no document is
+          ever created. Read the date here, in the timezone that will post.
+        * the withhold journal must pass ``_check_move_configuration()``: its
+          emission address comes from ``setUpClass``, the company VAT and
+          ``l10n_ec_key_type_id`` from ``_setup_edi_company_ec()``, and the SRI
+          payment method from the ``account.move`` field default.
+
+        The basis/counterpart pair below exists only to satisfy the balance and
+        post rules: the ``parteRel`` assertion lives in the document header, so
+        no withholding tax line is needed.
         """
         self._setup_edi_company_ec()
         withhold = self.AccountMove.create(
             {
                 "journal_id": self.journal_purchase_withhold.id,
-                "date": self.current_date,
+                "date": fields.Date.context_today(self.AccountMove),
                 "move_type": "entry",
                 "partner_id": partner.id,
                 "ref": self.get_sequence_number(),
