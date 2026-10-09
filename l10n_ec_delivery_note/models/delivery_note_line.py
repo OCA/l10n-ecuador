@@ -1,4 +1,4 @@
-from odoo import _, api, fields, models
+from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
 
@@ -11,31 +11,44 @@ class DeliveryNoteLine(models.Model):
         "l10n_ec.delivery.note",
         "Delivery Note",
         ondelete="cascade",
+        # Odoo 19 dropped ``auto_join``: the column index is what the query
+        # planner uses, and the removed kwarg only logged a warning.
         index=True,
-        auto_join=True,
     )
-    product_id = fields.Many2one(
-        "product.product", "Product", index=True, auto_join=True
+    product_id = fields.Many2one("product.product", "Product", index=True)
+    product_uom_category_id = fields.Many2one(
+        "uom.uom", compute="_compute_product_uom_category_id"
     )
-    product_uom_category_id = fields.Many2one(related="product_id.uom_id.category_id")
     product_uom_id = fields.Many2one(
         "uom.uom",
         string="UoM",
         ondelete="restrict",
-        domain="[('category_id', '=', product_uom_category_id)]",
+        domain="[('parent_path', '=?', product_uom_category_uom_path)]",
     )
+    product_uom_category_uom_path = fields.Char(
+        compute="_compute_product_uom_category_id"
+    )
+
+    @api.depends("product_id.uom_id", "product_id.uom_id.parent_path")
+    def _compute_product_uom_category_id(self):
+        # Odoo 19 dropped ``uom.uom.category_id``: units are now a hierarchy
+        # through ``relative_uom_id``, so the root of the ``parent_path`` tree is
+        # what plays the role of the old category.
+        for line in self:
+            root = line.product_id.uom_id._uom_root_id()
+            line.product_uom_category_id = root
+            line.product_uom_category_uom_path = root.parent_path or f"/{root.id}"
+
     product_qty = fields.Float("Quantity", digits="Product Unit of Measure")
     production_lot_id = fields.Many2one(
-        "stock.production.lot",
+        "stock.lot",
         "Production Lot",
         index=True,
         domain="[('product_id', '=', product_id)]",
     )
-    move_id = fields.Many2one(
-        "stock.move", "Stock Move", required=False, index=True, auto_join=True
-    )
+    move_id = fields.Many2one("stock.move", "Stock Move", required=False, index=True)
     move_line_id = fields.Many2one(
-        "stock.move.line", "Stock Move line", required=False, index=True, auto_join=True
+        "stock.move.line", "Stock Move line", required=False, index=True
     )
     company_id = fields.Many2one(
         "res.company", "Company", related="delivery_note_id.company_id", store=True
@@ -53,22 +66,23 @@ class DeliveryNoteLine(models.Model):
     @api.constrains("product_id", "product_uom_id")
     def _check_product_uom(self):
         for line in self:
+            if not (line.product_id and line.product_uom_id):
+                continue
+            # Odoo 19 has no uom.uom.category_id: comparable units share the
+            # root of their parent_path hierarchy.
             if (
-                line.product_id
-                and line.product_uom_id
-                and line.product_id.uom_id.category_id
-                != line.product_uom_id.category_id
+                line.product_uom_id._uom_root_id()
+                != line.product_id.uom_id._uom_root_id()
             ):
                 raise ValidationError(
-                    _(
+                    self.env._(
                         "You cannot perform the move "
-                        "because the unit of measure: %(unit_name)s has a different category "
-                        "as the product unit of measure: %(categ_name)s."
+                        "because the unit of measure: %(unit_name)s has a "
+                        "different category "
+                        "as the product unit of measure: %(categ_name)s.",
+                        unit_name=line.product_uom_id.display_name,
+                        categ_name=line.product_uom_id._uom_root_id().display_name,
                     )
-                    % {
-                        "unit_name": line.product_uom_id.display_name,
-                        "categ_name": line.product_id.uom_id.category_id.display_name,
-                    }
                 )
 
     @api.model
@@ -78,7 +92,8 @@ class DeliveryNoteLine(models.Model):
             "product_id": stock_move_line.product_id.id,
             "description": stock_move_line.move_id.sale_line_id.name
             or stock_move_line.product_id.name,
-            "product_qty": stock_move_line.qty_done,
+            # ``qty_done`` was renamed to ``quantity`` in Odoo 19
+            "product_qty": stock_move_line.quantity,
             "product_uom_id": stock_move_line.product_uom_id.id,
             "move_id": stock_move_line.move_id.id,
             "move_line_id": stock_move_line.id,
@@ -100,7 +115,9 @@ class DeliveryNoteLine(models.Model):
             "cantidad": EdiDocument._l10n_ec_number_format(
                 self.product_qty, decimals=6
             ),
-            "detallesAdicionales": self._l10n_ec_get_delivery_note_edi_additional_data(),
+            "detallesAdicionales": (
+                self._l10n_ec_get_delivery_note_edi_additional_data()
+            ),
         }
         return res
 

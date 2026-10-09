@@ -1,10 +1,13 @@
 import logging
 from os import path
 
-from psycopg2 import OperationalError
+from odoo import api, fields, models
+from odoo.exceptions import LockError, UserError
 
-from odoo import _, api, fields, models
-from odoo.exceptions import UserError
+from odoo.addons.l10n_ec.models.res_partner import (
+    PartnerIdTypeEc,
+    verify_final_consumer,
+)
 
 EDI_DATE_FORMAT = "%d/%m/%Y"
 DEFAULT_BLOCKING_LEVEL = "error"
@@ -23,47 +26,43 @@ class AccountEdiDocument(models.Model):
     )
     move_id = fields.Many2one(required=False)
 
-    # Heredar el método computado, para agregar dependencia
-    @api.depends("l10n_ec_delivery_note_id")
+    # Heredar el metodo computado, para agregar dependencia
+    @api.depends("move_id", "l10n_ec_delivery_note_id")
     def _compute_l10n_ec_document_data(self):
         return super()._compute_l10n_ec_document_data()
 
     def _prepare_jobs(self):
-        if self.move_id:
-            return super()._prepare_jobs()
-        to_process = {}
-        documents = self.filtered(
-            lambda d: d.state in ("to_send", "to_cancel")
-            and d.blocking_level != "error"
+        """Odoo 19 returns a list of ``{'documents', 'method_to_call'}`` dicts.
+
+        Core derives the batching key from
+        ``account.edi.format._get_move_applicability()``, which is move based
+        and therefore never applies to a delivery note (``move_id`` is empty).
+        Each delivery note is sent as its own job, calling the same hooks the
+        invoice flow uses: ``_l10n_ec_post_move_edi`` / ``_l10n_ec_cancel_move_edi``.
+        """
+        delivery_note_documents = self.filtered("l10n_ec_delivery_note_id")
+        jobs = super(AccountEdiDocument, self - delivery_note_documents)._prepare_jobs()
+        documents = delivery_note_documents.filtered(
+            lambda d: (
+                d.state in ("to_send", "to_cancel") and d.blocking_level != "error"
+            )
         )
         for edi_doc in documents:
-            delivery_note = edi_doc.l10n_ec_delivery_note_id
-            edi_format = edi_doc.edi_format_id
-            custom_key = edi_format._get_batch_key(delivery_note, edi_doc.state)
-            key = (edi_format, edi_doc.state, delivery_note.company_id, custom_key)
-            to_process.setdefault(key, self.env["account.edi.document"])
-            to_process[key] |= edi_doc
-
-        delivery_notes = []
-        for key, documents in to_process.items():
-            edi_format, state, company_id, custom_key = key
-            batch = self.env["account.edi.document"]
-            for doc in documents:
-                if edi_format._support_batching(
-                    doc.l10n_ec_delivery_note_id, state=state, company=company_id
-                ):
-                    batch |= doc
-                else:
-                    delivery_notes.append(doc)
-            if batch:
-                delivery_notes.append(batch)
-        return delivery_notes
+            if edi_doc.state == "to_cancel":
+                method_to_call = edi_doc.edi_format_id._l10n_ec_cancel_move_edi
+            else:
+                method_to_call = edi_doc.edi_format_id._l10n_ec_post_move_edi
+            jobs.append({"documents": edi_doc, "method_to_call": method_to_call})
+        return jobs
 
     @api.model
-    def _process_job(self, documents, doc_type=None):
-        if self.move_id:
-            return super()._process_job(documents, doc_type)
+    def _process_job(self, job):
+        documents = job["documents"].filtered("l10n_ec_delivery_note_id")
+        if not documents:
+            return super()._process_job(job)
+        return self._l10n_ec_process_delivery_note_job(documents, job["method_to_call"])
 
+    def _l10n_ec_process_delivery_note_job(self, documents, method_to_call):
         def _postprocess_post_edi_results(documents, edi_result):
             attachments_to_unlink = self.env["ir.attachment"]
             for document in documents:
@@ -102,72 +101,61 @@ class AccountEdiDocument(models.Model):
             raise ValueError(
                 "All account.edi.document of a job should have the same state"
             )
-        edi_format = documents.edi_format_id
         state = documents[0].state
         if state == "to_send":
             with delivery_note._send_only_when_ready():
-                edi_result = edi_format._post_invoice_edi(delivery_note)
+                edi_result = method_to_call(delivery_note)
                 _postprocess_post_edi_results(documents, edi_result)
 
     def _process_documents_no_web_services(self):
-        moves = self.filtered("move_id")
-        delivery_notes = self - moves
+        """Post and cancel the delivery note documents without web services."""
+        delivery_notes = self.filtered("l10n_ec_delivery_note_id")
         jobs = delivery_notes.filtered(
             lambda d: not d.edi_format_id._needs_web_services()
         )._prepare_jobs()
-        for documents in jobs:
-            delivery_notes._process_job(documents)
-        return super(AccountEdiDocument, moves)._process_documents_no_web_services()
+        for job in jobs:
+            delivery_notes._process_job(job)
+        return super(
+            AccountEdiDocument, self - delivery_notes
+        )._process_documents_no_web_services()
 
     def _process_documents_web_services(self, job_count=None, with_commit=True):
-        moves = self.filtered("move_id")
-        super(AccountEdiDocument, moves)._process_documents_web_services()
-        delivery_notes = self - moves
+        """Post and cancel the delivery note documents needing a web service."""
+        delivery_notes = self.filtered("l10n_ec_delivery_note_id")
+        moves = self - delivery_notes
+        nb_remaining_jobs = super(
+            AccountEdiDocument, moves
+        )._process_documents_web_services(job_count=job_count, with_commit=with_commit)
         all_jobs = delivery_notes.filtered(
             lambda d: d.edi_format_id._needs_web_services()
         )._prepare_jobs()
         jobs_to_process = all_jobs[0:job_count] if job_count else all_jobs
-        for documents in jobs_to_process:
-            move_to_lock = documents.l10n_ec_delivery_note_id
+        for job in jobs_to_process:
+            documents = job["documents"]
+            delivery_note_to_lock = documents.l10n_ec_delivery_note_id
             attachments_potential_unlink = documents.attachment_id.filtered(
                 lambda a: not a.res_model and not a.res_id
             )
             try:
-                with self.env.cr.savepoint(flush=False):
-                    self._cr.execute(
-                        "SELECT * FROM account_edi_document WHERE id IN %s FOR UPDATE NOWAIT",
-                        [tuple(documents.ids)],
-                    )
-                    self._cr.execute(
-                        "SELECT * FROM l10n_ec_delivery_note WHERE id IN %s FOR UPDATE NOWAIT",
-                        [tuple(move_to_lock.ids)],
-                    )
-                    # Locks the attachments that might be unlinked
-                    if attachments_potential_unlink:
-                        self._cr.execute(
-                            "SELECT * FROM ir_attachment WHERE id IN %s FOR UPDATE NOWAIT",
-                            [tuple(attachments_potential_unlink.ids)],
+                documents.lock_for_update()
+                delivery_note_to_lock.lock_for_update()
+                attachments_potential_unlink.lock_for_update()
+            except LockError:
+                _logger.debug(
+                    "Another transaction already locked documents rows. "
+                    "Cannot process documents."
+                )
+                if not with_commit:
+                    raise UserError(
+                        self.env._(
+                            "This document is being sent by another process already."
                         )
-            except OperationalError as e:
-                if e.pgcode == "55P03":
-                    _logger.debug(
-                        "Another transaction already locked documents rows. "
-                        "Cannot process documents."
-                    )
-                    if not with_commit:
-                        raise UserError(
-                            _(
-                                "This document is being sent"
-                                " by another process already."
-                            )
-                        ) from None
-                    continue
-                else:
-                    raise e
-            delivery_notes._process_job(documents)
+                    ) from None
+                continue
+            delivery_notes._process_job(job)
             if with_commit and len(jobs_to_process) > 1:
                 self.env.cr.commit()  # pylint: disable=E8102
-        return len(all_jobs) - len(jobs_to_process)
+        return nb_remaining_jobs + (len(all_jobs) - len(jobs_to_process))
 
     def _l10n_ec_render_xml_edi(self):
         if self.move_id:
@@ -193,14 +181,32 @@ class AccountEdiDocument(models.Model):
         return super()._l10n_ec_get_edi_number()
 
     @api.model
-    def l10n_ec_get_type_identification(self, number):
-        if len(number) == 10:
-            return "05"
-        elif len(number) == 13:
-            return "04"
+    def _l10n_ec_get_transportista_id_type(self, carrier):
+        """SRI identification code of the delivery carrier.
+
+        ``tipoIdentificacionTransportista`` is mandatory in the SRI schema and
+        is restricted to ``[0][4-8]``, so it can never be left out: QWeb drops
+        the whole tag when the value is None or False (``t-esc`` compiles to
+        ``if content is not None and content is not False``, see
+        ``ir_qweb._compile_directive_out``), which shifted
+        ``rucTransportista`` into the position where only
+        ``tipoIdentificacionTransportista`` is accepted and failed the XSD
+        check. The code comes from the carrier identification type the way
+        ``account.move.l10n_ec_get_identification_type()`` builds the SRI
+        tabla 6 code, instead of guessing from the length of the vat, which
+        returned None for any vat that is neither 10 nor 13 digits. An
+        unclassifiable carrier falls back to ``08`` (exterior) so the tag is
+        always emitted and the XSD validates; the SRI itself still rejects a
+        bad vat with DEVUELTA.
+        """
+        if verify_final_consumer(carrier.vat):
+            return PartnerIdTypeEc.FINAL_CONSUMER.value
+        code = PartnerIdTypeEc.get_ats_code_for_partner(carrier, "out_")
+        return code.value if code else PartnerIdTypeEc.FOREIGN.value
 
     def _l10n_ec_get_info_delivery_note(self):
         delivery_note = self.l10n_ec_delivery_note_id
+        commercial_partner = delivery_note.partner_id.commercial_partner_id
         invoice = True if delivery_note.invoice_id else False
         edi_doc_invoice = delivery_note.invoice_id.edi_document_ids
         company = self.l10n_ec_delivery_note_id.company_id
@@ -219,24 +225,24 @@ class AccountEdiDocument(models.Model):
             "razonSocialTransportista": self._l10n_ec_clean_str(
                 delivery_note.delivery_carrier_id.name
             )[:300],
-            "tipoIdentificacionTransportista": self.l10n_ec_get_type_identification(
-                delivery_note.delivery_carrier_id.vat
+            "tipoIdentificacionTransportista": self._l10n_ec_get_transportista_id_type(
+                delivery_note.delivery_carrier_id
             ),
             "rucTransportista": delivery_note.delivery_carrier_id.vat,
             "rise": delivery_note.rise if delivery_note.rise else False,
             "obligadoContabilidad": self._l10n_ec_get_required_accounting(
                 company.partner_id.property_account_position_id
             ),
-            "contribuyenteEspecial": delivery_note.company_id.l10n_ec_get_resolution_data(
+            "contribuyenteEspecial": company.l10n_ec_get_resolution_data(
                 delivery_note.transfer_date
             ),
             "fechaIniTransporte": delivery_note.transfer_date.strftime(EDI_DATE_FORMAT),
             "fechaFinTransporte": delivery_note.delivery_date.strftime(EDI_DATE_FORMAT),
             "placa": delivery_note.l10n_ec_car_plate or "N/A",
-            "identificacionDestinatario": delivery_note.partner_id.commercial_partner_id.vat,
-            "razonSocialDestinatario": self._l10n_ec_clean_str(
-                delivery_note.partner_id.commercial_partner_id.name
-            )[:300],
+            "identificacionDestinatario": commercial_partner.vat,
+            "razonSocialDestinatario": self._l10n_ec_clean_str(commercial_partner.name)[
+                :300
+            ],
             "dirDestinatario": self._l10n_ec_clean_str(address)[:300],
             "motivoTraslado": self._l10n_ec_clean_str(delivery_note.motive or "N/A")[
                 :300
@@ -283,20 +289,14 @@ class AccountEdiDocument(models.Model):
             ("l10n_ec_authorization_date", "!=", False),
         ]
         delivery_notes = self.env["l10n_ec.delivery.note"].search(
-            domain
-            + [
-                ("partner_id.vat", "not in", ["9999999999999", "9999999999"]),
-            ]
+            domain + [("partner_id.vat", "not in", ["9999999999999", "9999999999"])]
         )
         for note in delivery_notes:
             note.l10n_ec_action_sent_mail_electronic()
 
         # Update documents with final consumer
         delivery_notes_with_final_consumer = self.env["l10n_ec.delivery.note"].search(
-            domain
-            + [
-                ("partner_id.vat", "in", ["9999999999999", "9999999999"]),
-            ]
+            domain + [("partner_id.vat", "in", ["9999999999999", "9999999999"])]
         )
         delivery_notes_with_final_consumer.write({"is_delivery_note_sent": True})
 

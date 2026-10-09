@@ -1,4 +1,4 @@
-from odoo import _, models
+from odoo import models
 
 
 class AccountEdiFormat(models.Model):
@@ -20,25 +20,28 @@ class AccountEdiFormat(models.Model):
         if document.country_code == "EC":
             company = document.company_id
             partner = document.commercial_partner_id
-            errors = self._l10n_ec_check_edi_configuration(document.journal_id, company)
+            # Since 19.0 the base check expects the record itself (a move for
+            # invoices) and reads ``commercial_partner_id`` from it, not the
+            # journal.
+            errors = self._l10n_ec_check_edi_configuration(document, company)
             # ruc en transportista
             if not document.delivery_carrier_id.vat:
                 errors.append(
-                    _(
+                    self.env._(
                         "You must set vat identification for carrier: %s",
                         document.delivery_carrier_id.name,
                     )
                 )
             if not document.delivery_address_id.street:
                 errors.append(
-                    _(
+                    self.env._(
                         "You must set delivery address for receiver: %s",
                         document.delivery_address_id.commercial_partner_id.name,
                     )
                 )
             if not company.l10n_ec_delivery_note_version:
                 errors.append(
-                    _(
+                    self.env._(
                         "You must set XML Version for Delivery Note company %s",
                         company.display_name,
                     )
@@ -57,14 +60,16 @@ class AccountEdiFormat(models.Model):
         errors = []
         # validar que la empresa tenga ruc y tipo de documento
         if not partner.vat:
-            errors.append(_("Please enter DNI/RUC to partner: %s", partner.name))
+            errors.append(
+                self.env._("Please enter DNI/RUC to partner: %s", partner.name)
+            )
         if partner.l10n_latam_identification_type_id.id not in (
             ec_ruc.id,
             ec_dni.id,
             ec_passport.id,
         ):
             errors.append(
-                _(
+                self.env._(
                     "You must set Identification type as RUC, DNI or Passport "
                     "for ecuadorian company, on partner %s",
                     partner.name,

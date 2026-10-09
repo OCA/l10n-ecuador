@@ -13,17 +13,22 @@
         />
         <field name="auto_delete" eval="True" />
         <field
-            name="report_template"
-            ref="l10n_ec_delivery_note.action_report_delivery_note"
+            name="report_template_ids"
+            eval="[(4, ref('l10n_ec_delivery_note.action_report_delivery_note'))]"
         />
-        <field name="report_name">{{ object._l10n_ec_get_document_name() }}</field>
         <field name="lang">{{ object.partner_id.lang }}</field>
-        <field name="body_html" type="xml">
+        <!-- ``type="html"``, not the old ``type="xml"``: Odoo 19 warns on
+             every HTML field still declared as ``type="xml"``
+             (``odoo/tools/convert.py``), and the core ``mail`` templates all
+             declare it this way. -->
+        <field name="body_html" type="html">
             <div>
                 <p>
                     Estimado(a) <strong t-out="object.partner_id.name" />
                     <t t-if="object.partner_id.parent_id">
-                        (<i><span t-out="object.partner_id.parent_id.name" /></i>)
+                        (<i>
+                    <span t-out="object.partner_id.parent_id.name" />
+                </i>)
                     </t>
                     ,
                 </p>
@@ -35,33 +40,33 @@
                     Nos complace informarle que su documento electrónico ha sido generado
                     con el siguiente detalle:
                     <ul>
-                        <li>
-                            <strong>Tipo de Documento:</strong>
-                            <span>Guia de Remisión</span>
-                        </li>
-                        <li>
-                            <strong>Número de Documento:</strong>
-                            <span t-out="object.document_number" />
-                        </li>
-                        <li>
-                            <strong>Clave de acceso:</strong>
-                            <span t-out="object.l10n_ec_xml_access_key" />
-                        </li>
-                        <li t-if="object.origin">
-                            <strong>Referencia:</strong>
-                            <span t-out="object.origin" />
-                        </li>
-                    </ul>
+                    <li>
+                        <strong>Tipo de Documento:</strong>
+                        <span>Guia de Remisión</span>
+                    </li>
+                    <li>
+                        <strong>Número de Documento:</strong>
+                        <span t-out="object.document_number" />
+                    </li>
+                    <li>
+                        <strong>Clave de acceso:</strong>
+                        <span t-out="object.l10n_ec_xml_access_key" />
+                    </li>
+                    <li t-if="object.origin">
+                        <strong>Referencia:</strong>
+                        <span t-out="object.origin" />
+                    </li>
+                </ul>
                 </p>
                 <br />
                 <br />
                 <t t-if="object.partner_id.user_ids and object.partner_id.signup_url">
                     Para ver todos sus documentos visite
                     <a
-                        href="object.partner_id.signup_url"
-                        class="btn btn-primary"
-                        role="button"
-                    >nuestro portal</a>
+                    href="object.partner_id.signup_url"
+                    class="btn btn-primary"
+                    role="button"
+                >nuestro portal</a>
                     <br />
                 </t>
                 <p>Gracias por Preferirnos,</p>

@@ -2,9 +2,14 @@ from contextlib import contextmanager
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
-from odoo.tools.translate import _
 
-STATES = {"draft": [("readonly", False)]}
+# Odoo removed the field level ``states`` kwarg in 17.0 and the view level
+# ``attrs`` kwarg in 18.0, so the "editable while draft" behaviour this model
+# used to declare can no longer live on the fields: it belongs in the form view,
+# as the python expression ``readonly="state != 'draft'"``. A model level
+# ``readonly=True`` would be worse than useless here, since it is only the
+# default the view modifier overrides: it would freeze the delivery note form in
+# every state, which is what the form view of this module used to prevent.
 
 
 class DeliveryNote(models.Model):
@@ -27,34 +32,24 @@ class DeliveryNote(models.Model):
     journal_id = fields.Many2one(
         comodel_name="account.journal",
         string="Emission Point",
-        readonly=True,
-        states=STATES,
         check_company=True,
         domain=[("l10n_latam_use_documents", "=", True), ("type", "=", "sale")],
     )
     transfer_date = fields.Date(
         required=True,
-        readonly=True,
-        states=STATES,
         default=lambda self: fields.Date.context_today(self),
         tracking=True,
     )
     delivery_date = fields.Date(
         required=True,
-        readonly=True,
-        states=STATES,
         default=lambda self: fields.Date.context_today(self),
         tracking=True,
     )
-    motive = fields.Text(readonly=True, states=STATES, copy=False)
-    l10n_ec_car_plate = fields.Char(
-        "Car plate", size=8, required=False, readonly=True, states=STATES
-    )
+    motive = fields.Text(copy=False)
+    l10n_ec_car_plate = fields.Char("Car plate", size=8, required=False)
     stock_picking_ids = fields.Many2many(
         "stock.picking",
         string="Pickings related",
-        readonly=True,
-        states=STATES,
         copy=False,
     )
     sale_order_ids = fields.Many2many(
@@ -69,10 +64,10 @@ class DeliveryNote(models.Model):
     partner_id = fields.Many2one(
         "res.partner",
         "Partner",
-        readonly=True,
-        states=STATES,
+        # Odoo 19 dropped ``auto_join``: joins are now planned from the column
+        # indexes, which ``index=True`` already declares, and passing the old
+        # kwarg only logs an "unknown parameter" warning per field.
         index=True,
-        auto_join=True,
         tracking=True,
     )
     commercial_partner_id = fields.Many2one(
@@ -87,16 +82,12 @@ class DeliveryNote(models.Model):
     delivery_address_id = fields.Many2one(
         "res.partner",
         "Delivery Address",
-        readonly=True,
-        states=STATES,
         index=True,
         tracking=True,
     )
     delivery_carrier_id = fields.Many2one(
         "res.partner",
         "Delivery Carrier",
-        readonly=True,
-        states=STATES,
         index=True,
         domain=[("l10n_ec_is_carrier", "=", True)],
     )
@@ -105,18 +96,13 @@ class DeliveryNote(models.Model):
             ("sales", "Transfer by Sales"),
             ("internal", "Internal Transfer"),
         ],
-        readonly=True,
-        states=STATES,
         default="sales",
     )
     delivery_line_ids = fields.One2many(
         "l10n_ec.delivery.note.line",
         "delivery_note_id",
         "Delivery note detail",
-        readonly=True,
-        states=STATES,
         copy=True,
-        auto_join=True,
     )
     state = fields.Selection(
         [
@@ -133,21 +119,17 @@ class DeliveryNote(models.Model):
     company_id = fields.Many2one(
         "res.company",
         "Company",
-        readonly=True,
-        states=STATES,
         default=lambda self: self.env.company,
         required=True,
     )
     country_code = fields.Char(
         related="company_id.account_fiscal_country_id.code", readonly=True
     )
-    rise = fields.Char("R.I.S.E", readonly=True, states=STATES, copy=False)
-    dau = fields.Char("D.A.U.", readonly=True, states=STATES, copy=False)
-    note = fields.Text(string="Notes", readonly=True, states=STATES, copy=False)
-    origin = fields.Text(readonly=True, states=STATES, copy=False)
-    invoice_id = fields.Many2one(
-        "account.move", string="Invoice", readonly=True, states=STATES
-    )
+    rise = fields.Char("R.I.S.E", copy=False)
+    dau = fields.Char("D.A.U.", copy=False)
+    note = fields.Text(string="Notes", copy=False)
+    origin = fields.Text(copy=False)
+    invoice_id = fields.Many2one("account.move", string="Invoice")
 
     edi_document_ids = fields.One2many(
         comodel_name="account.edi.document", inverse_name="l10n_ec_delivery_note_id"
@@ -175,7 +157,8 @@ class DeliveryNote(models.Model):
     edi_error_message = fields.Html(compute="_compute_edi_error_message")
     edi_web_services_to_process = fields.Text(
         compute="_compute_edi_web_services_to_process",
-        help="Technical field to display the documents that will be processed by the CRON",
+        help="Technical field to display the documents that will be processed "
+        "by the CRON",
     )
     l10n_ec_authorization_date = fields.Datetime(
         compute="_compute_l10n_ec_edi_document_data",
@@ -199,15 +182,29 @@ class DeliveryNote(models.Model):
 
     is_delivery_note_sent = fields.Boolean(default=False)
 
+    # Constraint messages are plain strings in Odoo 19: ``_lt()`` is flagged by
+    # pylint-odoo W8161 (prefer-env-translation) and ``_sql_constraints`` is gone.
+    _document_number_uniq = models.Constraint(
+        "unique(document_number, company_id)",
+        "Document number of Delivery Note must be Unique by company, please check",
+    )
+
     @api.depends("journal_id")
     def _compute_document_number(self):
         self.filtered(
-            lambda x: not x.document_number
-            or x.document_number
-            and x.journal_id.l10n_latam_use_documents
-            and x.state == "draft"
+            lambda x: (
+                not x.document_number
+                or x.document_number
+                and x.journal_id.l10n_latam_use_documents
+                and x.state == "draft"
+            )
         ).document_number = "/"
-        for rec in self.filtered(lambda x: x.journal_id):
+        # ``sequence.mixin._locked_increment()`` reaches the row of the record
+        # with a raw UPDATE, which the pseudo id of a new record cannot survive,
+        # so the number is only drawn once the note is stored. Until then the
+        # note keeps the "/" placeholder, the same way ``account.move`` keeps an
+        # empty name while it is a draft, and the compute runs again on create.
+        for rec in self.filtered(lambda x: x.journal_id and x.id):
             rec._set_next_sequence()
 
     @api.depends("edi_document_ids.state")
@@ -251,17 +248,17 @@ class DeliveryNote(models.Model):
             else:
                 error_levels = {doc.blocking_level for doc in note.edi_document_ids}
                 if "error" in error_levels:
-                    note.edi_error_message = str(note.edi_error_count) + _(
+                    note.edi_error_message = str(note.edi_error_count) + note.env._(
                         " Electronic delivery note error(s)"
                     )
                     note.edi_blocking_level = "error"
                 elif "warning" in error_levels:
-                    note.edi_error_message = str(note.edi_error_count) + _(
+                    note.edi_error_message = str(note.edi_error_count) + note.env._(
                         " Electronic delivery note warning(s)"
                     )
                     note.edi_blocking_level = "warning"
                 else:
-                    note.edi_error_message = str(note.edi_error_count) + _(
+                    note.edi_error_message = str(note.edi_error_count) + note.env._(
                         " Electronic delivery note info(s)"
                     )
                     note.edi_blocking_level = "info"
@@ -276,8 +273,9 @@ class DeliveryNote(models.Model):
     def _compute_edi_web_services_to_process(self):
         for note in self:
             to_process = note.edi_document_ids.filtered(
-                lambda d: d.state in ["to_send", "to_cancel"]
-                and d.blocking_level != "error"
+                lambda d: (
+                    d.state in ["to_send", "to_cancel"] and d.blocking_level != "error"
+                )
             )
             format_web_services = to_process.edi_format_id.filtered(
                 lambda f: f._needs_web_services()
@@ -308,7 +306,9 @@ class DeliveryNote(models.Model):
                 and delivery.delivery_date < delivery.transfer_date
             ):
                 raise ValidationError(
-                    _("The Delivery Date can't less than transfer date, please check")
+                    self.env._(
+                        "The Delivery Date can't less than transfer date, please check"
+                    )
                 )
 
     @api.constrains("transfer_date")
@@ -321,11 +321,11 @@ class DeliveryNote(models.Model):
                 and delivery.transfer_date > date_current
             ):
                 raise UserError(
-                    _(
+                    self.env._(
                         "You cannot create the delivery note electronic %s "
-                        "with a date later than the current one"
+                        "with a date later than the current one",
+                        delivery.document_number,
                     )
-                    % delivery.document_number
                 )
 
     @api.onchange("stock_picking_ids")
@@ -376,19 +376,9 @@ class DeliveryNote(models.Model):
             addr = self.partner_id.address_get(["delivery"])
             self.delivery_address_id = addr["delivery"]
 
-    _sql_constraints = [
-        (
-            "document_number_uniq",
-            "unique(document_number, company_id)",
-            _(
-                "Document number of Delivery Note must be Unique by company, please check"
-            ),
-        )
-    ]
-
     @api.model
     def default_get(self, fields_list):
-        defaults = super(DeliveryNote, self).default_get(fields_list)
+        defaults = super().default_get(fields_list)
         document_type = self.env["l10n_latam.document.type"].search(
             [("code", "=", "06")], limit=1
         )
@@ -396,18 +386,20 @@ class DeliveryNote(models.Model):
 
         return defaults
 
-    def unlink(self):
+    @api.ondelete(at_uninstall=False)
+    def _unlink_prevent_not_draft(self):
         for delivery_note in self:
             if delivery_note.state != "draft":
-                raise UserError(_("Cant'n unlink Delivery Note, Try cancel!"))
-        return super(DeliveryNote, self).unlink()
+                raise UserError(self.env._("Cant'n unlink Delivery Note, Try cancel!"))
 
     def action_confirm(self):
         for delivery_note in self:
             if not delivery_note.delivery_line_ids and not self.env.context.get(
                 "force_approve", False
             ):
-                raise UserError(_("You must be enter at least a line, please verify"))
+                raise UserError(
+                    self.env._("You must be enter at least a line, please verify")
+                )
             for picking in delivery_note.stock_picking_ids:
                 if picking.sale_id:
                     if (
@@ -429,8 +421,9 @@ class DeliveryNote(models.Model):
 
     def action_process_edi_web_services(self, with_commit=True):
         docs = self.edi_document_ids.filtered(
-            lambda d: d.state in ("to_send", "to_cancel")
-            and d.blocking_level != "error"
+            lambda d: (
+                d.state in ("to_send", "to_cancel") and d.blocking_level != "error"
+            )
         )
         docs._process_documents_web_services(with_commit=with_commit)
 
@@ -445,11 +438,9 @@ class DeliveryNote(models.Model):
         return where_string, param
 
     def _get_ec_formatted_sequence(self, number=0):
-        return "%s-%s-%09d" % (
-            self.journal_id.l10n_ec_entity,
-            self.journal_id.l10n_ec_emission,
-            number,
-        )
+        entity = self.journal_id.l10n_ec_entity
+        emission = self.journal_id.l10n_ec_emission
+        return f"{entity}-{emission}-{number:09d}"
 
     def _get_starting_sequence(self):
         """If use documents then will create a new starting sequence
@@ -469,10 +460,11 @@ class DeliveryNote(models.Model):
         return "06"
 
     def _l10n_ec_get_document_name(self):
-        return "GR %s" % self.display_name
+        return f"GR {self.display_name}"
 
     def _l10n_ec_create_edi_document(self):
-        # Set the electronic document to be posted and post immediately for synchronous formats.
+        # Set the electronic document to be posted and post immediately
+        # for synchronous formats.
         edi_document_vals_list = []
         for note in self:
             for edi_format in note.journal_id.edi_format_ids:
@@ -481,11 +473,13 @@ class DeliveryNote(models.Model):
                     errors = edi_format._l10n_ec_check_delivery_note_configuration(note)
                     if errors:
                         raise UserError(
-                            _("Invalid delivery note configuration:\n\n%s")
-                            % "\n".join(errors)
+                            self.env._(
+                                "Invalid delivery note configuration:\n\n%s",
+                                "\n".join(errors),
+                            )
                         )
                     existing_edi_document = note.edi_document_ids.filtered(
-                        lambda x: x.edi_format_id == edi_format
+                        lambda x, edi_format=edi_format: x.edi_format_id == edi_format
                     )
                     if existing_edi_document:
                         existing_edi_document.write(
@@ -525,11 +519,30 @@ class DeliveryNote(models.Model):
     def _get_edi_document(self, edi_format):
         return self.edi_document_ids.filtered(lambda d: d.edi_format_id == edi_format)
 
+    def _process_attachments_for_template_post(self, mail_template):
+        """Add the signed XML of the delivery note to the rendered template.
+
+        Replaces the Odoo <= 17 ``mail.template.generate_email()`` override,
+        which no longer exists in Odoo 19.
+        """
+        result = super()._process_attachments_for_template_post(mail_template)
+        for note in self.filtered("edi_document_ids"):
+            note_result = result.setdefault(note.id, {})
+            for edi_doc in note.edi_document_ids:
+                edi_attachments = edi_doc._filter_edi_attachments_for_mailing()
+                note_result.setdefault("attachment_ids", []).extend(
+                    edi_attachments.get("attachment_ids", [])
+                )
+                note_result.setdefault("attachments", []).extend(
+                    edi_attachments.get("attachments", [])
+                )
+        return result
+
     # Métodos del portal
     def _compute_access_url(self):
-        res = super(DeliveryNote, self)._compute_access_url()
+        res = super()._compute_access_url()
         for delivery_note in self:
-            delivery_note.access_url = "/my/edi_delivery_note/%s" % (delivery_note.id)
+            delivery_note.access_url = f"/my/edi_delivery_note/{delivery_note.id}"
         return res
 
     def _get_report_base_filename(self):
@@ -544,21 +557,20 @@ class DeliveryNote(models.Model):
             "l10n_ec_delivery_note.email_template_e_delivery_note", False
         )
         ctx = {
+            "active_model": self._name,
+            "active_ids": self.ids,
             "default_model": self._name,
-            "default_res_id": self.id,
-            "default_use_template": bool(template),
+            "default_res_ids": str(self.ids),
             "default_template_id": template.id,
             "default_composition_mode": "comment",
-            "custom_layout": "mail.mail_notification_light",
-            "force_email": True,
-            "model_description": _("Delivery Note"),
+            "default_email_layout_xmlid": "mail.mail_notification_light",
+            "default_force_send": True,
         }
         return {
             "type": "ir.actions.act_window",
             "view_mode": "form",
             "res_model": "mail.compose.message",
             "views": [(False, "form")],
-            "view_id": False,
             "target": "new",
             "context": ctx,
         }
@@ -573,7 +585,8 @@ class DeliveryNote(models.Model):
         msj = mail_compose_model.with_context(**ctx).create({})
         send_mail = True
         try:
-            msj._onchange_template_id_wrapper()
+            # ``_onchange_template_id_wrapper`` is gone in 19.0: subject, body
+            # and lang are computed from ``template_id`` on create.
             msj._action_send_mail()
         except Exception:
             send_mail = False

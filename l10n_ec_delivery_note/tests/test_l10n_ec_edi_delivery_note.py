@@ -4,12 +4,17 @@ from datetime import timedelta
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import Form, tagged
 
+from odoo.addons.l10n_ec_account_edi.tests.sri_response import (
+    patch_service_sri,
+    validation_sri_response_returned,
+)
+
 from .test_l10n_ec_delivery_note_common import TestL10nDeliveryNoteCommon
 
 _logger = logging.getLogger(__name__)
 
 
-@tagged("post_install_l10n_ec_account_edi", "post_install", "-at_install")
+@tagged("post_install_l10n", "post_install", "-at_install")
 class TestL10nDeliveryNote(TestL10nDeliveryNoteCommon):
     def test_l10n_ec_delivery_note_without_journal(self):
         """Crear guía de remisión sin journal compatible"""
@@ -56,7 +61,9 @@ class TestL10nDeliveryNote(TestL10nDeliveryNoteCommon):
             delivery_note.action_confirm()
         picking = self._l10n_ec_create_or_modify_picking()
         picking.action_confirm()
-        picking.action_set_quantities_to_reservation()
+        self._l10n_ec_set_done_quantities(picking)
+        # The delivery note popup is returned by ``_pre_action_done_hook()`` so
+        # the transfer is left unvalidated, as it was in Odoo 15.
         picking.button_validate()
         delivery_note.write(
             {
@@ -78,7 +85,9 @@ class TestL10nDeliveryNote(TestL10nDeliveryNoteCommon):
                         "delivery"
                     ],
                     "delivery_carrier_id": picking.l10n_ec_delivery_carrier_id.id,
-                    "l10n_ec_car_plate": picking.l10n_ec_delivery_carrier_id.l10n_ec_car_plate,
+                    "l10n_ec_car_plate": (
+                        picking.l10n_ec_delivery_carrier_id.l10n_ec_car_plate
+                    ),
                     "journal_id": picking.l10n_ec_delivery_note_journal_id.id,
                 }
             ],
@@ -90,7 +99,8 @@ class TestL10nDeliveryNote(TestL10nDeliveryNoteCommon):
                 {
                     "delivery_note_id": delivery_note.id,
                     "product_id": stock_move_line.product_id.id,
-                    "product_qty": stock_move_line.qty_done,
+                    # ``stock.move.line.qty_done`` was renamed to ``quantity``
+                    "product_qty": stock_move_line.quantity,
                     "product_uom_id": stock_move_line.product_uom_id.id,
                     "move_id": stock_move_line.move_id.id,
                     "production_lot_id": stock_move_line.lot_id.id,
@@ -120,12 +130,23 @@ class TestL10nDeliveryNote(TestL10nDeliveryNoteCommon):
         de la UdM diferente a la del producto"""
         delivery_note = self._l10n_ec_create_delivery_note()
         line = delivery_note.delivery_line_ids
+        # Odoo 19 borró ``uom.uom.category_id``: las unidades que no son
+        # comparables son las que cuelgan de otra raíz del árbol de
+        # ``relative_uom_id``, así que se busca una raíz distinta a la del
+        # producto en lugar de otra categoría.
+        product_uom_root = line.product_id.uom_id._uom_root_id()
         new_uom = self.env["uom.uom"].search(
-            [("category_id", "!=", line.product_id.uom_id.category_id.id)], limit=1
+            [
+                ("relative_uom_id", "=", False),
+                ("id", "!=", product_uom_root.id),
+            ],
+            limit=1,
         )
+        self.assertTrue(new_uom, "No unit of measure from another hierarchy found")
         with self.assertRaises(ValidationError):
             line.product_uom_id = new_uom
 
+    @patch_service_sri(validation_response=validation_sri_response_returned)
     def test_l10n_ec_delivery_note_fields_form_edi_document(self):
         """Test prueba mensajes al enviar el edi_documents"""
         self.setup_edi_delivery_note()
@@ -142,21 +163,31 @@ class TestL10nDeliveryNote(TestL10nDeliveryNoteCommon):
         delivery_note.action_confirm()
         self.assertEqual(delivery_note.state, "done")
         edi_doc = delivery_note._get_edi_document(self.edi_format)
-        with self.assertLogs(
-            "odoo.addons.l10n_ec_account_edi.models.account_edi_format",
-            level=logging.ERROR,
-        ):
-            delivery_note.action_process_edi_web_services()
-        if not edi_doc.l10n_ec_xml_access_key or not edi_doc.l10n_ec_authorization_date:
-            self.assertTrue(edi_doc.error)
-            self.assertEqual(edi_doc.blocking_level, "error")
-            self.assertTrue(delivery_note.edi_error_message)
-            # Cambiar el transportista y reintentar el envio al SRI
-            delivery_note.delivery_carrier_id = self.partner_carrier
-            delivery_note.action_retry_edi_documents_error()
-            self.assertTrue(edi_doc.l10n_ec_xml_access_key)
-            if not edi_doc.l10n_ec_authorization_date:
-                self.assertTrue(edi_doc.error)
+        # The carrier vat is neither a 10-digit DNI nor a 13-digit RUC, but
+        # its identification type still maps to an SRI tabla 6 code, so the
+        # rendered XML validates against the GuiaRemision XSD instead of
+        # failing with "Wrong XML File".
+        xml_file = edi_doc._l10n_ec_render_xml_edi()
+        self.assertTrue(edi_doc._l10n_ec_action_check_xsd(xml_file))
+        # The SRI webservices are unreachable from the test environment, so the
+        # transport is mocked with the very response the SRI returns when it
+        # refuses a document: the messages it produces are what lands on the
+        # edi document, not a log line anymore.
+        delivery_note.action_process_edi_web_services()
+        self.assertEqual(edi_doc.state, "to_send")
+        # The XML validated (access key generated, attachment stored) and the
+        # mocked SRI refused it: the error carries the SRI message, proving
+        # the failure came from the SRI and not from the XSD check.
+        self.assertTrue(edi_doc.l10n_ec_xml_access_key)
+        self.assertTrue(edi_doc.attachment_id)
+        self.assertIn("FECHA EMISIÓN EXTEMPORANEA", edi_doc.error)
+        self.assertEqual(edi_doc.blocking_level, "error")
+        self.assertTrue(delivery_note.edi_error_message)
+        # Cambiar el transportista y reintentar el envio al SRI
+        delivery_note.delivery_carrier_id = self.partner_carrier
+        delivery_note.action_retry_edi_documents_error()
+        self.assertTrue(edi_doc.l10n_ec_xml_access_key)
+        self.assertIn("FECHA EMISIÓN EXTEMPORANEA", edi_doc.error)
 
     def test_l10n_ec_delivery_note_pre_printed(self):
         """No se generan documentos electrónicos con tipo de emisión
@@ -172,6 +203,7 @@ class TestL10nDeliveryNote(TestL10nDeliveryNoteCommon):
         self.assertEqual(delivery_note.state, "done")
         self.assertFalse(delivery_note.edi_document_ids)
 
+    @patch_service_sri
     def test_l10n_ec_delivery_note_sri(self):
         """Validar y enviar al SRI una guía de remisión con la configuración correcta"""
         self.setup_edi_delivery_note()

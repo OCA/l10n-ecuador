@@ -3,7 +3,6 @@ import logging
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools.safe_eval import safe_eval
-from odoo.tools.translate import _
 
 _logger = logging.getLogger(__name__)
 
@@ -21,16 +20,18 @@ class WizardCreateDeliveryNote(models.TransientModel):
 
     @api.model
     def default_get(self, fields):
-        values = super(WizardCreateDeliveryNote, self).default_get(fields)
+        values = super().default_get(fields)
         picking_lines = self.env["stock.picking"].browse(
             self.env.context.get("active_ids", [])
         )
         lines = []
         partner_count = {}
         for line in picking_lines.filtered(
-            lambda x: x.picking_type_id.code in ("outgoing", "internal")
-            and x.state == "done"
-            and all(note.state == "cancel" for note in x.l10n_ec_delivery_note_ids)
+            lambda x: (
+                x.picking_type_id.code in ("outgoing", "internal")
+                and x.state == "done"
+                and all(note.state == "cancel" for note in x.l10n_ec_delivery_note_ids)
+            )
         ):
             partner_count[line.partner_id] = True
             lines.append(
@@ -44,14 +45,17 @@ class WizardCreateDeliveryNote(models.TransientModel):
                         "location_id": line.location_id.id,
                         "location_dest_id": line.location_dest_id.id,
                         "scheduled_date": line.scheduled_date,
-                        "date": line.date,
+                        # ``stock.picking.date`` no longer exists in Odoo 19
+                        "date": line.create_date,
                         "origin": line.origin,
                     },
                 )
             )
         if len(list(partner_count.keys())) > 1:
             raise UserError(
-                _("You can only group transfers from the same company, please check")
+                self.env._(
+                    "You can only group transfers from the same company, please check"
+                )
             )
         if lines:
             values["line_ids"] = lines
@@ -70,11 +74,13 @@ class WizardCreateDeliveryNote(models.TransientModel):
                 pick.location_id and pick.location_dest_id.usage == "internal"
             ):
                 raise UserError(
-                    _(
-                        "The delivery note: %(picking_name)s cannot be processed in internal "
-                        "transfers created from the sales order: %(sale_name)s"
+                    self.env._(
+                        "The delivery note: %(picking_name)s cannot be processed in "
+                        "internal transfers created from the "
+                        "sales order: %(sale_name)s",
+                        picking_name=pick.name,
+                        sale_name=pick.sale_id.name,
                     )
-                    % {"picking_name": pick.name, "sale_name": pick.sale_id.name}
                 )
 
         if self.env.company.l10n_ec_validate_invoice_exist:
@@ -85,11 +91,11 @@ class WizardCreateDeliveryNote(models.TransientModel):
                 )
                 if not invoices:
                     raise UserError(
-                        _(
+                        self.env._(
                             "The delivery note cannot be processed because"
-                            " the sale orders: %s do not have an invoice generated"
+                            " the sale orders: %s do not have an invoice generated",
+                            ",".join(sale_order.mapped("name")),
                         )
-                        % (",".join(sale_order.mapped("name")))
                     )
                 else:
                     ctx.update({"default_invoice_id": invoices[0].id})

@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
+    <!-- Multi Company -->
+    <!-- Odoo 19 warns on every access-granting record rule that declares no
+         group, so both company rules are bound to base.group_user: they are
+         the internal employees' multi-company restriction, the counterpart of
+         the portal rules below, which are bound to base.group_portal instead. -->
     <record id="l10n_ec_delivery_note_comp_rule" model="ir.rule">
         <field name="name">Ecuadorian Delivery Note Multi Company</field>
         <field name="model_id" ref="model_l10n_ec_delivery_note" />
         <field
             name="domain_force"
         >['|',('company_id','=',False),('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]" />
     </record>
     <record id="l10n_ec_delivery_note_line_comp_rule" model="ir.rule">
         <field name="name">Ecuadorian Delivery Note detail Multi Company</field>
@@ -13,6 +19,7 @@
         <field
             name="domain_force"
         >['|',('company_id','=',False),('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]" />
     </record>
     <!-- Portal for Delivery Note -->
     <record id="l10n_ec_delivery_note_rule_portal" model="ir.rule">

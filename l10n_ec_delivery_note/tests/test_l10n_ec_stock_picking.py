@@ -4,22 +4,25 @@ from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import Form, tagged
 
+from odoo.addons.l10n_ec_account_edi.tests.sri_response import patch_service_sri
+
 from .test_l10n_ec_delivery_note_common import TestL10nDeliveryNoteCommon
 
 
-@tagged("post_install_l10n_ec_account_edi", "post_install", "-at_install")
+@tagged("post_install_l10n", "post_install", "-at_install")
 class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
     def test_l10n_ec_check_validate_picking(self):
         """Restricciones al validar una transferencia"""
         self.setup_edi_delivery_note()
         picking = self._l10n_ec_create_or_modify_picking()
         # Validar sin productos
+        picking.move_ids.unlink()
         with self.assertRaises(UserError):
-            # picking.move_ids = False
             picking.button_validate()
         # Validar sin cantidad reservada
+        picking = self._l10n_ec_create_or_modify_picking()
+        picking.move_ids.product_uom_qty = 0
         with self.assertRaises(UserError):
-            picking.move_ids_without_package.product_uom_qty = 0
             picking.button_validate()
 
     def test_l10n_ec_immediate_picking(self):
@@ -27,27 +30,23 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         self.setup_edi_delivery_note()
         picking = self._l10n_ec_create_or_modify_picking(delivery_note=False)
         picking.action_confirm()
-        picking_context = picking.button_validate()
-        wiz = Form(
-            self.env[picking_context["res_model"]].with_context(
-                **picking_context["context"]
-            )
-        ).save()
-        wiz.process()
-        self.assertTrue(picking.state, "done")
+        # El asistente ``stock.immediate.transfer`` ya no existe en Odoo 19: la
+        # transferencia se valida directamente desde ``button_validate()`` y
+        # ``_pre_action_done_hook()`` no abre ningún popup porque esta
+        # transferencia no pide guía de remisión.
+        self.assertTrue(picking.button_validate())
+        self.assertEqual(picking.state, "done")
+        self.assertFalse(picking.l10n_ec_delivery_note_ids)
 
     def test_l10n_ec_picking_backorder(self):
         """Transferencia con Backorder"""
         self.setup_edi_delivery_note()
-        picking = self._l10n_ec_create_or_modify_picking(delivery_note=False)
-        picking.move_ids_without_package.product_uom_qty = 5
+        picking = self._l10n_ec_create_or_modify_picking(delivery_note=False, demand=5)
         picking.action_confirm()
-        move_form = Form(
-            picking.move_ids_without_package, view="stock.view_stock_move_operations"
-        )
-        with move_form.move_line_ids.new() as line:
-            line.qty_done = 1
-        move_form.save()
+        # Only one of the five demanded units is picked, the rest becomes a
+        # backorder: in Odoo 19 that is decided by the picked quantity, which
+        # ``_check_backorder()`` compares against the demand.
+        self._l10n_ec_set_done_quantities(picking, quantity=1)
         picking_context = picking.button_validate()
         wiz = Form(
             self.env[picking_context["res_model"]].with_context(
@@ -61,15 +60,12 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
     def test_l10n_ec_picking_cancel_backorder(self):
         """Transferencia cancelando Backorder"""
         self.setup_edi_delivery_note()
-        picking = self._l10n_ec_create_or_modify_picking(delivery_note=False)
-        picking.move_ids_without_package.product_uom_qty = 5
+        picking = self._l10n_ec_create_or_modify_picking(delivery_note=False, demand=5)
         picking.action_confirm()
-        move_form = Form(
-            picking.move_ids_without_package, view="stock.view_stock_move_operations"
-        )
-        with move_form.move_line_ids.new() as line:
-            line.qty_done = 1
-        move_form.save()
+        # Only one of the five demanded units is picked, the rest becomes a
+        # backorder: in Odoo 19 that is decided by the picked quantity, which
+        # ``_check_backorder()`` compares against the demand.
+        self._l10n_ec_set_done_quantities(picking, quantity=1)
         picking_context = picking.button_validate()
         wiz = Form(
             self.env[picking_context["res_model"]].with_context(
@@ -86,17 +82,15 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         lot = self.setup_stock_traceability()
         picking = self._l10n_ec_create_or_modify_picking()
         picking.action_confirm()
+        # Odoo 19 sólo valida los lotes de las líneas "picked" y sólo crea las
+        # líneas al reservar, así que la línea se crea a mano y el movimiento se
+        # marca antes de validar.
+        move_line = self._l10n_ec_create_move_line(picking, quantity=1)
+        picking.move_ids.picked = True
         # Validar sin escoger el lote
         with self.assertRaises(UserError):
-            picking.move_ids_without_package.quantity_done = 1
             picking.button_validate()
-        move_form = Form(
-            picking.move_ids_without_package, view="stock.view_stock_move_operations"
-        )
-        with move_form.move_line_ids.new() as line:
-            line.lot_id = lot
-            line.qty_done = 1
-        move_form.save()
+        move_line.lot_id = lot
         picking_context = picking.button_validate()
         wiz = Form(
             self.env[picking_context["res_model"]].with_context(
@@ -113,7 +107,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
             [
                 {
                     "product_id": stock_move_line.product_id.id,
-                    "product_qty": stock_move_line.qty_done,
+                    "product_qty": stock_move_line.quantity,
                     "product_uom_id": stock_move_line.product_uom_id.id,
                     "production_lot_id": stock_move_line.lot_id.id,
                 }
@@ -123,15 +117,12 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
     def test_l10n_ec_picking_backorder_delivery_note(self):
         """Transferencia con Backorder creando guía de remisión"""
         self.setup_edi_delivery_note()
-        picking = self._l10n_ec_create_or_modify_picking()
-        picking.move_ids_without_package.product_uom_qty = 5
+        picking = self._l10n_ec_create_or_modify_picking(demand=5)
         picking.action_confirm()
-        move_form = Form(
-            picking.move_ids_without_package, view="stock.view_stock_move_operations"
-        )
-        with move_form.move_line_ids.new() as line:
-            line.qty_done = 1
-        move_form.save()
+        # Only one of the five demanded units is picked, the rest becomes a
+        # backorder: in Odoo 19 that is decided by the picked quantity, which
+        # ``_check_backorder()`` compares against the demand.
+        self._l10n_ec_set_done_quantities(picking, quantity=1)
         picking_context = picking.button_validate()
         wiz = Form(
             self.env[picking_context["res_model"]].with_context(
@@ -146,15 +137,12 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
     def test_l10n_ec_picking_cancel_backorder_delivery_note(self):
         """Transferencia cancelando Backorder, creando guia de remisión"""
         self.setup_edi_delivery_note()
-        picking = self._l10n_ec_create_or_modify_picking()
-        picking.move_ids_without_package.product_uom_qty = 5
+        picking = self._l10n_ec_create_or_modify_picking(demand=5)
         picking.action_confirm()
-        move_form = Form(
-            picking.move_ids_without_package, view="stock.view_stock_move_operations"
-        )
-        with move_form.move_line_ids.new() as line:
-            line.qty_done = 1
-        move_form.save()
+        # Only one of the five demanded units is picked, the rest becomes a
+        # backorder: in Odoo 19 that is decided by the picked quantity, which
+        # ``_check_backorder()`` compares against the demand.
+        self._l10n_ec_set_done_quantities(picking, quantity=1)
         picking_context = picking.button_validate()
         wiz = Form(
             self.env[picking_context["res_model"]].with_context(
@@ -172,6 +160,9 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         # Agregar los dias por defecto para la entrega
         picking = self._l10n_ec_create_or_modify_picking()
         picking.action_confirm()
+        # ``_sanity_check()`` corre antes que ``_pre_action_done_hook()`` en
+        # Odoo 19, una transferencia sin cantidad no llega al wizard.
+        self._l10n_ec_set_done_quantities(picking)
         picking_context = picking.button_validate()
         wiz = Form(
             self.env[picking_context["res_model"]].with_context(
@@ -187,6 +178,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         with self.assertRaises(UserError):
             wiz.delivery_date = wiz.transfer_date - timedelta(days=1)
 
+    @patch_service_sri
     def test_l10n_ec_process_picking_note_sri(self):
         """Validar y enviar al SRI una guía de remisión
         creada desde el picking, transferencia inmediata"""
@@ -195,13 +187,18 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         # Asociar el partner a una compañia
         picking.partner_id.parent_id = self.company_data["company"].partner_id.id
         picking.action_confirm()
+        # ``_sanity_check()`` corre antes que ``_pre_action_done_hook()`` en
+        # Odoo 19, una transferencia sin cantidad no llega al wizard.
+        self._l10n_ec_set_done_quantities(picking)
         picking_context = picking.button_validate()
         wiz = Form(
             self.env[picking_context["res_model"]].with_context(
                 **picking_context["context"]
             )
         ).save()
-        wiz.process()
+        # El popup de guía de remisión reemplaza al asistente de transferencia
+        # inmediata y confirma la creación de la guía.
+        wiz.action_create_delivery_note()
         delivery_note = picking.l10n_ec_delivery_note_ids
         self.assertEqual(picking.state, "done")
         self.assertEqual(delivery_note.state, "done")
@@ -211,6 +208,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         self.assertTrue(edi_doc.l10n_ec_xml_access_key)
         self.assertTrue(picking.l10n_ec_do_print_delivery_notes())
 
+    @patch_service_sri
     def test_l10n_ec_internal_picking_delivery_note(self):
         """Validar y enviar al SRI una guía de remisión
         de transferencia interna"""
@@ -219,7 +217,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
         picking = self._l10n_ec_create_or_modify_picking()
         picking.picking_type_id = picking_type_internal
         picking.action_confirm()
-        picking.action_set_quantities_to_reservation()
+        self._l10n_ec_set_done_quantities(picking)
         picking_context = picking.button_validate()
         wiz = Form(
             self.env[picking_context["res_model"]].with_context(
@@ -244,7 +242,7 @@ class TestL10nStockPicking(TestL10nDeliveryNoteCommon):
             if i > 2:
                 picking.partner_id = self.partner_ruc.id
             picking.action_confirm()
-            picking.action_set_quantities_to_reservation()
+            self._l10n_ec_set_done_quantities(picking)
             picking.button_validate()
         pickings = self.env["stock.picking"].search([])
         model_wizard = self.env["wizard.create.delivery.note"]

@@ -8,16 +8,14 @@
             ref="l10n_ec_account_edi.account_edi_document_view_form"
         />
         <field name="arch" type="xml">
-             <xpath expr="//field[@name='move_id']" position="attributes">
-                 <attribute
-                    name="attrs"
-                >{'invisible':[('l10n_ec_delivery_note_id', '!=', False)]}</attribute>
-             </xpath>
+            <xpath expr="//field[@name='move_id']" position="attributes">
+                <attribute name="invisible">l10n_ec_delivery_note_id</attribute>
+            </xpath>
             <xpath expr="//field[@name='move_id']" position="after">
-                 <field
+                <field
                     name="l10n_ec_delivery_note_id"
                     string="Related Document"
-                    attrs="{'invisible':[('move_id', '!=', False)]}"
+                    invisible="move_id"
                 />
             </xpath>
         </field>

@@ -15,7 +15,7 @@
                     <notebook colspan="4">
                         <page string="Delivery Note details">
                             <field name="line_ids" colspan="4">
-                                <tree>
+                                <list>
                                     <field name="name" />
                                     <field name="picking_id" invisible="1" />
                                     <field name="partner_id" />
@@ -24,7 +24,7 @@
                                     <field name="scheduled_date" />
                                     <field name="date" />
                                     <field name="origin" />
-                                </tree>
+                                </list>
                                 <form>
                                     <group>
                                         <group>

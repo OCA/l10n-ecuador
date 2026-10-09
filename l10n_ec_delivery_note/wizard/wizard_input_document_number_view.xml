@@ -75,9 +75,7 @@
         <field name="inherit_id" ref="stock.view_backorder_confirmation" />
         <field name="arch" type="xml">
             <xpath expr="//footer" position="before">
-                <group
-                    attrs="{'invisible': [('l10n_ec_create_delivery_note', '=', False)]}"
-                >
+                <group invisible="not l10n_ec_create_delivery_note">
                     <group col="2" colspan="4">
                         <div class="oe_title">
                             <h2>
@@ -87,70 +85,19 @@
                                     placeholder="00X-00X-0000000XXX"
                                     force_save="1"
                                     readonly="1"
-                                    attrs="{'required': [('l10n_ec_create_delivery_note', '=', True)]}"
+                                    required="l10n_ec_create_delivery_note"
                                 />
                                 <br />
                                 <label for="transfer_date" />
                                 <field
                                     name="transfer_date"
-                                    attrs="{'required': [('l10n_ec_create_delivery_note', '=', True)]}"
+                                    required="l10n_ec_create_delivery_note"
                                 />
                                 <br />
                                 <label for="delivery_date" />
                                 <field
                                     name="delivery_date"
-                                    attrs="{'required': [('l10n_ec_create_delivery_note', '=', True)]}"
-                                />
-                            </h2>
-                        </div>
-                    </group>
-                    <newline />
-                    <group col="6" colspan="4">
-                        <field name="rise" />
-                        <field name="dau" />
-                    </group>
-                    <group col="6" colspan="4">
-                        <field name="partner_id" />
-                        <field name="l10n_ec_journal_id" />
-                        <field name="l10n_ec_create_delivery_note" invisible="1" />
-                        <field name="picking_id" invisible="1" />
-                    </group>
-                </group>
-            </xpath>
-        </field>
-    </record>
-    <!-- immediate -->
-    <record model="ir.ui.view" id="view_immediate_transfer">
-        <field name="name">stock.immediate.transfer.form</field>
-        <field name="model">stock.immediate.transfer</field>
-        <field name="inherit_id" ref="stock.view_immediate_transfer" />
-        <field name="arch" type="xml">
-            <xpath expr="//footer" position="before">
-                <group
-                    attrs="{'invisible': [('l10n_ec_create_delivery_note', '=', False)]}"
-                >
-                    <group col="2" colspan="4">
-                        <div class="oe_title">
-                            <h2>
-                                <label for="document_number" />
-                                <field
-                                    name="document_number"
-                                    placeholder="00X-00X-0000000XXX"
-                                    force_save="1"
-                                    readonly="1"
-                                    attrs="{'required': [('l10n_ec_create_delivery_note', '=', True)]}"
-                                />
-                                <br />
-                                <label for="transfer_date" />
-                                <field
-                                    name="transfer_date"
-                                    attrs="{'required': [('l10n_ec_create_delivery_note', '=', True)]}"
-                                />
-                                <br />
-                                <label for="delivery_date" />
-                                <field
-                                    name="delivery_date"
-                                    attrs="{'required': [('l10n_ec_create_delivery_note', '=', True)]}"
+                                    required="l10n_ec_create_delivery_note"
                                 />
                             </h2>
                         </div>

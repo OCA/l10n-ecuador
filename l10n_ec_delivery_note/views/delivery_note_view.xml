@@ -4,7 +4,7 @@
         <field name="name">l10n_ec.delivery.note.line.tree</field>
         <field name="model">l10n_ec.delivery.note.line</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="product_id" options="{'no_create': True}" />
                 <field name="description" required="1" />
                 <field name="product_qty" />
@@ -21,7 +21,7 @@
                 <field name="move_id" invisible="1" />
                 <field name="move_line_id" invisible="1" />
                 <field name="product_uom_category_id" invisible="1" />
-            </tree>
+            </list>
         </field>
     </record>
     <record model="ir.ui.view" id="view_delivery_note_form">
@@ -33,7 +33,7 @@
                 <header>
                     <button
                         name="action_confirm"
-                        states="draft"
+                        invisible="state != 'draft'"
                         string="Confirm"
                         icon="fa-check"
                         type="object"
@@ -45,12 +45,12 @@
                         type="object"
                         string="Send by email"
                         class="oe_highlight"
-                        attrs="{'invisible': [('state', '!=', 'done')]}"
+                        invisible="state != 'done'"
                         groups="stock.group_stock_user"
                     />
                     <button
                         name="action_cancel"
-                        states="done"
+                        invisible="state != 'done'"
                         string="Cancel"
                         icon="fa-close"
                         type="object"
@@ -59,7 +59,7 @@
                     />
                     <button
                         name="action_set_draft"
-                        states="cancel"
+                        invisible="state != 'cancel'"
                         string="Back to draft"
                         icon="fa-undo"
                         type="object"
@@ -73,7 +73,7 @@
                     class="alert alert-info"
                     role="alert"
                     style="margin-bottom:0px;"
-                    attrs="{'invisible': ['|', ('edi_web_services_to_process', 'in', ['', False]), ('state', '=', 'draft')]}"
+                    invisible="edi_web_services_to_process in ['', False] or state == 'draft'"
                 >
                     <div
                     >The invoice will be processed asynchronously by the following E-invoicing service :
@@ -90,7 +90,7 @@
                     class="alert alert-danger"
                     role="alert"
                     style="margin-bottom:0px;"
-                    attrs="{'invisible': ['|', ('edi_error_count', '=', 0), ('edi_blocking_level', '!=', 'error')]}"
+                    invisible="edi_error_count == 0 or edi_blocking_level != 'error'"
                 >
                     <div class="o_row">
                         <field name="edi_error_message" />
@@ -99,7 +99,7 @@
                             string="⇒ See errors"
                             type="action"
                             class="oe_link"
-                            attrs="{'invisible': [('edi_error_count', '=', 1)]}"
+                            invisible="edi_error_count == 1"
                         />
                         <button
                             name="action_retry_edi_documents_error"
@@ -113,7 +113,7 @@
                     class="alert alert-warning"
                     role="alert"
                     style="margin-bottom:0px;"
-                    attrs="{'invisible': ['|', ('edi_error_count', '=', 0), ('edi_blocking_level', '!=', 'warning')]}"
+                    invisible="edi_error_count == 0 or edi_blocking_level != 'warning'"
                 >
                     <div class="o_row">
                         <field name="edi_error_message" />
@@ -122,7 +122,7 @@
                             string="⇒ See errors"
                             type="action"
                             class="oe_link"
-                            attrs="{'invisible': [('edi_error_count', '=', 1)]}"
+                            invisible="edi_error_count == 1"
                         />
                     </div>
                 </div>
@@ -130,7 +130,7 @@
                     class="alert alert-info"
                     role="alert"
                     style="margin-bottom:0px;"
-                    attrs="{'invisible': ['|', ('edi_error_count', '=', 0), ('edi_blocking_level', '!=', 'info')]}"
+                    invisible="edi_error_count == 0 or edi_blocking_level != 'info'"
                 >
                     <div class="o_row">
                         <field name="edi_error_message" />
@@ -139,7 +139,7 @@
                             string="⇒ See errors"
                             type="action"
                             class="oe_link"
-                            attrs="{'invisible': [('edi_error_count', '=', 1)]}"
+                            invisible="edi_error_count == 1"
                         />
                     </div>
                 </div>
@@ -149,13 +149,13 @@
                         <div style="width: 50%">
                             GR
                             <field
-                                attrs="{'invisible': [('document_number', '=', '/')]}"
-                                name="document_number"
-                                force_save="1"
-                            />
+                            name="document_number"
+                            invisible="document_number == '/'"
+                            force_save="1"
+                        />
                             <span
-                                attrs="{'invisible': ['|', ('state', '!=', 'draft'), ('document_number', '!=', '/')]}"
-                            >
+                            invisible="state != 'draft' or document_number != '/'"
+                        >
                                 Draft
                             </span>
                         </div>
@@ -164,6 +164,7 @@
                         <group>
                             <field
                                 name="journal_id"
+                                readonly="state != 'draft'"
                                 required="1"
                                 options="{'no_open':True, 'no_create': True}"
                             />
@@ -171,7 +172,7 @@
                             <field
                                 name="l10n_latam_internal_type"
                                 required="1"
-                                attrs="{'readonly': [('state','in',('done','cancel'))]}"
+                                readonly="state in ('done', 'cancel')"
                                 options="{'no_open':True, 'no_create': True}"
                             />
                         </group>
@@ -190,11 +191,13 @@
                                     <field name="commercial_partner_id" invisible="1" />
                                     <field
                                         name="partner_id"
+                                        readonly="state != 'draft'"
                                         required="1"
                                         options="{'no_quick_create': True}"
                                     />
                                     <field
                                         name="delivery_address_id"
+                                        readonly="state != 'draft'"
                                         required="1"
                                         domain="[('commercial_partner_id', '=', partner_id)]"
                                         options="{'no_quick_create': True}"
@@ -202,19 +205,33 @@
                                     />
                                     <field
                                         name="delivery_carrier_id"
+                                        readonly="state != 'draft'"
                                         required="1"
                                         options="{'no_quick_create': True}"
                                         context="{'default_l10n_ec_is_carrier': True}"
                                     />
-                                    <field name="l10n_ec_car_plate" required="1" />
+                                    <field
+                                        name="l10n_ec_car_plate"
+                                        readonly="state != 'draft'"
+                                        required="1"
+                                    />
                                 </group>
                                 <group>
-                                    <field name="transfer_date" required="1" />
-                                    <field name="delivery_date" required="1" />
+                                    <field
+                                        name="transfer_date"
+                                        required="1"
+                                        readonly="state != 'draft'"
+                                    />
+                                    <field
+                                        name="delivery_date"
+                                        required="1"
+                                        readonly="state != 'draft'"
+                                    />
                                     <field
                                         name="stock_picking_ids"
                                         widget="many2many_tags"
                                         class="oe_inline"
+                                        readonly="state != 'draft'"
                                         options="{'no_create': True}"
                                         domain="[('partner_id.commercial_partner_id', '=', commercial_partner_id),
                                                 ('picking_type_id.code','in',('internal','outgoing')), ('state','=','done'),
@@ -222,16 +239,22 @@
                                     />
                                     <field
                                         name="invoice_id"
+                                        readonly="state != 'draft'"
                                         options="{'no_create': True}"
                                         domain="[('move_type', '=', 'out_invoice'), ('partner_id.commercial_partner_id', '=', commercial_partner_id), ('state', '=', 'posted')]"
                                     />
-                                    <field name="rise" />
-                                    <field name="dau" />
+                                    <field name="rise" readonly="state != 'draft'" />
+                                    <field name="dau" readonly="state != 'draft'" />
                                 </group>
                             </group>
                             <separator string="Delivery Note detail" colspan="4" />
-                            <field name="delivery_line_ids" colspan="4" nolabel="1">
-                                <tree editable="bottom">
+                            <field
+                                name="delivery_line_ids"
+                                readonly="state != 'draft'"
+                                colspan="4"
+                                nolabel="1"
+                            >
+                                <list>
                                     <field
                                         name="product_id"
                                         required="1"
@@ -261,17 +284,17 @@
                                         name="product_uom_category_id"
                                         invisible="1"
                                     />
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page
                             id="edi_documents"
                             string="EDI Documents"
                             groups="base.group_no_one"
-                            attrs="{'invisible': [('edi_document_ids', '=', [])]}"
+                            invisible="not edi_document_ids"
                         >
                             <field name="edi_document_ids" options="{'no_open': '1'}">
-                                <tree
+                                <list
                                     create="false"
                                     delete="false"
                                     edit="false"
@@ -300,24 +323,28 @@
                                         class="oe_link oe_inline"
                                         string="Download"
                                         groups="base.group_no_one"
-                                        attrs="{'invisible': ['|', ('error', '=', False), ('blocking_level', '=', 'info')]}"
+                                        invisible="not error or blocking_level == 'info'"
                                     />
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="Transfer Motive">
-                            <field name="motive" colspan="2" />
+                            <field
+                                name="motive"
+                                readonly="state != 'draft'"
+                                colspan="2"
+                            />
                         </page>
                         <page string="Note">
-                            <field name="note" colspan="2" />
+                            <field
+                                name="note"
+                                readonly="state != 'draft'"
+                                colspan="2"
+                            />
                         </page>
                     </notebook>
                 </sheet>
-                <div class="oe_chatter">
-                    <field name="message_follower_ids" groups="base.group_user" />
-                    <field name="activity_ids" />
-                    <field name="message_ids" />
-                </div>
+                <chatter />
             </form>
         </field>
     </record>
@@ -325,7 +352,7 @@
         <field name="name">l10n_ec.delivery.note.tree</field>
         <field name="model">l10n_ec.delivery.note</field>
         <field name="arch" type="xml">
-            <tree decoration-warning="state=='cancel'" decoration-info="state=='draft'">
+            <list>
                 <field name="document_number" />
                 <field name="partner_id" />
                 <field name="transfer_date" />
@@ -335,7 +362,7 @@
                 <field name="delivery_note_type" />
                 <field name="company_id" groups="base.group_multi_company" />
                 <field name="state" />
-            </tree>
+            </list>
         </field>
     </record>
     <record model="ir.ui.view" id="delivery_note_search_view">
@@ -350,40 +377,42 @@
                 <field name="delivery_address_id" />
                 <field name="delivery_carrier_id" />
                 <field name="state" />
-                <group name="filter_by" string="Filters">
-                    <filter
-                        name="filter_by_transfer_date"
+                <group name="filter_by">
+                    <field
+                        name="transfer_date"
                         string="Transfer Date"
-                        date="transfer_date"
+                        filter_domain="[('transfer_date', '=', self)]"
                     />
-                    <filter
-                        name="filter_by_delivery_date"
+                    <field
+                        name="delivery_date"
                         string="Delivery Date"
-                        date="delivery_date"
+                        filter_domain="[('delivery_date', '=', self)]"
                     />
                 </group>
-                <group name="group_by" string="Group by">
+                <group name="group_by">
                     <filter
-                        name="group_by_partner_id"
                         string="Partner"
+                        name="partner_id"
+                        domain="[]"
                         context="{'group_by': 'partner_id'}"
                     />
                     <filter
-                        name="group_by_company_id"
                         string="Company"
+                        name="company_id"
+                        domain="[]"
                         context="{'group_by': 'company_id'}"
                         groups="base.group_multi_company"
                     />
-                    <separator />
                     <filter
-                        name="group_by_transfer_date"
                         string="Transfer Date"
+                        name="transfer_date"
+                        domain="[]"
                         context="{'group_by': 'transfer_date'}"
                     />
-                    <separator />
                     <filter
-                        name="group_by_state"
                         string="State"
+                        name="state"
+                        domain="[]"
                         context="{'group_by': 'state'}"
                     />
                 </group>
@@ -393,13 +422,13 @@
     <record model="ir.actions.act_window" id="action_delivery_note">
         <field name="name">Delivery Notes</field>
         <field name="res_model">l10n_ec.delivery.note</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="delivery_note_search_view" />
         <field name="view_id" ref="view_delivery_note_tree" />
     </record>
     <record id="action_delivery_note_tree" model="ir.actions.act_window.view">
         <field name="sequence" eval="1" />
-        <field name="view_mode">tree</field>
+        <field name="view_mode">list</field>
         <field name="view_id" ref="view_delivery_note_tree" />
         <field name="act_window_id" ref="action_delivery_note" />
     </record>

@@ -4,7 +4,7 @@ from odoo.tests import Form, tagged
 from .test_l10n_ec_delivery_note_common import TestL10nDeliveryNoteCommon
 
 
-@tagged("post_install_l10n_ec_account_edi", "post_install", "-at_install")
+@tagged("post_install_l10n", "post_install", "-at_install")
 class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
     def test_l10n_ec_sale_order_picking_internal(self):
         """Validar creación de guia de remisión de picking
@@ -16,18 +16,19 @@ class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
         picking_internal = sale_order.picking_ids.search(
             [("location_dest_id.usage", "=", "internal")], limit=1, order="id asc"
         )
-        picking = self._l10n_ec_create_or_modify_picking(picking=picking_internal)
-        picking_context = picking.button_validate()
-        wiz = Form(
-            self.env[picking_context["res_model"]].with_context(
-                **picking_context["context"]
-            )
-        ).save()
+        picking = self._l10n_ec_create_or_modify_picking(
+            picking=picking_internal, delivery_note=False
+        )
+        self._l10n_ec_set_done_quantities(picking)
+        picking.button_validate()
+        # El asistente ``stock.immediate.transfer`` que rechazaba estas
+        # transferencias desapareció en Odoo 19: el rechazo de las
+        # transferencias internas creadas desde un pedido vive ahora en el
+        # asistente de varias transferencias.
+        model_wizard = self.env["wizard.create.delivery.note"]
         with self.assertRaises(UserError):
-            if wiz._name == "wizard.input.document.number":
-                wiz.action_create_delivery_note()
-            else:
-                wiz.process()
+            wiz = Form(model_wizard.with_context(active_ids=picking.ids)).save()
+            wiz.action_create_delivery_note()
 
     def test_l10n_ec_sale_order_picking_in_3_steps(self):
         """Desde acción crear una guia de remisión,de pickings
@@ -38,16 +39,25 @@ class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
         self.setup_multistage_routes()
         sale_order = self._l10n_ec_prepare_sale_order()
         sale_order.action_confirm()
-        pickings = sale_order.picking_ids.search([], order="id asc")
-        for pick in pickings:
-            picking = self._l10n_ec_create_or_modify_picking(
-                picking=pick, delivery_note=False
-            )
-            picking.action_set_quantities_to_reservation()
-            picking.button_validate()
+        # Odoo 19 chains the three steps with "push" rules: confirming the order
+        # only launches the first (pick) transfer and each validated transfer
+        # triggers the next one, so the whole chain is walked here.
+        handled_pickings = self.env["stock.picking"]
+        while True:
+            pickings = sale_order.picking_ids - handled_pickings
+            if not pickings:
+                break
+            for pick in pickings:
+                picking = self._l10n_ec_create_or_modify_picking(
+                    picking=pick, delivery_note=False
+                )
+                self._l10n_ec_set_done_quantities(picking)
+                picking.button_validate()
+                handled_pickings |= picking
+        pickings = sale_order.picking_ids
         model_wizard = self.env["wizard.create.delivery.note"]
         wiz = Form(model_wizard.with_context(active_ids=pickings.ids)).save()
-        # Intentar crear guia de remisión de las 3 transferencias creadas desde el pedido
+        # Intentar crear guia de remisión de las 3 transferencias del pedido
         with self.assertRaises(UserError):
             wiz.action_create_delivery_note()
         # Crear guia con transferencia que tenga ubicacion destino diferente a interna
@@ -78,7 +88,7 @@ class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
         picking = self._l10n_ec_create_or_modify_picking(
             picking=picking, delivery_note=False
         )
-        picking.action_set_quantities_to_reservation()
+        self._l10n_ec_set_done_quantities(picking)
         picking.button_validate()
         model_wizard = self.env["wizard.create.delivery.note"]
         wiz = Form(model_wizard.with_context(active_ids=picking.id)).save()
@@ -108,14 +118,9 @@ class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
         picking = self._l10n_ec_create_or_modify_picking(
             picking=sale_order.picking_ids, delivery_note=True
         )
-        picking.move_ids_without_package.product_uom_qty = 5
+        picking.move_ids.product_uom_qty = 5
         picking.action_confirm()
-        move_form = Form(
-            picking.move_ids_without_package, view="stock.view_stock_move_operations"
-        )
-        with move_form.move_line_ids.new() as line:
-            line.qty_done = 1
-        move_form.save()
+        self._l10n_ec_create_move_line(picking, quantity=1)
         picking_context = picking.button_validate()
         wiz = Form(
             self.env[picking_context["res_model"]].with_context(
@@ -129,14 +134,16 @@ class TestL10nSaleOrder(TestL10nDeliveryNoteCommon):
         self.assertEqual(note1.state, "done")
         # Validar el picking en backorder y crear otra guia de remisión
         picking_backorder = picking.backorder_ids
-        picking_backorder.action_set_quantities_to_reservation()
+        self._l10n_ec_set_done_quantities(picking_backorder)
         picking_backorder_context = picking_backorder.button_validate()
+        # El popup de guía de remisión reemplaza al asistente de transferencia
+        # inmediata que creaba la segunda guía en Odoo 15.
         wiz = Form(
-            self.env[picking_context["res_model"]].with_context(
+            self.env[picking_backorder_context["res_model"]].with_context(
                 **picking_backorder_context["context"]
             )
         ).save()
-        wiz.process()
+        wiz.action_create_delivery_note()
         note2 = picking_backorder.l10n_ec_delivery_note_ids
         self.assertEqual(picking_backorder.state, "done")
         self.assertEqual(note2.state, "done")

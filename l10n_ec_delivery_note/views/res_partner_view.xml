@@ -6,24 +6,22 @@
         <field name="inherit_id" ref="base.view_partner_form" />
         <field name="arch" type="xml">
             <xpath
-                expr="//field[@name='child_ids']/form//field[@name='mobile']"
+                expr="//field[@name='child_ids']/form//field[@name='phone']"
                 position="after"
             >
-                <field
-                    name="l10n_ec_is_carrier"
-                    attrs="{'invisible':  [('type','!=','contact')]}"
-                />
+                <field name="l10n_ec_is_carrier" invisible="type != 'contact'" />
                 <label
                     for="l10n_latam_identification_type_id"
                     string="Identification Number"
-                    attrs="{'invisible':  ['|',('l10n_ec_is_carrier','=',False), ('type','!=','contact')]}"
+                    invisible="not l10n_ec_is_carrier or type != 'contact'"
                 />
                 <div>
                     <field
                         name="l10n_latam_identification_type_id"
                         options="{'no_open': True, 'no_create': True}"
                         placeholder="Type"
-                        attrs="{'invisible':  ['|',('l10n_ec_is_carrier','=',False), ('type','!=','contact')], 'readonly': [('parent_id', '!=', False), ('l10n_ec_is_carrier', '=', False)]}"
+                        invisible="not l10n_ec_is_carrier or type != 'contact'"
+                        readonly="parent_id != False and not l10n_ec_is_carrier"
                         class="oe_inline"
                         domain="country_id and ['|', ('country_id', '=', False), ('country_id', '=', country_id)] or []"
                     />
@@ -32,12 +30,13 @@
                         name="vat"
                         placeholder="Number"
                         class="oe_inline"
-                        attrs="{'invisible':  ['|',('l10n_ec_is_carrier','=',False),('type','!=','contact')], 'readonly': [('parent_id', '!=', False), ('l10n_ec_is_carrier', '=', False)]}"
+                        invisible="not l10n_ec_is_carrier or type != 'contact'"
+                        readonly="parent_id != False and not l10n_ec_is_carrier"
                     />
                 </div>
                 <field
                     name="l10n_ec_car_plate"
-                    attrs="{'invisible':  ['|',('l10n_ec_is_carrier','=',False),('type','!=','contact')]}"
+                    invisible="not l10n_ec_is_carrier or type != 'contact'"
                 />
             </xpath>
         </field>
@@ -49,10 +48,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='category_id']" position="after">
                 <field name="l10n_ec_is_carrier" />
-                <field
-                    name="l10n_ec_car_plate"
-                    attrs="{'invisible':  [('l10n_ec_is_carrier','=',False)]}"
-                />
+                <field name="l10n_ec_car_plate" invisible="not l10n_ec_is_carrier" />
             </xpath>
         </field>
     </record>
@@ -61,22 +57,18 @@
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="l10n_latam_base.view_partner_latam_form" />
         <field name="arch" type="xml">
-
             <field name='l10n_latam_identification_type_id' position="attributes">
-                <!--<field name="l10n_ec_is_carrier" invisible="1"/>-->
-                <attribute name="attrs">
-                    {
-                    'readonly': [('parent_id', '!=', False), ('l10n_ec_is_carrier', '=', False)]}
-                </attribute>
+                <attribute
+                    name="readonly"
+                >parent_id != False and not l10n_ec_is_carrier</attribute>
             </field>
             <xpath
                 expr="//field[@name='l10n_latam_identification_type_id']/../field[@name='vat']"
                 position="attributes"
             >
-                <attribute name="attrs">
-                    {
-                    'readonly': [('parent_id', '!=', False), ('l10n_ec_is_carrier', '=', False)]}
-                </attribute>
+                <attribute
+                    name="readonly"
+                >parent_id != False and not l10n_ec_is_carrier</attribute>
             </xpath>
         </field>
     </record>

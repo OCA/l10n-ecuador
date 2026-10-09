@@ -11,7 +11,7 @@
                     type="object"
                     class="oe_stat_button"
                     icon="fa-pencil-square-o"
-                    attrs="{'invisible': [('l10n_ec_delivery_note_count', '=', 0)]}"
+                    invisible="l10n_ec_delivery_note_count == 0"
                 >
                     <field
                         name="l10n_ec_delivery_note_count"
