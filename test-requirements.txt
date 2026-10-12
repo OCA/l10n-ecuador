@@ -5,7 +5,7 @@
 # (#104), both still open as well. l10n_ec_104 itself only needs
 # l10n_ec_base, which is merged and therefore needs no reference here.
 # CI resolves `depends` against the target branch, where none of the three
-exists yet, so the install and the tests fail without these references
+# exists yet, so the install and the tests fail without these references
 # -- pip reports "No matching distribution found for
 # odoo-addon-l10n_ec_account_edi==19.0.*" when only the direct reference is
 # present, because pip resolves the whole chain from this file.
