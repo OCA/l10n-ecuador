@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="l10n_ec_103_generate_view_form" model="ir.ui.view">
+        <field name="name">l10n.ec.103.generate.form</field>
+        <field name="model">l10n.ec.103.generate</field>
+        <field name="arch" type="xml">
+            <form string="Prefill Form 103">
+                <group>
+                    <group>
+                        <field name="company_id" />
+                        <field name="anio" />
+                        <field name="mes" />
+                    </group>
+                    <group string="Return">
+                        <div class="text-muted">
+                            <p>
+                                One prefill per reported month over the Form 103
+                                report of Odoo core. Every derivable box is read
+                                from the posted moves of that month, and a box
+                                that cannot be derived stops generation rather
+                                than being assumed. The 500 compensation below
+                                defaults to zero: fill it from your dividend
+                                reading when it applies.
+                            </p>
+                        </div>
+                    </group>
+                </group>
+                <group string="Case-file boxes (manual)">
+                    <field name="carryover_500" />
+                </group>
+                <field name="boxes_preview" nolabel="1" readonly="1" />
+                <footer>
+                    <button
+                        name="generate"
+                        type="object"
+                        string="Prefill"
+                        class="btn-primary"
+                    />
+                    <button string="Discard" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="l10n_ec_103_generate_action" model="ir.actions.act_window">
+        <field name="name">Form 103 (Withholding)</field>
+        <field name="res_model">l10n.ec.103.generate</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="l10n_ec_103_generate_view_form" />
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+        id="l10n_ec_103_generate_menu"
+        name="Form 103 (Withholding)"
+        parent="l10n_ec.sri_menu"
+        action="l10n_ec_103_generate_action"
+        sequence="30"
+    />
+</odoo>
