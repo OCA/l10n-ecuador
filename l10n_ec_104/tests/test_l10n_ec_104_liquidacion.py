@@ -4,12 +4,14 @@ from odoo.tests import tagged
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
+from . import common
+
 PERIOD_START = date(2026, 8, 1)
 PERIOD_FINISH = date(2026, 8, 31)
 
 
 @tagged("post_install", "-at_install")
-class TestL10nEc104Liquidacion(AccountTestInvoicingCommon):
+class TestL10nEc104Liquidacion(common.Base):
     """Settlement from the collected boxes plus the month's terms.
 
     482 carries 429 over, 484 defaults to the VAT of the cash sales (the
@@ -37,6 +39,11 @@ class TestL10nEc104Liquidacion(AccountTestInvoicingCommon):
         cls.expense_account = cls.company_data["default_account_expense"]
         cls.sale_journal = cls.company_data["default_journal_sale"]
         cls.purchase_journal = cls.company_data["default_journal_purchase"]
+        common.setup_edi_aware(
+            cls,
+            sale_journal=cls.sale_journal,
+            purchase_journal=cls.purchase_journal,
+        )
         cls.term_30_days = cls.env["account.payment.term"].create(
             {
                 "name": "30 days",
@@ -112,6 +119,7 @@ class TestL10nEc104Liquidacion(AccountTestInvoicingCommon):
                 ],
             }
         )
+        common.set_tax_support(move)
         move.action_post()
         return move
 

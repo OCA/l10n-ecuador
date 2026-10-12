@@ -4,12 +4,14 @@ from odoo.tests import tagged
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
+from . import common
+
 PERIOD_START = date(2026, 8, 1)
 PERIOD_FINISH = date(2026, 8, 31)
 
 
 @tagged("post_install", "-at_install")
-class TestL10nEc104CollectorVentas(AccountTestInvoicingCommon):
+class TestL10nEc104CollectorVentas(common.Base):
     """One box mapping rule: tags decide, the collector only adds.
 
     The EC chart template already maps every sales tax to its 104 boxes
@@ -35,6 +37,7 @@ class TestL10nEc104CollectorVentas(AccountTestInvoicingCommon):
         cls.tax_5 = chart.ref("tax_vat_05_411_goods")
         cls.revenue_account = cls.company_data["default_account_revenue"]
         cls.sale_journal = cls.company_data["default_journal_sale"]
+        common.setup_edi_aware(cls, sale_journal=cls.sale_journal)
 
     def _post_sale(self, price, tax, move_type="out_invoice", **kwargs):
         move = self.env["account.move"].create(

@@ -7,12 +7,14 @@ from odoo.tests import tagged
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
+from . import common
+
 PERIOD_START = date(2026, 8, 1)
 PERIOD_FINISH = date(2026, 8, 31)
 
 
 @tagged("post_install", "-at_install")
-class TestL10nEc104Wizard(AccountTestInvoicingCommon):
+class TestL10nEc104Wizard(common.Base):
     """The wizard composes the three collectors and offers the CSV.
 
     Refusals aggregate into one ``UserError`` and produce no file: a
@@ -26,6 +28,9 @@ class TestL10nEc104Wizard(AccountTestInvoicingCommon):
         super().setUpClass()
         chart = cls.env["account.chart.template"].with_company(cls.company)
         cls.tax_15 = chart.ref("tax_vat_15_411_goods")
+        common.setup_edi_aware(
+            cls, sale_journal=cls.company_data["default_journal_sale"]
+        )
         move = cls.env["account.move"].create(
             {
                 "move_type": "out_invoice",

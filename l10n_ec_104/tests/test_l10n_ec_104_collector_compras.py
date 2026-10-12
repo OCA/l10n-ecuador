@@ -4,12 +4,14 @@ from odoo.tests import tagged
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
+from . import common
+
 PERIOD_START = date(2026, 8, 1)
 PERIOD_FINISH = date(2026, 8, 31)
 
 
 @tagged("post_install", "-at_install")
-class TestL10nEc104CollectorCompras(AccountTestInvoicingCommon):
+class TestL10nEc104CollectorCompras(common.Base):
     """Mirror of the sales collector with purchase signs.
 
     Vendor bills are debit-positive and core reads the purchase boxes with
@@ -35,6 +37,7 @@ class TestL10nEc104CollectorCompras(AccountTestInvoicingCommon):
         cls.tax_5 = chart.ref("tax_vat_05_510_sup_01")
         cls.expense_account = cls.company_data["default_account_expense"]
         cls.purchase_journal = cls.company_data["default_journal_purchase"]
+        common.setup_edi_aware(cls, purchase_journal=cls.purchase_journal)
 
     def _post_purchase(self, price, tax, move_type="in_invoice", **kwargs):
         # Vendor bills post through a journal with Latam documents, which
@@ -67,6 +70,7 @@ class TestL10nEc104CollectorCompras(AccountTestInvoicingCommon):
                 **kwargs,
             }
         )
+        common.set_tax_support(move)
         move.action_post()
         return move
 
