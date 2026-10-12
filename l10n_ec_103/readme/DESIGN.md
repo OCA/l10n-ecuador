@@ -34,6 +34,11 @@ negative on both legs, and the net boxes come out with no special case.
 Core reads every box with positive formulas (`303 (Reporte 103)`), which
 is the same convention.
 
+Vouchers are `entry` moves and are read like any other move: their
+counterpart lines ship tag-stripped by the withhold flow, so each event
+counts once -- provided the same withholding is not recorded both on the
+bill and on a voucher for it.
+
 ---
 
 ## 1. Residentes (`_l10n_ec_103_collect_residentes`)

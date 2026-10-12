@@ -107,3 +107,54 @@ class TestL10nEc103CollectorResidentes(AccountTestInvoicingCommon):
         self.assertEqual(boxes["353"], 60.0)
         self.assertEqual(boxes["349"], 600.0)
         self.assertEqual(boxes["399"], 60.0)
+
+    def test_voucher_like_entry_is_read_once(self):
+        # A withhold voucher is an `entry` move whose basis lines carry
+        # the withhold taxes (counterpart lines ship tag-stripped). The
+        # collector reads it without needing the withhold module, and a
+        # bill carrying the same tax beside it would double -- one event,
+        # one record.
+        move = self.env["account.move"].create(
+            {
+                "move_type": "entry",
+                "company_id": self.company.id,
+                "partner_id": self.partner_a.id,
+                "date": PERIOD_START.isoformat(),
+                "journal_id": (
+                    self.env["account.journal"]
+                    .search(
+                        [
+                            ("company_id", "=", self.company.id),
+                            ("type", "=", "general"),
+                        ],
+                        limit=1,
+                    )
+                    .id
+                ),
+                "line_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "name": "RET base",
+                            "debit": 1000.0,
+                            "account_id": self.expense_account.id,
+                            "tax_ids": [(6, 0, [self.tax_303.id])],
+                        },
+                    ),
+                    (
+                        0,
+                        0,
+                        {
+                            "name": "RET counterpart",
+                            "credit": 1000.0,
+                            "account_id": self.expense_account.id,
+                        },
+                    ),
+                ],
+            }
+        )
+        move.action_post()
+        boxes = self._collect()
+        self.assertEqual(boxes["303"], 1000.0)
+        self.assertEqual(boxes["353"], 100.0)

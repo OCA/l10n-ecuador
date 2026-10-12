@@ -28,7 +28,7 @@ from odoo import models
 #: Four digits admit the 3xxx concept boxes (3030, 3120, ...).
 TAG_RE = re.compile(r"^(\d{3,4}) \(Reporte 103\)$")
 
-WITHHOLD_MOVE_TYPES = ("in_invoice", "in_refund")
+WITHHOLD_MOVE_TYPES = ("in_invoice", "in_refund", "entry")
 
 
 class L10nEc103Collector(models.AbstractModel):
@@ -115,8 +115,12 @@ class L10nEc103Collector(models.AbstractModel):
         """All tagged boxes plus base/tax legs keyed by first digit.
 
         Returns ``(boxes, base_by_digit, tax_by_digit)`` over the posted
-        vendor bills and credit notes of the period, so the resident and
-        exterior collectors slice one pass instead of re-reading.
+        vendor bills, credit notes and withhold vouchers of the period, so
+        the resident and exterior collectors slice one pass instead of
+        re-reading. Vouchers are ``entry`` moves: their counterpart lines
+        ship with empty tags (the withhold flow strips them), so each event
+        counts once -- provided the same withholding is not recorded both on
+        the bill and on a voucher for it.
         """
         boxes = {}
         base_by_digit = {}
