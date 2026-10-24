@@ -171,10 +171,18 @@ msgid ""
 "            <table width=\"100%\">\n"
 "                <thead>\n"
 "                    <tr style=\"text-align: center;\">\n"
-"                        <th style=\"width: 190px;\"><strong>Document</strong></th>\n"
-"                        <th style=\"width: 80px;\"><strong>Date</strong></th>\n"
-"                        <th style=\"width: 80px;\"><strong>Status</strong></th>\n"
-"                        <th><strong>Error</strong></th>\n"
+"                        <th style=\"width: 190px;\">\n"
+"                            <strong>Document</strong>\n"
+"                        </th>\n"
+"                        <th style=\"width: 80px;\">\n"
+"                            <strong>Date</strong>\n"
+"                        </th>\n"
+"                        <th style=\"width: 80px;\">\n"
+"                            <strong>Status</strong>\n"
+"                        </th>\n"
+"                        <th>\n"
+"                            <strong>Error</strong>\n"
+"                        </th>\n"
 "                    </tr>\n"
 "                </thead>\n"
 "                <tbody style=\"padding: 10px; font-size: 12px;\">\n"
@@ -974,6 +982,15 @@ msgstr ""
 #. odoo-python
 #: code:addons/l10n_ec_account_edi/models/account_move.py:0
 msgid "The connection to the SRI service is not possible. Please check later."
+msgstr ""
+
+#. module: l10n_ec_account_edi
+#. odoo-python
+#: code:addons/l10n_ec_account_edi/models/sri_key_type.py:0
+msgid ""
+"The electronic signature expired on %(expire_date)s and the document cannot "
+"be signed. Upload a valid signature file in Accounting Settings / SRI key "
+"type."
 msgstr ""
 
 #. module: l10n_ec_account_edi
