@@ -1,0 +1,87 @@
+.div-bordered {
+    border: 1px solid black;
+    padding: 10px;
+}
+
+.div-radius {
+    border-radius: 5px;
+}
+
+.table-no-border {
+    border-style: none;
+    border-top: none;
+}
+
+.table-no-border > thead > tr > th,
+.table-no-border > tbody > tr > th,
+.table-no-border > tfoot > tr > th,
+.table-no-border > thead > tr > td,
+.table-no-border > tbody > tr > td,
+.table-no-border > tfoot > tr > td {
+    border-style: none;
+    border-top: none;
+}
+
+.table-bordered-black {
+    border: 1px solid black;
+}
+
+.table-bordered-black > thead > tr > th,
+.table-bordered-black > tbody > tr > th,
+.table-bordered-black > tfoot > tr > th,
+.table-bordered-black > thead > tr > td,
+.table-bordered-black > tbody > tr > td,
+.table-bordered-black > tfoot > tr > td {
+    border: 1px solid black;
+}
+
+.table-bordered-line > thead > tr > th {
+    max-height: 8px;
+    line-height: 12px;
+    font-size: 12px !important;
+}
+
+.table-bordered-line > tbody > tr > td {
+    max-height: 8px;
+    line-height: 12px;
+    font-size: 12px !important;
+}
+
+.table-bordered-line > tbody > tr > td {
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    border-bottom: 1px none black;
+    border-top: 1px none black;
+}
+
+.row-bordered th {
+    border: 1px solid black;
+}
+
+.row-no-bordered {
+    border-left: 1px none black;
+    border-right: 1px none black;
+    border-bottom: 1px none black;
+    border-top: 2px solid black;
+}
+
+.amount-sm {
+    width: 10%;
+}
+
+.amount-md {
+    width: 12%;
+}
+
+.amount-lg {
+    width: 15%;
+}
+
+.amount-xl {
+    width: 20%;
+}
+
+.table-bordered .border-black td,
+.table-bordered .border-black th {
+    border-top: 2px solid black !important;
+}
