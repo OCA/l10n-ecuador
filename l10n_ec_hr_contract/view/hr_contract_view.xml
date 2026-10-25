@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- ============================================================
+     Migrado a Odoo 19
+     Cambios principales:
+       1. <openerp> → <odoo>
+       2. attrs={} → atributos inline (invisible/readonly/required)
+       3. Chatter: div.oe_mail + mail_followers/mail_thread → <chatter/>
+       4. invisible="1" → invisible="True"
+       5. readonly="1"  → readonly="True"
+       6. Eliminado atributo string="" obsoleto en <form>
+     ============================================================ -->
+<odoo>
+    <data>
+
+        <!-- ─── Menus ─────────────────────────────────────────────────── -->
+
+        <menuitem name="Contracts"
+            id="submenu_hr_contracts"
+            parent="hr.menu_hr_root"
+            sequence="20"
+            groups="hr.group_hr_user"/>
+
+        <!-- Reemplaza el menuitem stock de Contracts y lo coloca en el submenú -->
+        <menuitem action="hr.action_hr_version"
+                  id="menu_hr_contract_ec"
+                  parent="submenu_hr_contracts"
+                  name="Contracts"
+                  sequence="10"
+                  groups="hr.group_hr_user"/>
+
+        <!-- ─── Jornada de Trabajo ────────────────────────────────────── -->
+
+        <record id="action_resource_calendar_hr" model="ir.actions.act_window">
+            <field name="name">Jornada de Trabajo</field>
+            <field name="res_model">resource.calendar</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="resource.view_resource_calendar_search"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Define la jornada de trabajo para los empleados.
+                </p>
+            </field>
+        </record>
+
+        <menuitem id="menu_resource_hr_ec"
+                  action="action_resource_calendar_hr"
+                  name="Jornada de Trabajo"
+                  parent="hr.menu_human_resources_configuration"
+                  sequence="5"/>
+
+        <!-- Formulario de Jornada de Trabajo 
+        <record id="resource.resource_calendar_form" model="ir.ui.view">
+            <field name="name">resource.calendar.form</field>
+            <field name="model">resource.calendar</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="tolerance_in" required="True"/>
+                              
+                                <field name="company_id" groups="base.group_multi_company"/>
+                            </group>
+                            <group>
+                                <field name="lunch_max" required="True"/>
+                                <label for="lunch_from" string="Duración"/>
+                                <div>
+                                    <field name="lunch_from" required="True" widget="float_time"/>
+                                    -
+                                    <field name="lunch_to" required="True" widget="float_time"/>
+                                </div>
+                            </group>
+                        </group>
+                        <group string="Detalle">
+                            <field name="attendance_ids" nolabel="True"/>
+                        </group>
+                        <group string="Excepciones">
+                            <field name="exception_ids" nolabel="True">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="date"/>
+                                    <field name="hour_from" widget="float_time"/>
+                                    <field name="hour_to" widget="float_time"/>
+                                    <field name="state"/>
+                                    <button name="action_confirm"
+                                            icon="fa-check"
+                                            type="object"
+                                            title="Confirmar"/>
+                                </list>
+                            </field>
+                        </group>
+                        <field name="leave_ids"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>-->
+
+        <!-- ─── Vista lista de Contratos (heredada) 
+
+        <record id="hr_contract_view_list" model="ir.ui.view">
+            <field name="name">hr.contract.list.state</field>
+            <field name="model">hr.version</field>
+            <field name="inherit_id" ref="hr.hr_contract_template_list_view"/>
+            <field name="arch" type="xml">
+                <data>
+                    <xpath expr="//field[@name='employee_id']" position="before">
+                        <field name="name"/>
+                    </xpath>
+                    <xpath expr="//field[@name='employee_id']" position="after">
+                        <field name="department_id"/>
+                    </xpath>
+                    <xpath expr="//field[@name='date_end']" position="after">
+                        <field name="state"/>
+                    </xpath>
+                </data>
+            </field>
+        </record>-->
+
+        <!-- ─── Contratos por vencer ──────────────────────────────────── -->
+
+        <record id="view_expiring_contracts_list" model="ir.ui.view">
+            <field name="name">hr.contract.contract.expire.list</field>
+            <field name="model">hr.version</field>
+            <field name="arch" type="xml">
+                <list string="Expiring Contracts">
+                    <field name="name"/>
+                    <field name="employee_id"/>
+                    <field name="department_id"/>
+                    <field name="job_id"/>
+                    <field name="trial_date_end"/>
+                    <field name="date_end"/>
+                    <field name="state"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="open_expiring_contracts" model="ir.actions.act_window">
+            <field name="name">Ending Trials &amp; Contracts</field>
+            <field name="res_model">hr.version</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="view_expiring_contracts_list"/>
+            <!-- NOTA: dominio simplificado; el operador | en domain de Odoo 17+ usa notación de lista -->
+            <field name="domain">['|', ('state', 'in', ['contract_ending']), ('state', 'in', ['trial_ending'])]</field>
+            <field name="help" type="html">
+                <p>
+                    There are currently no contracts or trial periods that are about to expire.
+                </p>
+            </field>
+        </record>
+
+        <menuitem action="open_expiring_contracts"
+                  id="menu_expiring_contracts"
+                  parent="submenu_hr_contracts"
+                  groups="hr.group_hr_user"
+                  sequence="20"/>
+
+        <!-- ─── Contratos pendientes de aprobación ────────────────────── -->
+
+        <record id="view_draft_contracts_list" model="ir.ui.view">
+            <field name="name">hr.contract.contract.draft.list</field>
+            <field name="model">hr.version</field>
+            <field name="arch" type="xml">
+                <list string="Contracts to be Approved">
+                    <field name="name"/>
+                    <field name="employee_id"/>
+                    <field name="department_id"/>
+                    <field name="job_id"/>
+                    <field name="date_start"/>
+                    <field name="date_end"/>
+                    <field name="state"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="open_draft_contracts" model="ir.actions.act_window">
+            <field name="name">Contracts to be Approved</field>
+            <field name="res_model">hr.version</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="view_draft_contracts_list"/>
+            <field name="domain">[('state', 'in', ['draft'])]</field>
+            <field name="help" type="html">
+                <p>
+                    There are currently no contracts that need to be approved.
+                </p>
+            </field>
+        </record>
+
+        <menuitem action="open_draft_contracts"
+                  id="menu_draft_contracts"
+                  parent="submenu_hr_contracts"
+                  groups="hr.group_hr_user"
+                  sequence="30"/>
+
+
+
+
+        <!-- ─── Formulario de Contrato ────────────────────────────────── -->
+
+        <record id="view_contract_form" model="ir.ui.view">
+            <field name="name">hr.version.form.state</field>
+            <field name="model">hr.version</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <!-- attrs={} reemplazado por invisible= con expresión de dominio inline -->
+                        <button name="signal_confirm"
+                                type="object"
+                                string="Confirmar"
+                                confirm="¿Seguro de Confirmar el Contrato?"
+                                groups="hr.group_hr_manager"
+                                invisible="state != 'draft'"
+                                class="btn-primary"/>
+                        <button name="state_open"
+                                type="object"
+                                string="Trial Successful"
+                                groups="hr.group_hr_manager"
+                                invisible="state not in ('trial_ending', 'trial')"
+                                class="btn-primary"/>
+                        <button name="state_done"
+                                type="object"
+                                string="End Contract"
+                                groups="hr.group_hr_manager"
+                                invisible="state not in ('trial', 'open', 'pending_done')"
+                                class="btn-primary"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="employee_id" required="True"/>
+                            <field name="job_id" required="True"/>
+                            <field name="department_id" readonly="True"/>
+                            <field name="type_id" required="True"/>
+                            <field name="code_contract_id"/>
+                        </group>
+                        <group>
+                            <field name="date_start" required="True"/>
+                            <field name="date_end"/>
+                            <field name="trial_date_end" readonly="True"/>
+                            <field name="base_trial_days" invisible="True"/>
+                            <field name="age_days" readonly="True"/>
+                        </group>
+                        <group>
+                            <field name="wage" required="True"/>
+                            <field name="wage_base_legal" required="True"/>
+                        </group>
+                        <notebook>
+                            <page string="Valores Rol Pagos">
+                                <group>
+                                    <group string="Prestamos IESS">
+                                        <field name="p_quirografario"/>
+                                        <field name="p_hipotecario"/>
+                                    </group>
+                                    <group string="Anticipo Sueldo">
+                                        <field name="anticipo_sueldo"/>
+                                        <field name="otros_descuentos"/>
+                                    </group>
+                                </group>
+                                <group string="Ingresos Extras Fijos">
+                                    <field name="bonus_ids" nolabel="True">
+                                        <list editable="bottom">
+                                            <field name="name"/>
+                                            <field name="amount" required="True"/>
+                                        </list>
+                                    </field>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <!-- Odoo 17+: <chatter/> reemplaza el bloque div.oe_mail
+                         con mail_followers y mail_thread -->
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <!-- ─── Lista de Bonos (Ingresos Extras) ─────────────────────── -->
+
+        <record id="view_hr_contract_bonus_list" model="ir.ui.view">
+            <field name="name">hr.contract.bonus.list</field>
+            <field name="model">hr.contract.bonus</field>
+            <field name="arch" type="xml">
+                <list string="Bonos" editable="top">
+                    <field name="contract_id" required="True" domain="[('state', '=', 'open')]"/>
+                    <field name="name"/>
+                    <field name="amount"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="open_hr_contract_bonus" model="ir.actions.act_window">
+            <field name="name">Ingresos Extras</field>
+            <field name="res_model">hr.contract.bonus</field>
+            <field name="view_mode">list</field>
+            <field name="help" type="html">
+                <p>
+                    Puede definir montos fijos como ingresos extras.
+                </p>
+            </field>
+        </record>
+
+        <menuitem action="open_hr_contract_bonus"
+                  id="menu_hr_contract_bonus"
+                  parent="submenu_hr_contracts"
+                  groups="hr.group_hr_user"
+                  sequence="60"/>
+
+    </data>
+</odoo>
