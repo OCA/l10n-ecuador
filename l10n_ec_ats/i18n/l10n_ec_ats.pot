@@ -1,0 +1,952 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_ec_ats
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/wizard/l10n_ec_ats_generate.py:0
+msgid "%(block)s / %(field)s[%(owner)s]: %(message)s"
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/wizard/l10n_ec_ats_generate.py:0
+msgid ""
+"%(count)s finding(s) did not stop this file. They are not blocking, but the SRI may question them, so read them before filing:\n"
+"\n"
+"%(lines)s"
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/wizard/l10n_ec_ats_generate.py:0
+msgid "%(index)s. %(rule)s -- %(where)s%(field)s %(message)s"
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(move)s cannot be reported in the ATS: %(field)s is %(value)s. The SRI "
+"numbers establishments and emission points from 001; 000 is never valid, "
+"even though ats.xsd accepts it."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(move)s cannot be reported in the ATS: Tabla 20 has %(count)s rows in force"
+" on %(when)s for journal %(journal)s, which %(uses)s. Exactly one is "
+"required, and ATS will not guess the emission type. Codes in force that day:"
+" %(valid)s."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(move)s cannot be reported in the ATS: another cancelled document already "
+"claims sequential %(sequence)s of establishment %(establishment)s and "
+"emission point %(point)s. Two records claiming one document is a data error "
+"to fix, not a second range."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(move)s cannot be reported in the ATS: document type %(code)s (%(name)s) is"
+" not one tax support %(support)s covers. Tabla 5 allows: %(allowed)s."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(move)s cannot be reported in the ATS: fechaEmision %(emission)s is after "
+"fechaRegistro %(registration)s."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(move)s cannot be reported in the ATS: fechaEmision %(emission)s is more "
+"than a year before fechaRegistro %(registration)s."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(move)s cannot be reported in the ATS: fechaRegistro %(date)s falls outside"
+" the reported period %(month)s. An ATS covers one month, and fechaRegistro "
+"must equal it."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(move)s cannot be reported in the ATS: fechaRegistro is not set. Set the "
+"accounting date on the document."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(move)s cannot be reported in the ATS: it carries no document number, and "
+"its access key does not carry one either. ATS reads the establishment, the "
+"emission point and the sequential from the number the SRI received, so a "
+"cancelled document has to keep it."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(move)s cannot be reported in the ATS: its sequential %(sequence)s is not a"
+" number, and a range is opened and closed by comparing one sequential with "
+"the next. Record the number on the document as ESTABLISHMENT-POINT-"
+"SEQUENTIAL."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(move)s cannot be reported in the ATS: no authorization number is recorded "
+"on it. The SRI issues that number when it authorizes the document, so one "
+"that carries none was never authorized -- ATS will not invent it, and the "
+"document is left out of the range instead of being folded into one."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(move)s cannot be reported in the ATS: no tax support is captured. Tabla 5 "
+"requires exactly one code per document, and ATS does not guess it."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(move)s cannot be reported in the ATS: the document type is not set. Tabla "
+"4 requires one."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(move)s cannot be reported in the ATS: the supplier's authorization number "
+"is not set. ATS will not invent one. Record it on the bill, or leave the "
+"document out of the period until it is known."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(move)s cannot be reported in the ATS: the supplier's document number is "
+"not set and its access key does not carry one either. Record the number on "
+"the bill as ESTABLISHMENT-POINT-SEQUENTIAL."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(move)s cannot be reported in the ATS: the supplier's emission date is not "
+"set."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(move)s states payment form %(code)s, which Tabla 13 does not publish on "
+"%(when)s. Codes in force that day: %(valid)s."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(move)s withholds VAT at %(rate)s%%, but Tabla 11 has %(count)s such rates "
+"in force on %(when)s. Exactly one is required; ATS will not file a retention"
+" under a rate the SRI never published."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(move)s withholds VAT at %(rate)s%%, but Tabla 11 has %(count)s such rates "
+"in force on %(when)s. Exactly one is required; ATS will not guess which "
+"element the amount belongs in."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(move)s withholds income tax under code %(code)s, which Tabla 3.10 does not"
+" define. The tax's ATS code cannot be resolved to a rate, so no "
+"porcentajeAir is reported for it. Check l10n_ec_code_ats on the tax."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(partner)s has no identification number, so it cannot be reported as a "
+"client."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(partner)s has no identification number, so it cannot be reported as a "
+"supplier."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(partner)s is identified as %(vat)s, which is Consumer Final. The SRI files"
+" no purchase against that identification; bill the real supplier."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(partner)s is identified from abroad, so the ATS requires tipoCliente. "
+"Tabla 14 states no row matching a %(nature)s client on %(when)s."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(partner)s is identified from abroad, so the ATS requires tipoProv. Tabla "
+"14 states no row matching a %(nature)s supplier on %(when)s."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(partner)s uses an identification type the ATS does not describe, so "
+"tpIdCliente cannot be derived from it."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(partner)s uses an identification type the ATS does not describe, so "
+"tpIdProv cannot be derived from it."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/wizard/l10n_ec_ats_generate.py:0
+msgid "%(rule)s -- %(where)s%(field)s %(message)s"
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(subject)s cannot be reported in the ATS: its establishment is %(code)s. "
+"The SRI numbers establishments from 001, and numEstabRuc and codEstab both "
+"carry minExclusive 000 in ats.xsd, so %(code)s is never valid in either "
+"place."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"%(vat)s is not a real identification number, so %(partner)s cannot be "
+"reported as %(subject)s."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.actions.act_window,name:l10n_ec_ats.l10n_ec_ats_generate_action
+#: model:ir.ui.menu,name:l10n_ec_ats.l10n_ec_ats_generate_menu
+msgid "ATS"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model,name:l10n_ec_ats.model_l10n_ec_ats_collector
+msgid "ATS block collectors"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields.selection,name:l10n_ec_ats.selection__l10n_ec_ats_income_withholding_rate__detail_group__banana
+msgid "Banana export extension"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__code
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_table__code
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_concept__code
+msgid "Code"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_generate__company_id
+msgid "Company"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__concept_id
+msgid "Concept"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_catalog_table__entry_count
+msgid ""
+"Coverage manifest: how many entries the source spreadsheet has for this "
+"table. A test asserts the loaded catalog matches, which is what catches a "
+"truncated import."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_table__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_generate__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_concept__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__create_date
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_table__create_date
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_generate__create_date
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_concept__create_date
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__description
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__description
+msgid "Description"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__detail_group
+msgid "Detail Group"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model_terms:ir.ui.view,arch_db:l10n_ec_ats.l10n_ec_ats_generate_view_form
+msgid "Discard"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__display_name
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_table__display_name
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_collector__display_name
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_generate__display_name
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_concept__display_name
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__display_name
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_temporal__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields.selection,name:l10n_ec_ats.selection__l10n_ec_ats_income_withholding_rate__detail_group__dividend
+msgid "Dividend payment extension"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__document_type_codes
+msgid "Document Type Codes"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model,name:l10n_ec_ats.model_l10n_ec_temporal
+msgid "Ecuadorian effective-dated record"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__date_end
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__date_end
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_temporal__date_end
+msgid "End Date"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_table__entry_count
+msgid "Entry Count"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__family
+msgid "Family"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model_terms:ir.ui.view,arch_db:l10n_ec_ats.l10n_ec_ats_generate_view_form
+msgid "File"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_generate__warnings
+msgid ""
+"Findings that were reported and did **not** stop generation, written by the Generate button. ATS-11 splits its findings in two: a grave one refuses the file, and an *alerta* is reported because the SRI may question it even though it will not reject the return.\n"
+"\n"
+"Nothing is listed here when the period is clean, and a finding never appears here if it stopped generation -- that one arrives as the refusal itself, which lists every problem it found rather than the first."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__date_start
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__date_start
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_temporal__date_start
+msgid "First day the entry applies to, included."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model_terms:ir.ui.view,arch_db:l10n_ec_ats.l10n_ec_ats_generate_view_form
+msgid "Generate"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model_terms:ir.ui.view,arch_db:l10n_ec_ats.l10n_ec_ats_generate_view_form
+msgid "Generate ATS"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model,name:l10n_ec_ats.model_l10n_ec_ats_generate
+msgid "Generate the monthly SRI ATS file"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__id
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_table__id
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_collector__id
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_generate__id
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_concept__id
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__id
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_temporal__id
+msgid "ID"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_table__in_scope
+msgid "In Scope"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_table__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_generate__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_concept__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__write_date
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_table__write_date
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_generate__write_date
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_concept__write_date
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__date_end
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__date_end
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_temporal__date_end
+msgid ""
+"Last day the entry applies to, included. Leave empty when the entry is still"
+" in force."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_table__load_order
+msgid "Load Order"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_generate__mes
+msgid "Month"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_table__name
+msgid "Name"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model_terms:ir.ui.view,arch_db:l10n_ec_ats.l10n_ec_ats_generate_view_form
+msgid ""
+"One ATS document per reported month, filed as\n"
+"                                <code>AT{mm}{yyyy}.zip</code> holding one XML that\n"
+"                                satisfies <code>ats.xsd</code>. Nothing is\n"
+"                                resolved from a literal: every catalogue value is\n"
+"                                read for the reported period, and a value that\n"
+"                                cannot be resolved stops generation rather than\n"
+"                                being assumed."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__percentage
+msgid ""
+"Only ``Tabla 11`` (IVA withholding rates) and ``Tabla 12`` (IVA rates) carry"
+" one."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields.selection,name:l10n_ec_ats.selection__l10n_ec_ats_income_withholding_rate__family__no_residente
+msgid "Pago a no residente"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields.selection,name:l10n_ec_ats.selection__l10n_ec_ats_income_withholding_rate__family__residente
+msgid "Pago a residente"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__percentage
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__percentage
+msgid "Percentage"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_generate__mes
+msgid ""
+"Reported month, 1 to 12. The code that reaches the file is the ``Tabla 01`` "
+"row's own, read from the catalog for the reported year, so the month is "
+"captured as a number and resolved -- never formatted from a list this module"
+" owns."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_generate__anio
+msgid ""
+"Reported year. ``Catalogo_ATS.xls`` / ``ESQUEMA TIPO 1 Y 2`` row 7: *\"El "
+"año debe corresponder a periodos del 2000 en adelante\"*, so an earlier year"
+" is refused here rather than discovered in the document."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model,name:l10n_ec_ats.model_l10n_ec_ats_income_withholding_concept
+msgid "SRI ATS Tabla 3.10 income withholding concept code"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model,name:l10n_ec_ats.model_l10n_ec_ats_income_withholding_rate
+msgid "SRI ATS Tabla 3.10 income withholding rate"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model,name:l10n_ec_ats.model_l10n_ec_ats_catalog_entry
+msgid "SRI ATS referential catalog entry"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model,name:l10n_ec_ats.model_l10n_ec_ats_catalog_table
+msgid "SRI ATS referential catalog table"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__sequence_type_codes
+msgid "Sequence Type Codes"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_catalog_table__load_order
+msgid ""
+"Sequence for deterministic loading. The tables cross-reference each other, "
+"so the order is not free."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__source_note
+msgid "Source Note"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_table__source_reference
+msgid "Source Reference"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__date_start
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__date_start
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_temporal__date_start
+msgid "Start Date"
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/wizard/l10n_ec_ats_generate.py:0
+msgid ""
+"Tabla %(table)s does not define concept %(code)s, which the reported period "
+"withholds. The tax's ATS code cannot be resolved to a rate, so no "
+"porcentajeAir is reported for it. Check l10n_ec_code_ats on the tax."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"Tabla %(table)s has %(count)s entries for code %(code)s on %(when)s; exactly"
+" one is required. Codes in force that day: %(valid)s."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/wizard/l10n_ec_ats_generate.py:0
+msgid ""
+"Tabla %(table)s has %(count)s rates for concept %(code)s on %(day)s, and "
+"exactly one is required: zero means a coverage hole and more than one means "
+"two eras claim the same day."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/wizard/l10n_ec_ats_generate.py:0
+msgid ""
+"Tabla %(table)s states no single percentage for concept %(code)s in the "
+"window %(start)s..%(end)s: %(note)s. Guessing one would put an invented rate"
+" in a filed return, so the period is not generated."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"Tabla 11 publishes a %(rate)s%% IVA withholding rate on %(when)s and ats.xsd"
+" has no compras element for it. The SRI schema would have to gain one before"
+" this could be filed."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"Tabla 2 entry %(code)s points at transaction type %(types)s, which Tabla A "
+"does not define on %(when)s."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"Tabla 3.10 has %(count)s rates for concept %(code)s on %(when)s; exactly one"
+" is required."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"Tabla 3.10 states no single percentage for concept %(code)s on %(when)s: "
+"%(note)s. Guessing one would put an invented rate in a filed return, so the "
+"document is not reported."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__table_id
+msgid "Table"
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/wizard/l10n_ec_ats_generate.py:0
+msgid ""
+"The ATS for %(period)s cannot be generated. %(count)s problem(s) must be resolved first, and none of them was worked around:\n"
+"\n"
+"%(problems)s\n"
+"\n"
+"No file was produced and no value was assumed. A rate, a code or a document field that cannot be resolved for the reported period is never substituted, because a substituted value is indistinguishable from a real one in a filed return."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_income_withholding_concept__code
+msgid ""
+"The SRI ``Número de campo``, verbatim, alphanumeric suffixes included: "
+"``303A``, ``323B1`` and ``323E2`` are real codes, not numbers. It matches "
+"``ats.xsd``'s ``codRetAirType`` -- 3 to 5 characters of ``[A-Za-z0-9]`` -- "
+"so a code outside that shape could never be emitted in a valid ATS. "
+"Everything else the SRI says about a code is era-scoped and lives on the "
+"rate, because the SRI reuses codes for different concepts across eras."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__code
+msgid ""
+"The SRI code, verbatim, including any trailing zeros. It is not unique: a "
+"code that changes over time has one entry per window."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_catalog_table__code
+msgid ""
+"The SRI table number as a zero-padded string, so it reads and sorts like the"
+" ficha técnica: ``01``, ``02``, ``05``. The transaction-type catalog of the "
+"referred tables carries ``A``."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/wizard/l10n_ec_ats_generate.py:0
+msgid ""
+"The business rules could not read the catalog for %(period)s: %(error)s"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__concept_id
+msgid ""
+"The concept code this rate applies to. The code itself is timeless and "
+"carries no description; the window below is what dates this row, along with "
+"the description and family of that era."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__description
+msgid ""
+"The description as the source cell spells it, stripped of leading and "
+"trailing whitespace only."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_income_withholding_rate.py:0
+msgid ""
+"The rate of concept %(code)s from %(start)s claims a resolved percentage but"
+" stores none. Fill it in from the source, or mark the rate unresolved."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_income_withholding_rate.py:0
+msgid ""
+"The rate of concept %(code)s from %(start)s is marked unresolved, so it must"
+" carry no percentage. Found %(value)s."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__table_id
+msgid "The referential table this row belongs to."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/wizard/l10n_ec_ats_generate.py:0
+msgid ""
+"The reported month %(month)s does not exist. A period is a calendar month, "
+"and Tabla %(table)s publishes one code per month."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/wizard/l10n_ec_ats_generate.py:0
+msgid ""
+"The reported year %(year)s is before %(floor)s. The SRI catalog states the "
+"year \"debe corresponder a periodos del %(floor)s en adelante\", so no ATS "
+"can be filed for it and no catalog version is loaded for it either."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__unresolved
+msgid ""
+"The source cell does not state a single percentage, so ``percentage`` is "
+"empty and ``source_note`` holds the cell verbatim: a range, a dash, a legal "
+"reference, or a cell naming a resolution for the real value. The "
+"completeness check refuses to generate a period that needs one, which is the"
+" point -- an invented rate would be indistinguishable from a real one in the"
+" filed ATS."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__source_note
+msgid ""
+"The source cell verbatim, for a rate the sheet does not state as a single "
+"number. Empty when the cell was a number."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_temporal.py:0
+msgid "The start date %(start)s must not be later than the end date %(end)s."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_catalog_table__name
+msgid "The table's title, spelled as the source spells it."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_generate__company_id
+msgid ""
+"The taxpayer the ATS identifies. Every block is collected for this company "
+"alone: an ATS is filed by one taxpayer, and the establishments it counts are"
+" that taxpayer's own."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__percentage
+msgid ""
+"The withholding percentage for this window, as the source states it. "
+"``Float``, not ``Integer``: the SRI publishes fractional rates such as 1.75,"
+" and an integer field would round them to a different number. Empty when the"
+" source cell does not state a single percentage -- see ``unresolved``."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__transaction_type_codes
+msgid "Transaction Type Codes"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__unresolved
+msgid "Unresolved"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_generate__warnings
+msgid "Warnings"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__description
+msgid ""
+"What the SRI called this concept **in this era**, as the source cell spells "
+"it, stripped of leading and trailing whitespace only. It is era-scoped "
+"because the SRI reuses a code for a different concept: 341 is *Otras "
+"retenciones aplicables el 2%* in 2014 and *Impuesto único a la exportación "
+"de banano* in 2019."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_catalog_table__source_reference
+msgid ""
+"Where the data was read from, including the sheet and the row range. "
+"Traceability is the point: a catalog value nobody can trace back to a cell "
+"cannot be trusted."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_catalog_table__in_scope
+msgid ""
+"Whether an in-scope ATS block needs this table. False for anything loaded "
+"speculatively."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__detail_group
+msgid ""
+"Which ``air`` sub-report this concept's era requires, if any. **A group name, never a code.**\n"
+"\n"
+"The ``air`` block has two conditional extensions: a dividend withholding adds ``fechaPagoDiv`` / ``imRentaSoc`` / ``anioUtDiv``, and a banana one adds ``numCajBan`` / ``precCajBan``. ``Catalogo_ATS.xls`` carries **no column** saying which ``codRetAir`` needs which, and it cannot be derived from the concept either -- the SRI reuses codes across eras, so ``338`` is *Compra local de banano a productor* in 2016 and *Producción y venta local de banano producido o no por el mismo sujeto* from 2020, while ``340`` is *Otras retenciones aplicables el 1%* until 2015 and a banana concept from 2015 on.\n"
+"\n"
+"The grouping is therefore a **dated fact about an era**, which is why it lives here next to the window rather than on the concept: one concept can need one extension in one era and none in another. It is a name rather than a code because the code is ``concept_id.code`` -- publishing it here too would be the same fact stated twice, and the two could drift."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_income_withholding_rate__family
+msgid ""
+"Which side of the ATS ``Tabla 15`` payment type this era places the concept on: ``01`` is *pago a residente / establecimiento permanente* and ``02`` is *pago a no residente*. The sheet states it as the section header the row sits under -- ``CÓDIGOS PARA PAGO A RESIDENTE``, ``CÓDIGOS PARA PAGO LOCAL``, ``CÓDIGOS PARA PAGOS A NO RESIDENTE`` or ``CÓDIGOS PARA PAGOS AL EXTERIOR``.\n"
+"\n"
+"**Empty where the era states no family at all**, which is the case for the three oldest era blocks (they have no ``Módulo`` column) and for the rows above their block's only header. Those rows are left empty rather than filled from a neighbouring era: no era's value belongs to another era's row."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,field_description:l10n_ec_ats.field_l10n_ec_ats_generate__anio
+msgid "Year"
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__transaction_type_codes
+msgid ""
+"``Tabla 2`` only: the transaction types of the referred tables (``A``) this "
+"row applies to, comma-separated. Kept as a comma-separated string rather "
+"than a ``Many2many`` because the mixin resolves a catalog entry through an "
+"ORM domain and the cross-reference has to stay usable as a domain value."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__sequence_type_codes
+msgid ""
+"``Tabla 4`` only: the ``Código Secuenciales Transacción`` values this "
+"document type may use, comma-separated. Kept as a comma-separated string for"
+" the same reason as the other cross-references."
+msgstr ""
+
+#. module: l10n_ec_ats
+#: model:ir.model.fields,help:l10n_ec_ats.field_l10n_ec_ats_catalog_entry__document_type_codes
+msgid ""
+"``Tabla 5`` only: the ``Tabla 4`` document types this tax support applies "
+"to, comma-separated. ``Tabla 4`` only: the ``Tabla 5`` support types that "
+"apply to this document type, read from the SRI's own ``Sustento tributario``"
+" column. Both directions of the same cross-reference are stored as the "
+"source states each side, because the two columns do not fully agree."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid "a client"
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid "a supplier"
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/wizard/l10n_ec_ats_generate.py:0
+msgid "ats.xsd rejected the document built for %(period)s: %(error)s"
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid "does not use documents"
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid ""
+"numEstabRuc cannot be reported: no establishment could be filed for this "
+"period, and the ficha requires it to be greater than 000 -- the count of "
+"establishments registered in the RUC, which is never zero. Check the "
+"ventasEstablecimiento block: an establishment whose l10n_ec_entity is 000, "
+"or a sales document that cannot be filed, would empty it."
+msgstr ""
+
+#. module: l10n_ec_ats
+#. odoo-python
+#: code:addons/l10n_ec_ats/models/l10n_ec_ats_collector.py:0
+msgid "uses documents"
+msgstr ""

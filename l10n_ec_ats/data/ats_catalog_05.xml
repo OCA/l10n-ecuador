@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- ====================================================================
+         Source: Catalogo_ATS.xls, sheet "TABLAS REFERENCIALES".
+         Columns: B = Código, C = Tipo de sustento, D = Código Tipo Comprobante, E =
+         Fecha Inicio (serial), F = Fecha Fin (serial, '-' = open)
+         Rows 97 to 112, one record per row, in source order.
+         Record ids are suffixed with the 1-based position in that order,
+         so ats_catalog_entry_<table>_<n> is row 97 + n - 1.
+         Every value below was read from the cell named above; nothing is
+         interpolated.
+    -->
+    <!--
+      * document_type_codes holds column D verbatim, minus the spacing
+        the source leaves around its commas.
+    -->
+    <record id="ats_catalog_table_05" model="l10n.ec.ats.catalog.table">
+        <field name="code">05</field>
+        <field name="name">SUSTENTO DEL COMPROBANTE</field>
+        <field
+            name="source_reference"
+        >Catalogo_ATS.xls / TABLAS REFERENCIALES / Tabla 5:  SUSTENTO DEL COMPROBANTE (rows 97-112, title B95)</field>
+        <field name="in_scope">1</field>
+        <field name="entry_count">16</field>
+        <field name="load_order">50</field>
+    </record>
+    <record id="ats_catalog_entry_05_1" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_05" />
+        <field name="code">01</field>
+        <field
+            name="description"
+        >Crédito Tributario para declaración de IVA (servicios y bienes distintos de inventarios y activos fijos)</field>
+        <field
+            name="document_type_codes"
+        >1, 3, 4, 5, 11, 12, 21, 41, 43, 47, 48, 294, 344</field>
+        <field name="date_start">2000-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_05_2" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_05" />
+        <field name="code">02</field>
+        <field
+            name="description"
+        >Costo o Gasto para declaración de IR (servicios y bienes distintos de inventarios y activos fijos)</field>
+        <field
+            name="document_type_codes"
+        >1, 2, 3, 4, 5, 9, 11, 12, 15, 19, 20, 21, 41, 43, 47, 48, 294, 344, 364</field>
+        <field name="date_start">2000-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_05_3" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_05" />
+        <field name="code">03</field>
+        <field
+            name="description"
+        >Activo Fijo - Crédito Tributario para declaración de IVA</field>
+        <field name="document_type_codes">1, 3, 4, 5, 41, 47, 48, 294, 344</field>
+        <field name="date_start">2000-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_05_4" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_05" />
+        <field name="code">04</field>
+        <field
+            name="description"
+        >Activo Fijo - Costo o Gasto para declaración de IR</field>
+        <field
+            name="document_type_codes"
+        >1, 2, 3, 4, 5, 15, 41, 47, 48, 294, 344</field>
+        <field name="date_start">2000-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_05_5" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_05" />
+        <field name="code">05</field>
+        <field
+            name="description"
+        >Liquidación Gastos de Viaje, hospedaje y alimentación Gastos IR (a nombre de empleados y no de la empresa)</field>
+        <field name="document_type_codes">1, 2, 3, 4, 5, 11, 15, 41, 294, 344</field>
+        <field name="date_start">2000-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_05_6" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_05" />
+        <field name="code">06</field>
+        <field
+            name="description"
+        >Inventario - Crédito Tributario para declaración de IVA</field>
+        <field name="document_type_codes">1, 3, 4, 5, 41, 43, 47, 48, 294, 344</field>
+        <field name="date_start">2000-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_05_7" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_05" />
+        <field name="code">07</field>
+        <field
+            name="description"
+        >Inventario - Costo o Gasto para declaración de IR</field>
+        <field
+            name="document_type_codes"
+        >1, 2, 3, 4, 5, 15, 41, 43, 47, 48, 294, 344, 364</field>
+        <field name="date_start">2000-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_05_8" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_05" />
+        <field name="code">08</field>
+        <field
+            name="description"
+        >Valor pagado para solicitar Reembolso de Gasto (intermediario)</field>
+        <field name="document_type_codes">1, 2, 3, 4, 5, 21, 294, 344</field>
+        <field name="date_start">2000-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_05_9" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_05" />
+        <field name="code">09</field>
+        <field name="description">Reembolso por Siniestros</field>
+        <field name="document_type_codes">1, 4, 5, 45</field>
+        <field name="date_start">2000-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_05_10" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_05" />
+        <field name="code">10</field>
+        <field
+            name="description"
+        >Distribución de Dividendos, Beneficios o Utilidades</field>
+        <field name="document_type_codes">19</field>
+        <field name="date_start">2000-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_05_11" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_05" />
+        <field name="code">11</field>
+        <field name="description">Convenios de débito o recaudación para IFI´s</field>
+        <field name="document_type_codes">12</field>
+        <field name="date_start">2015-03-01</field>
+    </record>
+    <record id="ats_catalog_entry_05_12" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_05" />
+        <field name="code">12</field>
+        <field name="description">Impuestos y retenciones presuntivos</field>
+        <field name="document_type_codes">42</field>
+        <field name="date_start">2015-03-01</field>
+    </record>
+    <record id="ats_catalog_entry_05_13" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_05" />
+        <field name="code">13</field>
+        <field
+            name="description"
+        >Valores reconocidos por entidades del sector público a favor de sujetos pasivos</field>
+        <field name="document_type_codes">19</field>
+        <field name="date_start">2015-03-01</field>
+    </record>
+    <record id="ats_catalog_entry_05_14" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_05" />
+        <field name="code">14</field>
+        <field
+            name="description"
+        >Valores facturados por socios a operadoras de transporte (que no constituyen gasto de dicha operadora)</field>
+        <field name="document_type_codes">1, 2, 3, 4, 5</field>
+        <field name="date_start">2018-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_05_15" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_05" />
+        <field name="code">15</field>
+        <field
+            name="description"
+        >Pagos efectuados por consumos propios y de terceros de servicios digitales</field>
+        <field name="document_type_codes">1, 2, 3, 4, 5, 12, 15</field>
+        <field name="date_start">2020-06-01</field>
+    </record>
+    <record id="ats_catalog_entry_05_16" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_05" />
+        <field name="code">00</field>
+        <field
+            name="description"
+        >Casos especiales cuyo sustento no aplica en las opciones anteriores</field>
+        <field name="document_type_codes">1, 2, 4, 5, 19, 42</field>
+        <field name="date_start">2000-01-01</field>
+        <field name="date_end">2015-02-28</field>
+    </record>
+</odoo>

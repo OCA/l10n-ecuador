@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ats_invalid_accented_razon_social.xml — razonSocial carries a non-ASCII letter.
+
+  Rule exercised: razonSocialType, ats.xsd:41-52. Its pattern at ats.xsd:50 is
+  "[a-zA-Z0-9][a-zA-Z0-9\s]+[a-zA-Z0-9\s]", which admits only ASCII letters,
+  digits and whitespace. "ñ" is outside that class, so the document is rejected.
+
+  Element under test: iva/razonSocial, ats.xsd:598.
+  This fixture breaks the rule twice over: the accented "ñ" and the "." of
+  "S.A." are both outside [a-zA-Z0-9\s]. denoProvType ats.xsd:1501-1507 carries
+  the identical restriction, so the same stripping applies to the supplier name.
+
+  Consequence for the builder: the accent stripper is mandatory, not cosmetic.
+-->
+<iva>
+    <TipoIDInformante>R</TipoIDInformante>
+    <IdInformante>1791311225001</IdInformante>
+    <razonSocial>Ñoño S.A.</razonSocial>
+    <Anio>2024</Anio>
+    <Mes>03</Mes>
+    <codigoOperativo>IVA</codigoOperativo>
+    <compras>
+        <detalleCompras>
+            <codSustento>01</codSustento>
+            <tpIdProv>01</tpIdProv>
+            <idProv>1791311225001</idProv>
+            <tipoComprobante>01</tipoComprobante>
+            <denoProv>PROVEEDOR DEL SUR SA</denoProv>
+            <parteRel>NO</parteRel>
+            <fechaRegistro>15/03/2024</fechaRegistro>
+            <establecimiento>001</establecimiento>
+            <puntoEmision>001</puntoEmision>
+            <secuencial>000000001</secuencial>
+            <fechaEmision>15/03/2024</fechaEmision>
+            <autorizacion>123456789012</autorizacion>
+            <baseNoGraIva>0.00</baseNoGraIva>
+            <baseImponible>100.00</baseImponible>
+            <baseImpGrav>0.00</baseImpGrav>
+            <baseImpExe>0.00</baseImpExe>
+            <montoIce>0.00</montoIce>
+            <montoIva>15.00</montoIva>
+            <valorRetBienes>0.00</valorRetBienes>
+            <valorRetServicios>0.00</valorRetServicios>
+            <valRetServ100>0.00</valRetServ100>
+        </detalleCompras>
+    </compras>
+</iva>

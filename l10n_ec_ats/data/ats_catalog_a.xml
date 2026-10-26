@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- ====================================================================
+         Source: Catalogo_ATS.xls, sheet "TABLAS REFERENCIALES".
+         Columns: B = Código, C = Descripción
+         Rows 8 to 14, one record per row, in source order.
+         Record ids are suffixed with the 1-based position in that order,
+         so ats_catalog_entry_<table>_<n> is row 8 + n - 1.
+         Every value below was read from the cell named above; nothing is
+         interpolated.
+    -->
+    <!--
+      date_start 1900-01-01 is a SENTINEL, not a validity date. The sheet carries no
+      date for this table (no date column, or the literal 'vacío' in every row) while
+      the l10n.ec.temporal mixin makes date_start required. date_end stays empty so the
+      entry reads as open-ended. See readme/ROADMAP.md for the open question.
+    -->
+    <record id="ats_catalog_table_a" model="l10n.ec.ats.catalog.table">
+        <field name="code">A</field>
+        <field name="name">TABLAS REFERENCIALES (A)</field>
+        <field
+            name="source_reference"
+        >Catalogo_ATS.xls / TABLAS REFERENCIALES / TABLAS REFERENCIALES (A) (rows 8-14, title B5)</field>
+        <field name="in_scope">1</field>
+        <field name="entry_count">7</field>
+        <field name="load_order">10</field>
+    </record>
+    <record id="ats_catalog_entry_a_1" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_a" />
+        <field name="code">1</field>
+        <field name="description">Compra</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_a_2" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_a" />
+        <field name="code">2</field>
+        <field name="description">Venta</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_a_3" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_a" />
+        <field name="code">4</field>
+        <field name="description">Exportación</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_a_4" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_a" />
+        <field name="code">5</field>
+        <field name="description">Tarjetas de Crédito</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_a_5" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_a" />
+        <field name="code">6</field>
+        <field name="description">Rendimientos Financieros</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_a_6" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_a" />
+        <field name="code">7</field>
+        <field name="description">Fondos y Financiero</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_a_7" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_a" />
+        <field name="code">8</field>
+        <field name="description">Otros ingresos del exterior</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+</odoo>

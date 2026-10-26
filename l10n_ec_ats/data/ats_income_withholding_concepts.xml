@@ -1,0 +1,2553 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- ====================================================================
+         Source: Catalogo_ATS.xlsx, sheet "TABLAS RETENCIONES" (Tabla 3.10).
+         Block detection: the 22 date-era blocks are found by walking
+         row 3, not by a stride. A block starts on the column whose row 3 label
+         is "Módulo", or on "Número de campo" where no "Módulo" precedes it,
+         because the three oldest blocks (CS, CW, DA) have no module column at
+         all. Each block then runs to the column before the next start, so the
+         span is 4, 5 or 3 columns wide and cannot be inferred from a stride.
+         Row span: 5 to 291, columns B..DC.
+         Inside a block the column labelled "Número de campo" holds the code,
+         the one labelled "Concepto Retención en la Fuente de Impuesto a la
+         Renta" holds the description, and the column whose header is the era's
+         own date holds the rate. "Módulo" is a section label, not data: its
+         cells read "CÓDIGOS PARA PAGO A RESIDENTE" and friends and span the
+         block, and they share their row with the first concept of the section.
+         Block spans, in sheet order:
+           block  0: B..F
+           block  1: G..K
+           block  2: L..P
+           block  3: Q..U
+           block  4: V..Z
+           block  5: AA..AE
+           block  6: AF..AJ
+           block  7: AK..AO
+           block  8: AP..AT
+           block  9: AU..AY
+           block 10: AZ..BD
+           block 11: BE..BI
+           block 12: BJ..BN
+           block 13: BO..BS
+           block 14: BT..BX
+           block 15: BY..CC
+           block 16: CD..CH
+           block 17: CI..CM
+           block 18: CN..CR
+           block 19: CS..CV
+           block 20: CW..CZ
+           block 21: DA..DC
+         Every record id carries its block index and sheet row, so
+         ats_income_withholding_concept_b00_r005 is block 0, row 5: the cell it was read from.
+         Nothing below is interpolated. A cell the sheet does not state as a
+         single number is written as unresolved with its text verbatim, and no
+         era ever takes a value from another era.
+    -->
+
+    <!--
+      A code registry, nothing more. The SRI reuses a code for a different
+      concept from one era to the next: 341 is "Otras retenciones aplicables
+      el 2%" through 2014 and "Impuesto único a la exportación de banano de
+      producción propia - componente 2" from 2015; 303A is "Utilización o
+      aprovechamiento de la imagen o renombre" in the 2014-10 era and
+      "Servicios profesionales prestados por sociedades residentes" from
+      2024-03. 106 of the 414 codes carry a different description in
+      different eras. A description on this model would force one era's
+      wording onto every era, so it lives on the rate with the window that
+      dates it. The same goes for family.
+      The id carries the block and row where the code is first stated in the
+      newest era that carries it, which anchors the record to a cell. The
+      spelling that cell used is not always the stored one: C37..C40 read
+      "323 M" .. "323 P", and codRetAirType's [A-Za-z0-9]{3,5} rejects the
+      space, so the space is dropped. The sheet's own sibling codes, 323A,
+      323B1, 323C..323K, 323E and 323E2, carry the same suffix with no space.
+      Nothing else about a code is touched: codes are opaque strings, never
+      parsed as numbers.
+    -->
+
+    <record
+        id="ats_income_withholding_concept_b06_r005"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">302</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r005"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">303</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r006"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">303A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r007"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">304</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r008"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">304A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r009"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">304B</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r010"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">304C</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r011"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">304D</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r012"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">304E</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r013"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">307</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r014"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">308</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r015"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">309</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r016"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">310</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r017"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">311</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r018"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">312</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r019"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">312A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b10_r019"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">312B</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r020"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">312C</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r021"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">314A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r022"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">314B</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r023"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">314C</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r024"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">314D</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r025"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">319</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r026"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">320</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r027"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">322</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r028"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r029"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r030"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323B1</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b18_r018"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323B2</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b18_r019"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323C</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b17_r029"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323D</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r031"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323E</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r032"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323E2</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r033"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323F</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r034"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323G</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r035"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323H</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r036"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323I</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b18_r026"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323J</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b17_r036"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323K</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b17_r037"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323L</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r037"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323M</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r038"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323N</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r039"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323O</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r040"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323P</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r041"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323Q</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r042"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323R</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r043"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323S</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r044"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323T</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r045"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">323U</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r046"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">324A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r047"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">324B</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r048"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">324C</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r049"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">325</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r051"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">3250</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r050"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">325A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r052"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">326</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r053"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">327</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r054"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">328</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r055"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">329</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b12_r054"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">330</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r056"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">331</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r057"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">332</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b15_r052"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">332A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r058"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">332B</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r059"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">332C</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r060"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">332D</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r061"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">332E</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r062"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">332F</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r063"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">332G</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r064"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">332H</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r065"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">332I</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r066"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">333</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r067"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">334</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r068"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">335</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b17_r056"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">335A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r069"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">336</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r070"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">337</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r071"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">338</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b13_r071"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">339</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r072"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">340</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b17_r057"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">340A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b17_r058"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">340B</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b13_r073"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">341</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b13_r074"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">342</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b15_r071"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">342A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b15_r072"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">342B</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r073"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">343</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r074"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">343A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r075"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">343B</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r076"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">343C</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b12_r076"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">344</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r077"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">3440</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r078"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">344A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r079"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">344B</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b08_r077"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">345</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b17_r062"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">345A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b17_r063"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">345B</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b17_r064"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">345C</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r080"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">346</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r081"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">346A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r082"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">346B</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r083"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">346C</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r084"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">346D</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b15_r078"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">347</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b17_r066"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">347A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b08_r083"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">348</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r086"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">3480</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r087"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">3481</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r088"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">3482</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b15_r080"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">349</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r085"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">350</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b10_r086"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">351</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r046"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r047"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401AA</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r048"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401AB</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r049"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401AC</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r050"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401AD</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r051"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401AE</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r052"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401AF</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r053"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401AG</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r054"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401AH</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r055"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401AI</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r056"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401AJ</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r057"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401AK</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r058"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401AL</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r059"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401AM</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r060"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401AN</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r061"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401AO</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r062"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401BA</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r063"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401BB</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r064"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401BC</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r065"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401BD</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r066"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401BE</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r067"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401BF</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r068"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401BG</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r069"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401BH</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r070"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401BI</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r071"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401BJ</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r072"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401BK</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r073"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401BL</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r074"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401BM</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r075"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401BN</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r076"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401BO</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r077"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401CA</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r078"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401CB</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r079"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401CC</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r080"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401CD</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r081"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401CE</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r082"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401CF</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r083"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401CG</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r084"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401CH</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r085"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401CI</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r086"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401CJ</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r087"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401CK</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r088"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401CL</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r089"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401CM</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r090"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401CN</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r091"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401CO</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r092"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401DA</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r093"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401DB</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r094"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401DC</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r095"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401DD</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r096"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401DE</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r097"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401DF</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r098"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401DG</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r099"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401DH</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r100"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401DI</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r101"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401DJ</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r102"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401DK</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r103"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401DL</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r104"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401DM</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r105"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401DN</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r106"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401DO</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r107"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401EA</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r108"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401EB</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r109"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401EC</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r110"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401ED</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r111"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401EE</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r112"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401EF</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r113"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401EG</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r114"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401EH</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r115"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401EI</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r116"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401EJ</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r117"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401EK</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r118"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401EL</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r119"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401EM</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r120"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401EN</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r121"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401EO</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r122"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401FA</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r123"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401FB</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r124"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401FC</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r125"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401FD</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r126"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401FE</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r127"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401FF</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r128"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401FG</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r129"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401FH</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r130"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401FI</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r131"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401FJ</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r132"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401FK</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r133"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401FL</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r134"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401FM</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r135"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401FN</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r136"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401FO</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r137"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401GA</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r138"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401GB</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r139"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401GC</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r140"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401GD</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r141"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401GE</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r142"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401GF</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r143"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401GG</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r144"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401GH</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r145"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401GI</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r146"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401GJ</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r147"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401GK</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r148"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401GL</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r149"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401GM</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r150"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401GN</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r151"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401GO</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r152"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401HA</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r153"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401HB</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r154"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401HC</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r155"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401HD</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r156"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401HE</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r157"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401HF</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r158"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401HG</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r159"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401HH</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r160"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401HI</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r161"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401HJ</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r162"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401HK</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r163"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401HL</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r164"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401HM</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r165"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401HN</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r166"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401HO</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r167"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401IA</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r168"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401IB</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r169"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401IC</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r170"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401ID</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r171"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401IE</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r172"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401IF</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r173"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401IG</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r174"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401IH</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r175"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401II</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r176"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401IJ</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r177"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401IK</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r178"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401IL</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r179"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401IM</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r180"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401IN</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r181"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401IO</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r182"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401JA</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r183"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401JB</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r184"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401JC</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r185"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401JD</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r186"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401JE</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r187"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401JF</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r188"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401JG</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r189"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401JH</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r190"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401JI</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r191"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401JJ</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r192"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401JK</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r193"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401JL</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r194"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401JM</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r195"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401JN</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r196"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401JO</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r197"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401KA</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r198"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401KB</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r199"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401KC</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r200"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401KD</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r201"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401KE</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r202"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401KF</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r203"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401KG</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r204"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401KH</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r205"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401KI</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r206"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401KJ</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r207"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401KK</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r208"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401KL</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r209"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401KM</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r210"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401KN</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r211"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401KO</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r212"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401LA</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r213"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401LB</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r214"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401LC</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r215"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401LD</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r216"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401LE</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r217"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401LF</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r218"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401LG</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r219"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401LH</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r220"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401LI</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r221"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401LJ</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r222"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401LK</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r223"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401LL</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r224"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401LM</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r225"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401LN</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r226"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401LO</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r227"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401MA</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r228"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401MB</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r229"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401MC</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r230"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401MD</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r231"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401ME</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r232"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401MF</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r233"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401MG</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r234"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401MH</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r235"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401MI</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r236"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401MJ</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r237"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401MK</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r238"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401ML</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r239"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401MM</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r240"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401MN</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r241"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401MO</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r242"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401NA</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r243"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401NB</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r244"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401NC</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r245"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401ND</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r246"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401NE</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r247"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401NF</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r248"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401NG</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r249"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401NH</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r250"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401NI</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r251"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401NJ</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r252"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401NK</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r253"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401NL</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r254"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401NM</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r255"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401NN</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r256"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401NO</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r257"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401OA</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r258"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401OB</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r259"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401OC</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r260"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401OD</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r261"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401OE</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r262"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401OF</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r263"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401OG</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r264"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401OH</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r265"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401OI</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r266"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401OJ</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r267"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401OK</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r268"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401OL</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r269"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401OM</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r270"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401ON</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r271"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401OO</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r272"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401PA</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r273"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401PB</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r274"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401PC</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r275"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401PD</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r276"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401PE</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r277"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401PF</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r278"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401PG</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r279"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401PH</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r280"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401PI</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r281"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401PJ</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r282"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401PK</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r283"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401PL</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r284"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401PM</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r285"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401PN</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r286"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">401PO</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r287"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">403</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r288"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">405</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r289"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">421</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r290"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">427</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b19_r291"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">427A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r089"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">500</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r090"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">501</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r091"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">501A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b15_r083"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">502</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r092"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">503</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r093"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">504</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r094"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">504A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r095"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">504B</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r096"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">504C</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r097"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">504D</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r098"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">504E</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r099"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">504F</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r100"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">504G</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r101"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">504H</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r102"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">504I</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r103"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">504J</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r104"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">505</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r105"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">505A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r106"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">505B</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r107"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">505C</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r108"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">505D</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r109"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">505E</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r110"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">505F</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b18_r052"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">506</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b18_r053"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">507</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b18_r054"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">508</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r111"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">509</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r112"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">509A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r113"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">510</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r114"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">511</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r115"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">512</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b07_r114"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">513</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r116"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">513A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r117"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">514</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r118"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">515</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r119"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">516</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r120"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">517</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r121"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">518</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r122"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">519</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b15_r113"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">520</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r123"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">520A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r124"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">520B</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b17_r100"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">520C</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r125"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">520D</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r126"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">520E</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r127"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">520F</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r128"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">520G</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r129"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">521</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b15_r121"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">522A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b16_r120"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">522B</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b16_r121"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">522C</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r130"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">523A</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b16_r123"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">523B</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b16_r124"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">523C</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b15_r123"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">524</field>
+    </record>
+    <record
+        id="ats_income_withholding_concept_b00_r131"
+        model="l10n.ec.ats.income.withholding.concept"
+    >
+        <field name="code">525</field>
+    </record>
+</odoo>

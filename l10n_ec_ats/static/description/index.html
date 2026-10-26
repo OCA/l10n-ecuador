@@ -1,0 +1,2271 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils: https://docutils.sourceforge.io/" />
+<title>README.rst</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 9511 2024-01-13 09:50:07Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+Despite the name, some widely supported CSS2 features are used.
+
+See https://docutils.sourceforge.io/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+.subscript {
+  vertical-align: sub;
+  font-size: smaller }
+
+.superscript {
+  vertical-align: super;
+  font-size: smaller }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+object[type="image/svg+xml"], object[type="application/x-shockwave-flash"] {
+  overflow: hidden;
+}
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title, .code .error {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left, object.align-left, table.align-left {
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right, object.align-right, table.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+table.align-center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: inherit }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+.align-top    {
+  vertical-align: top }
+
+.align-middle {
+  vertical-align: middle }
+
+.align-bottom {
+  vertical-align: bottom }
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block, pre.math, pre.code {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+pre.code .ln { color: gray; } /* line numbers */
+pre.code, code { background-color: #eeeeee }
+pre.code .comment, code .comment { color: #5C6576 }
+pre.code .keyword, code .keyword { color: #3B0D06; font-weight: bold }
+pre.code .literal.string, code .literal.string { color: #0C5404 }
+pre.code .name.builtin, code .name.builtin { color: #352B84 }
+pre.code .deleted, code .deleted { background-color: #DEB0A1}
+pre.code .inserted, code .inserted { background-color: #A3D289}
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic, pre.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+/* "booktabs" style (no vertical lines) */
+table.docutils.booktabs {
+  border: 0px;
+  border-top: 2px solid;
+  border-bottom: 2px solid;
+  border-collapse: collapse;
+}
+table.docutils.booktabs * {
+  border: 0px;
+}
+table.docutils.booktabs th {
+  border-bottom: thin solid;
+  text-align: left;
+}
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document">
+
+
+<a class="reference external image-reference" href="https://odoo-community.org/get-involved?utm_source=readme">
+<img alt="Odoo Community Association" src="https://odoo-community.org/readme-banner-image" />
+</a>
+<div class="section" id="ecuadorian-sri-ats-anexo-transaccional-simplificado">
+<h1>Ecuadorian SRI ATS (Anexo Transaccional Simplificado)</h1>
+<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! This file is generated by oca-gen-addon-readme !!
+!! changes will be overwritten.                   !!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! source digest: sha256:4f932139225cfbf28de1247f1a5e67c7b3bc5b374b96b199e4f584a5457758dc
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Beta" src="https://img.shields.io/badge/maturity-Beta-yellow.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/agpl-3.0-standalone.html"><img alt="License: AGPL-3" src="https://img.shields.io/badge/license-AGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OCA/l10n-ecuador/tree/19.0/l10n_ec_ats"><img alt="OCA/l10n-ecuador" src="https://img.shields.io/badge/github-OCA%2Fl10n--ecuador-lightgray.png?logo=github" /></a> <a class="reference external image-reference" href="https://translation.odoo-community.org/projects/l10n-ecuador-19-0/l10n-ecuador-19-0-l10n_ec_ats"><img alt="Translate me on Weblate" src="https://img.shields.io/badge/weblate-Translate%20me-F47D42.png" /></a> <a class="reference external image-reference" href="https://runboat.odoo-community.org/builds?repo=OCA/l10n-ecuador&amp;target_branch=19.0"><img alt="Try me on Runboat" src="https://img.shields.io/badge/runboat-Try%20me-875A7B.png" /></a></p>
+<p>This module is the foundation of the SRI <em>Anexo Transaccional
+Simplificado</em> (ATS) generation for Ecuadorian companies.</p>
+<p>The 21 referential catalogs published by the SRI (<tt class="docutils literal">Catalogo_ATS.xls</tt>)
+are <strong>effective-dated</strong>: the VAT rate regimes of <tt class="docutils literal">Tabla 12</tt> change
+over time, the withholding codes of <tt class="docutils literal">Tabla 11</tt> start on different
+dates, most payment methods of <tt class="docutils literal">Tabla 13</tt> expired on 2016-08-31, and
+<tt class="docutils literal">Tabla 3.10</tt> spreads its 414 income withholding concepts across 22
+date eras. Odoo 19 has no way to express that: <tt class="docutils literal">account.tax</tt> carries
+no <tt class="docutils literal">fields.Date</tt> at all, so a rate change is currently modelled by
+duplicating the record and archiving it with <tt class="docutils literal">active = False</tt>, which
+leaves the history implicit and unqueryable.</p>
+<p>This module therefore ships <tt class="docutils literal">l10n.ec.temporal</tt>, an abstract mixin that
+gives effective dating to the catalog models built on it: a
+<tt class="docutils literal">[date_start, date_end]</tt> window that is inclusive of both endpoints,
+where a null <tt class="docutils literal">date_end</tt> means open-ended, plus the resolution and
+structural-check helpers the ATS generator needs to prove that the
+catalog is complete.</p>
+<p>On top of it sits the generator: collectors that turn <tt class="docutils literal">account.move</tt>
+records into the five blocks of an ATS document, a builder that renders
+those payloads in the order <tt class="docutils literal">ats.xsd</tt> declares, the business
+validators <tt class="docutils literal">ats.xsd</tt> cannot express, and the wizard that produces
+<tt class="docutils literal"><span class="pre">AT{mmaaaa}.zip</span></tt>. <tt class="docutils literal">DESIGN.md</tt> maps every element of the document to
+the record it comes from.</p>
+<p><strong>Table of contents</strong></p>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#configuration" id="toc-entry-1">Configuration</a></li>
+<li><a class="reference internal" href="#tier-1-set-this-up" id="toc-entry-2">Tier 1 — Set this up</a><ul>
+<li><a class="reference internal" href="#a-journal-needs-an-establishment-and-001-is-the-floor" id="toc-entry-3">A journal needs an establishment, and <tt class="docutils literal">001</tt> is the floor</a></li>
+<li><a class="reference internal" href="#the-tax-support-a-purchase-must-carry" id="toc-entry-4">The tax support a purchase must carry</a></li>
+<li><a class="reference internal" href="#the-wizard" id="toc-entry-5">The wizard</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tier-2-know-this-about-the-catalog" id="toc-entry-6">Tier 2 — Know this about the catalog</a><ul>
+<li><a class="reference internal" href="#effective-dated-catalog-entries" id="toc-entry-7">Effective-dated catalog entries</a></li>
+<li><a class="reference internal" href="#catalog-tables" id="toc-entry-8">Catalog tables</a></li>
+<li><a class="reference internal" href="#tax-support-is-captured-then-validated-here" id="toc-entry-9">Tax support is captured, then validated here</a><ul>
+<li><a class="reference internal" href="#tax-support-in-l10n-ec-withhold-is-a-label-list-and-it-can-drift" id="toc-entry-10"><tt class="docutils literal">TAX_SUPPORT</tt> in <tt class="docutils literal">l10n_ec_withhold</tt> is a label list, and it can drift</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#income-withholding-concepts-tabla-3-10" id="toc-entry-11">Income withholding concepts (<tt class="docutils literal">Tabla 3.10</tt>)</a><ul>
+<li><a class="reference internal" href="#a-period-inside-a-concept-s-hole-resolves-to-nothing" id="toc-entry-12">A period inside a concept’s hole resolves to nothing</a></li>
+<li><a class="reference internal" href="#unresolved-rates-are-not-errors" id="toc-entry-13"><tt class="docutils literal">unresolved</tt> rates are not errors</a></li>
+<li><a class="reference internal" href="#family-is-optional-and-empty-where-the-era-states-none" id="toc-entry-14"><tt class="docutils literal">family</tt> is optional, and empty where the era states none</a></li>
+<li><a class="reference internal" href="#two-other-things-the-sheet-does-not-support" id="toc-entry-15">Two other things the sheet does not support</a></li>
+<li><a class="reference internal" href="#detail-group-names-a-sub-report-it-never-carries-a-code" id="toc-entry-16"><tt class="docutils literal">detail_group</tt> names a sub-report; it never carries a code</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tier-3-block-semantics" id="toc-entry-17">Tier 3 — Block semantics</a><ul>
+<li><a class="reference internal" href="#compras" id="toc-entry-18"><tt class="docutils literal">compras</tt></a></li>
+<li><a class="reference internal" href="#ventas" id="toc-entry-19"><tt class="docutils literal">ventas</tt></a></li>
+<li><a class="reference internal" href="#ventasestablecimiento" id="toc-entry-20"><tt class="docutils literal">ventasEstablecimiento</tt></a></li>
+<li><a class="reference internal" href="#anulados" id="toc-entry-21"><tt class="docutils literal">anulados</tt></a></li>
+<li><a class="reference internal" href="#the-air-sub-report" id="toc-entry-22">The <tt class="docutils literal">air</tt> sub-report</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#usage" id="toc-entry-23">Usage</a><ul>
+<li><a class="reference internal" href="#generating-a-month" id="toc-entry-24">Generating a month</a></li>
+<li><a class="reference internal" href="#when-generation-is-refused" id="toc-entry-25">When generation is refused</a></li>
+<li><a class="reference internal" href="#warnings-do-not-block" id="toc-entry-26">Warnings do not block</a></li>
+<li><a class="reference internal" href="#reading-a-historical-period" id="toc-entry-27">Reading a historical period</a></li>
+<li><a class="reference internal" href="#validating-an-ats-document" id="toc-entry-28">Validating an ATS document</a></li>
+<li><a class="reference internal" href="#the-schema-is-grammar-not-the-norm" id="toc-entry-29">The schema is grammar, not the norm</a></li>
+<li><a class="reference internal" href="#catalog-semantics" id="toc-entry-30">Catalog semantics</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#known-issues-roadmap" id="toc-entry-31">Known issues / Roadmap</a></li>
+<li><a class="reference internal" href="#roadmap" id="toc-entry-32">Roadmap</a><ul>
+<li><a class="reference internal" href="#out-of-scope-in-v1-with-rationale-and-a-v2-proposal" id="toc-entry-33">Out of scope in v1, with rationale and a v2 proposal</a></li>
+<li><a class="reference internal" href="#referential-tables-that-are-deliberately-not-loaded" id="toc-entry-34">Referential tables that are deliberately not loaded</a></li>
+<li><a class="reference internal" href="#open-questions" id="toc-entry-35">Open questions</a><ul>
+<li><a class="reference internal" href="#totalventas-what-does-solo-facturacion-fisica-f-qualify" id="toc-entry-36"><tt class="docutils literal">totalVentas</tt>: what does <em>“Solo Facturación Física F”</em> qualify?</a></li>
+<li><a class="reference internal" href="#the-000-establishment-hole-in-l10n-ec-base" id="toc-entry-37">The <tt class="docutils literal">000</tt> establishment hole in <tt class="docutils literal">l10n_ec_base</tt></a></li>
+<li><a class="reference internal" href="#two-account-tax-rows-carry-an-ats-code-that-resolves-to-nothing" id="toc-entry-38">Two <tt class="docutils literal">account.tax</tt> rows carry an ATS code that resolves to nothing</a></li>
+<li><a class="reference internal" href="#the-1900-01-01-sentinel" id="toc-entry-39">The <tt class="docutils literal"><span class="pre">1900-01-01</span></tt> sentinel</a></li>
+<li><a class="reference internal" href="#tabla-4-validity-dates-live-in-prose-footnotes" id="toc-entry-40"><tt class="docutils literal">Tabla 4</tt> validity dates live in prose footnotes</a></li>
+<li><a class="reference internal" href="#tabla-2-rows-that-name-no-transaction-type" id="toc-entry-41"><tt class="docutils literal">Tabla 2</tt> rows that name no transaction type</a></li>
+<li><a class="reference internal" href="#the-sri-contradicts-itself-on-tabla-4-tabla-5" id="toc-entry-42">The SRI contradicts itself on <tt class="docutils literal">Tabla 4</tt> ↔ <tt class="docutils literal">Tabla 5</tt></a></li>
+<li><a class="reference internal" href="#tabla-12-has-no-code-column" id="toc-entry-43"><tt class="docutils literal">Tabla 12</tt> has no code column</a></li>
+<li><a class="reference internal" href="#two-source-spellings-left-verbatim" id="toc-entry-44">Two source spellings left verbatim</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#documents-voided-through-the-sri-s-online-portal-are-not-implementable-today" id="toc-entry-45">Documents voided through the SRI’s online portal are not implementable today</a></li>
+<li><a class="reference internal" href="#should-cancelled-withholdings-be-in-the-anulados-block" id="toc-entry-46">Should cancelled <strong>withholdings</strong> be in the <tt class="docutils literal">anulados</tt> block?</a></li>
+<li><a class="reference internal" href="#the-journal-key-is-not-on-every-error-of-every-block" id="toc-entry-47">The <tt class="docutils literal">journal</tt> key is not on every error of every block</a></li>
+<li><a class="reference internal" href="#deferred-work" id="toc-entry-48">Deferred work</a><ul>
+<li><a class="reference internal" href="#effective-dated-taxes-on-account-tax-a-separate-proposal-in-l10n-ec-base" id="toc-entry-49">Effective-dated taxes on <tt class="docutils literal">account.tax</tt> — a separate proposal in <tt class="docutils literal">l10n_ec_base</tt></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-wizard-has-a-form-view-and-a-menu-entry-and-it-reports-warnings" id="toc-entry-50">The wizard has a form view and a menu entry, and it reports warnings</a></li>
+<li><a class="reference internal" href="#validators-validate-ats-and-builder-build-ats-xml-read-the-header-under-one-key" id="toc-entry-51"><tt class="docutils literal">validators.validate_ats</tt> and <tt class="docutils literal">builder.build_ats_xml</tt> read the header under one key</a></li>
+<li><a class="reference internal" href="#a-ventas-row-with-no-client-side-iva-withholding" id="toc-entry-52">A <tt class="docutils literal">ventas</tt> row with no client-side IVA withholding</a></li>
+<li><a class="reference internal" href="#two-tabla-3-10-groupings-the-sri-does-not-state" id="toc-entry-53">Two <tt class="docutils literal">Tabla 3.10</tt> groupings the SRI does not state</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bug-tracker" id="toc-entry-54">Bug Tracker</a></li>
+<li><a class="reference internal" href="#credits" id="toc-entry-55">Credits</a><ul>
+<li><a class="reference internal" href="#contributors" id="toc-entry-56">Contributors</a></li>
+<li><a class="reference internal" href="#maintainers" id="toc-entry-57">Maintainers</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="configuration">
+<h2><a class="toc-backref" href="#toc-entry-1">Configuration</a></h2>
+<p>Nothing to configure.</p>
+<p>The module installs the <tt class="docutils literal">l10n.ec.temporal</tt> abstract mixin and requires
+<tt class="docutils literal">l10n_ec_base</tt>, <tt class="docutils literal">l10n_ec_account_edi</tt> and <tt class="docutils literal">l10n_ec_withhold</tt> to be
+installed. It adds no technical setting; the only user interface is the
+generation wizard, reachable from <strong>Invoicing ‣ SRI ‣ ATS</strong>.</p>
+<p>This document used to be one linear read of 620 lines, which is not a
+thing anyone can act on. It is now in three tiers, and you only need to
+know which one you are in:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Tier</th>
+<th class="head">Read it when</th>
+<th class="head">Length</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><strong>1 — Set this up</strong></td>
+<td>You are installing
+the module and want
+to generate a month</td>
+<td>~1 screen</td>
+</tr>
+<tr><td><strong>2 — Know this
+about the catalog</strong></td>
+<td>You touch catalog
+records, or a
+generation was
+refused for a
+catalog reason</td>
+<td>~4 screens</td>
+</tr>
+<tr><td><strong>3 — Block
+semantics</strong></td>
+<td>You are reading or
+changing a collector</td>
+<td>a table, then a
+pointer</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Where the reasoning lives now.</strong> Tier 3 does not restate <em>why</em> each
+block behaves as it does — that would be a fourth copy of a decision
+that already has to be kept in step with the code. Each rule points at
+its single home:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Question</th>
+<th class="head">Home</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>Which Odoo record fills which
+ATS element?</td>
+<td><tt class="docutils literal">`DESIGN.md</tt> &lt;<a class="reference external" href="https://github.com/OCA/l10n-ecuador/blob/19.0/l10n_ec_ats/readme/DESIGN.md">https://github.com/OCA/l10n-ecuador/blob/19.0/l10n_ec_ats/readme/DESIGN.md</a>&gt;`__ — the
+mapping table, all five blocks</td>
+</tr>
+<tr><td>Why does this rule exist, and
+what was rejected?</td>
+<td><a class="reference external" href="https://github.com/OCA/l10n-ecuador/blob/19.0/l10n_ec_ats/docs/adr/0002-ats-design-decisions.md">ADR
+0002</a></td>
+</tr>
+<tr><td>What is open, unstated or
+contradictory in the source?</td>
+<td><tt class="docutils literal">`ROADMAP.md</tt> &lt;<a class="reference external" href="https://github.com/OCA/l10n-ecuador/blob/19.0/l10n_ec_ats/readme/ROADMAP.md">https://github.com/OCA/l10n-ecuador/blob/19.0/l10n_ec_ats/readme/ROADMAP.md</a>&gt;`__</td>
+</tr>
+<tr><td>How do I generate, and what
+happens when it refuses?</td>
+<td><tt class="docutils literal">`USAGE.md</tt> &lt;<a class="reference external" href="https://github.com/OCA/l10n-ecuador/blob/19.0/l10n_ec_ats/readme/USAGE.md">https://github.com/OCA/l10n-ecuador/blob/19.0/l10n_ec_ats/readme/USAGE.md</a>&gt;`__</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr class="docutils" />
+<div class="section" id="tier-1-set-this-up">
+<h2><a class="toc-backref" href="#toc-entry-2">Tier 1 — Set this up</a></h2>
+<div class="section" id="a-journal-needs-an-establishment-and-001-is-the-floor">
+<h3><a class="toc-backref" href="#toc-entry-3">A journal needs an establishment, and <tt class="docutils literal">001</tt> is the floor</a></h3>
+<p>There is no <tt class="docutils literal">res.establishment</tt> in <tt class="docutils literal"><span class="pre">l10n-ecuador</span></tt> nor in core
+<tt class="docutils literal">l10n_ec</tt>, so an ATS establishment is derived from the journal pair
+<tt class="docutils literal">account.journal</tt>’s <tt class="docutils literal">l10n_ec_entity</tt> / <tt class="docutils literal">l10n_ec_emission</tt>. Every
+EC company therefore needs those set on the journals it sells from, or
+the <tt class="docutils literal">ventasEstablecimiento</tt> block will not carry those establishments
+— and <tt class="docutils literal">numEstabRuc</tt> is the row count, so a missing establishment
+shrinks the header too.</p>
+<p><tt class="docutils literal">000</tt> is <strong>never</strong> valid. <tt class="docutils literal">l10n_ec_base</tt> only checks length and
+<tt class="docutils literal">isnumeric()</tt>, so <tt class="docutils literal">&quot;000&quot;</tt> passes its constraint today; the
+collectors, the builder and the validators each refuse it independently.
+Tightening the upstream constraint is a separate proposal — see
+<tt class="docutils literal">ROADMAP.md</tt>.</p>
+</div>
+<div class="section" id="the-tax-support-a-purchase-must-carry">
+<h3><a class="toc-backref" href="#toc-entry-4">The tax support a purchase must carry</a></h3>
+<p><tt class="docutils literal">account.move.l10n_ec_tax_support</tt> is <tt class="docutils literal">Char(size=2)</tt>, <strong>not</strong> a
+dropdown, and it is <strong>mandatory</strong> on every document in the <tt class="docutils literal">compras</tt>
+block. A purchase without one is refused with a message naming the bill,
+because <tt class="docutils literal">Tabla 5</tt> requires exactly one code per document and ATS does
+not guess it. The rejection lists the codes the catalog accepts <strong>for
+the period being reported</strong>, read from the records.</p>
+<p>The field is a capture, not the authority — see <em>Tax support is
+captured, then validated here</em> under Tier 2 below for why.</p>
+</div>
+<div class="section" id="the-wizard">
+<h3><a class="toc-backref" href="#toc-entry-5">The wizard</a></h3>
+<p><tt class="docutils literal">l10n.ec.ats.generate</tt> takes a <tt class="docutils literal">company_id</tt>, an <tt class="docutils literal">anio</tt> and a
+<tt class="docutils literal">mes</tt>, and <tt class="docutils literal">generate()</tt> returns the action that downloads the
+archive. It opens from <strong>Invoicing ‣ SRI ‣ ATS</strong> and stays usable from
+an automated action, RPC or a shell.</p>
+<ul class="simple">
+<li><strong>``anio`` and ``mes`` are integers, and the field refuses an
+impossible period.</strong> <tt class="docutils literal">Catalogo_ATS.xls</tt> / <tt class="docutils literal">ESQUEMA TIPO 1 Y 2</tt> row
+7 says the year <em>“debe corresponder a periodos del 2000 en adelante”</em>
+and the ficha’s <tt class="docutils literal">ESQUEMA</tt> adds <em>“Programa despliega calendario 2000
+en adelante”</em>, so an earlier year is refused on the field rather than
+discovered in the document. The month is bounded by <tt class="docutils literal">mesType</tt>’s own
+pattern.</li>
+<li><strong>``mes`` is captured as a number, not chosen from a list.</strong> The code
+that reaches the file is the <tt class="docutils literal">Tabla 01</tt> row’s own, read from the
+catalog, so the wizard cannot disagree with the table the moment the
+SRI republishes it.</li>
+<li><strong>``regimenMicroempresa`` is derived, not configured.</strong> It is emitted
+when the company declares a <tt class="docutils literal">l10n_ec_regimen</tt> <strong>and</strong> the
+<tt class="docutils literal">Tabla 01</tt> row of the reported month names a semestral regime —
+which is what the sheet’s own descriptions say for the two semestral
+months and do not say for the other ten. No <tt class="docutils literal">{06, 12}</tt> set is held
+in Python.</li>
+<li><strong>The company must be an EC one with a RUC.</strong> <tt class="docutils literal">IdInformante</tt> is
+<tt class="docutils literal">company.partner_id.vat</tt>; the builder refuses an empty one, and
+ATS-11 applies the RUC module 11 check digit to it, so a wrong digit
+stops generation.</li>
+<li><strong>``warnings`` is the report, not a blocker.</strong> <tt class="docutils literal">generate()</tt> writes
+every non-blocking finding there and the form shows it beside the
+download. A grave finding never reaches it — it stops generation, and
+every problem is listed in one <tt class="docutils literal">UserError</tt> rather than only the
+first.</li>
+</ul>
+<p>The wizard is a <tt class="docutils literal">TransientModel</tt> and lives in <tt class="docutils literal">l10n_ec_ats/wizard/</tt>,
+not in <tt class="docutils literal">models/</tt>: the repository’s mandatory <tt class="docutils literal">pylint_odoo</tt> run
+enables <tt class="docutils literal"><span class="pre">no-wizard-in-models</span></tt>, which refuses a <tt class="docutils literal">TransientModel</tt>
+declared under <tt class="docutils literal">models/</tt>. <tt class="docutils literal">l10n_ec_withhold/wizard/</tt> and
+<tt class="docutils literal">l10n_ec_account_edi/wizard/</tt> are the existing precedent.</p>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="tier-2-know-this-about-the-catalog">
+<h2><a class="toc-backref" href="#toc-entry-6">Tier 2 — Know this about the catalog</a></h2>
+<p>The mixin’s semantics — inclusive windows, open-ended <tt class="docutils literal">date_end</tt>, gap
+and overlap detection, the helper names — are in
+<tt class="docutils literal">`USAGE.md</tt> &lt;<a class="reference external" href="https://github.com/OCA/l10n-ecuador/blob/19.0/l10n_ec_ats/readme/USAGE.md">https://github.com/OCA/l10n-ecuador/blob/19.0/l10n_ec_ats/readme/USAGE.md</a>&gt;`__
+under <em>Catalog semantics</em>. What follows is what a <strong>catalog record</strong>
+needs.</p>
+<div class="section" id="effective-dated-catalog-entries">
+<h3><a class="toc-backref" href="#toc-entry-7">Effective-dated catalog entries</a></h3>
+<p>Every <tt class="docutils literal">l10n.ec.ats.catalog.entry</tt> carries a validity window.
+<tt class="docutils literal">date_start</tt> is the first day the entry applies to and <tt class="docutils literal">date_end</tt>
+the last one, both included; leaving <tt class="docutils literal">date_end</tt> empty means the entry
+is still in force.</p>
+<p><strong>The SRI publishes no validity date for the referred transaction types,
+for the month codes, for ``Tabla 14``, ``Tabla 15``, or for
+``Tabla 4``</strong> — the last one spells its <tt class="docutils literal">Fecha de vigencia</tt> column
+<tt class="docutils literal">vacío</tt> in all forty rows. Those entries carry <tt class="docutils literal"><span class="pre">1900-01-01</span></tt> in
+<tt class="docutils literal">date_start</tt> as a <strong>sentinel meaning “the source states no date”</strong>,
+not as a real start date, and their <tt class="docutils literal">date_end</tt> is empty. Do not read
+that date as business data and do not filter on it. <tt class="docutils literal"><span class="pre">1900-01-01</span></tt> was
+chosen over a plausible-looking date such as <tt class="docutils literal"><span class="pre">2000-01-01</span></tt> precisely
+because a sentinel must not be mistakable for real data; the full
+rationale, and the two rows whose real dates <em>are</em> stated in prose
+footnotes, are in <tt class="docutils literal">ROADMAP.md</tt>.</p>
+</div>
+<div class="section" id="catalog-tables">
+<h3><a class="toc-backref" href="#toc-entry-8">Catalog tables</a></h3>
+<p><tt class="docutils literal">l10n.ec.ats.catalog.table</tt> is the registry. <tt class="docutils literal">entry_count</tt> is the
+coverage manifest: how many rows the source spreadsheet has for that
+table, asserted against the loaded entries by the test suite so a
+truncated import cannot pass silently. <tt class="docutils literal">source_reference</tt> names the
+sheet and row range every value came from.</p>
+<p><strong>Table numbers are stored zero-padded</strong> (<tt class="docutils literal">01</tt>, <tt class="docutils literal">02</tt>, <tt class="docutils literal">05</tt>), and
+so are the entry codes of <tt class="docutils literal">Tabla 01</tt>, <tt class="docutils literal">Tabla 02</tt>, <tt class="docutils literal">Tabla 05</tt> and
+<tt class="docutils literal">Tabla 13</tt>. <tt class="docutils literal">Tabla 04</tt> and <tt class="docutils literal">Tabla 11</tt> store their entries
+<strong>unpadded</strong> (<tt class="docutils literal">1</tt>, <tt class="docutils literal">9</tt>, <tt class="docutils literal">10</tt>). An unpadded table number matches
+nothing, and a lookup that matches nothing resolves to <em>absent</em> rather
+than raising — the worst shape a lookup failure can take, because a rate
+silently becomes “no rate” instead of an error.</p>
+</div>
+<div class="section" id="tax-support-is-captured-then-validated-here">
+<h3><a class="toc-backref" href="#toc-entry-9">Tax support is captured, then validated here</a></h3>
+<p><tt class="docutils literal">account.move.l10n_ec_tax_support</tt> and
+<tt class="docutils literal">res.partner.l10n_ec_tax_support</tt> are <tt class="docutils literal">Char(size=2)</tt>, <strong>not</strong>
+dropdowns. That is deliberate, and it is what makes this module’s
+validation possible.</p>
+<p>They used to be <tt class="docutils literal">Selection</tt> fields fed by a Python label list, which
+silently capped the codes a document could carry at whatever that list
+happened to contain. It stopped at <tt class="docutils literal">13</tt>, so <tt class="docutils literal">Tabla 5</tt> codes <tt class="docutils literal">14</tt>
+(<em>Valores facturados por socios a operadoras de transporte</em>, in force
+from 2018-01-01) and <tt class="docutils literal">15</tt> (<em>Pagos efectuados por consumos propios y de
+terceros de servicios digitales</em>, from 2020-06-01) could not be recorded
+on a purchase at all. <strong>The authority for the code is the catalog; the
+field is only a capture.</strong> <tt class="docutils literal">l10n_ec_ats</tt> validates the captured code
+against <tt class="docutils literal">Tabla 5</tt> resolved for the period being reported, and its
+rejection message lists the codes the catalog does accept — so the
+guidance a user gets comes from the records and cannot go stale.</p>
+<p>Two consequences worth knowing:</p>
+<ul class="simple">
+<li><strong>A code outside ``Tabla 5`` for the reported period is refused</strong>, not
+filed. <tt class="docutils literal">Tabla 5</tt> is effective-dated, so a code valid in 2018 is not
+valid in 2016.</li>
+<li><strong>The line-level ``account.move.line.l10n_ec_tax_support`` and the
+withholding wizard line keep their ``Selection``.</strong> They are
+dropdowns, and the wizard builds its label map from the wizard <em>line</em>
+field, so retyping <tt class="docutils literal">account.move</tt> does not disturb it.</li>
+</ul>
+<div class="section" id="tax-support-in-l10n-ec-withhold-is-a-label-list-and-it-can-drift">
+<h4><a class="toc-backref" href="#toc-entry-10"><tt class="docutils literal">TAX_SUPPORT</tt> in <tt class="docutils literal">l10n_ec_withhold</tt> is a label list, and it can drift</a></h4>
+<p><tt class="docutils literal">l10n_ec_withhold/models/data.py</tt> holds <tt class="docutils literal">TAX_SUPPORT</tt>, a Python
+literal of <tt class="docutils literal">(code, label)</tt> pairs used by those dropdowns. It is
+<strong>not</strong> the authority, and <strong>nothing keeps it in step with the
+catalog</strong>. <tt class="docutils literal">14</tt> and <tt class="docutils literal">15</tt> were missing from it until the retyping
+above — that drift is exactly what this paragraph exists to stop
+recurring unnoticed.</p>
+<p>Its descriptions are transcribed from <tt class="docutils literal">Catalogo_ATS.xls</tt> /
+<tt class="docutils literal">TABLAS REFERENCIALES</tt>, the same source this module loads as records
+in <tt class="docutils literal">data/ats_catalog_05.xml</tt>, so the wording can be checked without
+guessing. If the SRI publishes a further <tt class="docutils literal">Tabla 5</tt> code, add it there
+<strong>and</strong> let the catalog do the validating; the literal only needs to
+carry the label.</p>
+</div>
+</div>
+<div class="section" id="income-withholding-concepts-tabla-3-10">
+<h3><a class="toc-backref" href="#toc-entry-11">Income withholding concepts (<tt class="docutils literal">Tabla 3.10</tt>)</a></h3>
+<p><tt class="docutils literal">Tabla 3.10</tt> is split in two models, because the SRI <strong>reuses a
+concept code for a different concept from one era to the next</strong>:</p>
+<ul class="simple">
+<li><tt class="docutils literal">l10n.ec.ats.income.withholding.concept</tt> is a <strong>code registry and
+nothing else</strong> — one field, <tt class="docutils literal">code</tt>. It does <strong>not</strong> inherit
+<tt class="docutils literal">l10n.ec.temporal</tt>: a code has no validity window, so it needs no
+sentinel date.</li>
+<li><tt class="docutils literal">l10n.ec.ats.income.withholding.rate</tt> carries everything the SRI
+says about a concept <strong>within one era</strong>: <tt class="docutils literal">description</tt>, <tt class="docutils literal">family</tt>,
+<tt class="docutils literal">percentage</tt>, <tt class="docutils literal">detail_group</tt>, and the window from the
+<tt class="docutils literal">l10n.ec.temporal</tt> mixin.</li>
+</ul>
+<p><strong>Description, family and grouping are era-scoped. Read them from the
+rate, never from the concept.</strong> Code <tt class="docutils literal">341</tt> is <em>Otras retenciones
+aplicables el 2%</em> through 2014 and <em>Impuesto único a la exportación de
+banano de producción propia - componente 2</em> from 2015. Code <tt class="docutils literal">303A</tt> is
+<em>Utilización o aprovechamiento de la imagen o renombre</em> in the 2014-10
+era and <em>Servicios profesionales prestados por sociedades residentes</em>
+from 2024-03. 106 of the 414 codes carry a different description in
+different eras, so a description on the concept would force one era’s
+wording onto every era — a fact the SRI does not state. Nothing is
+merged, and no era borrows another era’s value.</p>
+<p>Read a rate through <tt class="docutils literal">_applicable_on(day)</tt>, never directly. The ATS is
+filed per month, and the description, the family, the rate and the
+sub-report group that apply all depend on that month.</p>
+<div class="section" id="a-period-inside-a-concept-s-hole-resolves-to-nothing">
+<h4><a class="toc-backref" href="#toc-entry-12">A period inside a concept’s hole resolves to nothing</a></h4>
+<p>Fifteen concepts have an era hole: the SRI drops them from one era and
+brings them back in a later one — <tt class="docutils literal">343</tt> is absent for the whole
+2014-10-01 to 2018-02-28 run. The holes are kept, not filled, because
+filling one would mean publishing a rate for a period the SRI never
+stated.</p>
+<p><strong>``_applicable_on`` therefore returns no rate at all for a day inside a
+hole</strong>, not the nearest rate and not the previous era’s. The generation
+preflight turns that into a named refusal. A concept that simply did not
+exist before its first appearance is not a hole — that is the mixin’s
+documented behaviour, since the span checked runs from the earliest
+<tt class="docutils literal">date_start</tt>.</p>
+</div>
+<div class="section" id="unresolved-rates-are-not-errors">
+<h4><a class="toc-backref" href="#toc-entry-13"><tt class="docutils literal">unresolved</tt> rates are not errors</a></h4>
+<p><strong>1689 of the 3149 rates carry no percentage.</strong> That is what the SRI
+publishes: most cells of the table hold a range (<tt class="docutils literal">25 o 37</tt>), a dash
+(<tt class="docutils literal">-</tt>), a list of CDI tariffs, or a legal reference. Those are imported
+with <tt class="docutils literal">unresolved</tt> set and the cell text kept verbatim in
+<tt class="docutils literal">source_note</tt>. Guessing a single number would produce a catalog that
+looks plausible and is silently wrong, which is the one outcome worse
+than a refusal.</p>
+<p>Do not resolve one of these by hand without the ficha tecnica. Concept
+<tt class="docutils literal">310</tt> in the newest era reads
+<tt class="docutils literal">1 /0 según resolución <span class="pre">NAC-DGERCGC26-00000028</span></tt>: the cell names two
+candidate rates and the resolution holding the real one, and picking
+either would be a guess dressed as data.</p>
+<p>Eight cells read as numbers but are <strong>not</strong> percentages: <tt class="docutils literal">0.0175</tt>
+(code <tt class="docutils literal">322</tt>), <tt class="docutils literal">0.13</tt> (<tt class="docutils literal">504F</tt>) and <tt class="docutils literal">0.25</tt> (<tt class="docutils literal">504G</tt>). They are
+rates written as fractions — <tt class="docutils literal">504G</tt> reads <tt class="docutils literal">0.25</tt> in 2015 and 2016
+and <tt class="docutils literal">25</tt> from 2018 on — so they are <tt class="docutils literal">unresolved</tt> too. Reading
+<tt class="docutils literal">0.25</tt> as a percentage would state a quarter of one percent for a
+concept withheld at 25, and the wrong number would look entirely
+plausible.</p>
+<p>Their <tt class="docutils literal">source_note</tt> carries three parts, in this order: the verbatim
+cell, the candidate reading marked <strong>NOT DATA, PROPOSAL ONLY</strong>, and
+whether the same code’s other eras corroborate it. Only <tt class="docutils literal">504G</tt> is
+corroborated — <tt class="docutils literal">322</tt> and <tt class="docutils literal">504F</tt> read something else in every other
+era and never the value their fraction would give. Read the note; do not
+read the candidate as a rate.</p>
+<p><tt class="docutils literal">fields.Float</tt> reads a NULL column back as <tt class="docutils literal">0.0</tt>, so <tt class="docutils literal">unresolved</tt>
+and a legitimately exempt <tt class="docutils literal">0%</tt> rate are indistinguishable in the ORM.
+The consistency constraint reads the stored column directly; see
+<tt class="docutils literal">l10n.ec.ats.income.withholding.rate._check_percentage_matches_unresolved</tt>.</p>
+</div>
+<div class="section" id="family-is-optional-and-empty-where-the-era-states-none">
+<h4><a class="toc-backref" href="#toc-entry-14"><tt class="docutils literal">family</tt> is optional, and empty where the era states none</a></h4>
+<p><tt class="docutils literal">family</tt> mirrors <tt class="docutils literal">Tabla 15</tt>: <tt class="docutils literal">residente</tt> is code <tt class="docutils literal">01</tt> (<em>pago a
+residente / establecimiento permanente</em>), <tt class="docutils literal">no_residente</tt> is code
+<tt class="docutils literal">02</tt> (<em>pago a no residente</em>). The sheet states it as the section
+header a row sits under.</p>
+<p><strong>854 rates state no family and carry none.</strong> Blocks <tt class="docutils literal">CS</tt>, <tt class="docutils literal">CW</tt> and
+<tt class="docutils literal">DA</tt> have no <tt class="docutils literal">Módulo</tt> column at all, and row <tt class="docutils literal">AG5</tt> sits above
+block <tt class="docutils literal">AF</tt>’s only header. Those rows are left empty rather than filled
+from a neighbouring era: no era’s value belongs to another era’s row. A
+description that names a foreign country is suggestive, but a suggestive
+description is not a section header.</p>
+<p><strong>Blocks ``AF`` and ``AK`` state no non-resident header</strong>, so their 87
+rows over the 44 <tt class="docutils literal">5xx</tt> codes read <tt class="docutils literal">residente</tt> while nineteen other
+eras read <tt class="docutils literal">no_residente</tt>. That is a missing header in the source, not
+a family change. It is recorded literally and pinned by the test suite
+rather than corrected, because correcting it would mean substituting one
+era’s value for another era’s statement. Treat the family of any <tt class="docutils literal">5xx</tt>
+code in the 2024-03-01 to 2024-06-30 window with suspicion.</p>
+</div>
+<div class="section" id="two-other-things-the-sheet-does-not-support">
+<h4><a class="toc-backref" href="#toc-entry-15">Two other things the sheet does not support</a></h4>
+<ul class="simple">
+<li><strong>Four codes carry a space.</strong> <tt class="docutils literal">C37</tt>..<tt class="docutils literal">C40</tt> read <tt class="docutils literal">323 M</tt> ..
+<tt class="docutils literal">323 P</tt>, and <tt class="docutils literal">ats.xsd</tt>’s <tt class="docutils literal">codRetAirType</tt> (<tt class="docutils literal"><span class="pre">[A-Za-z0-9]{3,5}</span></tt>)
+rejects it, so those codes could never be emitted. The space is
+dropped, which is what the sheet’s own sibling codes (<tt class="docutils literal">323A</tt>,
+<tt class="docutils literal">323B1</tt>, <tt class="docutils literal">323C</tt>..<tt class="docutils literal">323K</tt>, <tt class="docutils literal">323E</tt>, <tt class="docutils literal">323E2</tt>) already do.
+Nothing else about a code is touched: codes are opaque strings, never
+parsed as numbers.</li>
+<li><strong>One cell is empty.</strong> <tt class="docutils literal">CL56</tt>, code <tt class="docutils literal">335A</tt> in the 2014-10 era. It
+is imported as <tt class="docutils literal">unresolved</tt> with an empty <tt class="docutils literal">source_note</tt>, which is
+the only honest reading and the only rate in the table with nothing to
+go on.</li>
+</ul>
+</div>
+<div class="section" id="detail-group-names-a-sub-report-it-never-carries-a-code">
+<h4><a class="toc-backref" href="#toc-entry-16"><tt class="docutils literal">detail_group</tt> names a sub-report; it never carries a code</a></h4>
+<p><tt class="docutils literal">l10n.ec.ats.income.withholding.rate.detail_group</tt> is a <tt class="docutils literal">Selection</tt>
+of <strong>group names</strong> — <tt class="docutils literal">dividend</tt>, <tt class="docutils literal">banana</tt>, or empty. It is loaded
+from <tt class="docutils literal">data/ats_income_withholding_rates.xml</tt>, on the 99 of the 3149
+rate rows it applies to, and it exists because
+<tt class="docutils literal">validators.validate_compras_row</tt> <strong>raises</strong> <tt class="docutils literal">ValueError</tt> when an
+<tt class="docutils literal">air</tt> row carries one of the five conditional elements and the caller
+supplied no <tt class="docutils literal">AirConditionalCodes</tt>: a check that cannot be made must
+not be allowed to look covered.</p>
+<p><tt class="docutils literal">Catalogo_ATS.xlsx</tt> carries <strong>no column</strong> saying which <tt class="docutils literal">codRetAir</tt>
+needs which sub-report, and it cannot be derived from the concept
+either. The SRI reuses a code across eras:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="43%" />
+<col width="43%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Code</th>
+<th class="head">Before 2015-03-01</th>
+<th class="head">From 2015-03-01</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><tt class="docutils literal">340</tt></td>
+<td><em>Otras retenciones
+aplicables el 1%</em></td>
+<td><em>Impuesto único a la
+exportación de banano de
+producción propia -
+componente 2</em></td>
+</tr>
+<tr><td><tt class="docutils literal">341</tt></td>
+<td><em>Otras retenciones
+aplicables el 2%</em></td>
+<td>the same, componente 2</td>
+</tr>
+<tr><td><tt class="docutils literal">342</tt></td>
+<td><em>Otras retenciones
+aplicables el 8%</em></td>
+<td><em>Impuesto único a la
+exportación de banano
+producido por terceros</em></td>
+</tr>
+<tr><td><tt class="docutils literal">327</tt></td>
+<td><em>Por venta de combustibles
+a comercializadoras</em></td>
+<td><em>Dividendos distribuidos a
+personas naturales
+residentes</em></td>
+</tr>
+</tbody>
+</table>
+<p>A timeless list of codes would file a banana sub-report against a 2013
+concept that was not one, and would file none at all for the concept
+that was. So the grouping is a <strong>dated fact about an era</strong>, which is why
+it lives on the rate — the model that already carries the window — and
+not on the concept, which is a code registry with no dates at all.</p>
+<p><strong>The candidate set is the ficha’s eight codes; each era is then kept
+only when that era’s own description names the thing.</strong> Eighteen of the
+117 eras of those codes do not, and they carry no group on purpose.
+Three codes have an era hole the SRI itself created — <tt class="docutils literal">330</tt>, <tt class="docutils literal">341</tt>
+and <tt class="docutils literal">342</tt> are dropped from 2020 — so they are in no group for a
+current period, and the wizard resolves that from the data rather than
+from a list.</p>
+<p>Read it as <tt class="docutils literal">rate.detail_group</tt> <strong>after</strong> resolving the rate for the
+reported period. Never from the concept: a concept has no window to
+resolve against. The reasoning, and the two things about it a maintainer
+should look at, are in <tt class="docutils literal">DESIGN.md</tt> §2.1 and <tt class="docutils literal">ROADMAP.md</tt>.</p>
+</div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="tier-3-block-semantics">
+<h2><a class="toc-backref" href="#toc-entry-17">Tier 3 — Block semantics</a></h2>
+<p>One row per block, one line per rule, and a pointer to where the rule is
+derived. The full element-by-element mapping is in
+<tt class="docutils literal">`DESIGN.md</tt> &lt;<a class="reference external" href="https://github.com/OCA/l10n-ecuador/blob/19.0/l10n_ec_ats/readme/DESIGN.md">https://github.com/OCA/l10n-ecuador/blob/19.0/l10n_ec_ats/readme/DESIGN.md</a>&gt;`__;
+the decisions behind these rules are in <a class="reference external" href="https://github.com/OCA/l10n-ecuador/blob/19.0/l10n_ec_ats/docs/adr/0002-ats-design-decisions.md">ADR
+0002</a>.</p>
+<div class="section" id="compras">
+<h3><a class="toc-backref" href="#toc-entry-18"><tt class="docutils literal">compras</tt></a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="70%" />
+<col width="30%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Rule</th>
+<th class="head">Where it comes from</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>One row <strong>per document</strong>; a document with any
+error yields <strong>no</strong> row</td>
+<td><tt class="docutils literal">DESIGN.md</tt> §2</td>
+</tr>
+<tr><td><tt class="docutils literal">establecimiento</tt> / <tt class="docutils literal">puntoEmision</tt> /
+<tt class="docutils literal">secuencial</tt> are the <strong>supplier’s</strong> triple,
+from <tt class="docutils literal">l10n_latam_document_number</tt>, with the
+access key <tt class="docutils literal">[24:39]</tt> as the documented
+recovery path</td>
+<td>ADR 0002 §11</td>
+</tr>
+<tr><td><tt class="docutils literal">autorizacion</tt> is <strong>refused</strong>, never
+<tt class="docutils literal">'9999999999'</tt></td>
+<td>ADR 0002 §11, §12</td>
+</tr>
+<tr><td>All six <tt class="docutils literal">Tabla 11</tt> elements are emitted,
+defaulting to <tt class="docutils literal">0.00</tt> — a <strong>sourced</strong> zero,
+because the catalog published no withholding
+at that rate</td>
+<td><tt class="docutils literal">DESIGN.md</tt> §2</td>
+</tr>
+<tr><td>Amounts are <strong>absolute</strong>: <tt class="docutils literal">monedaType</tt> has
+<tt class="docutils literal">minInclusive 0.0</tt>, so a credit note is
+reduced, not negated</td>
+<td>ADR 0002 §11</td>
+</tr>
+<tr><td><tt class="docutils literal">air</tt> is <tt class="docutils literal"><span class="pre">minOccurs=&quot;0&quot;</span></tt>: no withholding
+means <strong>no element</strong>, never an empty one</td>
+<td>ADR 0002 §6</td>
+</tr>
+<tr><td><tt class="docutils literal">000</tt> is refused on both three-digit halves,
+though <tt class="docutils literal">ats.xsd</tt> accepts it there</td>
+<td>ADR 0002 §8</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="ventas">
+<h3><a class="toc-backref" href="#toc-entry-19"><tt class="docutils literal">ventas</tt></a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="73%" />
+<col width="27%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Rule</th>
+<th class="head">Where it comes from</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><strong>Aggregated</strong>, one row per
+<tt class="docutils literal">(tpIdCliente, idCliente, tipoComprobante, tipoEmision)</tt>
+— the sheet marks three key components and does not list
+<tt class="docutils literal">tipoEmision</tt>; the ficha settles the gap: <em>“se puede
+ingresar el mismo tipo de documento siempre que difiera de
+la emisión de un mismo cliente en el período informado”</em></td>
+<td><tt class="docutils literal">DESIGN.md</tt> §3</td>
+</tr>
+<tr><td>The key is computed from the <strong>values that reach the
+file</strong>, so two client records carrying one identification
+aggregate into one row</td>
+<td><tt class="docutils literal">DESIGN.md</tt> §3</td>
+</tr>
+<tr><td><tt class="docutils literal">tipoEmision</tt> is read off the issuing journal’s
+<tt class="docutils literal">l10n_latam_use_documents</tt> — <em>“when the emission
+question is not activated, place emission type F”</em></td>
+<td><tt class="docutils literal">DESIGN.md</tt> §3</td>
+</tr>
+<tr><td>A credit note is a <strong>row, not a minus sign</strong>: filed under
+its own <tt class="docutils literal">tipoComprobante</tt> with absolute amounts, and
+with <strong>no</strong> <tt class="docutils literal">formasDePago</tt> (<em>“no aplica para los tipos
+de comprobantes Notas de Crédito (04)”</em>)</td>
+<td>ADR 0002 §11, §6</td>
+</tr>
+<tr><td><strong>``baseImpExe`` is absent</strong> — <tt class="docutils literal">detalleVentasType</tt> has
+no exempt base element, so an exempt sale reports every
+base at zero</td>
+<td><tt class="docutils literal">DESIGN.md</tt> §3</td>
+</tr>
+<tr><td><strong>``compensaciones`` is absent</strong> — <tt class="docutils literal">Tabla 21</tt> <em>is</em>
+loaded; nothing in Odoo records an IVA compensation, so
+the key is omitted rather than defaulted</td>
+<td><tt class="docutils literal">DESIGN.md</tt> §3, §7</td>
+</tr>
+<tr><td><tt class="docutils literal">valorRetIva</tt> / <tt class="docutils literal">valorRetRenta</tt> are what the
+<strong>client</strong> withheld: only sale-side withholdings are read,
+so the mirror-image purchase withholding never reaches a
+sales row</td>
+<td><tt class="docutils literal">DESIGN.md</tt> §3</td>
+</tr>
+<tr><td><tt class="docutils literal">valorRetRenta</tt> resolves <strong>no</strong> <tt class="docutils literal">Tabla 3.10</tt> rate,
+deliberately — the block has no per-concept breakdown, so
+there is nowhere to put a code or a rate</td>
+<td><tt class="docutils literal">DESIGN.md</tt> §3</td>
+</tr>
+<tr><td><tt class="docutils literal">formasDePago</tt> is <strong>not</strong> part of the key: <em>“when a
+single transaction used more than one payment form, all of
+the payment forms used must be reported”</em>, and
+<tt class="docutils literal">formaPago</tt> is unbounded</td>
+<td><tt class="docutils literal">DESIGN.md</tt> §3</td>
+</tr>
+<tr><td><tt class="docutils literal">parteRelVtas</tt> is <strong>omitted</strong> for the final-consumer
+sentinel — <tt class="docutils literal">ats.xsd</tt> makes it optional and the ficha
+displays it only for three identification types</td>
+<td><tt class="docutils literal">DESIGN.md</tt> §3</td>
+</tr>
+<tr><td>One filter the loaded catalog <strong>cannot</strong> answer:
+<tt class="docutils literal">ventas/tipoComprobante</tt> must be <em>“filtered by
+``Código Secuencial Transacción`` equal to 04, 05, 06, 07
+and 19”</em>, and <tt class="docutils literal">Tabla 4</tt> stores two different columns for
+those two ideas. What is asserted is the part the catalog
+can answer — that the code is a real <tt class="docutils literal">Tabla 4</tt> row in
+force on the reported day</td>
+<td><tt class="docutils literal">DESIGN.md</tt> §3</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="ventasestablecimiento">
+<h3><a class="toc-backref" href="#toc-entry-20"><tt class="docutils literal">ventasEstablecimiento</tt></a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="73%" />
+<col width="27%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Rule</th>
+<th class="head">Where it comes from</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><tt class="docutils literal">codEstab</tt> is a <strong>composite derivation</strong> over records
+that do exist, because there is no <tt class="docutils literal">res.establishment</tt>
+in <tt class="docutils literal"><span class="pre">l10n-ecuador</span></tt> nor in core <tt class="docutils literal">l10n_ec</tt>. It is the
+single seam to replace if an establishment model ever
+lands</td>
+<td>ADR 0002 §7</td>
+</tr>
+<tr><td>The code is the <strong>union</strong> of the distinct
+<tt class="docutils literal">l10n_ec_entity</tt> over the company’s <strong>active</strong> journals
+and the entity segment of <tt class="docutils literal">l10n_latam_document_number</tt>
+on the period’s <strong>posted sales</strong> documents. Change a
+journal’s entity after a document was issued and reading
+only the journals drops a real establishment from the
+count</td>
+<td><tt class="docutils literal">DESIGN.md</tt> §4</td>
+</tr>
+<tr><td>Two asymmetries are deliberate: <strong>sales documents only</strong>
+(a vendor bill carries the <em>supplier’s</em> triple), and
+<strong>sales journals are not special-cased</strong> (<tt class="docutils literal">numEstabRuc</tt>
+counts <em>establecimientos inscritos en el RUC</em>, so a
+purchase journal’s establishment counts too)</td>
+<td><tt class="docutils literal">DESIGN.md</tt> §4</td>
+</tr>
+<tr><td>A journal with an <strong>empty</strong> <tt class="docutils literal">l10n_ec_entity</tt> is
+skipped, not emitted —
+<tt class="docutils literal"><span class="pre">l10n_ec_withhold/data/template/account.journal-ec.csv</span></tt>
+seeds <tt class="docutils literal">sale_withhold_ec</tt> that way, and it is active in
+every EC company</td>
+<td><tt class="docutils literal">DESIGN.md</tt> §4</td>
+</tr>
+<tr><td>An establishment that sold nothing still gets a row at
+<tt class="docutils literal">0.00</tt>: <em>“debe generarse igual número de registros que
+el valor informado en el campo número de establecimientos
+del sujeto pasivo, inscritos en el RUC”</em></td>
+<td><tt class="docutils literal">DESIGN.md</tt> §4</td>
+</tr>
+<tr><td><strong>``ventasEstab`` is net, ``totalVentas`` is gross</strong>, and
+the ficha’s ceiling binds only when a credit note exists.
+<tt class="docutils literal">ventasEstab</tt> may be negative and is <strong>not</strong> clamped</td>
+<td>ADR 0002 §2</td>
+</tr>
+<tr><td><tt class="docutils literal">totalVentas</tt> is read out of the <tt class="docutils literal">ventas</tt> rows and
+<strong>never</strong> re-aggregated — <tt class="docutils literal">ESQUEMA</tt> row 10 calls it a
+<em>casillero no editable</em></td>
+<td>ADR 0002 §2</td>
+</tr>
+<tr><td><tt class="docutils literal">numEstabRuc</tt> is <strong>zero-padded to three digits</strong>
+(<tt class="docutils literal">\d{3}</tt>), so seven establishments are <tt class="docutils literal">007</tt>, never
+<tt class="docutils literal">7</tt>. A count of zero has no valid representation and
+blocks rather than emitting <tt class="docutils literal">000</tt></td>
+<td>ADR 0002 §8</td>
+</tr>
+<tr><td><tt class="docutils literal">ivaComp</tt> is omitted for the same reason as
+<tt class="docutils literal">compensaciones</tt>, and <tt class="docutils literal">ats.xsd</tt> makes it
+<tt class="docutils literal"><span class="pre">minOccurs=&quot;0&quot;</span></tt></td>
+<td><tt class="docutils literal">DESIGN.md</tt> §4, §7</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="anulados">
+<h3><a class="toc-backref" href="#toc-entry-21"><tt class="docutils literal">anulados</tt></a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="69%" />
+<col width="31%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Rule</th>
+<th class="head">Where it comes from</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>The only block that files a <strong>range</strong>, and the only one with <strong>no date
+at all</strong> — no <tt class="docutils literal">fechaEmision</tt>, no <tt class="docutils literal">fechaRegistro</tt>. All six of its
+elements are obligatory</td>
+<td><tt class="docutils literal">DESIGN.md</tt> §5</td>
+</tr>
+<tr><td><strong>One row per contiguous run.</strong> <em>“Se debe considerar que se
+considerarán anulados los comprobantes que consten dentro del rango
+informado”</em> — so cancelling 5, 6, 7 and 9 is <strong>two</strong> rows, never one
+<tt class="docutils literal">5</tt>–<tt class="docutils literal">9</tt> row</td>
+<td>ADR 0002 §4</td>
+</tr>
+<tr><td>The row key is
+<strong>``(establecimiento, puntoEmision, tipoComprobante, autorizacion)``</strong>
+— <tt class="docutils literal">CLAVE PRIMARIA (2)</tt> rows 196–201 mark all six elements as
+<em>componente de clave general</em>, and keying on the authorization is what
+guarantees it belongs to <strong>every</strong> document in the range</td>
+<td>ADR 0002 §4</td>
+</tr>
+<tr><td><tt class="docutils literal">tipoComprobante</tt> is the cancelled document’s <strong>own</strong> <tt class="docutils literal">Tabla 4</tt>
+code — <em>“uno de los códigos de la tabla 4,</em> <strong>sin filtro
+alguno</strong><em>“</em>. The plausible alternative, <tt class="docutils literal">Tabla 4</tt> code <tt class="docutils literal">18</tt>, is
+rejected on three counts: it excludes credit and debit notes <strong>by
+name</strong>, <tt class="docutils literal">Tabla 2</tt> code <tt class="docutils literal">18</tt> (<em>“COMPROBANTES ANULADOS”</em>) is
+unreachable because this block has no <tt class="docutils literal">tpIdProv</tt>, and a fixed code
+would have to live in Python</td>
+<td><tt class="docutils literal">DESIGN.md</tt> §5, ADR 0002 §12</td>
+</tr>
+<tr><td><tt class="docutils literal">secuencialFin</tt> <strong>repeats</strong> <tt class="docutils literal">secuencialInicio</tt> for a run of one</td>
+<td>ADR 0002 §3</td>
+</tr>
+<tr><td>The ESQUEMA sheet spells this block’s sixth element <tt class="docutils literal">autorización</tt>,
+<strong>with</strong> an accent; the schema spells it <tt class="docutils literal">autorizacion</tt>. The schema
+wins — it is what the file has to satisfy</td>
+<td><tt class="docutils literal">DESIGN.md</tt> §5</td>
+</tr>
+<tr><td>Selection: <tt class="docutils literal">move_type in <span class="pre">('out_invoice','out_refund')</span></tt>,
+<tt class="docutils literal">state == 'cancel'</tt>, <tt class="docutils literal">company_id</tt>, and <tt class="docutils literal">move.date</tt> inside the
+reported window</td>
+<td><tt class="docutils literal">DESIGN.md</tt> §5</td>
+</tr>
+<tr><td><strong>``posted_before`` excludes the cancelled draft.</strong> <tt class="docutils literal">button_cancel</tt>
+accepts a draft and sets <tt class="docutils literal">state = 'cancel'</tt>, so <tt class="docutils literal">state</tt> alone
+admits a document that was never issued, never authorized and never
+numbered — and Odoo shows it as <tt class="docutils literal">/</tt></td>
+<td><tt class="docutils literal">DESIGN.md</tt> §5</td>
+</tr>
+<tr><td><tt class="docutils literal">move.date</tt> is the only selection date the block has, and the window
+is still checked against the reported month with the same rule the
+other blocks use. The error carries <tt class="docutils literal">field: &quot;fechaRegistro&quot;</tt> because
+the block inherits the period requirement from document selection
+rather than from a field it does not emit</td>
+<td><tt class="docutils literal">DESIGN.md</tt> §5</td>
+</tr>
+<tr><td>A refused <tt class="docutils literal">000</tt> takes the <strong>whole document</strong> out, never part of it,
+and a sequential that is not a number is refused too — this block is
+the only reason to check, because a range is opened and closed by
+comparing one sequential with the next</td>
+<td><tt class="docutils literal">DESIGN.md</tt> §5, ADR 0002 §8</td>
+</tr>
+<tr><td><strong>Not selected, and not implementable:</strong> the ficha §2.5 excludes <em>“los
+comprobantes dados de baja a través del portal transaccional SRI en
+línea”</em>, and <strong>no Odoo field records that</strong></td>
+<td><tt class="docutils literal">ROADMAP.md</tt></td>
+</tr>
+<tr><td>Every error carries all four keys — <tt class="docutils literal">move</tt>, <tt class="docutils literal">journal</tt>, <tt class="docutils literal">field</tt>,
+<tt class="docutils literal">message</tt>. Nothing in this block is a journal-level problem, so
+<tt class="docutils literal">journal</tt> is always <tt class="docutils literal">False</tt>; the key is present so a consumer can
+read either without a <tt class="docutils literal">KeyError</tt>. The two blocks before this one
+build their dicts without <tt class="docutils literal">journal</tt></td>
+<td><tt class="docutils literal">ROADMAP.md</tt></td>
+</tr>
+<tr><td>Whether cancelled <strong>withholdings</strong> belong in this block is an open
+maintainer question, with Enterprise’s treatment quoted as the
+reference for a future version</td>
+<td><tt class="docutils literal">ROADMAP.md</tt></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="the-air-sub-report">
+<h3><a class="toc-backref" href="#toc-entry-22">The <tt class="docutils literal">air</tt> sub-report</a></h3>
+<p>One row per income-withholding basis line; <tt class="docutils literal">air</tt> is <tt class="docutils literal"><span class="pre">maxOccurs=&quot;1&quot;</span></tt>
+holding unbounded <tt class="docutils literal">detalleAir</tt>, so a document with several concepts
+carries them all in one row. <tt class="docutils literal">codRetAir</tt> is
+<tt class="docutils literal">account.tax.l10n_ec_code_ats</tt> on the <strong>tax</strong>, not on the tax group —
+every withholding group shares a generic <tt class="docutils literal">&quot;1&quot;</tt>/<tt class="docutils literal">&quot;2&quot;</tt>
+<tt class="docutils literal">l10n_ec_xml_fe_code</tt> that says nothing about which concept was
+withheld. <tt class="docutils literal">porcentajeAir</tt> is resolved from the <tt class="docutils literal">Tabla 3.10</tt> rate for
+the reported period, and an unresolved rate is reported rather than
+completed.</p>
+<p>The five conditional elements — <tt class="docutils literal">fechaPagoDiv</tt>, <tt class="docutils literal">imRentaSoc</tt>,
+<tt class="docutils literal">anioUtDiv</tt>, <tt class="docutils literal">numCajBan</tt>, <tt class="docutils literal">precCajBan</tt> — are the sub-report
+groups, loaded as era-scoped <tt class="docutils literal">detail_group</tt> data. See the
+<tt class="docutils literal">detail_group</tt> section under Tier 2 above for the code table and why
+the grouping cannot be timeless, and ADR 0001 §9 for the rejected
+alternatives.</p>
+</div>
+</div>
+<div class="section" id="usage">
+<h2><a class="toc-backref" href="#toc-entry-23">Usage</a></h2>
+<p>This module ships the <tt class="docutils literal">l10n.ec.temporal</tt> mixin, the effective-dated
+SRI referential catalogs, the collectors, the builder, the business
+validators, the schema layer, and the wizard that composes them.</p>
+<div class="section" id="generating-a-month">
+<h3><a class="toc-backref" href="#toc-entry-24">Generating a month</a></h3>
+<p><tt class="docutils literal">l10n.ec.ats.generate</tt> takes a company, a year and a month, and
+produces one <tt class="docutils literal"><span class="pre">AT{mmaaaa}.zip</span></tt> holding a single XML that passes
+<tt class="docutils literal">ats.xsd</tt>:</p>
+<pre class="code python literal-block">
+<span class="n">wizard</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s2">&quot;l10n.ec.ats.generate&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="w">
+</span>    <span class="p">{</span><span class="s2">&quot;company_id&quot;</span><span class="p">:</span> <span class="n">company</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s2">&quot;anio&quot;</span><span class="p">:</span> <span class="mi">2026</span><span class="p">,</span> <span class="s2">&quot;mes&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">}</span><span class="w">
+</span><span class="p">)</span><span class="w">
+</span><span class="n">action</span> <span class="o">=</span> <span class="n">wizard</span><span class="o">.</span><span class="n">generate</span><span class="p">()</span>   <span class="c1"># {&quot;type&quot;: &quot;ir.actions.act_url&quot;, &quot;url&quot;: &quot;/web/content/&lt;id&gt;?download=true&quot;}</span>
+</pre>
+<p>The same call works from a form, a menu entry, an automated action, RPC
+or a shell. In the interface it is <strong>Invoicing ‣ SRI ‣ ATS</strong>, a dialog
+asking for the company, the year and the month with a single
+<strong>Generate</strong> button.</p>
+<p>The archive name follows ficha técnica §1.2: <tt class="docutils literal">AT</tt> then the month then
+the year, both zero-padded, no separator and no special character, so
+March 2026 is <tt class="docutils literal">AT032026.zip</tt>. Inside it there is exactly one member,
+<tt class="docutils literal"><span class="pre">AT{mmaaaa}.xml</span></tt>. The file is attached to the wizard record and
+downloaded through <tt class="docutils literal">/web/content</tt>, so the bytes a user saves are the
+bytes that were validated.</p>
+</div>
+<div class="section" id="when-generation-is-refused">
+<h3><a class="toc-backref" href="#toc-entry-25">When generation is refused</a></h3>
+<p>Everything wrong with a period arrives in <strong>one</strong> <tt class="docutils literal">UserError</tt>,
+numbered, and no file is produced. One error per lookup would make a bad
+period unreadable, and a file that quietly omitted the unusable
+documents is the failure the project exists to prevent. The message
+always ends by saying that nothing was assumed.</p>
+<p>Four things stop generation, and each names the table, the code and the
+window:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">What</th>
+<th class="head">How it is reached</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>a <strong>catalog gap</strong> — no entry
+covers the reported day</td>
+<td>shipped data: <tt class="docutils literal">Tabla 13</tt>
+publishes the card payment forms
+from 2016-05-01, so a sale
+declaring form <tt class="docutils literal">20</tt> in March
+2016 cannot be filed</td>
+</tr>
+<tr><td>a <strong>catalog overlap</strong> — two
+entries claim the same day</td>
+<td>the wizard’s preflight resolves
+<tt class="docutils literal">Tabla 12</tt> as a whole, because
+a second regime in force at once
+is an overlap even under a
+different code</td>
+</tr>
+<tr><td>an <strong>``unresolved``
+``Tabla 3.10`` rate</strong> — the
+source states no single number</td>
+<td>the preflight reads the concepts
+off the <strong>documents</strong>, before
+collection drops anything; 1689
+of the 3149 rates carry no
+percentage</td>
+</tr>
+<tr><td><strong>missing source data</strong> — a
+field no record can supply</td>
+<td>the collectors return the error
+rather than raising, and the
+wizard aggregates it. A vendor
+bill with no SRI authorization
+is the canonical case: Odoo
+Enterprise fabricates
+<tt class="docutils literal">'9999999999'</tt> and ATS refuses
+the file</td>
+</tr>
+</tbody>
+</table>
+<p>The period itself is refused earlier, by the field: a year before 2000
+or a month outside 1..12 never reaches a collector.</p>
+</div>
+<div class="section" id="warnings-do-not-block">
+<h3><a class="toc-backref" href="#toc-entry-26">Warnings do not block</a></h3>
+<p><tt class="docutils literal">ESQUEMA</tt> row 22 calls a <tt class="docutils literal">montoIva</tt> that differs from
+<tt class="docutils literal">baseImpGrav x porcentajeIva</tt> a <em>mensaje de advertencia</em>, while the
+six IVA-withholding rows call an excess over <tt class="docutils literal">montoIva</tt> <em>grave</em>. Both
+come back from <tt class="docutils literal">l10n.ec.ats.generate._l10n_ec_run()</tt> as
+<tt class="docutils literal">(attachment, violations)</tt>; only the <tt class="docutils literal">blocking</tt> ones stop the file,
+and both severities are returned so a caller can report an <em>alerta</em>
+without refusing a return the SRI would accept.</p>
+<p><strong>``generate()`` writes the non-blocking ones into the wizard’s
+``warnings`` field, which the form renders.</strong> They are not an exception:
+an <em>alerta</em> by definition does not stop a return the SRI accepts, and
+raising one would make an acceptable return unfileable. Odoo 19 has no
+non-raising user-facing exception to use instead — <tt class="docutils literal">odoo.exceptions</tt>
+carries no <tt class="docutils literal">Warning</tt> and no <tt class="docutils literal">Notification</tt>, and
+<tt class="docutils literal">from odoo.exceptions import Warning</tt> is what the repository’s
+mandatory <tt class="docutils literal"><span class="pre">odoo-exception-warning</span></tt> check exists to refuse. The
+<tt class="docutils literal">{&quot;warning&quot;: <span class="pre">...}</span></tt> dict a button returns is the <strong>onchange</strong> contract
+(<tt class="docutils literal">odoo.orm.models._onchange_eval</tt>), and nothing in the action path
+reads it. So the download still happens and the findings are on screen
+next to the button that produced them.</p>
+<pre class="code python literal-block">
+<span class="n">action</span> <span class="o">=</span> <span class="n">wizard</span><span class="o">.</span><span class="n">generate</span><span class="p">()</span><span class="w">
+</span><span class="k">if</span> <span class="n">wizard</span><span class="o">.</span><span class="n">warnings</span><span class="p">:</span><span class="w">
+</span>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">wizard</span><span class="o">.</span><span class="n">warnings</span><span class="p">)</span>
+</pre>
+<p>A programmatic caller can skip the field and read the severities itself:</p>
+<pre class="code python literal-block">
+<span class="n">attachment</span><span class="p">,</span> <span class="n">violations</span> <span class="o">=</span> <span class="n">wizard</span><span class="o">.</span><span class="n">_l10n_ec_run</span><span class="p">()</span><span class="w">
+</span><span class="k">for</span> <span class="n">violation</span> <span class="ow">in</span> <span class="n">violations</span><span class="p">:</span><span class="w">
+</span>    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> -- </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">violation</span><span class="o">.</span><span class="n">rule</span><span class="p">,</span> <span class="n">violation</span><span class="p">)</span>
+</pre>
+</div>
+<div class="section" id="reading-a-historical-period">
+<h3><a class="toc-backref" href="#toc-entry-27">Reading a historical period</a></h3>
+<p>The reported period is the <strong>only</strong> input. Every catalog read resolves
+through <tt class="docutils literal">_applicable_on(last day of the reported month)</tt>, so loading
+2016-06 against a file of <tt class="docutils literal">Tabla 12</tt>’s 14% regime, <tt class="docutils literal">Tabla 3.10</tt>’s 8%
+<tt class="docutils literal">porcentajeAir</tt> for concept <tt class="docutils literal">304</tt> and the <tt class="docutils literal">Tabla 13</tt> forms of that
+month produces a genuinely different document from 2026-08 — not the
+same file with a different header. The test
+<tt class="docutils literal">test_historical_period_files_a_different_document</tt> pins exactly that:
+two periods, one fixture, and the only value that differs is the one
+read out of the catalog.</p>
+<p><strong>``valorRetIva`` of ``0.00`` is not an error.</strong> <tt class="docutils literal">ESQUEMA</tt> row 24
+reads <em>“Debe ser igual a la baseImpGrav aplicando el porcentajeIva
+(tabla 11). El valor puede ser mayor o igual,</em> <strong>si no existe valor
+colocar 0.00</strong><em>“</em>. The cell sanctions <tt class="docutils literal">0.00</tt> explicitly, so a
+<tt class="docutils literal">ventas</tt> row whose client withheld <strong>no</strong> IVA is filed as <tt class="docutils literal">0.00</tt> and
+produces no finding — which matters because a company whose clients do
+not withhold IVA is most companies, and refusing those rows would make a
+sales period unfileable. A <strong>non-zero</strong> value is checked against the
+<tt class="docutils literal">Tabla 11</tt> shares in force for the reported period and a value
+matching no single share is an <em>alerta</em>, never a grave one: a row
+aggregates every withholding for one client and document type, so a
+blend of regimes is legitimate, and exceeding a share is what <em>“puede
+ser mayor o igual”</em> exists to permit. See <tt class="docutils literal">ROADMAP.md</tt> for the reading
+this replaced.</p>
+</div>
+<div class="section" id="validating-an-ats-document">
+<h3><a class="toc-backref" href="#toc-entry-28">Validating an ATS document</a></h3>
+<p><tt class="docutils literal">l10n_ec_ats.schema</tt> exposes the schema layer and nothing else. No
+model, no menu, no configuration:</p>
+<pre class="code python literal-block">
+<span class="kn">from</span><span class="w"> </span><span class="nn">odoo.addons.l10n_ec_ats.schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">ATS_XSD_PATH</span><span class="p">,</span> <span class="n">validate_ats_xml</span><span class="w">
+
+</span><span class="n">result</span> <span class="o">=</span> <span class="n">validate_ats_xml</span><span class="p">(</span><span class="n">xml_string</span><span class="p">)</span><span class="w">
+</span><span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span><span class="w">
+</span>    <span class="k">raise</span> <span class="n">UserError</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">errors</span><span class="p">))</span>
+</pre>
+<p><tt class="docutils literal">validate_ats_xml</tt> accepts <tt class="docutils literal">str</tt> or <tt class="docutils literal">bytes</tt> and returns an
+<tt class="docutils literal">AtsValidationResult(is_valid, errors)</tt>. It never raises for bad
+input: an unparseable document comes back as <tt class="docutils literal">is_valid=False</tt> with the
+parser message in <tt class="docutils literal">errors</tt>, because the caller may be validating text
+it did not just build. <tt class="docutils literal">errors</tt> is empty exactly when <tt class="docutils literal">is_valid</tt> is
+true.</p>
+</div>
+<div class="section" id="the-schema-is-grammar-not-the-norm">
+<h3><a class="toc-backref" href="#toc-entry-29">The schema is grammar, not the norm</a></h3>
+<p><tt class="docutils literal">data/xsd/ats.xsd</tt> is the schema the SRI publishes. It is shipped
+normalized, because the repository’s own quality gate
+(<tt class="docutils literal"><span class="pre">trailing-whitespace</span></tt>, <tt class="docutils literal"><span class="pre">end-of-file-fixer</span></tt>,
+<tt class="docutils literal"><span class="pre">mixed-line-ending</span> <span class="pre">--fix=lf</span></tt>) rewrites any file it classifies as text
+and it classifies <tt class="docutils literal">.xsd</tt>: a byte-identical copy would leave
+<tt class="docutils literal"><span class="pre">pre-commit</span> run</tt> red on every checkout. Exactly four mechanical
+changes were applied — BOM removed, declaration corrected to <tt class="docutils literal"><span class="pre">UTF-8</span></tt>,
+CRLF converted to LF, trailing whitespace stripped from 14 lines — and
+they are listed in the header of the file itself. No type, facet,
+pattern or element was touched. Tests pin the sha256 of both the
+upstream artifact and the shipped copy, so the normalization cannot be
+widened unnoticed.</p>
+<p>Read the schema as authoritative for <strong>lexical shape, cardinality and
+patterns</strong> and as <strong>not</strong> authoritative for business rules. It is more
+permissive than the norm, and three behaviours prove it, all pinned by
+tests:</p>
+<ul class="simple">
+<li><tt class="docutils literal">totalVentas</tt> may be <strong>negative</strong>. <tt class="docutils literal">monedaType</tt> may not. A credit
+note cannot be expressed by negating a line amount, so the aggregate
+and the lines are not interchangeable.</li>
+<li><tt class="docutils literal">31/02/2020</tt> is a <strong>valid date</strong>. <tt class="docutils literal">fechaType</tt> bounds the day to
+01-31 and the month to 01-12 and never relates them to a calendar.</li>
+<li>The deprecated <tt class="docutils literal">estabRetencion2</tt> … <tt class="docutils literal">fechaEmiRet2</tt> family is
+<strong>still accepted</strong>, annotated “eliminado se mantiene por
+compatibilidad”. Emit nothing.</li>
+</ul>
+<p>The same file declares <tt class="docutils literal">establecimientoType</tt> as a plain three-digit
+string with no lower bound, so <tt class="docutils literal">establecimiento</tt> of <tt class="docutils literal">000</tt> validates
+even though <tt class="docutils literal">minExclusive 000</tt> does exist — on <tt class="docutils literal">numEstabRuc</tt> and on
+<tt class="docutils literal">codEstab</tt> only. A zero establishment code has to be rejected by this
+module, not by the schema.</p>
+<p>Two further limits are worth stating plainly. The schema declares eight
+<tt class="docutils literal">xsd:enumeration</tt> facets in total and <strong>none</strong> of them is a VAT rate,
+a withholding concept or a document type, so every code list is only a
+loose pattern. And <tt class="docutils literal">razonSocial</tt> / <tt class="docutils literal">denoProv</tt> are whitelisted to
+<tt class="docutils literal"><span class="pre">[a-zA-Z0-9\s]</span></tt>: not only accents but all punctuation must be
+stripped, so <tt class="docutils literal">SA de CV</tt> and <tt class="docutils literal">S.R.L.</tt> have to be reduced rather than
+transliterated.</p>
+<p>None of that is a reason to edit the schema. Two validation layers are
+required: this one for grammar, and one built from the SRI catalog’s
+<tt class="docutils literal">Validaciones</tt> column for the business rules.</p>
+</div>
+<div class="section" id="catalog-semantics">
+<h3><a class="toc-backref" href="#toc-entry-30">Catalog semantics</a></h3>
+<p>The semantics the rest of the ATS work depends on are these:</p>
+<ul class="simple">
+<li>A window is <strong>inclusive of both endpoints</strong>. A record applies on date
+<tt class="docutils literal">d</tt> when <tt class="docutils literal">date_start &lt;= d</tt> and (<tt class="docutils literal">date_end</tt> is null or
+<tt class="docutils literal">d &lt;= date_end</tt>).</li>
+<li>A null <tt class="docutils literal">date_end</tt> means <strong>open-ended</strong>, not “invalid”. It applies
+arbitrarily far into the future.</li>
+<li><tt class="docutils literal">date_start &gt; date_end</tt> is a <strong>data error</strong> and raises a
+<tt class="docutils literal">ValidationError</tt>.</li>
+<li>Two windows <strong>overlap</strong> when they share at least one day.
+<tt class="docutils literal"><span class="pre">2024-01-31</span></tt> and <tt class="docutils literal"><span class="pre">2024-02-01</span></tt> are adjacent, not overlapping.</li>
+<li>The union of the windows of one series should be <strong>contiguous</strong>. A
+hole means a period the SRI covered and the catalog does not.</li>
+</ul>
+<p>Models that inherit the mixin gain <tt class="docutils literal">date_start</tt> and <tt class="docutils literal">date_end</tt>
+fields plus:</p>
+<ul class="simple">
+<li><tt class="docutils literal">_applicable_on(date)</tt>: the recordset applicable on <tt class="docutils literal">date</tt>.</li>
+<li><tt class="docutils literal">_temporal_overlapping(other)</tt>: whether two windows intersect.</li>
+<li><tt class="docutils literal">_temporal_gaps(key)</tt>: the uncovered ranges inside one series, where
+<tt class="docutils literal">key</tt> is the caller-supplied domain identifying the series.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="known-issues-roadmap">
+<h2><a class="toc-backref" href="#toc-entry-31">Known issues / Roadmap</a></h2>
+</div>
+<div class="section" id="roadmap">
+<h2><a class="toc-backref" href="#toc-entry-32">Roadmap</a></h2>
+<p>Two tables live here: what is <strong>not</strong> in the catalog yet, and why, and
+the open questions a maintainer has to decide.</p>
+<div class="section" id="out-of-scope-in-v1-with-rationale-and-a-v2-proposal">
+<h3><a class="toc-backref" href="#toc-entry-33">Out of scope in v1, with rationale and a v2 proposal</a></h3>
+<p>Each entry states the evidence and what a future version would need. The
+table below is reproduced <strong>verbatim</strong> from the feature document’s §4.2;
+the paragraphs around it are this module’s own.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="20%" />
+<col width="24%" />
+<col width="43%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Block</th>
+<th class="head">Why out of v1</th>
+<th class="head">Evidence</th>
+<th class="head">v2 proposal</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><strong>Rendimientos
+financieros
+(IFI’s)</strong></td>
+<td>Financial institutions
+under Superintendencia
+de Bancos / Economía
+Popular. <strong>Excluded by
+explicit project
+decision — permanently,
+not deferred.</strong></td>
+<td>ficha §1 bullets 5 &amp; 8;
+<tt class="docutils literal">ats.xsd:632</tt>
+<tt class="docutils literal">rendFinancieros</tt></td>
+<td>None. Never implemented.</td>
+</tr>
+<tr><td><strong>Recap</strong> (card
+issuers)</td>
+<td><tt class="docutils literal">Tipo 2</tt> contributor.
+Needs issuer-side card
+data (affiliated
+establishment, voucher,
+commission, consumption
+split) that has no Odoo
+representation.</td>
+<td>ficha §2.6; <tt class="docutils literal">Tabla 2</tt> codes
+10/11; <tt class="docutils literal">CLAVE PRIMARIA</tt> row
+123</td>
+<td><tt class="docutils literal">l10n.ec.card.issuer</tt> + <tt class="docutils literal">l10n.ec.card.transaction</tt>
++ affiliated-establishment model. Large; only for card
+issuers.</td>
+</tr>
+<tr><td><strong>Fideicomisos
+/ fondos</strong></td>
+<td>Needs trustee
+administration
+(beneficiaries, yields,
+patrimony,
+distributions) absent
+from Odoo.</td>
+<td>ficha §2.7; <tt class="docutils literal">Tabla 9</tt> (23
+trust types)</td>
+<td><tt class="docutils literal">l10n.ec.trust</tt> + <tt class="docutils literal">l10n.ec.trust.beneficiary</tt>.
+Only for <tt class="docutils literal">administradoras</tt>.</td>
+</tr>
+<tr><td><strong>Exportaciones
+/ ingresos del
+exterior</strong></td>
+<td>Needs FUE/DAU, distrito
+aduanero (<tt class="docutils literal">Tabla 6</tt>),
+regímenes aduaneros
+(<tt class="docutils literal">Tabla 7.1</tt>), FOB,
+refrendo. <strong>No Odoo
+source</strong> and no SRI EDI
+document for FUE.</td>
+<td>ficha §2.4;
+<tt class="docutils literal">Tablas 6, 7.1, 10, 18, 19</tt></td>
+<td><tt class="docutils literal">l10n.ec.export.document</tt> (FUE) + export fields on
+<tt class="docutils literal">account.move</tt>. <strong>Highest compliance risk of the
+four</strong> — see §4.3.</td>
+</tr>
+<tr><td><strong>Java plugin /
+DIMM
+webservice</strong></td>
+<td>Out of scope per project
+decision. <strong>Local
+``ats.xsd`` validation
+IS in scope</strong> and reuses
+the mechanism already in
+<tt class="docutils literal">l10n_ec_account_edi</tt>.</td>
+<td><tt class="docutils literal">ats.plugin.1.19.0.zip</tt>
+(Eclipse/OSGi,
+<tt class="docutils literal">ec.gob.sri.dimm.ats.*</tt>,
+DIMM 1.19.0)</td>
+<td>ADR
+<tt class="docutils literal"><span class="pre">readme/adr/0001-ats-java-plugin-and-webservice.md</span></tt>.
+When unblocked: a validation-only web service behind a
+validator interface, so the collection/builder layers
+stay untouched.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>One correction to the table above, which is reproduced verbatim and
+therefore cannot be edited.</strong> Its last row cites the ADR for the Java
+plugin decision as
+<tt class="docutils literal"><span class="pre">readme/adr/0001-ats-java-plugin-and-webservice.md</span></tt>. That ADR now
+exists, at
+<tt class="docutils literal"><span class="pre">`docs/adr/0001-ats-java-plugin-and-webservice.md</span></tt> &lt;docs/adr/0001-ats-java-plugin-and-webservice.md&gt;`__
+— under <tt class="docutils literal">docs/adr/</tt>, not <tt class="docutils literal">readme/adr/</tt>. <tt class="docutils literal"><span class="pre">oca-gen-addon-readme</span></tt>
+renders only seven known fragments and treats <tt class="docutils literal">readme/</tt> as a flat
+fragment directory, so an <tt class="docutils literal">adr/</tt> subdirectory there would be at best
+ignored and at worst break the hook. The decision, the ADR number and
+the filename are unchanged; only the directory differs. The design
+decisions that reverse a filed return are recorded separately in <a class="reference external" href="docs/adr/0002-ats-design-decisions.md">ADR
+0002</a>.</p>
+<p>Two of these need to be read carefully, because the obvious summary of
+them is wrong:</p>
+<ul class="simple">
+<li><strong>``rendFinancieros`` is not deferred.</strong> It is <em>excluded by explicit
+project decision — permanently, not deferred</em>, and it is the only row
+of the five with no v2 proposal because there is nothing to propose.</li>
+<li><strong>``exportaciones`` is deferred on a data-model gap, not a policy
+one.</strong> An exporter cannot complete its ATS with v1, which is a real
+compliance exposure for trading companies. The absence is recorded
+deliberately here rather than left to be discovered at filing time.</li>
+</ul>
+<p>An <strong>exporter</strong> is therefore the one taxpayer v1 cannot serve.
+<tt class="docutils literal">rendFinancieros</tt> is a banking institution and was excluded by the
+financial-institution rule; <tt class="docutils literal">exportaciones</tt> was not, and is out for
+want of a data model. <tt class="docutils literal">DESIGN.md</tt> §7 lists every element that is
+declared absent from the shipped builder and what would have to exist
+before each could be emitted.</p>
+</div>
+<div class="section" id="referential-tables-that-are-deliberately-not-loaded">
+<h3><a class="toc-backref" href="#toc-entry-34">Referential tables that are deliberately not loaded</a></h3>
+<p>Only the tables an in-scope ATS block needs are loaded. The rest exist
+in <tt class="docutils literal">Catalogo_ATS.xls</tt> and serve blocks the feature document excludes,
+so loading them would be speculative: entries nobody reads, that a
+completeness check then has to vouch for. Each is listed here with the
+sheet it lives in and its row count, so a later version knows exactly
+what is missing.</p>
+<p>Row counts are the number of data rows in the source, counted from the
+cells named. They are not entry counts: a later import must re-derive
+them.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="14%" />
+<col width="28%" />
+<col width="6%" />
+<col width="19%" />
+<col width="22%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Table</th>
+<th class="head">Title</th>
+<th class="head">Sheet</th>
+<th class="head">Rows</th>
+<th class="head">Cells</th>
+<th class="head">Why not loaded</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><tt class="docutils literal">3.10</tt></td>
+<td>Conceptos
+de
+retención
+en la
+fuente de
+impuesto a
+la renta
+(AIR)</td>
+<td><tt class="docutils literal">TABLAS RETENCIONES</tt></td>
+<td>291</td>
+<td><tt class="docutils literal">B1</tt>–<tt class="docutils literal">DC291</tt></td>
+<td>23 side-by-side
+date eras of
+income-withholding
+concepts and
+rates. Genuinely
+relational and
+resolved per line,
+so it needs its
+own <tt class="docutils literal">concept</tt> /
+<tt class="docutils literal">rate</tt> models
+rather than a
+table code. That
+is <tt class="docutils literal"><span class="pre">ATS-01b</span></tt>,
+not this task.</td>
+</tr>
+<tr><td><tt class="docutils literal">6</tt></td>
+<td>Distrito
+aduanero</td>
+<td><tt class="docutils literal">TABLAS REFERENCIALES</tt></td>
+<td>14</td>
+<td><tt class="docutils literal">B118:C131</tt></td>
+<td>Customs district,
+used by the export
+block. Exports are
+deferred on a
+data-model gap,
+not a policy one.</td>
+</tr>
+<tr><td><tt class="docutils literal">7</tt></td>
+<td>Código
+régimen
+(hasta
+septiembre
+2012)</td>
+<td><tt class="docutils literal">TABLAS REFERENCIALES</tt></td>
+<td>44</td>
+<td><tt class="docutils literal">B136:C179</tt></td>
+<td>Pre-2012 customs
+regime, same
+export block.</td>
+</tr>
+<tr><td><tt class="docutils literal">7.1</tt></td>
+<td>Código
+régimen
+(desde
+octubre
+2012)</td>
+<td><tt class="docutils literal">TABLAS REFERENCIALES</tt></td>
+<td>9</td>
+<td><tt class="docutils literal">E136:F145</tt></td>
+<td>Current customs
+regime, same
+export block.</td>
+</tr>
+<tr><td><tt class="docutils literal">8</tt></td>
+<td>Tarjetas de
+crédito</td>
+<td><tt class="docutils literal">TABLAS REFERENCIALES</tt></td>
+<td>5</td>
+<td><tt class="docutils literal">B184:C188</tt></td>
+<td>Card brand, used
+by <tt class="docutils literal">RECAP</tt>.
+<tt class="docutils literal">RECAP</tt> is a
+Tipo 2 contributor
+block.</td>
+</tr>
+<tr><td><tt class="docutils literal">9</tt></td>
+<td>Tipos
+fideicomiso</td>
+<td><tt class="docutils literal">TABLAS REFERENCIALES</tt></td>
+<td>19</td>
+<td><tt class="docutils literal">B193:F211</tt></td>
+<td>Trust type, used
+by the
+trusts/funds
+block.</td>
+</tr>
+<tr><td><tt class="docutils literal">10</tt></td>
+<td>Tipo de
+exportación
+/ ingreso
+del
+exterior</td>
+<td><tt class="docutils literal">TABLAS REFERENCIALES</tt></td>
+<td>3</td>
+<td><tt class="docutils literal">B216:E218</tt></td>
+<td>Export /
+foreign-income
+kind, same export
+block.</td>
+</tr>
+<tr><td><tt class="docutils literal">16</tt></td>
+<td>Países</td>
+<td><tt class="docutils literal">TABLAS REFERENCIALES</tt></td>
+<td>260</td>
+<td><tt class="docutils literal">B278:G364</tt></td>
+<td>Three country
+pairs per row
+across 87 rows.
+Export block.</td>
+</tr>
+<tr><td><tt class="docutils literal">17</tt></td>
+<td>Paraísos
+fiscales</td>
+<td><tt class="docutils literal">TABLAS REFERENCIALES</tt></td>
+<td>88</td>
+<td><tt class="docutils literal">B369:H456</tt></td>
+<td>Tax havens, used
+by the
+foreign-regime
+block.</td>
+</tr>
+<tr><td><tt class="docutils literal">18</tt></td>
+<td>Tipos de
+ingresos
+del
+exterior</td>
+<td><tt class="docutils literal">TABLAS REFERENCIALES</tt></td>
+<td>39</td>
+<td><tt class="docutils literal">B461:F499</tt></td>
+<td>Foreign-income
+kind, same export
+block.</td>
+</tr>
+<tr><td><tt class="docutils literal">19</tt></td>
+<td>Tipos de
+régimen
+fiscal del
+exterior</td>
+<td><tt class="docutils literal">TABLAS REFERENCIALES</tt></td>
+<td>3</td>
+<td><tt class="docutils literal">B504:D506</tt></td>
+<td>Foreign tax
+regime, same
+export block.</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal">Tabla 3.10</tt> also remains unreconciled against
+<tt class="docutils literal">l10n_ec_base/data/account_tax_group_data.py</tt>: its 414 concepts do not
+reconcile with the 17 tax groups there, and all nine VAT groups carry
+the same XML FE code <tt class="docutils literal">&quot;2&quot;</tt>. That is stated, not resolved — see the
+open questions below.</p>
+</div>
+<div class="section" id="open-questions">
+<h3><a class="toc-backref" href="#toc-entry-35">Open questions</a></h3>
+<div class="section" id="totalventas-what-does-solo-facturacion-fisica-f-qualify">
+<h4><a class="toc-backref" href="#toc-entry-36"><tt class="docutils literal">totalVentas</tt>: what does <em>“Solo Facturación Física F”</em> qualify?</a></h4>
+<p><tt class="docutils literal">ESQUEMA TIPO 1 Y 2</tt> row 10 defines the header’s <tt class="docutils literal">totalVentas</tt> and
+then appends a clause that is explained nowhere in the workbook, the
+ficha técnica, or <tt class="docutils literal">ats.xsd</tt>. Verbatim:</p>
+<blockquote>
+Casillero no editable, debe ser igual a la sumatoria de los valores
+registrados en los campos baseNoGraIva, Base Imponible y baseimpGrav.
+<strong>Solo Facturación Física F</strong></blockquote>
+<p>The column is <tt class="docutils literal">Validaciones</tt>, so unlike a footnote it is a rule — yet
+a conditional on <tt class="docutils literal">tipoEmision</tt> sitting in a <em>header</em> field is odd,
+because the header has no emission type: emission is reported per row of
+the <tt class="docutils literal">ventas</tt> block, and a single period legitimately mixes electronic
+and physical issuance.</p>
+<p>Three readings are possible and nothing in the sources chooses between
+them:</p>
+<ol class="arabic simple">
+<li><strong>Scoping the whole rule to physical issuance.</strong> The three-bucket
+derivation applies only when <tt class="docutils literal">tipoEmision</tt> is <tt class="docutils literal">F</tt> for the period,
+and electronic invoicing derives <tt class="docutils literal">totalVentas</tt> some other way this
+project has not found.</li>
+<li><strong>A leftover from an earlier edition</strong>, when the ATS covered only
+physical invoicing. Nothing in the row’s other clauses reads as
+edition-specific.</li>
+<li><strong>A constraint on which rows may be summed</strong> — e.g. that a
+physical-only period may not mix emission types — rather than on the
+total itself.</li>
+</ol>
+<p><strong>What ATS does, and why.</strong> It applies reading 1’s <em>derivation</em>
+literally and derives <tt class="docutils literal">totalVentas</tt> as the sum of the three buckets
+over the <tt class="docutils literal">ventas</tt> rows for the reported period, with no conditional on
+<tt class="docutils literal">tipoEmision</tt>. That is the reading the fiche técnica’s own prose
+supports independently — <em>“corresponde a la suma de los valores
+registrados en los campos: base Imponible IVA 0%, base Imponible IVA
+tarifa diferente de 0% y base Imponible no objeto de IVA”</em> — with no
+emission condition attached.</p>
+<p>Guessing reading 2 or 3 instead would mean inventing a derivation the
+SRI never published, which is the one thing this module refuses to do.
+<strong>ATS-11 must resolve this before the wizard can be called complete for
+an electronic period.</strong> If reading 1 is right, an electronic period’s
+<tt class="docutils literal">totalVentas</tt> is currently wrong, and no test in this suite would
+catch it because the suite cannot know the alternative.</p>
+<p>Note the two sheets of the workbook agree verbatim:
+<tt class="docutils literal">ESQUEMA TIPO 1 Y 2</tt> row 10 and <tt class="docutils literal">ESQUEMA REGIMEN RIMPE</tt> row 11 carry
+the same clause. It is not a typo in one sheet.</p>
+</div>
+<div class="section" id="the-000-establishment-hole-in-l10n-ec-base">
+<h4><a class="toc-backref" href="#toc-entry-37">The <tt class="docutils literal">000</tt> establishment hole in <tt class="docutils literal">l10n_ec_base</tt></a></h4>
+<p><tt class="docutils literal">account.journal._constrains_l10n_ec_entity_emission</tt>
+(<tt class="docutils literal"><span class="pre">l10n_ec_base/models/account_journal.py:14-36</span></tt>) checks only
+<tt class="docutils literal">len(value) &lt; 3</tt> and <tt class="docutils literal">not value.isnumeric()</tt>:</p>
+<pre class="code python literal-block">
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">l10n_ec_entity</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">rec</span><span class="o">.</span><span class="n">l10n_ec_entity</span><span class="o">.</span><span class="n">isnumeric</span><span class="p">():</span>
+</pre>
+<p><strong>``”000”`` satisfies both and is accepted today.</strong> A user can set an
+establishment of <tt class="docutils literal">000</tt> on a journal and <tt class="docutils literal">l10n_ec_ats</tt> will
+faithfully propagate it into the ATS — which is why the collector
+refuses it itself rather than trusting the constraint.</p>
+<p>Verified across the shipped data: <tt class="docutils literal">l10n_ec_base</tt> seeds
+<tt class="docutils literal">purchase_liquidation_ec</tt> <tt class="docutils literal">001/001</tt>; <tt class="docutils literal">l10n_ec_withhold</tt> seeds
+<tt class="docutils literal">purchase_withhold_ec</tt> <tt class="docutils literal">001/001</tt> and <tt class="docutils literal">sale_withhold_ec</tt> with an
+<strong>empty</strong> entity and emission; the EC chart template creates no journal
+establishment at all. <strong>No journal in any fixture or seed row is set to
+``000``</strong> — the hole is only reachable by hand.</p>
+<p>The one-line tightening is a separate proposal against <tt class="docutils literal">l10n_ec_base</tt>,
+which is already merged (PR #101), so it cannot travel in this addon’s
+PR.</p>
+<p><strong>What ATS does about it, now that generation exists.</strong> Two independent
+layers catch the <tt class="docutils literal">000</tt>, and neither trusts the other:</p>
+<ol class="arabic simple">
+<li>the collectors refuse it while assembling a row, so the establishment
+never reaches a payload;</li>
+<li>ATS-11’s <tt class="docutils literal">establecimiento.no_000</tt> sweep refuses it anywhere in the
+payload, and <tt class="docutils literal">validate_estab_codes</tt> walks the tree by <strong>element</strong>
+name so it cannot fire on <tt class="docutils literal">codSustento</tt> or <tt class="docutils literal">tipoProv</tt> — two
+different code spaces where <tt class="docutils literal">00</tt> is a different question.</li>
+</ol>
+<p>The wizard turns either refusal into the same aggregated <tt class="docutils literal">UserError</tt>,
+so a journal set to <tt class="docutils literal">000</tt> produces a message naming the journal and
+the field rather than a file. <strong>The gap stays open in ``l10n_ec_base``
+on purpose</strong>: tightening <tt class="docutils literal">_constrains_l10n_ec_entity_emission</tt> is a
+change to merged code and needs its own PR against <tt class="docutils literal">19.0</tt>. ATS v1 is
+self-contained either way, which is what §5.4b asks for.</p>
+</div>
+<div class="section" id="two-account-tax-rows-carry-an-ats-code-that-resolves-to-nothing">
+<h4><a class="toc-backref" href="#toc-entry-38">Two <tt class="docutils literal">account.tax</tt> rows carry an ATS code that resolves to nothing</a></h4>
+<p><tt class="docutils literal">account.tax.l10n_ec_code_ats</tt> is the source of <tt class="docutils literal">codRetAir</tt> — the
+feature document’s §5.3 corrected the field’s own help text, which
+claims it conforms to <tt class="docutils literal">Tabla 5</tt>; it does not, it holds <tt class="docutils literal">Tabla 3.10</tt>
+concept codes. Two rows in the upstream <tt class="docutils literal">ec</tt> chart template carry a
+code <strong>``Tabla 3.10`` does not define</strong>:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="34%" />
+<col width="22%" />
+<col width="23%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Tax</th>
+<th class="head"><tt class="docutils literal">l10n_ec_code_ats</tt></th>
+<th class="head"><tt class="docutils literal">l10n_ec_code_base</tt></th>
+<th class="head">Problem</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><tt class="docutils literal">income_tax_withholding_302</tt>
+(<em>22% 302 WTH</em>)</td>
+<td><tt class="docutils literal">352</tt></td>
+<td><tt class="docutils literal">302</tt></td>
+<td>The record is
+named after, and
+declares, concept
+<tt class="docutils literal">302</tt>; the ATS
+code reads
+<tt class="docutils literal">352</tt>, which no
+<tt class="docutils literal">Tabla 3.10</tt> row
+states.</td>
+</tr>
+<tr><td><tt class="docutils literal">tax_ice_plastic_bag</tt>,
+<tt class="docutils literal">tax_ice_reduced_plastic_bag</tt></td>
+<td><tt class="docutils literal">3680</tt></td>
+<td>—</td>
+<td>An ICE code on an
+ICE tax. <tt class="docutils literal">3680</tt>
+is not an
+income-withholding
+concept, and
+neither tax is a
+withholding at
+all.</td>
+</tr>
+</tbody>
+</table>
+<p>The collector reports both and refuses the row rather than resolving a
+rate for them, because there is nothing to resolve: inventing one would
+put a fabricated percentage in a filed return. <tt class="docutils literal">352</tt> looks like a
+transposition of <tt class="docutils literal">302</tt>, and the record’s own name and
+<tt class="docutils literal">l10n_ec_code_base</tt> both say so — but the correction belongs to the
+<tt class="docutils literal">l10n_ec</tt> chart template, upstream in Odoo core, not to this addon, so
+it is recorded here rather than worked around.</p>
+</div>
+<div class="section" id="the-1900-01-01-sentinel">
+<h4><a class="toc-backref" href="#toc-entry-39">The <tt class="docutils literal"><span class="pre">1900-01-01</span></tt> sentinel</a></h4>
+<p><tt class="docutils literal">l10n.ec.temporal</tt> makes <tt class="docutils literal">date_start</tt> required. Five in-scope tables
+carry no date in the source at all: the referred transaction types and
+the month codes have no date column, <tt class="docutils literal">Tabla 14</tt> and <tt class="docutils literal">Tabla 15</tt> have
+none either, and <tt class="docutils literal">Tabla 4</tt> spells <tt class="docutils literal">vacío</tt> in all forty rows of its
+<tt class="docutils literal">Fecha de vigencia</tt> column. Their entries therefore carry
+<tt class="docutils literal"><span class="pre">1900-01-01</span></tt> as a sentinel that means <em>“the source states no date”</em>,
+with <tt class="docutils literal">date_end</tt> empty.</p>
+<p><tt class="docutils literal"><span class="pre">1900-01-01</span></tt> was chosen over a plausible-looking date such as
+<tt class="docutils literal"><span class="pre">2000-01-01</span></tt> (the earliest <tt class="docutils literal">Fecha Inicio</tt> the workbook itself uses
+elsewhere) precisely because a sentinel must not be mistakable for real
+data. A decision to change it belongs in the mixin’s field help, which
+is where a reader looks first.</p>
+</div>
+<div class="section" id="tabla-4-validity-dates-live-in-prose-footnotes">
+<h4><a class="toc-backref" href="#toc-entry-40"><tt class="docutils literal">Tabla 4</tt> validity dates live in prose footnotes</a></h4>
+<p>The <tt class="docutils literal">Fecha de vigencia</tt> column is empty for every row, yet rows
+<tt class="docutils literal">B91</tt> and <tt class="docutils literal">B92</tt> state in prose that code <tt class="docutils literal">364</tt> is in force from
+<tt class="docutils literal">01/04/2017</tt> and that code <tt class="docutils literal">375</tt> was in force from <tt class="docutils literal">01/12/2020</tt> to
+<tt class="docutils literal">31/12/2021</tt>. Those dates were <strong>not</strong> imported. Encoding two of forty
+rows while the other thirty-eight keep the sentinel would make the two
+sets overlap, and giving the rest a start date early enough to avoid
+that would be inventing thirty-eight values to keep two real ones. Until
+the SRI publishes the column, the whole table reads as undated. Worth a
+maintainer’s view.</p>
+</div>
+<div class="section" id="tabla-2-rows-that-name-no-transaction-type">
+<h4><a class="toc-backref" href="#toc-entry-41"><tt class="docutils literal">Tabla 2</tt> rows that name no transaction type</a></h4>
+<p><tt class="docutils literal">Tabla 2</tt> states, per row, which transaction type of the referred
+tables applies. Six of the seven names it uses appear there verbatim;
+two do not:</p>
+<ul class="simple">
+<li><tt class="docutils literal">C37:C39</tt> read <tt class="docutils literal">FONDOS Y FIDEICOMISOS</tt>, while the referred tables
+<tt class="docutils literal">B13</tt> reads <tt class="docutils literal">Fondos y Financiero</tt>. Same concept family, different
+words, and the workbook offers no other link.</li>
+<li><tt class="docutils literal">C40</tt> reads <tt class="docutils literal">COMPROBANTES ANULADOS</tt>, which the referred tables
+does not carry at all.</li>
+</ul>
+<p><tt class="docutils literal">transaction_type_codes</tt> is left empty for codes <tt class="docutils literal">15</tt>, <tt class="docutils literal">16</tt>,
+<tt class="docutils literal">17</tt> and <tt class="docutils literal">18</tt> rather than guessed. The generation preflight is what
+reports them: an unresolvable lookup must raise, not invent.</p>
+</div>
+<div class="section" id="the-sri-contradicts-itself-on-tabla-4-tabla-5">
+<h4><a class="toc-backref" href="#toc-entry-42">The SRI contradicts itself on <tt class="docutils literal">Tabla 4</tt> ↔ <tt class="docutils literal">Tabla 5</tt></a></h4>
+<p><tt class="docutils literal">Tabla 4</tt> column F says document <tt class="docutils literal">375</tt> (liquidación de compra RISE)
+is supported by sustentos <tt class="docutils literal">01</tt> through <tt class="docutils literal">08</tt>. None of <tt class="docutils literal">Tabla 5</tt>’s
+rows <tt class="docutils literal">D97</tt> to <tt class="docutils literal">D104</tt> names <tt class="docutils literal">375</tt> back. Every other pair in the two
+tables is reciprocal. Both sides are stored as the source states them
+and the gap is asserted in the test suite, so a future release that
+closes it changes the assertion rather than passing unnoticed.</p>
+</div>
+<div class="section" id="tabla-12-has-no-code-column">
+<h4><a class="toc-backref" href="#toc-entry-43"><tt class="docutils literal">Tabla 12</tt> has no code column</a></h4>
+<p>The sheet identifies a VAT regime by its percentage only. The entry
+<tt class="docutils literal">code</tt> is therefore that percentage rendered as two digits (<tt class="docutils literal">12</tt>,
+<tt class="docutils literal">14</tt>) and <tt class="docutils literal">percentage</tt> is the source fraction multiplied by 100,
+because the ATS field is a whole percent. This is the only table whose
+<tt class="docutils literal">code</tt> repeats across rows.</p>
+</div>
+<div class="section" id="two-source-spellings-left-verbatim">
+<h4><a class="toc-backref" href="#toc-entry-44">Two source spellings left verbatim</a></h4>
+<p><tt class="docutils literal">Tabla 12</tt>’s title reads <tt class="docutils literal">PROCENTAJE DE IVA</tt> — <tt class="docutils literal">PROCENTAJE</tt>, not
+<tt class="docutils literal">PORCENTAJE</tt>. The <tt class="docutils literal">name</tt> field reproduces it rather than correcting
+it, because a catalog value nobody can trace to a cell is a value nobody
+can trust. Correcting a typo is a maintainer’s call, not an importer’s.</p>
+<p>Separately, <tt class="docutils literal">Tabla 4</tt> gives codes <tt class="docutils literal">373</tt> and <tt class="docutils literal">374</tt> the same
+description, <tt class="docutils literal">Nota de&nbsp; débito&nbsp; operadora transporte / socio</tt>, with
+different <tt class="docutils literal">Código Secuenciales Transacción</tt> values. The catalog keeps
+both rows distinct and keeps the duplicate description.</p>
+</div>
+</div>
+<div class="section" id="documents-voided-through-the-sri-s-online-portal-are-not-implementable-today">
+<h3><a class="toc-backref" href="#toc-entry-45">Documents voided through the SRI’s online portal are not implementable today</a></h3>
+<p>Ficha técnica §2.5 opens the cancelled block with an exclusion the ATS
+cannot honour:</p>
+<blockquote>
+En esta sección se registrarán los comprobantes anulados en el
+período informado, para los reportes mensuales, todos los
+comprobantes del mes; para los reportes semestrales se reportarán
+todos los comprobantes del semestre. <strong>Excluye a los comprobantes
+dados de baja a través del portal transaccional SRI en línea.</strong></blockquote>
+<p><strong>Odoo has no field recording that.</strong> A document withdrawn through the
+portal is an ordinary <tt class="docutils literal">state = 'cancel'</tt> move in Odoo — nothing about
+the portal is recorded, nothing about the in-line cancellation is
+stored, and there is no portal-side receipt to import. So the
+collector’s selection (<tt class="docutils literal">move_type in ('out_invoice', 'out_refund')</tt>,
+<tt class="docutils literal">state == 'cancel'</tt>, <tt class="docutils literal">posted_before</tt>, <tt class="docutils literal">move.date</tt> in the window)
+<strong>cannot</strong> tell the two apart, and a portal-voided document will be
+filed in the <tt class="docutils literal">anulados</tt> block, which the SRI will reject.</p>
+<p>This is stated rather than worked around. Two ways to “fix” it were
+considered and both are worse than the gap:</p>
+<ul class="simple">
+<li><strong>Guessing from the authorization.</strong> A document that reached the SRI
+portal was authorized, but so is every document that reached the web
+service, so the field discriminates nothing. Reading
+<tt class="docutils literal">l10n_ec_authorization_date</tt> or the access key would exclude portal
+voids only by excluding ordinary cancellations too.</li>
+<li><strong>Adding a field.</strong> A <tt class="docutils literal">Boolean</tt> on <tt class="docutils literal">account.move</tt> recording how
+the document was cancelled would be a usable design — and it is a
+field nothing in the tree would ever set, so it would default to the
+wrong answer for every existing document. It is a change to
+<tt class="docutils literal">l10n_ec_base</tt> or to <tt class="docutils literal">l10n_ec_account_edi</tt>, both of which are
+merged addons, so it cannot travel in this addon’s PR either.</li>
+</ul>
+<p><strong>What a maintainer has to decide.</strong> Whether the ATS should offer the
+exclusion at all. If the answer is yes, the honest route is a field
+written by the user (or by an SRI-response hook that does not exist yet)
+plus a migration that cannot be back-filled — which means a maintainer’s
+view on what a company with a portal void in its history is supposed to
+file. Until then the block is <strong>over-inclusive on this one exclusion</strong>
+and says so.</p>
+</div>
+<div class="section" id="should-cancelled-withholdings-be-in-the-anulados-block">
+<h3><a class="toc-backref" href="#toc-entry-46">Should cancelled <strong>withholdings</strong> be in the <tt class="docutils literal">anulados</tt> block?</a></h3>
+<p>Odoo Enterprise’s <tt class="docutils literal">_get_void_moves</tt> collects two populations and adds
+both to the same list:</p>
+<ol class="arabic simple">
+<li>cancelled sales documents, and</li>
+<li>cancelled <strong>withholdings</strong> — <tt class="docutils literal">move_type = 'entry'</tt>, on a
+withholding journal, with <tt class="docutils literal">l10n_ec_authorization_number != False</tt>.</li>
+</ol>
+<p><strong>ATS v1 is sales documents only.</strong> That is a scope decision, not an
+oversight, and it rests on three pieces of evidence:</p>
+<ul class="simple">
+<li><strong>The ficha does not mention withholdings.</strong> §2.5 says <em>“los
+comprobantes anulados”</em> and describes the field as <em>“el número de
+autorización que le otorga el SRI</em> <strong>para la impresión de sus
+comprobantes</strong><em>“</em> — a series of sales documents. Nothing in the
+block describes a retention certificate.</li>
+<li><strong>``Tabla 4`` code ``18`` is scoped away from them.</strong> Its description
+is <em>“Documentos autorizados utilizados en ventas</em> <strong>excepto N/C
+N/D</strong><em>“</em>, and a withholding certificate is neither a sales document
+nor a credit or debit note. The nearest real code is <tt class="docutils literal">7</tt>,
+<em>Comprobante de Retención</em>, whose <em>Código Secuencial Transacción</em>
+column reads <tt class="docutils literal">ninguno</tt> — it cannot be reached from this block
+either.</li>
+<li><strong>A retention has no ``establecimiento``/``puntoEmision`` series to
+cancel.</strong> The whole block is built on the printed-series triple.
+<tt class="docutils literal">l10n_ec_withhold</tt> gives a withholding a number, but nothing
+establishes it as a point in an issuable series the way an invoice
+journal does.</li>
+</ul>
+<p><strong>Enterprise’s treatment is the reference for a future version</strong>, quoted
+rather than copied: <tt class="docutils literal">move_type = 'entry'</tt> on a withholding journal
+with a non-empty <tt class="docutils literal">l10n_ec_authorization_number</tt>, added to the same
+void list. If v2 includes them, that is the reference implementation —
+and it will need the same decision this block had to make about
+<tt class="docutils literal">tipoComprobante</tt>, plus a source for the triple.</p>
+</div>
+<div class="section" id="the-journal-key-is-not-on-every-error-of-every-block">
+<h3><a class="toc-backref" href="#toc-entry-47">The <tt class="docutils literal">journal</tt> key is not on every error of every block</a></h3>
+<p>ATS-08’s docstring on <tt class="docutils literal">collect_ventas_establecimiento_with_errors</tt>
+states:</p>
+<blockquote>
+Every key is present on every error from every block, so a consumer
+can read either without a <tt class="docutils literal">KeyError</tt>.</blockquote>
+<p>That is true of the errors <strong>ATS-08 wrote</strong> —
+<tt class="docutils literal">_l10n_ec_add_establishment</tt>, <tt class="docutils literal">_l10n_ec_ventas_estab_row</tt> and
+<tt class="docutils literal">collect_iva_header_with_errors</tt> all carry <tt class="docutils literal">journal</tt>. It is <strong>not</strong>
+true of the two blocks before it, and the claim as written overstates
+the state of the model. The dicts built by <tt class="docutils literal">_l10n_ec_compras_row</tt>’s
+and <tt class="docutils literal">_l10n_ec_ventas_row</tt>’s <tt class="docutils literal">report</tt> closures, and by every helper
+that appends directly — <tt class="docutils literal">_l10n_ec_reported_date</tt>,
+<tt class="docutils literal">_l10n_ec_iva_withholdings</tt>, <tt class="docutils literal">_l10n_ec_formas_de_pago</tt> — carry
+<tt class="docutils literal">{&quot;move&quot;, &quot;field&quot;, &quot;message&quot;}</tt> and <strong>no</strong> <tt class="docutils literal">journal</tt>.</p>
+<p>The <tt class="docutils literal">anulados</tt> block honours the contract in full, so from here on new
+errors do; retrofitting the two older blocks is left out because it is a
+change to shipped, reviewed code with no behaviour gain beyond a
+<tt class="docutils literal">KeyError</tt> that a consumer has not hit yet.</p>
+<p><strong>A maintainer has to pick one</strong>: either retrofit the two older blocks
+and keep the contract as documented, or amend the ATS-08 docstring to
+say the contract applies from ATS-08 onwards. Both are fine; having the
+code and the docstring disagree is not.</p>
+</div>
+<div class="section" id="deferred-work">
+<h3><a class="toc-backref" href="#toc-entry-48">Deferred work</a></h3>
+<div class="section" id="effective-dated-taxes-on-account-tax-a-separate-proposal-in-l10n-ec-base">
+<h4><a class="toc-backref" href="#toc-entry-49">Effective-dated taxes on <tt class="docutils literal">account.tax</tt> — a separate proposal in <tt class="docutils literal">l10n_ec_base</tt></a></h4>
+<p>The proposal below is reproduced <strong>verbatim</strong> from the feature
+document’s §5.7.</p>
+<p>The rate-history problem is <strong>wider than ATS</strong>. <tt class="docutils literal">account.tax</tt> has no
+temporal model, so reports 103, 104, 103/104 aggregations and ATS all
+read the current rate regardless of the document’s date. The correct fix
+is localization-wide:</p>
+<ul class="simple">
+<li><tt class="docutils literal">l10n_ec_base</tt>: <tt class="docutils literal">account.tax</tt> gains <tt class="docutils literal">l10n_ec_date_start</tt> /
+<tt class="docutils literal">l10n_ec_date_end</tt> (localized names, shadowing nothing) plus
+<tt class="docutils literal">_l10n_ec_tax_for_date(date)</tt>, and a constraint preventing
+overlapping windows within <tt class="docutils literal">(company_id, l10n_ec_code_ats)</tt>.</li>
+<li>A coverage report — the same idea as §5.6 Level 3 — listing, per
+period, which codes lack full coverage. This is the “control de que
+los datos están completos” the user asked for, applied to taxes rather
+than catalogs.</li>
+<li>A migration from the current duplicate-record-plus-<tt class="docutils literal">active</tt> pattern.</li>
+</ul>
+<p><strong>Why it is out of ATS v1 scope.</strong> ATS reads the rate <strong>from the invoice
+line’s own tax</strong>, not from the tax’s validity window, so v1 is
+functionally independent. It also modifies a core model, which is a
+materially different review risk than a new addon and belongs in its own
+PR against <tt class="docutils literal">l10n_ec_base</tt> (companion to PR #104). Recorded in
+<tt class="docutils literal">readme/ROADMAP.md</tt>.</p>
+<p>What it means for this addon, stated plainly: <strong>nothing changes here,
+and that is the reason it is not here.</strong> ATS reads the rate from the
+invoice line’s own tax (<tt class="docutils literal">_l10n_ec_taxed_amount</tt> →
+<tt class="docutils literal">move._prepare_edi_tax_details</tt>), never from a validity window, so the
+ATS generator is functionally independent of the proposal. What the
+proposal fixes is reports 103 and 104 and the 103/104 aggregation, which
+<em>do</em> read the current rate regardless of the document’s date — a defect
+in those, not in this.</p>
+<p>ATS v1 does already own the mechanism the proposal would extend: the
+<tt class="docutils literal">l10n.ec.temporal</tt> mixin, <tt class="docutils literal">_applicable_on()</tt>, and the preflight that
+turns a coverage hole into a named refusal. When the proposal is taken
+up, the catalog side of the work is done.</p>
+</div>
+</div>
+<div class="section" id="the-wizard-has-a-form-view-and-a-menu-entry-and-it-reports-warnings">
+<h3><a class="toc-backref" href="#toc-entry-50">The wizard has a form view and a menu entry, and it reports warnings</a></h3>
+<p>Resolved. <tt class="docutils literal">views/l10n_ec_ats_generate_views.xml</tt> carries the form, the
+action and a menuitem under <tt class="docutils literal">l10n_ec.sri_menu</tt>, the same root
+<tt class="docutils literal">l10n_ec_account_edi</tt> hangs its documents off, so the feature is where
+somebody filing to the SRI already looks.</p>
+<p>The warnings came with it. <tt class="docutils literal">_l10n_ec_run()</tt> returns
+<tt class="docutils literal">(attachment, violations)</tt> for exactly that reason, and <tt class="docutils literal">generate()</tt>
+was discarding the second element — an <em>alerta</em> was computed and then
+dropped, which is indistinguishable from the check never having run.
+<tt class="docutils literal">generate()</tt> now writes them to the wizard’s <tt class="docutils literal">warnings</tt> field and
+the form renders it. The file still downloads; a finding never blocks a
+return the SRI accepts.</p>
+<p><strong>Odoo 19 has no non-raising user-facing exception, which is why a field
+and not a ``Warning``.</strong> <tt class="docutils literal">odoo.exceptions</tt> carries no <tt class="docutils literal">Warning</tt> and
+no <tt class="docutils literal">Notification</tt> — the only warning-shaped class in it is
+<tt class="docutils literal">RedirectWarning</tt>, and that is for redirecting, not for reporting.
+<tt class="docutils literal">from odoo.exceptions import Warning</tt> is precisely what the mandatory
+<tt class="docutils literal"><span class="pre">odoo-exception-warning</span></tt> check exists to refuse. The
+<tt class="docutils literal">{&quot;warning&quot;: {&quot;title&quot;, &quot;message&quot;, <span class="pre">&quot;type&quot;}}</span></tt> dict is real, but it is
+the <strong>onchange</strong> contract: <tt class="docutils literal">odoo.orm.models._onchange_eval</tt> reads it,
+and <tt class="docutils literal">addons/web/models/models.py</tt> formats it in <tt class="docutils literal">onchange()</tt>.
+Nothing in the action path consumes it on a button’s return value. A
+stored field on the transient wizard is the channel that survives to a
+real user in this version.</p>
+</div>
+<div class="section" id="validators-validate-ats-and-builder-build-ats-xml-read-the-header-under-one-key">
+<h3><a class="toc-backref" href="#toc-entry-51"><tt class="docutils literal">validators.validate_ats</tt> and <tt class="docutils literal">builder.build_ats_xml</tt> read the header under one key</a></h3>
+<p>Resolved. The two layers disagreed — the builder from
+<tt class="docutils literal"><span class="pre">payload[&quot;header&quot;]</span></tt>, the validator from <tt class="docutils literal"><span class="pre">payload[&quot;iva&quot;]</span></tt> — and the
+consequences were worse than a collision. The wizard papered over it
+with <tt class="docutils literal">L10nEcAtsGenerate._l10n_ec_validation_payload</tt>, a second view of
+the same dict carrying both keys. But the <em>validator</em> was the only
+caller that ever got the alias, so on the real pipeline the header
+arrived <strong>empty</strong> on the validator side and every rule in
+<tt class="docutils literal">validate_header</tt> — <tt class="docutils literal">IdInformante</tt>’s RUC check digit among them —
+evaluated against nothing and reported nothing. A direct call to the
+validator passed its tests precisely because the test built the payload
+in the shape the validator wanted.</p>
+<p><tt class="docutils literal">builder.ats_header(payload)</tt> is now the single place the key is
+decided, and both <tt class="docutils literal">build_ats_xml</tt> and <tt class="docutils literal">validate_ats</tt> go through it.
+There is no alias left in the wizard, and a mismatch between the two
+layers is no longer expressible.</p>
+<p><tt class="docutils literal">ATS_HEADER_KEY</tt> is <tt class="docutils literal">&quot;header&quot;</tt> and <strong>not</strong> the root element name
+<tt class="docutils literal">iva</tt>, which is the temptation that caused this: <tt class="docutils literal">iva</tt> names the
+element the header is rendered <em>into</em>, <tt class="docutils literal">header</tt> names where the
+mapping sits in a payload. Same word, different thing.</p>
+</div>
+<div class="section" id="a-ventas-row-with-no-client-side-iva-withholding">
+<h3><a class="toc-backref" href="#toc-entry-52">A <tt class="docutils literal">ventas</tt> row with no client-side IVA withholding</a></h3>
+<p>Resolved the other way from what ATS-11 shipped, and it is a behaviour
+change.</p>
+<p><tt class="docutils literal">ESQUEMA</tt> row 24 reads: <em>“Debe ser igual a la baseImpGrav aplicando el
+porcentajeIva (tabla 11).</em> <strong>El valor puede ser mayor o igual</strong><em>, si
+no existe valor colocar 0.00”</em>. ATS-11 read <em>“puede ser mayor o igual”</em>
+as a <strong>floor</strong> on the lowest <tt class="docutils literal">Tabla 11</tt> share in force, so
+<tt class="docutils literal">valorRetIva = 0.00</tt> against a non-zero <tt class="docutils literal">baseImpGrav</tt> was a
+<tt class="docutils literal">SEVERITY_ERROR</tt>.</p>
+<p><strong>That reading is not shippable.</strong> The cell sanctions <tt class="docutils literal">0.00</tt>
+explicitly — <em>“si no existe valor colocar 0.00”</em> is what to file when
+there is no withholding — so a floor makes the cell’s own sanctioned
+value an error and the two clauses cannot both hold. And the floor
+refuses every sale whose client withheld nothing, which is most sales,
+so a company could not file a sales period at all.</p>
+<p>What replaced it: <tt class="docutils literal">0.00</tt> produces no finding; a value equal to
+<tt class="docutils literal">baseImpGrav</tt> times one <tt class="docutils literal">Tabla 11</tt> share <strong>in force for the reported
+period</strong> is clean; anything else is the existing <tt class="docutils literal">SEVERITY_WARNING</tt>.
+<strong>There is no grave branch left on this field.</strong> <em>“Puede ser mayor o
+igual”</em> is now read for what it is for — over-withholding is tolerated —
+and the <tt class="docutils literal">air</tt> block already reads its own <tt class="docutils literal">valRetAir</tt> this way,
+exempting <tt class="docutils literal">0.00</tt> instead of reconciling it against <tt class="docutils literal">porcentajeAir</tt>.</p>
+<p>The shares are still resolved through the catalog for the period, so the
+comparison is never against a literal.</p>
+</div>
+<div class="section" id="two-tabla-3-10-groupings-the-sri-does-not-state">
+<h3><a class="toc-backref" href="#toc-entry-53">Two <tt class="docutils literal">Tabla 3.10</tt> groupings the SRI does not state</a></h3>
+<p><tt class="docutils literal">detail_group</tt> is loaded for eight codes from the ficha técnica’s
+prose. Two things about it are worth a maintainer’s eye:</p>
+<ul class="simple">
+<li><strong>The ficha’s list is timeless and the codes are not.</strong> It names
+<tt class="docutils literal">330</tt>, <tt class="docutils literal">341</tt> and <tt class="docutils literal">342</tt> as dividend/banana concepts; all three
+were dropped by the SRI from 2020 and are in no group for a current
+period. The grouping follows the eras, which is right, but it means
+the ficha’s list cannot be read as “these eight codes always need a
+sub-report”.</li>
+<li><strong>The selection rule is the era’s own description.</strong> An era is grouped
+only when the sheet’s description for <em>that era</em> names dividends or
+<tt class="docutils literal">banano</tt>, which is checkable against a cell and leaves eighteen eras
+ungrouped. A different reading of the ficha would group a different
+set, and nothing in the source chooses between them.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="bug-tracker">
+<h2><a class="toc-backref" href="#toc-entry-54">Bug Tracker</a></h2>
+<p>Bugs are tracked on <a class="reference external" href="https://github.com/OCA/l10n-ecuador/issues">GitHub Issues</a>.
+In case of trouble, please check there if your issue has already been reported.
+If you spotted it first, help us to smash it by providing a detailed and welcomed
+<a class="reference external" href="https://github.com/OCA/l10n-ecuador/issues/new?body=module:%20l10n_ec_ats%0Aversion:%2019.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**">feedback</a>.</p>
+<p>Do not contact contributors directly about support or help with technical issues.</p>
+</div>
+<div class="section" id="credits">
+<h2><a class="toc-backref" href="#toc-entry-55">Credits</a></h2>
+<div class="section" id="contributors">
+<h3><a class="toc-backref" href="#toc-entry-56">Contributors</a></h3>
+<p>Christopher Ormaza <a class="reference external" href="mailto:chris.ormaza&#64;gmail.com">chris.ormaza&#64;gmail.com</a></p>
+</div>
+<div class="section" id="maintainers">
+<h3><a class="toc-backref" href="#toc-entry-57">Maintainers</a></h3>
+<p>This module is maintained by the OCA.</p>
+<a class="reference external image-reference" href="https://odoo-community.org">
+<img alt="Odoo Community Association" src="https://odoo-community.org/logo.png" />
+</a>
+<p>OCA, or the Odoo Community Association, is a nonprofit organization whose
+mission is to support the collaborative development of Odoo features and
+promote its widespread use.</p>
+<p>Current <a class="reference external" href="https://odoo-community.org/page/maintainer-role">maintainer</a>:</p>
+<p><a class="reference external image-reference" href="https://github.com/cormaza"><img alt="cormaza" src="https://github.com/cormaza.png?size=40px" /></a></p>
+<p>This module is part of the <a class="reference external" href="https://github.com/OCA/l10n-ecuador/tree/19.0/l10n_ec_ats">OCA/l10n-ecuador</a> project on GitHub.</p>
+<p>You are welcome to contribute. To learn how please visit <a class="reference external" href="https://odoo-community.org/page/Contribute">https://odoo-community.org/page/Contribute</a>.</p>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

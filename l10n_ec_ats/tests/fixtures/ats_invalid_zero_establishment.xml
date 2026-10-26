@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ats_invalid_zero_establishment.xml — the establishment branch code is "000".
+
+  Which element carries the rule is the whole point of this fixture, and the
+  answer is not the obvious one.
+
+  THE RULE IS NOT ON detalleCompras/establecimiento. "000" is rejected here
+  because it sits on iva/numEstabRuc, whose type numEstabRucType
+  (ats.xsd:1482-1489) is based on xsd:integer with minExclusive 000 at
+  ats.xsd:1484, maxInclusive 999 at ats.xsd:1485 and pattern \d{3} at
+  ats.xsd:1487. "000" collapses to the integer 0, which is not greater than 0.
+
+  THE NEAR-MISS: detalleCompras/establecimiento (ats.xsd:734-735) is typed
+  establecimientoType (ats.xsd:26-30), which is based on xsd:string and carries
+  only the pattern [0-9]{3} — no minInclusive, no minExclusive. "000" therefore
+  VALIDATES there. The companion fixture assertion in
+  test_zero_establishment_is_rejected_where_the_rule_exists documents that
+  acceptance so the gap is recorded rather than assumed away.
+
+  minExclusive 000 exists in exactly two places in the whole schema:
+  numEstabRucType (ats.xsd:1484) and ventasEstabType (ats.xsd:1470), the latter
+  typed onto ventasEstablecimiento/ventaEst/codEstab (ats.xsd:1463). Both are
+  xsd:integer. Any element of type establecimientoType is unguarded.
+
+  Element under test: iva/numEstabRuc, ats.xsd:602-604 (minOccurs="0").
+-->
+<iva>
+    <TipoIDInformante>R</TipoIDInformante>
+    <IdInformante>1791311225001</IdInformante>
+    <razonSocial>COMERCIAL ANDINA SA</razonSocial>
+    <Anio>2024</Anio>
+    <Mes>03</Mes>
+    <numEstabRuc>000</numEstabRuc>
+    <codigoOperativo>IVA</codigoOperativo>
+    <compras>
+        <detalleCompras>
+            <codSustento>01</codSustento>
+            <tpIdProv>01</tpIdProv>
+            <idProv>1791311225001</idProv>
+            <tipoComprobante>01</tipoComprobante>
+            <denoProv>PROVEEDOR DEL SUR SA</denoProv>
+            <parteRel>NO</parteRel>
+            <fechaRegistro>15/03/2024</fechaRegistro>
+            <establecimiento>001</establecimiento>
+            <puntoEmision>001</puntoEmision>
+            <secuencial>000000001</secuencial>
+            <fechaEmision>15/03/2024</fechaEmision>
+            <autorizacion>123456789012</autorizacion>
+            <baseNoGraIva>0.00</baseNoGraIva>
+            <baseImponible>100.00</baseImponible>
+            <baseImpGrav>0.00</baseImpGrav>
+            <baseImpExe>0.00</baseImpExe>
+            <montoIce>0.00</montoIce>
+            <montoIva>15.00</montoIva>
+            <valorRetBienes>0.00</valorRetBienes>
+            <valorRetServicios>0.00</valorRetServicios>
+            <valRetServ100>0.00</valRetServ100>
+        </detalleCompras>
+    </compras>
+</iva>

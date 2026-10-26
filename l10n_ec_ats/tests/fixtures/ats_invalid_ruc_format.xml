@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ats_invalid_ruc_format.xml — IdInformante is a 10-digit RUC without the "001"
+  branch suffix.
+
+  Rule exercised: numeroRucType, ats.xsd:6-15. Two facets reject it: pattern
+  "[0-9]{10}001" at ats.xsd:11 and length 13 at ats.xsd:12.
+
+  Element under test: iva/IdInformante, ats.xsd:597.
+  The accepted shape is 10 digits followed by the literal "001": the RUC of the
+  company itself, never a supplier RUC and never a 13-digit foreign supplier
+  identifier. The same 10+001 shape is deliberately NOT applied to
+  detalleCompras/idProv, which uses idProvType (ats.xsd:564-574,
+  "[0-9a-zA-Z]{3,13}") and accepts foreign suppliers with 3 to 13 alphanumerics.
+-->
+<iva>
+    <TipoIDInformante>R</TipoIDInformante>
+    <IdInformante>1791311225</IdInformante>
+    <razonSocial>COMERCIAL ANDINA SA</razonSocial>
+    <Anio>2024</Anio>
+    <Mes>03</Mes>
+    <codigoOperativo>IVA</codigoOperativo>
+    <compras>
+        <detalleCompras>
+            <codSustento>01</codSustento>
+            <tpIdProv>01</tpIdProv>
+            <idProv>1791311225001</idProv>
+            <tipoComprobante>01</tipoComprobante>
+            <denoProv>PROVEEDOR DEL SUR SA</denoProv>
+            <parteRel>NO</parteRel>
+            <fechaRegistro>15/03/2024</fechaRegistro>
+            <establecimiento>001</establecimiento>
+            <puntoEmision>001</puntoEmision>
+            <secuencial>000000001</secuencial>
+            <fechaEmision>15/03/2024</fechaEmision>
+            <autorizacion>123456789012</autorizacion>
+            <baseNoGraIva>0.00</baseNoGraIva>
+            <baseImponible>100.00</baseImponible>
+            <baseImpGrav>0.00</baseImpGrav>
+            <baseImpExe>0.00</baseImpExe>
+            <montoIce>0.00</montoIce>
+            <montoIva>15.00</montoIva>
+            <valorRetBienes>0.00</valorRetBienes>
+            <valorRetServicios>0.00</valorRetServicios>
+            <valRetServ100>0.00</valRetServ100>
+        </detalleCompras>
+    </compras>
+</iva>
