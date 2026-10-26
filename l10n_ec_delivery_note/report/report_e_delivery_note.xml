@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="report_e_delivery_note_document">
+        <!-- Multi-company -->
+        <t t-if="o and 'company_id' in o">
+            <t t-set="company" t-value="o.company_id.sudo()" />
+        </t>
+        <t t-if="not o or not 'company_id' in o">
+            <t t-set="company" t-value="res_company" />
+        </t>
+        <t t-set="emission_date" t-value="o.transfer_date" />
+        <t
+            t-set="edi_doc"
+            t-value="o.edi_document_ids.filtered(lambda x: x.edi_format_id.code == 'l10n_ec_format_sri')"
+        />
+        <t
+            t-set="emission_address"
+            t-value="o.journal_id.l10n_ec_emission_address_id"
+        />
+        <t t-set="partner" t-value="o.commercial_partner_id" />
+        <t t-set="document_string" t-value="'GUIA DE REMISIÓN'" />
+        <t t-set="document_number" t-value="o.document_number" />
+        <t t-set="document_date" t-value="o.transfer_date" />
+        <div
+            class="article small"
+            t-att-data-oe-model="o and o._name"
+            t-att-data-oe-id="o and o.id"
+            t-att-data-oe-lang="o and o.env.context.get('lang')"
+        >
+            <t t-call="l10n_ec_account_edi.electronic_report_common_head" />
+            <t t-call="l10n_ec_delivery_note.report_e_delivery_note_document_body" />
+        </div>
+        <t t-call="l10n_ec_account_edi.electronic_report_page_footer" />
+    </template>
+    <template id="report_e_delivery_note_document_body">
+        <div class="div-bordered small">
+            <table class="table table-sm table-no-border">
+                <tbody>
+                    <tr>
+                        <td>
+                            <strong>Identification (Carrier):</strong>
+                            <span t-field="o.delivery_carrier_id.vat" />
+                        </td>
+                        <td>
+                            <strong>Company name / Names and Surnames:</strong>
+                            <span t-field="o.delivery_carrier_id.name" />
+                        </td>
+                        <td>
+                            <strong>Car plate:</strong>
+                            <span t-field="o.l10n_ec_car_plate" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Departure point:</strong>
+                            <span t-esc="emission_address.street" />
+                        </td>
+                        <td>
+                            <strong>Start date Transportation:</strong>
+                            <span t-field="o.transfer_date" />
+                        </td>
+                        <td>
+                            <strong>End date Transport:</strong>
+                            <span t-field="o.delivery_date" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <br />
+        <div class="div-bordered small">
+            <t
+                t-set="edi_doc_invoice"
+                t-value="o.invoice_id.edi_document_ids.filtered(lambda x: x.edi_format_id.code == 'l10n_ec_format_sri')"
+            />
+            <table class="table table-sm table-no-border">
+                <tbody>
+                    <tr>
+                        <td>
+                            <strong>Sales slip:</strong>
+                        </td>
+                        <td>
+                            <span
+                                t-field="o.invoice_id.l10n_latam_document_type_id.report_name"
+                            />
+                            <span t-field="o.invoice_id.l10n_latam_document_number" />
+                        </td>
+                        <td>
+                            <strong>Date of issue:</strong>
+                            <span t-field="o.invoice_id.invoice_date" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Authorization number:</strong>
+                        </td>
+                        <td colspan="2">
+                            <span t-field="edi_doc_invoice.l10n_ec_xml_access_key" />
+                        </td>
+                    </tr>
+                    <tr name="motivo_traslado">
+                        <td colspan="3">
+                            <strong>Reason for Transfer:</strong>
+                            <span t-field="o.motive" />
+                        </td>
+                    </tr>
+                    <tr name="punto_llegada">
+                        <td colspan="3">
+                            <strong>Destination (Arrival Point):</strong>
+                            <span t-esc="o.delivery_address_id.street or 'NA'" />
+                        </td>
+                    </tr>
+                    <tr name="identification_addressee">
+                        <td>
+                            <strong>Identification (Recipient):</strong>
+                            <span t-field="partner.vat" />
+                        </td>
+                        <td>
+                            <strong>Company name / Names and Surnames:</strong>
+                            <span t-field="partner.name" />
+                        </td>
+                        <td>
+                            <strong>Info. Contact:</strong>
+                            <span
+                                t-esc="'%s %s' % (o.partner_id and (o.partner_id.phone or o.partner_id.mobile) or '', o.partner_id.name) or ''"
+                            />
+                        </td>
+                    </tr>
+                    <tr name="customs_document">
+                        <td colspan="3">
+                            <strong>Customs Document:</strong>
+                            <span t-field="o.dau" />
+                        </td>
+                    </tr>
+                    <tr name="establishment_code">
+                        <td colspan="3">
+                            <strong>Destination Establishment Code:</strong>
+                            <span />
+                        </td>
+                    </tr>
+                    <tr name="route">
+                        <td colspan="3">
+                            <strong>Route:</strong>
+                        </td>
+                    </tr>
+                    <tr t-if="o.note">
+                        <td colspan="3">
+                            <strong>Notes:</strong>
+                            <span t-field="o.note" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered-black">
+                <thead>
+                    <tr style="font-size: 10px;">
+                        <th class="text-center amount-xl">Main Code</th>
+                        <th class="text-center" style="width: 40%;">Description</th>
+                        <th name="th_qty" class="text-center amount-xl">Quantity</th>
+                        <th>UoM</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="o.delivery_line_ids" t-as="line">
+                        <tr style="font-size: 9px;">
+                            <td>
+                                <span t-field="line.product_id.default_code" />
+                            </td>
+                            <td>
+                                <span t-field="line.description" />
+                            </td>
+                            <td class="text-right">
+                                <span t-field="line.product_qty" />
+                            </td>
+                            <td>
+                                <span t-field="line.product_uom_id" />
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+        </div>
+    </template>
+</odoo>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem
+        id="delivery_note_menu"
+        name="Delivery Note"
+        parent="stock.menu_stock_warehouse_mgmt"
+        action="action_delivery_note"
+    />
+</odoo>
