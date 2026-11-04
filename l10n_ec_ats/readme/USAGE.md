@@ -24,6 +24,15 @@ both zero-padded, no separator and no special character, so March 2026 is
 file is attached to the wizard record and downloaded through `/web/content`, so
 the bytes a user saves are the bytes that were validated.
 
+### The wizard
+
+The same call from the interface: **Invoicing ‣ SRI ‣ ATS**, a dialog asking for
+the company, the year and the month, with a single **Generate** button. The
+period is a field rather than an argument, so an impossible one is refused as it
+is typed instead of after a full collection pass.
+
+![ATS wizard](../static/description/ats-generate-wizard.png)
+
 ## When generation is refused
 
 Everything wrong with a period arrives in **one** `UserError`, numbered, and no
@@ -181,3 +190,32 @@ Models that inherit the mixin gain `date_start` and `date_end` fields plus:
 - `_temporal_overlapping(other)`: whether two windows intersect.
 - `_temporal_gaps(key)`: the uncovered ranges inside one series, where `key`
   is the caller-supplied domain identifying the series.
+
+## Evidence: the SRI's own engine accepts the file
+
+Grammar is the weakest of the three layers. The strongest evidence available
+without a DIMM installation is the SRI's own validator: this month's
+`AT112026.xml` — five purchase documents, one of them a credit note and one a
+debit note, one carrying ICE — was submitted to the SRI ATS engine and came back
+**accepted**, with the engine's own summary of the period:
+
+| Concept | Registros | BI tarifa 0% | BI tarifa ≠ 0% | BI no objeto | Valor IVA |
+| --- | --- | --- | --- | --- | --- |
+| 01 Factura | 3 | 200.00 | 1500.00 | 300.00 | 225.00 |
+| 04 Nota de crédito | 1 | 0.00 | 100.00 | 0.00 | 15.00 |
+| 05 Nota de débito | 1 | 0.00 | 250.00 | 0.00 | 37.50 |
+| **Total** | **5** | **200.00** | **1650.00** | **300.00** | **247.50** |
+
+![DIMM talón of a generated month](../static/description/ats-dimm-talon.png)
+
+That table is the point of the three layers: those bases are what the collector
+resolved per `Tabla 12`, what the builder wrote in `ats.xsd` order, and what the
+engine read back. The engine is not shipped with this module — it is an
+independent service — so this is evidence about the file, not a feature of the
+addon. `readme/CONFIGURE.md` does not mention it for the same reason: the addon
+does not depend on it.
+
+Note what the same run also proves **negative**: the engine accepts the file
+while the module still reports a non-blocking `compras.monto_iva` warning for
+every 15% line (see `ROADMAP.md`), because the shipped `Tabla 12` ends at the 12%
+era. A pass from the engine is not a verdict on the catalog.

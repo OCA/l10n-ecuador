@@ -747,6 +747,17 @@ March 2026 is ``AT032026.zip``. Inside it there is exactly one member,
 downloaded through ``/web/content``, so the bytes a user saves are the
 bytes that were validated.
 
+The wizard
+~~~~~~~~~~
+
+The same call from the interface: **Invoicing ‣ SRI ‣ ATS**, a dialog
+asking for the company, the year and the month, with a single
+**Generate** button. The period is a field rather than an argument, so
+an impossible one is refused as it is typed instead of after a full
+collection pass.
+
+|ATS wizard|
+
 When generation is refused
 --------------------------
 
@@ -953,6 +964,52 @@ fields plus:
 - ``_temporal_gaps(key)``: the uncovered ranges inside one series, where
   ``key`` is the caller-supplied domain identifying the series.
 
+Evidence: the SRI's own engine accepts the file
+-----------------------------------------------
+
+Grammar is the weakest of the three layers. The strongest evidence
+available without a DIMM installation is the SRI's own validator: this
+month's ``AT112026.xml`` — five purchase documents, one of them a credit
+note and one a debit note, one carrying ICE — was submitted to the SRI
+ATS engine and came back **accepted**, with the engine's own summary of
+the period:
+
++-----------+-----------+------------+-------------+------------+------------+
+| Concept   | Registros | BI tarifa  | BI tarifa ≠ | BI no      | Valor IVA  |
+|           |           | 0%         | 0%          | objeto     |            |
++===========+===========+============+=============+============+============+
+| 01        | 3         | 200.00     | 1500.00     | 300.00     | 225.00     |
+| Factura   |           |            |             |            |            |
++-----------+-----------+------------+-------------+------------+------------+
+| 04 Nota   | 1         | 0.00       | 100.00      | 0.00       | 15.00      |
+| de        |           |            |             |            |            |
+| crédito   |           |            |             |            |            |
++-----------+-----------+------------+-------------+------------+------------+
+| 05 Nota   | 1         | 0.00       | 250.00      | 0.00       | 37.50      |
+| de débito |           |            |             |            |            |
++-----------+-----------+------------+-------------+------------+------------+
+| **Total** | **5**     | **200.00** | **1650.00** | **300.00** | **247.50** |
++-----------+-----------+------------+-------------+------------+------------+
+
+|DIMM talón of a generated month|
+
+That table is the point of the three layers: those bases are what the
+collector resolved per ``Tabla 12``, what the builder wrote in
+``ats.xsd`` order, and what the engine read back. The engine is not
+shipped with this module — it is an independent service — so this is
+evidence about the file, not a feature of the addon.
+``readme/CONFIGURE.md`` does not mention it for the same reason: the
+addon does not depend on it.
+
+Note what the same run also proves **negative**: the engine accepts the
+file while the module still reports a non-blocking ``compras.monto_iva``
+warning for every 15% line (see ``ROADMAP.md``), because the shipped
+``Tabla 12`` ends at the 12% era. A pass from the engine is not a
+verdict on the catalog.
+
+.. |ATS wizard| image:: https://raw.githubusercontent.com/OCA/l10n-ecuador/19.0/l10n_ec_ats/static/description/ats-generate-wizard.png
+.. |DIMM talón of a generated month| image:: https://raw.githubusercontent.com/OCA/l10n-ecuador/19.0/l10n_ec_ats/static/description/ats-dimm-talon.png
+
 Known issues / Roadmap
 ======================
 
@@ -1137,6 +1194,28 @@ them.
 reconcile with the 17 tax groups there, and all nine VAT groups carry
 the same XML FE code ``"2"``. That is stated, not resolved — see the
 open questions below.
+
+``Tabla 12`` has no 15% era, so every 15% line raises a warning
+---------------------------------------------------------------
+
+Ecuador's VAT rate has been 15% since 2024-04-01. The shipped
+``data/ats_catalog_12.xml`` ends its eras at a 12% entry starting
+2017-06-01 with no ``date_end``, and declares **no 15% era at all**. The
+consequence is measured, not theoretical: a period whose bills carry the
+real 15% rate collects fine and files fine, and every one of those lines
+raises a non-blocking ``compras.monto_iva`` finding, because the rule
+compares ``montoIva`` against ``baseImpGrav`` times the rate in force —
+which the catalog says is 12%.
+
+The SRI's own validator accepts the same file with no findings, which is
+exactly the expected split: this is a **data** defect in the catalog,
+not a rule defect.
+
+Not fixed here because the fix is a republication, not an edit: the era
+has to be added from the SRI's published table with its own dates, and
+``Tabla 12`` is effective-dated precisely so that a rate change is a
+data change. Recorded so the next republication does not have to
+rediscover it.
 
 Open questions
 --------------

@@ -76,6 +76,24 @@ reconcile with the 17 tax groups there, and all nine VAT groups carry the
 same XML FE code `"2"`. That is stated, not resolved — see the open questions
 below.
 
+## `Tabla 12` has no 15% era, so every 15% line raises a warning
+
+Ecuador's VAT rate has been 15% since 2024-04-01. The shipped
+`data/ats_catalog_12.xml` ends its eras at a 12% entry starting 2017-06-01 with
+no `date_end`, and declares **no 15% era at all**. The consequence is measured,
+not theoretical: a period whose bills carry the real 15% rate collects fine and
+files fine, and every one of those lines raises a non-blocking
+`compras.monto_iva` finding, because the rule compares `montoIva` against
+`baseImpGrav` times the rate in force — which the catalog says is 12%.
+
+The SRI's own validator accepts the same file with no findings, which is exactly
+the expected split: this is a **data** defect in the catalog, not a rule defect.
+
+Not fixed here because the fix is a republication, not an edit: the era has to be
+added from the SRI's published table with its own dates, and `Tabla 12` is
+effective-dated precisely so that a rate change is a data change. Recorded so the
+next republication does not have to rediscover it.
+
 ## Open questions
 
 ### `totalVentas`: what does *"Solo Facturación Física F"* qualify?
