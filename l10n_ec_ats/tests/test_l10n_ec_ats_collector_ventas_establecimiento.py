@@ -738,7 +738,7 @@ class TestL10nEcAtsCollectorVentasEstablecimiento(TestL10nECEdiCommon):
         )
         bill.write({"date": PERIOD[0], "invoice_date": PERIOD[0]})
         bill.l10n_ec_tax_support = "01"
-        bill.l10n_ec_authorization_number = "123456789012"
+        bill.l10n_ec_electronic_authorization = "123456789012"
         bill.action_post()
 
         self._create_sale(taxes=self.tax_vat12, products=self.product_gravable)

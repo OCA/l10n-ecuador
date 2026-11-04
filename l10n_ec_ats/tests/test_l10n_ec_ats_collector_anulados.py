@@ -269,17 +269,14 @@ class TestL10nEcAtsCollectorAnulados(TestL10nECEdiCommon):
         entirely -- so the triple the collector reads is the triple the SRI was
         given. That is asserted rather than assumed.
 
-        The authorization is stated **through the EDI document**, not on the
-        move, and that is not a workaround -- it is where the number lives.
-
-        ``account.move.l10n_ec_authorization_number`` is a stored compute off
-        ``edi_document_ids`` (ATS-02), and ``button_cancel`` **deletes** those
-        documents, so the mirror recomputes to nothing for every cancelled move.
-        Writing the mirror directly is fighting that recompute: the value sits
-        in the cache, then a flush triggered by the *next* invoice runs the
-        compute and discards it. So the fixture creates the ``cancelled`` EDI
-        document the real flow would leave behind and writes the number on it,
-        where the compute agrees with the fixture instead of overruling it.
+        The authorization is stated on the move, in
+        ``l10n_ec_electronic_authorization`` -- the field
+        ``l10n_ec_account_edi`` stores an SRI authorization number in. It is a
+        plain stored ``Char`` written at authorization time, not a compute off
+        ``edi_document_ids``, so ``button_cancel`` deleting the EDI documents
+        does not take the number with it: the cancelled document keeps the
+        authorization the SRI gave it, which is exactly what ``anulados`` has
+        to report.
 
         The mocked SRI never answers, so nothing fills the number in on its own.
         """
@@ -295,17 +292,8 @@ class TestL10nEcAtsCollectorAnulados(TestL10nECEdiCommon):
             "cancelling deletes the EDI documents the mirror is computed from",
         )
         if authorization:
-            self.env["account.edi.document"].create(
-                {
-                    "move_id": invoice.id,
-                    "edi_format_id": self.env.ref(
-                        "l10n_ec_account_edi.edi_format_ec_sri"
-                    ).id,
-                    "state": "cancelled",
-                    "l10n_ec_authorization_number": authorization,
-                }
-            )
-            self.assertEqual(invoice.l10n_ec_authorization_number, authorization)
+            invoice.l10n_ec_electronic_authorization = authorization
+            self.assertEqual(invoice.l10n_ec_electronic_authorization, authorization)
         return invoice
 
     def _create_cancelled_sale(self, *, authorization=AUTHORIZATION, **kwargs):
@@ -396,7 +384,7 @@ class TestL10nEcAtsCollectorAnulados(TestL10nECEdiCommon):
         # The fixture's own facts, before anything derived from them.
         self.assertEqual(numbers, list(range(numbers[0], numbers[0] + 3)))
         self.assertEqual(
-            {invoice.l10n_ec_authorization_number for invoice in cancelled},
+            {invoice.l10n_ec_electronic_authorization for invoice in cancelled},
             {AUTHORIZATION},
         )
 

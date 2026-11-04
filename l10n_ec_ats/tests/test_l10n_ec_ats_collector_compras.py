@@ -153,7 +153,7 @@ class TestL10nEcAtsCollectorCompras(TestL10nECEdiCommon):
         * ``date`` / ``invoice_date`` are set **before** posting -- both are
           readonly on a posted move -- because the tests need a 2016 window to
           prove the catalogues are resolved for the period rather than for today.
-        * ``l10n_ec_authorization_number`` is written **after** posting: it is a
+        * ``l10n_ec_electronic_authorization`` is written **after** posting: it is a
           stored compute off ``edi_document_ids``, and posting creates that
           document, so a value written beforehand is recomputed away. It is also
           the production shape -- nothing parses a vendor's XML yet (§5.8), so on
@@ -182,7 +182,7 @@ class TestL10nEcAtsCollectorCompras(TestL10nECEdiCommon):
         invoice.l10n_ec_tax_support = tax_support or "01"
         invoice.action_post()
         if authorization:
-            invoice.l10n_ec_authorization_number = authorization
+            invoice.l10n_ec_electronic_authorization = authorization
         if not tax_support:
             invoice.l10n_ec_tax_support = False
         return invoice

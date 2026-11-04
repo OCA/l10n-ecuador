@@ -182,7 +182,7 @@ class TestL10nEcAtsGenerate(TestL10nECEdiCommon):
     ):
         """Post one vendor bill carrying everything a ``compras`` row needs.
 
-        ``l10n_ec_authorization_number`` is written **after** posting: it is a
+        ``l10n_ec_electronic_authorization`` is written **after** posting: it is a
         stored compute off ``edi_document_ids`` and posting creates that record,
         so a value written beforehand is recomputed away. It is also the
         production shape -- nothing parses a vendor's XML yet, so on a vendor
@@ -212,7 +212,7 @@ class TestL10nEcAtsGenerate(TestL10nECEdiCommon):
         invoice.l10n_ec_tax_support = tax_support
         invoice.action_post()
         if authorization:
-            invoice.l10n_ec_authorization_number = authorization
+            invoice.l10n_ec_electronic_authorization = authorization
         return invoice
 
     def _create_sale(
@@ -729,7 +729,7 @@ class TestL10nEcAtsGenerate(TestL10nECEdiCommon):
         a month of purchases has to know which bill.
         """
         bill = self._create_bill(authorization=False)
-        self.assertFalse(bill.l10n_ec_authorization_number)
+        self.assertFalse(bill.l10n_ec_electronic_authorization)
         with self.assertRaises(UserError) as raised:
             self._wizard().generate()
         message = str(raised.exception)
