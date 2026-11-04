@@ -3,7 +3,8 @@ from datetime import date
 from odoo.tests import tagged
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
-from odoo.addons.l10n_ec_account_edi.tests.test_edi_common import TestL10nECEdiCommon
+
+from .test_ats_form_base import TestL10nEcAtsFormBase
 
 # The same window ATS-07 uses: ``Tabla 20`` publishes the electronic emission
 # code from 2016-01-01, ``Tabla 13`` still carries the 2013 payment forms and
@@ -24,7 +25,7 @@ TOTAL_VENTAS_BUCKETS = ("baseNoGraIva", "baseImponible", "baseImpGrav")
 
 
 @tagged("post_install_l10n", "post_install", "-at_install")
-class TestL10nEcAtsCollectorVentasEstablecimiento(TestL10nECEdiCommon):
+class TestL10nEcAtsCollectorVentasEstablecimiento(TestL10nEcAtsFormBase):
     """One ``ventasEstablecimiento`` row per **our own** establishment.
 
     ``CLAVE PRIMARIA (2)`` row 94 marks ``codEstab`` alone as this block's
@@ -109,6 +110,7 @@ class TestL10nEcAtsCollectorVentasEstablecimiento(TestL10nECEdiCommon):
         cls.product_gravable = cls._priced_product(100.0)
         cls.product_zero = cls._priced_product(200.0)
         cls.product_not_charged = cls._priced_product(300.0)
+        cls._ensure_multiple_suitable_journals()
 
     # ------------------------------------------------------------------
     # Fixtures

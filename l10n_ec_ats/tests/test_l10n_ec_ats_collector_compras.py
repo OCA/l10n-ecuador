@@ -3,9 +3,9 @@ from datetime import date
 from odoo.tests import tagged
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
-from odoo.addons.l10n_ec_account_edi.tests.test_edi_common import TestL10nECEdiCommon
 
 from ..models.l10n_ec_ats_collector import IVA_RETENTION_ELEMENTS
+from .test_ats_form_base import TestL10nEcAtsFormBase
 
 # ``Tabla 3.10`` concept ``304`` is the dated-rate fixture: it is *Servicios
 # profesionales prestados por sociedades residentes* at 8% through the 2016 era and
@@ -21,7 +21,7 @@ MODERN_PERIOD = (date(2026, 3, 1), date(2026, 3, 31))
 
 
 @tagged("post_install_l10n", "post_install", "-at_install")
-class TestL10nEcAtsCollectorCompras(TestL10nECEdiCommon):
+class TestL10nEcAtsCollectorCompras(TestL10nEcAtsFormBase):
     """One ``detalleCompras`` row per vendor document, and nothing invented.
 
     The two rules every assertion below leans on come straight from the
@@ -74,6 +74,7 @@ class TestL10nEcAtsCollectorCompras(TestL10nECEdiCommon):
         cls.tax_unresolvable_ats_code = cls.chart_template.ref(
             "income_tax_withholding_302"
         )
+        cls._ensure_multiple_suitable_journals()
 
     # ------------------------------------------------------------------
     # Fixtures
@@ -157,10 +158,18 @@ class TestL10nEcAtsCollectorCompras(TestL10nECEdiCommon):
           stored compute off ``edi_document_ids``, and posting creates that
           document, so a value written beforehand is recomputed away. It is also
           the production shape -- nothing parses a vendor's XML yet (§5.8), so on
-          a vendor bill this number is typed in, not derived.
+          a vendor bill this number is typed in, not derived. In this stack the
+          field is a plain stored ``Char``, so the ``111…1`` the shared helper
+          pre-fills on the form survives posting and is cleared explicitly when
+          no number was captured -- otherwise ``authorization=False`` would file
+          the prefill instead of blocking.
         * ``l10n_ec_tax_support`` is cleared **after** posting, because ``_post``
           refuses a purchase document with none; a bill whose support went
-          missing is built by clearing it once the document is posted.
+          missing is built by clearing it once the document is posted. A code
+          outside the field's ``Selection`` (``test_12``'s ``"99"``) goes
+          straight to the column through :meth:`_set_tax_support`, because the
+          ORM refuses it before the collector ever sees it -- and a retired or
+          mis-keyed record is exactly such a value.
 
         ``document_number`` defaults to ``None``, which means the next number
         from :meth:`_next_document_number` rather than the one constant the
@@ -179,13 +188,41 @@ class TestL10nEcAtsCollectorCompras(TestL10nECEdiCommon):
         invoice.write(
             {"date": posting_date, "invoice_date": emission_date or posting_date}
         )
-        invoice.l10n_ec_tax_support = tax_support or "01"
+        self._set_tax_support(invoice, tax_support or "01")
         invoice.action_post()
         if authorization:
             invoice.l10n_ec_electronic_authorization = authorization
+        else:
+            invoice.l10n_ec_electronic_authorization = False
         if not tax_support:
             invoice.l10n_ec_tax_support = False
         return invoice
+
+    def _set_tax_support(self, invoice, code):
+        """Write ``code`` as the bill's tax support, whatever the field allows.
+
+        ``l10n_ec_tax_support`` is still a ``Selection`` in this stack, so a
+        code the SRI never published cannot be assigned through the ORM at
+        all. Such a value is written straight to the column -- after flushing
+        the pending writes and invalidating the cache, so ``_post`` and the
+        collector read back exactly what a retired or mis-keyed record carries.
+        Selection-valid codes keep the ORM path.
+        """
+        valid = {
+            value
+            for value, _label in self.env["account.move"]
+            .fields_get(["l10n_ec_tax_support"])["l10n_ec_tax_support"]
+            .get("selection", [])
+        }
+        if code in valid:
+            invoice.l10n_ec_tax_support = code
+            return
+        invoice.flush_recordset()
+        self.env.cr.execute(
+            "UPDATE account_move SET l10n_ec_tax_support = %s WHERE id = %s",
+            (code, invoice.id),
+        )
+        invoice.invalidate_recordset(["l10n_ec_tax_support"])
 
     def _setup_company_for_withholding(self):
         """Give the company what the withholding journal validates against.

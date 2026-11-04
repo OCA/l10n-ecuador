@@ -43,9 +43,9 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
-from odoo.addons.l10n_ec_account_edi.tests.test_edi_common import TestL10nECEdiCommon
 
 from ..validators import AtsPeriod, blocking, validate_ats, warnings_of
+from .test_ats_form_base import TestL10nEcAtsFormBase
 
 #: A period every loaded catalog covers and where the VAT regime is the current
 #: one. The archive is named ``AT082026.zip``: month then year, both two and
@@ -82,7 +82,7 @@ RUC_BAD_CHECK_DIGIT = "0992301287002"
 
 
 @tagged("post_install_l10n", "post_install", "-at_install")
-class TestL10nEcAtsGenerate(TestL10nECEdiCommon):
+class TestL10nEcAtsGenerate(TestL10nEcAtsFormBase):
     """One company, one period, one ``AT{mmaaaa}.zip`` holding one valid XML."""
 
     @classmethod
@@ -113,6 +113,7 @@ class TestL10nEcAtsGenerate(TestL10nECEdiCommon):
         cls.tax_sale_withhold_vat_100 = cls.chart_template.ref(
             "tax_sale_withhold_vat_100"
         )
+        cls._ensure_multiple_suitable_journals()
 
     # ------------------------------------------------------------------
     # Fixtures
@@ -186,7 +187,10 @@ class TestL10nEcAtsGenerate(TestL10nECEdiCommon):
         stored compute off ``edi_document_ids`` and posting creates that record,
         so a value written beforehand is recomputed away. It is also the
         production shape -- nothing parses a vendor's XML yet, so on a vendor
-        bill the number is typed in rather than derived.
+        bill the number is typed in rather than derived. In this stack the
+        field is a plain stored ``Char``, so the ``111…1`` the shared helper
+        pre-fills on the form survives posting and is cleared explicitly when
+        no number was captured.
 
         ``document_number`` defaults to ``None``, which means the next number
         from :meth:`_next_document_number` rather than the one constant the
@@ -213,6 +217,8 @@ class TestL10nEcAtsGenerate(TestL10nECEdiCommon):
         invoice.action_post()
         if authorization:
             invoice.l10n_ec_electronic_authorization = authorization
+        else:
+            invoice.l10n_ec_electronic_authorization = False
         return invoice
 
     def _create_sale(

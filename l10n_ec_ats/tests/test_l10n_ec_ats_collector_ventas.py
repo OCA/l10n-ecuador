@@ -3,7 +3,8 @@ from datetime import date
 from odoo.tests import tagged
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
-from odoo.addons.l10n_ec_account_edi.tests.test_edi_common import TestL10nECEdiCommon
+
+from .test_ats_form_base import TestL10nEcAtsFormBase
 
 # A period inside every regime these tests touch: ``Tabla 20`` publishes the
 # electronic emission code from 2016-01-01, ``Tabla 13`` still carries the
@@ -20,7 +21,7 @@ DEBIT_CARD_PERIOD = (date(2016, 6, 1), date(2016, 6, 30))
 
 
 @tagged("post_install_l10n", "post_install", "-at_install")
-class TestL10nEcAtsCollectorVentas(TestL10nECEdiCommon):
+class TestL10nEcAtsCollectorVentas(TestL10nEcAtsFormBase):
     """One ``detalleVentas`` row per client and document type, not per document.
 
     ``ventas`` is the one ATS block the SRI aggregates: ``numeroComprobantes``
@@ -79,6 +80,7 @@ class TestL10nEcAtsCollectorVentas(TestL10nECEdiCommon):
         cls.tax_purchase_withhold_vat_100 = cls.chart_template.ref(
             "tax_withhold_vat_100"
         )
+        cls._ensure_multiple_suitable_journals()
 
     # ------------------------------------------------------------------
     # Fixtures

@@ -4,9 +4,9 @@ from odoo.tests import tagged
 from odoo.tools import file_open
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
-from odoo.addons.l10n_ec_account_edi.tests.test_edi_common import TestL10nECEdiCommon
 
 from ..schema import ATS_XSD_PATH
+from .test_ats_form_base import TestL10nEcAtsFormBase
 
 # The same window ATS-06, ATS-07 and ATS-08 use. The catalogues are effective
 # dated, so every assertion here that a lookup is *resolved for the period* is
@@ -35,7 +35,7 @@ ACCESS_KEY_SEQUENCE = "000000123"
 
 
 @tagged("post_install_l10n", "post_install", "-at_install")
-class TestL10nEcAtsCollectorAnulados(TestL10nECEdiCommon):
+class TestL10nEcAtsCollectorAnulados(TestL10nEcAtsFormBase):
     """One ``detalleAnulados`` row per **contiguous run** of cancelled
     sequentials.
 
@@ -114,6 +114,7 @@ class TestL10nEcAtsCollectorAnulados(TestL10nECEdiCommon):
         )
         cls.tax_vat12 = cls.chart_template.ref("tax_vat_510_sup_01")
         cls.product = cls._priced_product(100.0)
+        cls._ensure_multiple_suitable_journals()
 
     # ------------------------------------------------------------------
     # Fixtures
