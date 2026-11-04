@@ -793,7 +793,7 @@ class L10nEcAtsCollector(models.AbstractModel):
         document rather than that a vendor's number was never typed in -- so it
         supplies its own sentence. The refusal stays here, once.
         """
-        authorization = (move.l10n_ec_authorization_number or "").strip()
+        authorization = (move.l10n_ec_electronic_authorization or "").strip()
         if not authorization:
             report(
                 "autorizacion",
