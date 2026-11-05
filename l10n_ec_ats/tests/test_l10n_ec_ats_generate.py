@@ -356,6 +356,34 @@ class TestL10nEcAtsGenerate(TestL10nEcAtsFormBase):
             }
         )
         withholding._post()
+        # A posted 07 always carries its own triple, authorization and date in
+        # production; stamp them the way the record would hold them. ``name``
+        # is the stored column behind ``l10n_latam_document_number`` (a
+        # non-stored compute), laid out with the type's own prefix exactly as
+        # the ORM inverse would, because the journal sequence recomputes it at
+        # posting time.
+        prefix = withholding.l10n_latam_document_type_id.doc_code_prefix
+        withholding.flush_recordset()
+        self.env.cr.execute(
+            "UPDATE account_move SET name = %s, "
+            "l10n_ec_electronic_authorization = %s, invoice_date = %s "
+            "WHERE id = %s",
+            (
+                f"{prefix} 001-002-{self._withhold_seq:09d}",
+                "1234567890123",
+                document.date,
+                withholding.id,
+            ),
+        )
+        withholding.invalidate_recordset(
+            [
+                "name",
+                "l10n_latam_document_number",
+                "l10n_ec_electronic_authorization",
+                "invoice_date",
+                "display_name",
+            ]
+        )
         document.l10n_ec_withhold_ids = [(4, withholding.id)]
         return withholding
 

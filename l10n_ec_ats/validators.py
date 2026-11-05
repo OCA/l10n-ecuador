@@ -166,6 +166,19 @@ ESTABLISHMENT_ELEMENT_NAMES = frozenset(
 )
 NON_ESTABLISHMENT_ELEMENT_NAMES = frozenset({ATS_ESTABLECIMIENTO_RECAP_NAME})
 
+#: The five ``compras`` elements identifying the purchase withholding document
+#: (07) the company holds against the bill. Element **names**, not SRI codes,
+#: so this list carries no business value: it says which elements form the group
+#: and nothing about what they may hold. The group travels together or not at
+#: all -- a blank member asserts a document that cannot be identified.
+RETENCION1_FIELDS = (
+    "estabRetencion1",
+    "ptoEmiRetencion1",
+    "secRetencion1",
+    "autRetencion1",
+    "fechaEmiRet1",
+)
+
 #: ``Tabla 11``, the IVA-withholding percentages: which ATS element carries which
 #: row of the table.
 #:
@@ -1339,7 +1352,48 @@ def validate_compras_row(row, period, *, reader, air_codes=None, where="compras"
                 duplicados=duplicates,
             )
         )
+
+    _validate_retencion1_group(found, row, where)
     return found
+
+
+def _validate_retencion1_group(found, row, where):
+    """The five ``retencion1`` elements travel together or not at all.
+
+    Extracted from :func:`validate_compras_row` so that function stays inside
+    the complexity budget the repository enforces, not to hide the rule: a
+    partial group asserts a withholding document that cannot be identified, and
+    ``autRetencion1`` is the number that identifies it.
+    """
+    present = [field for field in RETENCION1_FIELDS if str(row.get(field, "")).strip()]
+    if present and len(present) != len(RETENCION1_FIELDS):
+        missing = [field for field in RETENCION1_FIELDS if field not in present]
+        found.append(
+            _error(
+                "compras.retencion1_grupo",
+                missing[0],
+                f"carries {present} but not {missing}. The five retencion1 "
+                f"elements travel together or not at all: a group with a "
+                f"blank member asserts a withholding document that cannot be "
+                f"identified",
+                where=where,
+                presentes=present,
+                ausentes=missing,
+            )
+        )
+    if present and not str(row.get("autRetencion1", "")).strip():
+        found.append(
+            _error(
+                "compras.retencion1_autorizacion",
+                "autRetencion1",
+                f"is empty while the row carries a withholding document "
+                f"({present}). autRetencion1 is the number that identifies "
+                f"the document, and a group without it asserts a document "
+                f"that cannot be identified",
+                where=where,
+                presentes=present,
+            )
+        )
 
 
 # ----------------------------------------------------------------------

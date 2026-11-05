@@ -330,14 +330,16 @@ def _withheld(name, xsd_type, *, reason, min_occurs="0"):
 
 #: The reasons are the record of a deliberate omission, and they travel into the
 #: error message so the answer is in the log rather than in this file.
+#: ``estabRetencion1`` … ``fechaEmiRet1`` were refused under a sibling reason
+#: before the purchase withholding (07) became the record that describes them:
+#: ``l10n_ec_ats`` hard-depends on ``l10n_ec_withhold``, and the posted 07 it
+#: holds against the bill carries the triple, the authorization and the date.
+#: The ``2`` family keeps its own reason: the SRI removed the concept and kept
+#: the elements so old files keep validating.
 _COMPATIBILITY_ONLY = (
     "ats.xsd annotates it 'eliminado se mantiene por compatibilidad': the SRI "
     "removed the concept and kept the elements so old files keep validating, so "
     "emitting one in a new file is filing a field nobody reads any more."
-)
-_NO_WITHHOLDING_DOCUMENT = (
-    "it identifies a withholding document, and no Odoo record describes one, so "
-    "there is no source for it and the builder will not invent the five values."
 )
 _V1_NOT_IN_SCOPE = (
     "it is not in v1's scope (§4.2) and the records it needs do not exist in "
@@ -451,13 +453,23 @@ ATS_COMPRAS_SPEC = (
         repeated_name="detalleAir",
         children=ATS_AIR_SPEC,
     ),
-    _withheld(
-        "estabRetencion1", "establecimientoType", reason=_NO_WITHHOLDING_DOCUMENT
+    _code(
+        "estabRetencion1",
+        "establecimientoType",
+        ESTABLISHMENT_PATTERN,
+        min_occurs="0",
+        no_zero=True,
     ),
-    _withheld("ptoEmiRetencion1", "ptoEmisionType", reason=_NO_WITHHOLDING_DOCUMENT),
-    _withheld("secRetencion1", "secRetencionType", reason=_NO_WITHHOLDING_DOCUMENT),
-    _withheld("autRetencion1", "autRetencionType", reason=_NO_WITHHOLDING_DOCUMENT),
-    _withheld("fechaEmiRet1", "fechaType", reason=_NO_WITHHOLDING_DOCUMENT),
+    _code(
+        "ptoEmiRetencion1",
+        "ptoEmisionType",
+        ESTABLISHMENT_PATTERN,
+        min_occurs="0",
+        no_zero=True,
+    ),
+    _code("secRetencion1", "secRetencionType", SECUENCIAL_PATTERN, min_occurs="0"),
+    _code("autRetencion1", "autRetencionType", AUTORIZACION_PATTERN, min_occurs="0"),
+    _date("fechaEmiRet1", "fechaType", min_occurs="0"),
     _withheld("estabRetencion2", "establecimientoType", reason=_COMPATIBILITY_ONLY),
     _withheld("ptoEmiRetencion2", "ptoEmisionType", reason=_COMPATIBILITY_ONLY),
     _withheld("secRetencion2", "secRetencionType", reason=_COMPATIBILITY_ONLY),

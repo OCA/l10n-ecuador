@@ -1544,6 +1544,36 @@ and keep the contract as documented, or amend the ATS-08 docstring to
 say the contract applies from ATS-08 onwards. Both are fine; having the
 code and the docstring disagree is not.
 
+DIMM's own summary builder crashes on a physical-emission sale
+--------------------------------------------------------------
+
+``tipoEmision`` is resolved from the issuing journal (``Tabla 20``), so
+a sale issued from a journal that does not use documents files as ``F``
+-- physical. That is the truthful value, and the ficha asks for it.
+
+The SRI's own validator (plugin 1.19.0) cannot summarise such a file.
+Submitting a month with a ``ventas`` row at ``tipoEmision = F`` returns
+HTTP 500 and
+
+::
+
+   validation failed: Cannot invoke
+   "...FilaTalonResumenComprasVentas.getBaseImponibleNoGravada()" because
+   "filaComprobanteActual" is null
+
+which is an unhandled ``NullPointerException`` while it builds the talón
+grid, not a validation message: it indexes the summary by emission type
+and dereferences the missing row. Three submissions isolate it -- the
+file as filed fails, the same file with that one element set to ``E``
+passes, and the same file without the ``ventas`` block passes. The
+defect is in the tool, not in the document.
+
+Nothing here is changed to accommodate it. Writing ``E`` to obtain a
+green talón would put a false emission type into a filed return, which
+is the failure this module exists to prevent. Recorded so that an
+implementer who meets the crash learns in one place that it belongs to
+the SRI's tool.
+
 Deferred work
 -------------
 

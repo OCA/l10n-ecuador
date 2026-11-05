@@ -1262,9 +1262,10 @@ class TestAtsBuilder(TransactionCase):
         rather than silently dropped: if ATS-06 ever starts producing it, generation
         stops and somebody decides on purpose.
 
-        The ``-1`` family is refused the same way. It is not deprecated, but no Odoo
-        record describes a withholding *document*, so there is no source for it and
-        no reason to reserve the elements.
+        The ``-1`` family is **emitted**: it identifies the purchase withholding
+        (07) the company holds against the bill, which ``l10n_ec_withhold``
+        describes, so the stale reason that refused it is gone and a payload
+        carrying the five values builds a schema-valid document with them.
         """
         document = self._assert_valid(
             self._payload(compras=[self._compras_row()]),
@@ -1284,7 +1285,30 @@ class TestAtsBuilder(TransactionCase):
         ):
             self.assertNotIn(name, document, f"{name} must never be emitted")
 
-        for name in ("estabRetencion2", "fechaEmiRet2", "estabRetencion1"):
+        emitted = self._assert_valid(
+            self._payload(
+                compras=[
+                    self._compras_row(
+                        estabRetencion1="001",
+                        ptoEmiRetencion1="002",
+                        secRetencion1="000000001",
+                        autRetencion1="1234567890123",
+                        fechaEmiRet1="05/03/2024",
+                    )
+                ]
+            ),
+            "a compras row carrying the withholding document",
+        )
+        for name, value in (
+            ("estabRetencion1", "001"),
+            ("ptoEmiRetencion1", "002"),
+            ("secRetencion1", "000000001"),
+            ("autRetencion1", "1234567890123"),
+            ("fechaEmiRet1", "05/03/2024"),
+        ):
+            self.assertIn(f"<{name}>{value}</{name}>", emitted)
+
+        for name in ("estabRetencion2", "fechaEmiRet2", "secRetencion2"):
             self._assert_refused(
                 self._payload(compras=[self._compras_row(**{name: "001"})]), name
             )

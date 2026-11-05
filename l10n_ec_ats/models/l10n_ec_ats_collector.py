@@ -271,6 +271,7 @@ class L10nEcAtsCollector(models.AbstractModel):
         }
         row.update(self._l10n_ec_conditional_province(partner, reported, report))
         row.update(self._l10n_ec_document_triple(move, report))
+        row.update(self._l10n_ec_retencion1_document(move, report))
 
         row.update(self._l10n_ec_compras_amounts(move))
 
@@ -854,8 +855,134 @@ class L10nEcAtsCollector(models.AbstractModel):
                 )
         return self._l10n_ec_fecha(emission)
 
-    # ------------------------------------------------------------------
-    # Amounts
+    @api.model
+    def _l10n_ec_retencion1_document(self, move, report):
+        """``estabRetencion1`` … ``fechaEmiRet1``: the purchase withholding document.
+
+        The 07 the company already holds against the bill: ``l10n_ec_withhold``
+        links it back through ``move.l10n_ec_withhold_ids``, and the same
+        ``state == \"posted\"`` and ``l10n_ec_withholding_type == \"purchase\"``
+        filter :meth:`_l10n_ec_withholding_lines` reads the withholding *lines*
+        through decides which *documents* identify the row.
+
+        * **None** means no group: an absent key is an absent element, never an
+          empty one.
+        * **Exactly one** yields the five values, read off the withholding
+          itself: the triple from its ``l10n_latam_document_number`` the way
+          :meth:`_l10n_ec_document_triple` splits the bill's own, the
+          authorization from ``l10n_ec_electronic_authorization``, and the
+          emission date from ``invoice_date`` with ``date`` as the fallback.
+        * **More than one** is an overlap, never a guess: the lookup resolved to
+          more than one record, so the row is refused naming every document --
+          the same rule :meth:`_l10n_ec_resolve_entry` enforces for the catalogue.
+        * A withholding **without an authorization or without any date** is
+          refused naming it: a group with a blank ``autRetencion1`` or
+          ``fechaEmiRet1`` asserts a document that cannot be identified, which
+          is worse than no group at all.
+        """
+        withholds = move.l10n_ec_withhold_ids.filtered(
+            lambda withhold: (
+                withhold.state == "posted"
+                and withhold.l10n_ec_withholding_type == "purchase"
+            )
+        )
+        if not withholds:
+            return {}
+        if len(withholds) > 1:
+            report(
+                "estabRetencion1",
+                self.env._(
+                    "%(move)s cannot be reported in the ATS: it holds "
+                    "%(count)s posted purchase withholdings (%(names)s). "
+                    "Exactly one withholding document may identify the row, "
+                    "and ATS never guesses which one.",
+                    move=move.display_name,
+                    count=len(withholds),
+                    names=", ".join(
+                        sorted(
+                            withhold.l10n_latam_document_number or withhold.display_name
+                            for withhold in withholds
+                        )
+                    ),
+                ),
+            )
+            return {}
+        withhold = withholds
+        values = {}
+        triple = self._l10n_ec_triple_from_document_number(withhold)
+        if not triple:
+            report(
+                "estabRetencion1",
+                self.env._(
+                    "%(move)s cannot be reported in the ATS: its withholding "
+                    "%(withhold)s carries no document number, so the "
+                    "withholding establishment, emission point and sequential "
+                    "cannot be identified. Record the number on the "
+                    "withholding as ESTABLISHMENT-POINT-SEQUENTIAL.",
+                    move=move.display_name,
+                    withhold=withhold.l10n_latam_document_number
+                    or withhold.display_name,
+                ),
+            )
+        else:
+            entity, point, sequence = triple
+            for field, value in (
+                ("estabRetencion1", entity),
+                ("ptoEmiRetencion1", point),
+            ):
+                if set(value) == {"0"}:
+                    report(
+                        field,
+                        self.env._(
+                            "%(move)s cannot be reported in the ATS: the "
+                            "withholding %(withhold)s carries %(field)s "
+                            "%(value)s. The SRI numbers establishments and "
+                            "emission points from 001; 000 is never valid, "
+                            "even though ats.xsd accepts it.",
+                            move=move.display_name,
+                            withhold=withhold.l10n_latam_document_number
+                            or withhold.display_name,
+                            field=field,
+                            value=value,
+                        ),
+                    )
+                else:
+                    values[field] = value
+            values["secRetencion1"] = sequence
+        authorization = (withhold.l10n_ec_electronic_authorization or "").strip()
+        if not authorization:
+            report(
+                "autRetencion1",
+                self.env._(
+                    "%(move)s cannot be reported in the ATS: its withholding "
+                    "%(withhold)s has no authorization number. A group with "
+                    "a blank autRetencion1 asserts a document that cannot be "
+                    "identified, so ATS refuses the row instead of filing it.",
+                    move=move.display_name,
+                    withhold=withhold.l10n_latam_document_number
+                    or withhold.display_name,
+                ),
+            )
+        else:
+            values["autRetencion1"] = authorization
+        emission = withhold.invoice_date or withhold.date
+        if not emission:
+            report(
+                "fechaEmiRet1",
+                self.env._(
+                    "%(move)s cannot be reported in the ATS: its withholding "
+                    "%(withhold)s has no emission date. A group with a blank "
+                    "fechaEmiRet1 asserts a document that cannot be "
+                    "identified, so ATS refuses the row instead of filing it.",
+                    move=move.display_name,
+                    withhold=withhold.l10n_latam_document_number
+                    or withhold.display_name,
+                ),
+            )
+        else:
+            values["fechaEmiRet1"] = self._l10n_ec_fecha(emission)
+        return values
+
     # ------------------------------------------------------------------
 
     @api.model

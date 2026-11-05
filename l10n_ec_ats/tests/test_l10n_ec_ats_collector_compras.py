@@ -324,6 +324,36 @@ class TestL10nEcAtsCollectorCompras(TestL10nEcAtsFormBase):
             }
         )
         withholding._post()
+        # A posted 07 always carries its own triple, authorization and date in
+        # production; stamp them the way the record would hold them. ``name``
+        # is the stored column behind ``l10n_latam_document_number`` (a
+        # non-stored compute), laid out with the type's own prefix exactly as
+        # the ORM inverse would, because the journal sequence recomputes it at
+        # posting time. See ``_set_withholding_document`` in
+        # ``test_l10n_ec_ats_retencion1.py`` for the same seam.
+        self._withhold_document_seq = getattr(self, "_withhold_document_seq", 0) + 1
+        prefix = withholding.l10n_latam_document_type_id.doc_code_prefix
+        withholding.flush_recordset()
+        self.env.cr.execute(
+            "UPDATE account_move SET name = %s, "
+            "l10n_ec_electronic_authorization = %s, invoice_date = %s "
+            "WHERE id = %s",
+            (
+                f"{prefix} 001-002-{self._withhold_document_seq:09d}",
+                "1234567890123",
+                bill.date,
+                withholding.id,
+            ),
+        )
+        withholding.invalidate_recordset(
+            [
+                "name",
+                "l10n_latam_document_number",
+                "l10n_ec_electronic_authorization",
+                "invoice_date",
+                "display_name",
+            ]
+        )
         bill.l10n_ec_withhold_ids = [(4, withholding.id)]
         return withholding
 
@@ -802,9 +832,15 @@ class TestL10nEcAtsCollectorCompras(TestL10nEcAtsFormBase):
     # ------------------------------------------------------------------
 
     def test_26_the_row_keys_are_exactly_the_ats_element_names(self):
-        """ATS-10 is a straight mapping, so the keys must be the XSD names."""
+        """ATS-10 is a straight mapping, so the keys must be the XSD names.
+
+        The bill carries a posted purchase withholding, so the row also carries
+        the five ``retencion1`` elements read off that 07 -- establishment,
+        emission point and sequential from its document number, the
+        authorization, and the emission date -- alongside ``air``.
+        """
         bill = self._create_bill(document_number="001-001-000000050")
-        self._create_withholding(bill, self.tax_withhold_profit_303)
+        withhold = self._create_withholding(bill, self.tax_withhold_profit_303)
         rows, errors = self._collect()
         self.assertFalse(errors, errors)
         self.assertEqual(
@@ -835,7 +871,20 @@ class TestL10nEcAtsCollectorCompras(TestL10nEcAtsFormBase):
                 "valRetServ100",
                 "formasDePago",
                 "air",
+                "estabRetencion1",
+                "ptoEmiRetencion1",
+                "secRetencion1",
+                "autRetencion1",
+                "fechaEmiRet1",
             },
+        )
+        triple = withhold.l10n_latam_document_number.split("-")
+        self.assertEqual(rows[0]["estabRetencion1"], triple[0])
+        self.assertEqual(rows[0]["ptoEmiRetencion1"], triple[1])
+        self.assertEqual(rows[0]["secRetencion1"], triple[2])
+        self.assertEqual(
+            rows[0]["autRetencion1"],
+            withhold.l10n_ec_electronic_authorization,
         )
         self.assertNotIn("reembolsos", rows[0])
         self.assertEqual(
