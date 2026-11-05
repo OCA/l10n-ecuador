@@ -105,6 +105,15 @@ class TestL10nEc104CollectorWithhold(common.Base):
         self.assertEqual(boxes["799"], 75.0)
         self.assertEqual(boxes["801"], 75.0)
 
+    def test_purchase_thirty_percent_bucket_feeds_725(self):
+        # Same loop as 727: the November seed has no 30% purchase voucher,
+        # the December demo seed does (45.00 on its skeleton 07).
+        self._post_tagged_entry("725 (Reporte 104)", -30.0)
+        boxes = self._settle()
+        self.assertEqual(boxes["725"], 30.0)
+        self.assertEqual(boxes["727"], 0.0)
+        self.assertEqual(boxes["799"], 30.0)
+
     def test_withhold_boxes_flow_into_settlement(self):
         self._post_tagged_entry("609 (Reporte 104)", 36.0)
         self._post_tagged_entry("727 (Reporte 104)", -75.0)
