@@ -126,7 +126,10 @@ class AccountEdiDocument(models.Model):
                 rate = round(detail.iva_amount * 100.0 / detail.taxed_base, 2)
             else:
                 rate = False
-            code = IVA_REEMBOLSO_PERCENT_CODES.get(rate)
+            # NB: ``False`` (IVA with no taxed base) must not reach the
+            # dict: ``False == 0.0``, so ``.get(False)`` would return the
+            # "0" code and file a 0% row carrying a tax value. Refuse.
+            code = IVA_REEMBOLSO_PERCENT_CODES.get(rate) if rate is not False else None
             if code is None:
                 raise UserError(
                     self.env._(
