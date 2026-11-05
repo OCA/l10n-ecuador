@@ -4,7 +4,7 @@
         <field name="name">l10n.ec.xml.import.form</field>
         <field name="model">l10n.ec.xml.import</field>
         <field name="arch" type="xml">
-            <form string="Import Supplier XML">
+            <form string="Import SRI XML">
                 <group>
                     <group>
                         <field name="company_id" />
@@ -19,13 +19,15 @@
                 </group>
                 <div class="text-muted">
                     <p>
-                        Attach the supplier factura XML or type its 49-digit
-                        access key. Either way the same parser builds one
-                        draft vendor bill: supplier by RUC (created under
-                        Imported Suppliers on first sight), lines with the
-                        purchase tax of each exact VAT rate, and the SRI
-                        number as vendor reference and authorization. Post
-                        the bill only after reviewing taxes and sustento.
+                        Attach the supplier factura (01) or customer retencion
+                        (07) XML, or type its 49-digit access key. Either way
+                        the same parser runs: facturas land one draft vendor
+                        bill (supplier by RUC, lines with the purchase tax of
+                        each exact VAT rate), retenciones post one sale
+                        voucher through the manual sale-withhold wizard (every
+                        sustento matched to one of OUR posted sale invoices by
+                        number and customer RUC). Post the bill only after
+                        reviewing taxes and sustento.
                     </p>
                 </div>
                 <footer>
@@ -42,7 +44,7 @@
     </record>
 
     <record id="l10n_ec_xml_import_action" model="ir.actions.act_window">
-        <field name="name">Import Supplier XML</field>
+        <field name="name">Import SRI XML</field>
         <field name="res_model">l10n.ec.xml.import</field>
         <field name="view_mode">form</field>
         <field name="view_id" ref="l10n_ec_xml_import_view_form" />
@@ -51,7 +53,7 @@
 
     <menuitem
         id="l10n_ec_xml_import_menu"
-        name="Import Supplier XML"
+        name="Import SRI XML"
         parent="l10n_ec.sri_menu"
         action="l10n_ec_xml_import_action"
         sequence="30"

@@ -1,21 +1,33 @@
-"""Wizard: draft vendor bill from an SRI factura XML.
+"""Wizard: draft vendor bill from an SRI factura XML, sale withhold from a 07.
 
-Two doors, one parser (S2): the user attaches the supplier ``factura``
-XML, or types its 49-digit access key and the wizard fetches the
-authorized XML from the SRI ``autorizacionComprobante`` service and
-feeds the same parser. When both arrive, the file wins: it is the
-document the supplier actually sent.
+Two doors, one parser per kind: the user attaches the supplier ``factura``
+or customer ``comprobanteRetencion`` XML, or types its 49-digit access key
+and the wizard fetches the authorized XML from the SRI
+``autorizacionComprobante`` service and feeds the same parser. When both
+arrive, the file wins: it is the document the supplier or customer actually
+sent.
+
+Facturas (01) land one draft vendor bill (supplier by RUC, lines with the
+purchase tax of each exact VAT rate). Retenciones (07) travel the manual
+sale-withhold road instead: every referenced sustento is matched to one of
+OUR posted ``out_invoice`` by SRI number and customer RUC (Frappe
+``import_customer_withholding`` rule), and the
+``l10n_ec.wizard.create.sale.withhold`` wizard creates the posted sale
+voucher with its usual links and reconcile attempt. No silent creation:
+anything unmatched, duplicated or unresolvable is refused.
 
 Every refusal arrives as one ``UserError``/``ValidationError`` raised in
-Python before any SQL: malformed XML, non-``factura`` documents,
-missing RUC/clave/lines, reembolsos, mixed VAT rates on one line,
-non-IVA-only lines (ICE/IRBPNR need the manual path), unknown VAT
-rates, non-dollar currency, bad dates, unknown suppliers that cannot be
-created, and bills already imported (same supplier + SRI number, or
-same authorization key).
+Python before any SQL: malformed XML, non-``factura``/non-``retencion``
+documents, missing RUC/clave/lines/sustentos, reembolsos, mixed VAT rates
+on one line, non-IVA-only lines (ICE/IRBPNR need the manual path), unknown
+VAT or withholding rates, non-dollar currency, bad dates, unknown or
+mismatched customers and invoices, and documents already imported (same
+supplier + SRI number, same customer + retencion number, or same
+authorization key).
 
 Bills stay DRAFT (Frappe precedent): taxes, sustento and stock behavior
-are reviewed before posting.
+are reviewed before posting. Sale withholds post at once, exactly as the
+manual sale wizard posts them.
 """
 
 import base64
@@ -26,7 +38,7 @@ from zeep.helpers import serialize_object
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
-from ..models.sri_xml import parse_supplier_xml
+from ..models.sri_xml import parse_sri_xml
 
 #: SRI access keys are always 49 digits; anything else is refused as typed.
 L10N_EC_XML_ACCESS_KEY_LENGTH = 49
@@ -34,7 +46,7 @@ L10N_EC_XML_ACCESS_KEY_LENGTH = 49
 
 class L10nEcXmlImport(models.TransientModel):
     _name = "l10n.ec.xml.import"
-    _description = "Import supplier factura XML"
+    _description = "Import SRI XML (supplier factura or customer retencion)"
 
     company_id = fields.Many2one(
         "res.company",
@@ -54,7 +66,7 @@ class L10nEcXmlImport(models.TransientModel):
         default=lambda self: self._default_l10n_ec_xml_expense_account(),
         domain="[('account_type', '=', 'expense')]",
     )
-    xml_file = fields.Binary(string="Supplier XML file")
+    xml_file = fields.Binary(string="SRI XML file")
     xml_filename = fields.Char(string="XML filename")
     access_key = fields.Char(string="Access key (clave de acceso)", size=49)
 
@@ -94,7 +106,7 @@ class L10nEcXmlImport(models.TransientModel):
                 )
 
     def action_import(self):
-        """Import the factura and open the draft bill that was created."""
+        """Import the document and open the move that was created."""
         self.ensure_one()
         response_auth = None
         if self.xml_file:
@@ -105,14 +117,26 @@ class L10nEcXmlImport(models.TransientModel):
         else:
             raise UserError(
                 self.env._(
-                    "Attach the supplier factura XML or type its 49-digit "
-                    "access key. Nothing was imported."
+                    "Attach the SRI XML (supplier factura or customer "
+                    "retencion) or type its 49-digit access key. "
+                    "Nothing was imported."
                 )
             )
         try:
-            parsed = parse_supplier_xml(xml_text)
+            parsed = parse_sri_xml(xml_text)
         except ValueError as exc:
             raise UserError(str(exc)) from exc
+        if parsed.get("kind") == "retencion":
+            withhold = self._l10n_ec_create_sale_withhold(parsed, response_auth)
+            self._l10n_ec_attach_xml(withhold, xml_text, parsed["number"])
+            return {
+                "type": "ir.actions.act_window",
+                "name": self.env._("Imported Customer Withholding"),
+                "res_model": "account.move",
+                "res_id": withhold.id,
+                "view_mode": "form",
+                "target": "current",
+            }
         bill = self._l10n_ec_create_bill(parsed, response_auth)
         self._l10n_ec_attach_xml(bill, xml_text, parsed["number"])
         return {
@@ -524,7 +548,7 @@ class L10nEcXmlImport(models.TransientModel):
                     )
                 )
 
-    def _l10n_ec_attach_xml(self, bill, xml_text, number):
+    def _l10n_ec_attach_xml(self, move, xml_text, number):
         self.ensure_one()
         self.env["ir.attachment"].create(
             {
@@ -532,6 +556,294 @@ class L10nEcXmlImport(models.TransientModel):
                 "raw": xml_text.encode("utf-8"),
                 "mimetype": "application/xml",
                 "res_model": "account.move",
-                "res_id": bill.id,
+                "res_id": move.id,
             }
         )
+
+    # -- sale withhold (customer 07) --------------------------------------
+
+    def _l10n_ec_create_sale_withhold(self, parsed, response_auth=None):
+        """Create the posted sale voucher through the manual sale wizard.
+
+        Every referenced sustento is matched to one of OUR posted
+        ``out_invoice`` by SRI number with the 07 emisor RUC as customer
+        (Frappe ``import_customer_withholding`` rule). The manual
+        ``l10n_ec.wizard.create.sale.withhold`` wizard then posts the
+        voucher with its usual lines, invoice links and reconcile attempt:
+        this method only resolves the wizard inputs, never books in parallel.
+        """
+        self.ensure_one()
+        if self.company_id.currency_id.id != self.env.ref("base.USD").id:
+            raise UserError(
+                self.env._(
+                    "Customer withholding amounts are US dollars, but company "
+                    "%(company)s uses %(currency)s: review the voucher "
+                    "currency before posting.",
+                    company=self.company_id.display_name,
+                    currency=self.company_id.currency_id.display_name,
+                )
+            )
+        issue_date = self._l10n_ec_issue_date(parsed.get("issue_date"))
+        emisor_ruc = (parsed.get("emisor_ruc") or "").strip()
+        matched = {}
+        for doc in parsed.get("docs") or []:
+            invoice = self._l10n_ec_match_sale_invoice(doc, emisor_ruc)
+            matched.setdefault(invoice, []).extend(doc.get("withholdings") or [])
+        if not matched:
+            raise UserError(
+                self.env._(
+                    "The customer retencion carries no allocatable sustento documents."
+                )
+            )
+        invoices = self.env["account.move"]
+        for invoice in matched:
+            invoices |= invoice
+        partners = invoices.mapped("partner_id")
+        if len(partners) != 1:
+            raise UserError(
+                self.env._(
+                    "The customer retencion references invoices of %(count)s "
+                    "different customers: allocate it manually.",
+                    count=len(partners),
+                )
+            )
+        partner = partners[:1]
+        auth_number = self._l10n_ec_sale_auth_number(parsed, response_auth)
+        self._l10n_ec_refuse_duplicate_withhold(partner, parsed["number"], auth_number)
+        sale_wizard = self.env["l10n_ec.wizard.create.sale.withhold"]
+        wizard = sale_wizard.create(
+            {
+                "partner_id": partner.id,
+                "issue_date": issue_date,
+                "journal_id": self._l10n_ec_sale_withhold_journal().id,
+                "electronic_authorization": auth_number,
+                "invoice_ids": [(6, 0, invoices.ids)],
+                "withhold_line_ids": [
+                    (0, 0, self._l10n_ec_sale_line_vals(invoice, entry))
+                    for invoice, entries in matched.items()
+                    for entry in entries
+                ],
+            }
+        )
+        # The sale wizard only numbers purchase journals on its own: the
+        # customer sequence arrives printed, so normalize it explicitly.
+        wizard.write(
+            {"document_number": wizard._format_document_number(parsed["number"])}
+        )
+        wizard.button_validate()
+        withhold = self.env["account.move"].search(
+            [
+                ("l10n_ec_withholding_type", "=", "sale"),
+                ("l10n_latam_internal_type", "=", "withhold"),
+                ("company_id", "=", self.company_id.id),
+                ("partner_id", "=", partner.id),
+                ("ref", "=", wizard.document_number),
+            ],
+            limit=1,
+        )
+        if not withhold:
+            raise UserError(
+                self.env._(
+                    "The customer withholding was validated but its voucher "
+                    "was not found: allocate it manually."
+                )
+            )
+        return withhold
+
+    def _l10n_ec_match_sale_invoice(self, doc, emisor_ruc):
+        """Match one sustento to OUR posted ``out_invoice`` (Frappe rule).
+
+        The SRI number travels without separators (``numDocSustento``), so
+        both sides compare digits-only; the invoice customer must carry the
+        07 emisor RUC. Anything else is refused with a manual-allocation
+        message: never a silent creation, never a guess.
+        """
+        self.ensure_one()
+        raw = (doc.get("doc_number") or "").strip()
+        digits = re.sub(r"\D", "", raw)
+        if not digits:
+            raise UserError(
+                self.env._(
+                    "The customer retencion has a sustento without document "
+                    "number: allocate it manually."
+                )
+            )
+        partners = self.env["res.partner"].search([("vat", "=", emisor_ruc)])
+        candidates = self.env["account.move"].search(
+            [
+                ("move_type", "=", "out_invoice"),
+                ("company_id", "=", self.company_id.id),
+                ("state", "=", "posted"),
+                ("partner_id", "in", partners.ids),
+            ]
+        )
+        matched = candidates.filtered(
+            lambda invoice: re.sub(r"\D", "", invoice.l10n_latam_document_number or "")
+            == digits
+            and (invoice.partner_id.vat or "").strip() == emisor_ruc
+        )
+        if len(matched) != 1:
+            raise UserError(
+                self.env._(
+                    "Could not match sustento %(number)s to a posted sale "
+                    "invoice of customer RUC '%(ruc)s': post and authorize "
+                    "the sale, or allocate it manually after import.",
+                    number=raw,
+                    ruc=emisor_ruc,
+                )
+            )
+        return matched[:1]
+
+    def _l10n_ec_sale_line_vals(self, invoice, entry):
+        self.ensure_one()
+        tax = self._l10n_ec_sale_withhold_tax(entry)
+        return {
+            "invoice_id": invoice.id,
+            "tax_group_withhold_id": tax.tax_group_id.id,
+            "tax_withhold_id": tax.id,
+            "base_amount": float(entry.get("base") or 0.0),
+        }
+
+    def _l10n_ec_sale_withhold_tax(self, entry):
+        """Resolve one 07 withholding to its sale-side withholding tax.
+
+        Mirror of the EDI emission (``account_edi_document`` maps the group
+        ``l10n_ec_xml_fe_code`` to ``codigo`` and the tax
+        ``l10n_ec_xml_fe_code`` to ``codigoRetencion``): ``codigo`` 1
+        (renta) resolves the ``withhold_income_sale`` tax of the exact
+        ``porcentajeRetener``, ``codigo`` 2 (IVA) the ``withhold_vat_sale``
+        tax of the exact ``codigoRetencion``. Anything else has no sale
+        voucher slot and is refused for the manual path.
+        """
+        self.ensure_one()
+        codigo = (entry.get("code") or "").strip()
+        ret_code = (entry.get("withholding_code") or "").strip()
+        rate = round(float(entry.get("rate") or 0.0), 2)
+        if codigo == "1":
+            candidates = self.env["account.tax"].search(
+                [
+                    ("company_id", "=", self.company_id.id),
+                    ("tax_group_id.l10n_ec_type", "=", "withhold_income_sale"),
+                ]
+            )
+            candidates = candidates.filtered(
+                lambda tax: round(abs(tax.amount), 2) == rate
+            )
+            wanted = self.env._("income %(rate)s%%", rate=rate)
+        elif codigo == "2":
+            candidates = self.env["account.tax"].search(
+                [
+                    ("company_id", "=", self.company_id.id),
+                    ("tax_group_id.l10n_ec_type", "=", "withhold_vat_sale"),
+                    ("l10n_ec_xml_fe_code", "=", ret_code),
+                ]
+            )
+            wanted = self.env._("IVA code '%(code)s'", code=ret_code)
+        else:
+            raise UserError(
+                self.env._(
+                    "Customer withholding impuesto '%(code)s' has no sale "
+                    "voucher slot: book it manually.",
+                    code=codigo,
+                )
+            )
+        if not candidates:
+            available = ", ".join(
+                f"{tax.display_name} ({tax.amount}%)"
+                for tax in self.env["account.tax"].search(
+                    [
+                        ("company_id", "=", self.company_id.id),
+                        (
+                            "tax_group_id.l10n_ec_type",
+                            "in",
+                            ["withhold_income_sale", "withhold_vat_sale"],
+                        ),
+                    ]
+                )
+            )
+            raise UserError(
+                self.env._(
+                    "No sale withholding tax matches %(wanted)s from the "
+                    "customer retencion. Available sale withholding taxes: "
+                    "%(available)s. Create the missing one or fix the XML.",
+                    wanted=wanted,
+                    available=available or self.env._("none configured"),
+                )
+            )
+        return candidates.sorted(key=lambda tax: (tax.sequence, tax.id))[0]
+
+    def _l10n_ec_sale_withhold_journal(self):
+        """The dedicated sale withholding journal (wizard view domain)."""
+        self.ensure_one()
+        journal = self.env["account.journal"].search(
+            [
+                ("type", "=", "general"),
+                ("company_id", "=", self.company_id.id),
+                ("l10n_ec_withholding_type", "=", "sale"),
+            ],
+            limit=1,
+        )
+        if not journal:
+            raise UserError(
+                self.env._(
+                    "No sale withholding journal is configured for company "
+                    "%(company)s: create it before importing customer "
+                    "retenciones.",
+                    company=self.company_id.display_name,
+                )
+            )
+        return journal
+
+    def _l10n_ec_sale_auth_number(self, parsed, response_auth=None):
+        """Authorization doubles as dedupe key (clave when offline)."""
+        self.ensure_one()
+        auth_number = self._l10n_ec_auth_number(parsed, response_auth)
+        if len(auth_number) not in (10, 49):
+            raise UserError(
+                self.env._(
+                    "Customer retencion authorization '%(key)s' is not 10 or "
+                    "49 characters: fix the XML.",
+                    key=auth_number,
+                )
+            )
+        return auth_number
+
+    def _l10n_ec_refuse_duplicate_withhold(self, partner, number, auth_number):
+        self.ensure_one()
+        withhold = self.env["account.move"].search(
+            [
+                ("l10n_ec_withholding_type", "=", "sale"),
+                ("l10n_latam_internal_type", "=", "withhold"),
+                ("company_id", "=", self.company_id.id),
+                ("partner_id", "=", partner.id),
+                ("ref", "=", number),
+            ],
+            limit=1,
+        )
+        if withhold:
+            raise UserError(
+                self.env._(
+                    "Customer withholding '%(number)s' was already imported "
+                    "as %(withhold)s.",
+                    number=number,
+                    withhold=withhold.display_name,
+                )
+            )
+        if auth_number:
+            keyed = self.env["account.move"].search(
+                [
+                    ("l10n_ec_withholding_type", "=", "sale"),
+                    ("l10n_latam_internal_type", "=", "withhold"),
+                    ("company_id", "=", self.company_id.id),
+                    ("l10n_ec_electronic_authorization", "=", auth_number),
+                ],
+                limit=1,
+            )
+            if keyed:
+                raise UserError(
+                    self.env._(
+                        "Access key '%(key)s' was already imported as %(withhold)s.",
+                        key=auth_number,
+                        withhold=keyed.display_name,
+                    )
+                )

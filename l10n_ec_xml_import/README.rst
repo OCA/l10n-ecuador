@@ -67,7 +67,7 @@ Importing a month of supplier XMLs:
 
 |Import Supplier XML wizard|
 
-1. Open **Invoicing ‣ SRI ‣ Import Supplier XML**.
+1. Open **Invoicing ‣ SRI ‣ Import SRI XML**.
 2. Either attach the supplier ``factura`` XML, or type its 49-digit
    access key (``clave de acceso``). When both arrive, the file wins.
 3. Press **Import**. The wizard creates one draft vendor bill and opens
@@ -79,6 +79,25 @@ Importing a month of supplier XMLs:
 4. Review taxes, sustento and amounts, then post the bill. An already
    imported invoice (same supplier + SRI number, or same authorization
    key) is refused instead of duplicated.
+
+Customer withholding (07) door
+------------------------------
+
+When the customer withholds on OUR sale (renta + IVA) and sends their
+``comprobanteRetencion`` (07, where they are the agent):
+
+1. Open **Invoicing ‣ SRI ‣ Import SRI XML**.
+2. Either attach the customer retencion XML, or type its 49-digit access
+   key. When both arrive, the file wins.
+3. Press **Import**. Every referenced sustento is matched to one of OUR
+   posted sale invoices by SRI number with the 07 emisor RUC as
+   customer; then the manual sale-withhold wizard posts the sale voucher
+   with its usual lines, invoice links and reconcile attempt, and the
+   source XML is attached to the voucher.
+4. Anything unmatched (unknown number, another customer, draft invoice),
+   duplicated (same customer + retencion number, or same authorization
+   key) or unresolvable (unknown withholding rate) is refused with a
+   manual-allocation message: never a silent creation, never a guess.
 
 By access key:
 
@@ -98,37 +117,39 @@ Roadmap
 
 Out of scope in v1, with rationale and a v2 proposal.
 
-+-----------------+----------------+------------------------+----------------+
-| Case            | Why out of v1  | Evidence               | v2 proposal    |
-+=================+================+========================+================+
-| Credit/debit    | Parser and     | ``parse_supplier_xml`` | One mapper per |
-| notes,          | mapper cover   | refuses                | voucher kind   |
-| withholdings,   | facturas       | non-``factura`` roots  | behind the     |
-| liquidation     | (``01``) only  |                        | same wizard    |
-| XMLs            |                |                        |                |
-+-----------------+----------------+------------------------+----------------+
-| reembolsos      | Own document   | Refused with the       | Reembolso      |
-| (41s)           | path with its  | manual-path message    | detail model + |
-|                 | own taxes      |                        | dedicated bill |
-|                 |                |                        | lines          |
-+-----------------+----------------+------------------------+----------------+
-| ICE/IRBPNR-only | Untouched      | Refused with the       | Excise-tax     |
-| lines           | scope, no      | manual-path message    | mapping table  |
-|                 | Odoo-side      |                        | + tests        |
-|                 | template in v1 |                        |                |
-+-----------------+----------------+------------------------+----------------+
-| Sustento        | Buyer-side     | Bill stays draft for   | Default from   |
-| defaulting      | classification | review                 | the supplier's |
-|                 | the XML cannot |                        | tax support    |
-|                 | carry          |                        | with an        |
-|                 |                |                        | override       |
-+-----------------+----------------+------------------------+----------------+
-| Header-total    | Rounding and   | The draft is the       | Tolerance      |
-| reconciliation  | discounts vary | reconciliation surface | check with a   |
-|                 | by emitter     |                        | warning        |
-|                 |                |                        | chatter        |
-|                 |                |                        | message        |
-+-----------------+----------------+------------------------+----------------+
++-----------------+----------------+-------------------+----------------+
+| Case            | Why out of v1  | Evidence          | v2 proposal    |
++=================+================+===================+================+
+| Credit/debit    | Parser and     | ``parse_sri_xml`` | One mapper per |
+| notes,          | mapper cover   | refuses other     | voucher kind   |
+| liquidation     | facturas       | roots             | behind the     |
+| XMLs            | (``01``) and   |                   | same wizard    |
+|                 | customer       |                   |                |
+|                 | retenciones    |                   |                |
+|                 | (``07``) only  |                   |                |
++-----------------+----------------+-------------------+----------------+
+| reembolsos      | Own document   | Refused with the  | Reembolso      |
+| (41s)           | path with its  | manual-path       | detail model + |
+|                 | own taxes      | message           | dedicated bill |
+|                 |                |                   | lines          |
++-----------------+----------------+-------------------+----------------+
+| ICE/IRBPNR-only | Untouched      | Refused with the  | Excise-tax     |
+| lines           | scope, no      | manual-path       | mapping table  |
+|                 | Odoo-side      | message           | + tests        |
+|                 | template in v1 |                   |                |
++-----------------+----------------+-------------------+----------------+
+| Sustento        | Buyer-side     | Bill stays draft  | Default from   |
+| defaulting      | classification | for review        | the supplier's |
+|                 | the XML cannot |                   | tax support    |
+|                 | carry          |                   | with an        |
+|                 |                |                   | override       |
++-----------------+----------------+-------------------+----------------+
+| Header-total    | Rounding and   | The draft is the  | Tolerance      |
+| reconciliation  | discounts vary | reconciliation    | check with a   |
+|                 | by emitter     | surface           | warning        |
+|                 |                |                   | chatter        |
+|                 |                |                   | message        |
++-----------------+----------------+-------------------+----------------+
 
 Bug Tracker
 ===========

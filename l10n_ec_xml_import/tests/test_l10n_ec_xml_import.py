@@ -336,7 +336,7 @@ class TestL10nEcXmlImport(TestL10nECCommon):
 
     def test_import_refuses_no_source(self):
         wizard = self.env["l10n.ec.xml.import"].create({})
-        with self.assertRaisesRegex(UserError, "Attach the supplier factura XML"):
+        with self.assertRaisesRegex(UserError, "Attach the SRI XML"):
             wizard.action_import()
 
     def test_import_refuses_bad_access_key(self):

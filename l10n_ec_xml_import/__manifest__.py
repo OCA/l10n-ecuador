@@ -8,7 +8,7 @@
     "website": "https://github.com/OCA/l10n-ecuador",
     "license": "AGPL-3",
     "version": "19.0.1.0.0",
-    "depends": ["l10n_ec_account_edi"],
+    "depends": ["l10n_ec_account_edi", "l10n_ec_withhold"],
     "data": [
         "security/ir.model.access.csv",
         "data/res_partner_category.xml",
