@@ -83,6 +83,58 @@ class L10nEcReimbursementDetail(models.Model):
         help="IVA of the reimbursed voucher (montoIvaRemb).",
     )
 
+    #: Fields the SRI needs on every leg. Missing values refuse in Python
+    #: (``create``/``write`` below) instead of at the database: a raw null
+    #: violation logs an ERROR line and trips the OCA checklog gate, while a
+    #: ``ValidationError`` fails only the offending write.
+    _l10n_ec_required_fields = (
+        "move_id",
+        "doc_code",
+        "supplier_id_type",
+        "supplier_id",
+        "sri_number",
+        "issue_date",
+        "auth_number",
+        "base_amount",
+    )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Refuse legs missing SRI-required values before the INSERT."""
+        for vals in vals_list:
+            missing = [
+                field
+                for field in self._l10n_ec_required_fields
+                if vals.get(field) is None
+                or vals.get(field) is False
+                or vals.get(field) == ""
+            ]
+            if missing:
+                raise ValidationError(
+                    self.env._(
+                        "Reimbursement entry needs %(fields)s.",
+                        fields=", ".join(sorted(missing)),
+                    )
+                )
+        return super().create(vals_list)
+
+    def write(self, vals):
+        """Refuse blanking SRI-required values after the fact."""
+        nulled = [
+            field
+            for field in self._l10n_ec_required_fields
+            if field in vals
+            and (vals[field] is None or vals[field] is False or vals[field] == "")
+        ]
+        if nulled:
+            raise ValidationError(
+                self.env._(
+                    "Reimbursement entry needs %(fields)s.",
+                    fields=", ".join(sorted(nulled)),
+                )
+            )
+        return super().write(vals)
+
     @api.constrains("doc_code", "move_id")
     def _check_single_doc_code(self):
         """Refuse a move mixing reimbursed document codes.

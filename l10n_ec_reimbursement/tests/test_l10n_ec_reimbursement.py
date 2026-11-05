@@ -9,8 +9,6 @@ document's own buckets stay untouched.
 
 from datetime import date
 
-from psycopg2 import IntegrityError
-
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
 
@@ -134,7 +132,7 @@ class TestL10nEcReimbursement(TestL10nECEdiCommon):
         Detail = self.env["l10n.ec.reimbursement.detail"]
         for missing in ("supplier_id", "auth_number"):
             values = {k: v for k, v in base.items() if k != missing}
-            with self.assertRaises(IntegrityError), self.cr.savepoint():
+            with self.assertRaises(ValidationError):
                 Detail.create(values)
 
     def test_zero_bases_refusal(self):
