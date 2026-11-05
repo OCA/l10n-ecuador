@@ -2,10 +2,11 @@
 
 ``l10n.ec.104.generate`` takes a company, a year and a month, and pre-fills
 the boxes of that month's Form 104 from its posted moves: the sales block
-(401-454), the purchase block (500-560) and the settlement (480-499,
-563-565, 601-699, 799-859). The prefill is offered as a CSV download and as
-an on-screen preview; the filing itself happens in the SRI portal, where the
-suggested boxes (563/564/565, carryovers) stay editable.
+(401-454), the purchase block (500-560), the settlement (480-499,
+563-565, 601-699, 799-859) and the slip counts (111/113/115/117/119).
+The prefill is offered as a CSV download and as an on-screen preview; the
+filing itself happens in the SRI portal, where the suggested boxes
+(563/564/565, carryovers) stay editable.
 
 The period is a field, not a shell argument: ``anio`` refuses a year before
 2000 (the SRI only serves periods from 2000 on) so an impossible period is
@@ -120,7 +121,7 @@ class L10nEc104Generate(models.TransientModel):
         }
 
     def _l10n_ec_104_run(self):
-        """Collect the three blocks, refuse problems aggregated, attach CSV.
+        """Collect the four blocks, refuse problems aggregated, attach CSV.
 
         :return: ``(attachment, boxes)`` with every prefilled box.
         :raises UserError: with every problem found, not the first; no file
@@ -162,7 +163,10 @@ class L10nEc104Generate(models.TransientModel):
             compras,
             carryover=self._l10n_ec_104_carryover(),
         )
-        boxes = {**ventas, **compras, **liquidacion}
+        slips = collector._l10n_ec_104_collect_slips(
+            self.company_id, date_start, date_finish
+        )
+        boxes = {**ventas, **compras, **liquidacion, **slips}
         self.boxes_preview = "\n".join(
             f"{box}: {amount}" for box, amount in sorted(boxes.items())
         )

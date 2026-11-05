@@ -97,20 +97,30 @@ Mirror of §1 with purchase signs.
 | 564 | compras boxes × 563 | (520+521+534+560+523+524+525+526−527) × 563 | «computed» | 522 excluded (no credit right); arts. 66 LRTI, 153/157 RALRTI |
 | 565 | credit base − 564 | subtraction | «computed» | guide: factor credit vs VAT paid |
 | 601, 602 | 499 vs 564 | mutually exclusive max | «computed» | guide: a value in one forbids the other |
-| 609 | posted sales lines carrying the 609 tag | `_l10n_ec_104_tagged_sales_lines` | 609 tag | 0.0 until the withhold flow records them (D6) |
+| 609 | posted sales and voucher (`entry`) lines carrying the 609 tag | `_l10n_ec_104_tagged_sales_lines` | 609 tag | 0.0 until the withhold flow records them (D6); filed positive (D9) |
 | 603, 604, 607, 608, 610–614 | **manual** (`carryover_*`) | carryover, default 0.0 | offsets/adjustments | case-file state, portal-side |
 | 605, 606 | **manual** (`carryover_*`) | carryover, default 0.0 | prior credit balances | must be ≤ prior 615/617 (portal checks) |
 | 615, 617, 618, 619 | **manual** | initialized 0.0 | next-month balances | cross-period accumulation, out of v1 |
 | 620 | 601−602−carryovers−609+carryovers | literal formula | «computed» | layout order preserved |
 | 621 | **manual** (`carryover_621`) | carryover, default 0.0 | presumptive/miscellaneous | pre-2013 / post-2021 special cases |
 | 699 | 620 + 621 | addition | «computed» | layout: 620+621 |
-| 721–731 | posted purchase lines carrying the tags | `_l10n_ec_104_tagged_purchase_lines` | 721…731 tags | 0.0 until the withhold flow records them (D6) |
+| 721–731 | posted purchase and voucher (`entry`) lines carrying the tags | `_l10n_ec_104_tagged_purchase_lines` | 721…731 tags | 0.0 until the withhold flow records them (D6); filed positive (D9) |
 | 799 | sum of 721…731 | addition | «computed» | layout: 721+723+725+727+729+731 |
 | 800, 802 | **manual** (`carryover_*`) | carryover, default 0.0 | provisional offset / public unpaid | case-file state |
 | 801 | 799 − 800 − 802 | subtraction | «computed» | layout: (799−800−802) |
 | 859 | 699 + 801 | addition | «computed» | layout: (699+801) |
 
-## 4. Derived rules a reviewer should challenge
+## 4. Slip counts (`_l10n_ec_104_collect_slips`)
+
+| Box | Source of truth in Odoo | Collector method | Tag / derivation | Rule |
+| --- | --- | --- | --- | --- |
+| 111 | posted `out_invoice` in the month | `_l10n_ec_104_collect_slips` | count of documents | D8 |
+| 113 | cancelled `out_invoice` in the month | `_l10n_ec_104_collect_slips` | count of documents | D8 |
+| 115 | posted `in_invoice` except sales notes (02) and purchase liquidations | `_l10n_ec_104_collect_slips` | count of documents | D8 |
+| 117 | posted `in_invoice` with document code 02 | `_l10n_ec_104_collect_slips` | count of documents | D8 |
+| 119 | posted moves with document `internal_type` `purchase_liquidation` (03/45/294/344) | `_l10n_ec_104_collect_slips` | count of documents | D8 |
+
+## 5. Derived rules a reviewer should challenge
 
 These are the project's own readings where the sources do not state a
 formula. Each names its evidence and what would prove it wrong.
@@ -139,13 +149,32 @@ formula. Each names its evidence and what would prove it wrong.
   reduced-rate taxpayer (410/420) and books absolute differences; the
   purchase pair has no such gate. Proven wrong by: a 423 filed without
   variable rates, or a 526/527 split on other grounds.
-- **D6 — 609 and 721–731 read tags (0.0 without the withhold flow).**
+- **D6 — 609 and 721–731 read tags on invoice, refund and voucher moves
+  (0.0 without the withhold flow).**
   Evidence: the chart publishes the tags on the withhold taxes
   (`tax_sale_withhold_vat_100` → 609); the withhold documents recording
-  them belong to `l10n_ec_withhold` (separate PR). Proven wrong by: a
-  v1-scope source recording customer withholdings.
+  them are `entry` moves (the 07), so the search covers
+  `SALES/PURCHASE_WITHHOLD_MOVE_TYPES` -- invoices alone left every box at
+  zero on the November seed. Proven wrong by: a v1-scope source recording
+  customer withholdings outside vouchers.
 - **D7 — every carryover defaults to 0.0 and stays user input.**
   Evidence: 483/605–608/615–619 reference prior filings no query in this
   addon can reach. The wizard surfaces them as named fields rather than
   hiding them. Proven wrong by: a prior-filing store this module should
   read (a stated v2 glue, not v1 scope).
+- **D9 — withhold boxes take the voucher sign that files positive.**
+  Evidence: the withhold wizard books the sale voucher 609 line as a debit
+  (+36.0 on the November seed) and the purchase voucher 727 line as a
+  credit (−75.0), while the filed form carries both positive; so 609 sums
+  as-is and 721–731 negate, mirroring how invoice and voucher lines book
+  opposite sides of the same event. Proven wrong by: a withhold flow
+  booking the opposite side, or 609/72x tags on invoice lines (the
+  `none`-type withhold taxes cannot be added to invoice lines today).
+- **D8 — slip counts count documents by move type and document type.**
+  Evidence: the xlsx names only the slip totals (rows 38/66/67: emitidos,
+  anulados, recibidos, notas de venta, liquidaciones de compra) without
+  stating which moves count; Odoo already classifies every move by
+  `move_type`, document code (`01`/`02`) and `internal_type`
+  (`purchase_liquidation` for 03/45/294/344), so the collector counts those
+  classes and never amounts. Proven wrong by: an SRI rule counting credit
+  or debit notes as emitted slips, or counting liquidations inside 115.

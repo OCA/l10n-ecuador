@@ -36,6 +36,12 @@ TAG_RE = re.compile(r"^(\d{3}) \(Reporte 104\)$")
 SALES_MOVE_TYPES = ("out_invoice", "out_refund")
 PURCHASE_MOVE_TYPES = ("in_invoice", "in_refund")
 
+#: Move types carrying withhold tags. Vouchers are ``entry`` moves (the 07
+#: the withhold flow posts), so the withhold boxes read invoices, refunds
+#: and vouchers -- the same shape as the 103 ``WITHHOLD_MOVE_TYPES``.
+SALES_WITHHOLD_MOVE_TYPES = ("out_invoice", "out_refund", "entry")
+PURCHASE_WITHHOLD_MOVE_TYPES = ("in_invoice", "in_refund", "entry")
+
 #: Boxes summed into the gross total 409. 425 (5% materials) sits inside
 #: the sales section of the form, so the section total covers it. 410 reads
 #: variable-rate taxes the chart does not ship yet, so it stays 0.0 until
@@ -128,16 +134,74 @@ class L10nEc104Collector(models.AbstractModel):
     _name = "l10n.ec.104.collector"
     _description = "Ecuadorian Form 104 collector"
 
-    def _l10n_ec_104_collect(self, company, date_start, date_finish):
+    def _l10n_ec_104_collect(self, company, date_start, date_finish, carryover=None):
         """Collect per-box amounts for the reported month.
+
+        Composes the four blocks (sales, purchases, settlement, slip counts)
+        so a caller needing the whole prefill has one entry point; the wizard
+        uses the same composition.
 
         :param company: ``res.company`` the return is filed for.
         :param date_start: first day of the reported month.
         :param date_finish: last day of the reported month.
         :returns: ``dict`` mapping box number (``str``) to amount (``float``).
-        :raises NotImplementedError: until T5 composes the blocks.
         """
-        raise NotImplementedError("l10n_ec_104 blocks compose in T5")
+        ventas = self._l10n_ec_104_collect_ventas(company, date_start, date_finish)
+        compras = self._l10n_ec_104_collect_compras(company, date_start, date_finish)
+        liquidacion = self._l10n_ec_104_collect_liquidacion(
+            company, date_start, date_finish, ventas, compras, carryover=carryover
+        )
+        slips = self._l10n_ec_104_collect_slips(company, date_start, date_finish)
+        return {**ventas, **compras, **liquidacion, **slips}
+
+    def _l10n_ec_104_collect_slips(self, company, date_start, date_finish):
+        """Count the sales/purchase slips of the period (111/113/115/117/119).
+
+        The xlsx names only the slip totals, never which moves count, so this
+        is a derived rule (D8): 111 counts posted customer invoices
+        (``out_invoice``, every document type), 113 counts the cancelled ones
+        (``state = 'cancel'``), 115 counts posted vendor bills except sales
+        notes (code ``02``) and purchase liquidations, 117 counts the sales
+        notes received (code ``02``), and 119 counts the purchase
+        liquidations emitted (document ``internal_type``
+        ``purchase_liquidation``: codes 03/45/294/344). Counts are numbers of
+        documents, never amounts.
+        """
+        slips = self._l10n_ec_104_empty_slip_boxes()
+        sales = self.env["account.move"].search(
+            [
+                ("company_id", "=", company.id),
+                ("move_type", "=", "out_invoice"),
+                ("date", ">=", date_start),
+                ("date", "<=", date_finish),
+            ]
+        )
+        slips["111"] = float(len(sales.filtered(lambda m: m.state == "posted")))
+        slips["113"] = float(len(sales.filtered(lambda m: m.state == "cancel")))
+        bills = self.env["account.move"].search(
+            [
+                ("company_id", "=", company.id),
+                ("move_type", "=", "in_invoice"),
+                ("state", "=", "posted"),
+                ("date", ">=", date_start),
+                ("date", "<=", date_finish),
+            ]
+        )
+        liquidations = bills.filtered(
+            lambda m: m.l10n_latam_document_type_id.internal_type
+            == "purchase_liquidation"
+        )
+        sales_notes = bills.filtered(
+            lambda m: (m.l10n_latam_document_type_id.code or "").strip() == "02"
+        )
+        slips["119"] = float(len(liquidations))
+        slips["117"] = float(len(sales_notes))
+        slips["115"] = float(len(bills - liquidations - sales_notes))
+        return slips
+
+    def _l10n_ec_104_empty_slip_boxes(self):
+        """Every slip-count box the form header owns, at zero."""
+        return {box: 0.0 for box in ("111", "113", "115", "117", "119")}
 
     def _l10n_ec_104_collect_ventas(self, company, date_start, date_finish):
         """Collect the sales boxes (401-454) for the reported month.
@@ -361,7 +425,7 @@ class L10nEc104Collector(models.AbstractModel):
             boxes["601"] = boxes["499"] - boxes["564"]
         elif boxes["564"] - boxes["499"] > 0:
             boxes["602"] = boxes["564"] - boxes["499"]
-        boxes["609"] = -sum(
+        boxes["609"] = sum(
             line.balance
             for line in self._l10n_ec_104_tagged_sales_lines(
                 company, date_start, date_finish, "609"
@@ -385,7 +449,7 @@ class L10nEc104Collector(models.AbstractModel):
         )
         boxes["699"] = boxes["620"] + carryover.get("621", 0.0)
         for withhold_box in ("721", "723", "725", "727", "729", "731"):
-            boxes[withhold_box] = sum(
+            boxes[withhold_box] = -sum(
                 line.balance
                 for line in self._l10n_ec_104_tagged_purchase_lines(
                     company, date_start, date_finish, withhold_box
@@ -477,11 +541,16 @@ class L10nEc104Collector(models.AbstractModel):
         return contado_base, contado_tax, credito_base, credito_tax
 
     def _l10n_ec_104_tagged_sales_lines(self, company, date_start, date_finish, box):
-        """Posted customer-move lines carrying the ``box`` tag."""
+        """Posted customer-move and voucher lines carrying the ``box`` tag.
+
+        Withhold vouchers are ``entry`` moves (same shape as the 103
+        ``WITHHOLD_MOVE_TYPES``): the withhold flow books the 07 there, so
+        reading invoices alone leaves every withhold box at zero (D9).
+        """
         moves = self.env["account.move"].search(
             [
                 ("company_id", "=", company.id),
-                ("move_type", "in", list(SALES_MOVE_TYPES)),
+                ("move_type", "in", list(SALES_WITHHOLD_MOVE_TYPES)),
                 ("state", "=", "posted"),
                 ("date", ">=", date_start),
                 ("date", "<=", date_finish),
@@ -492,11 +561,16 @@ class L10nEc104Collector(models.AbstractModel):
         )
 
     def _l10n_ec_104_tagged_purchase_lines(self, company, date_start, date_finish, box):
-        """Posted vendor-move lines carrying the ``box`` tag."""
+        """Posted vendor-move and voucher lines carrying the ``box`` tag.
+
+        Withhold vouchers are ``entry`` moves (same shape as the 103
+        ``WITHHOLD_MOVE_TYPES``): the withhold flow books the 07 there, so
+        reading bills alone leaves every withhold box at zero (D9).
+        """
         moves = self.env["account.move"].search(
             [
                 ("company_id", "=", company.id),
-                ("move_type", "in", list(PURCHASE_MOVE_TYPES)),
+                ("move_type", "in", list(PURCHASE_WITHHOLD_MOVE_TYPES)),
                 ("state", "=", "posted"),
                 ("date", ">=", date_start),
                 ("date", "<=", date_finish),

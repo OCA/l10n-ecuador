@@ -20,3 +20,13 @@ reported as carried, never as computed.
 Everything that cannot be derived arrives in **one** `UserError`, numbered,
 and no file is produced. A company filing outside Ecuador is refused the
 same way. Nothing is computed and nothing is assumed on refusal.
+
+Evidence (November 2026 seed, company 4):
+
+Verified on the November 2026 demo seed, company 4. Document counts (D8):
+111=1, 113=0, 115=5, 117=0, 119=0. Sales: 401=800, 411=800, 421=120,
+429=120. Purchases: 500=2350, 510=2250, 520=337.5. Settlement: 602=217.5,
+609=36.0 (retained VALUE, 30% of 120, D9), 727=75.0 (retained VALUE, 50%
+of 150, D9), 799=75.0, 801=75.0, 620=-253.5, 699=-253.5, 859=-178.5.
+Limits: 113/117/119 read 0.0 (no seed docs; ATS seed frozen since PR #105
+closed); exterior boxes read 0.0 (see ROADMAP).

@@ -88,6 +88,16 @@ numbered, and no file is produced. A company filing outside Ecuador is
 refused the same way. Nothing is computed and nothing is assumed on
 refusal.
 
+Evidence (November 2026 seed, company 4):
+
+Verified on the November 2026 demo seed, company 4. Document counts
+(D8): 111=1, 113=0, 115=5, 117=0, 119=0. Sales: 401=800, 411=800,
+421=120, 429=120. Purchases: 500=2350, 510=2250, 520=337.5. Settlement:
+602=217.5, 609=36.0 (retained VALUE, 30% of 120, D9), 727=75.0 (retained
+VALUE, 50% of 150, D9), 799=75.0, 801=75.0, 620=-253.5, 699=-253.5,
+859=-178.5. Limits: 113/117/119 read 0.0 (no seed docs; ATS seed frozen
+since PR #105 closed); exterior boxes read 0.0 (see ROADMAP).
+
 Known issues / Roadmap
 ======================
 
@@ -97,72 +107,84 @@ Roadmap
 Out of scope in v1, with rationale and a v2 proposal. Each entry states
 the evidence and what a future version would need.
 
-+-------------------+-----------------------+----------------+--------------------------+
-| Boxes             | Why out of v1         | Evidence       | v2 proposal              |
-+===================+=======================+================+==========================+
-| Prior-month       | Inter-period state,   | Form boxes     | ``l10n_ec_104_balances`` |
-| balances and      | not derivable from    | 605-608, 615,  | glue reading prior       |
-| carryovers        | the month's moves     | 617-619, 483   | filings + withholdings   |
-| (605-608 carried, |                       |                | received (609)           |
-| 615/617/618/619   |                       |                |                          |
-| carried, 483)     |                       |                |                          |
-+-------------------+-----------------------+----------------+--------------------------+
-| Payments,         | Treasury/post-filing, | Form boxes     | ``l10n_ec_104_payment``  |
-| sustitutivas,     | not accounting        | 890, 897-899,  | glue                     |
-| interest/fines    |                       | 902-904, 999,  |                          |
-| (890,             |                       | 880            |                          |
-| 897/898/899,      |                       |                |                          |
-| 902/903/904/999,  |                       |                |                          |
-| 880)              |                       |                |                          |
-+-------------------+-----------------------+----------------+--------------------------+
-| Compensations and | Require case files    | Form boxes     | Manual boxes with audit  |
-| sector benefits   | and resolutions, user | 603-604,       | trail, never derived     |
-| (603, 604,        | assertion             | 607-608,       |                          |
-| 607/608, 610-614, |                       | 610-614, 622,  |                          |
-| 622, 624/625)     |                       | 624-625        |                          |
-+-------------------+-----------------------+----------------+--------------------------+
-| Merger/absorption | Requires              | Form boxes     | Manual box gated on deed |
-| (623, 492)        | mercantile-registry   | 623, 492       | date                     |
-|                   | deed, one-off event   |                |                          |
-+-------------------+-----------------------+----------------+--------------------------+
-| ISD refund for    | Needs customs/FUE     | Form boxes     | Export document model    |
-| exporters         | data model absent     | 700-702        | (shared gap with ATS)    |
-| (700/701/702)     | from Odoo             |                |                          |
-+-------------------+-----------------------+----------------+--------------------------+
-| Unpaid            | Sector-specific       | Form box 802   | Manual box for public    |
-| withholdings,     | settlement state      |                | entities                 |
-| public sector     |                       |                |                          |
-| (802)             |                       |                |                          |
-+-------------------+-----------------------+----------------+--------------------------+
-| COVID deferred    | Expired/special       | Form boxes     | Only on explicit         |
-| payment           | regimes with own      | 881-887, 621   | maintainer decision      |
-| (881-887),        | registries            |                |                          |
-| presumptive       |                       |                |                          |
-| gambling (621)    |                       |                |                          |
-+-------------------+-----------------------+----------------+--------------------------+
-| Tourism variable  | Needs executive       | Form box 203   | Rate table resolved for  |
-| rate (203)        | decree + Tourism      |                | the reported period      |
-|                   | Ministry cadastre     |                |                          |
-+-------------------+-----------------------+----------------+--------------------------+
-| RIMPE semestrial  | Period rule           | SRI guide,     | Wizard period option, no |
-| filing            | (June/December under  | RIMPE regime   | new boxes                |
-|                   | code 2011), not extra |                |                          |
-|                   | boxes                 |                |                          |
-+-------------------+-----------------------+----------------+--------------------------+
-| Informative       | Informative-only in   | Form boxes     | Reported as-is;          |
-| reimbursements    | v1, no own            | 431, 434,      | apportionment only if    |
-| (434/444/454,     | apportionment         | 531-532, 535   | the SRI requires it      |
-| 535/545/555),     |                       |                |                          |
-| non-object/exempt |                       |                |                          |
-| (431/441,         |                       |                |                          |
-| 531/541, 532/542) |                       |                |                          |
-+-------------------+-----------------------+----------------+--------------------------+
++-------------------+-----------------------+----------------------+--------------------------+
+| Boxes             | Why out of v1         | Evidence             | v2 proposal              |
++===================+=======================+======================+==========================+
+| Prior-month       | Inter-period state,   | Form boxes 605-608,  | ``l10n_ec_104_balances`` |
+| balances and      | not derivable from    | 615, 617-619, 483    | glue reading prior       |
+| carryovers        | the month's moves     |                      | filings + withholdings   |
+| (605-608 carried, |                       |                      | received (609)           |
+| 615/617/618/619   |                       |                      |                          |
+| carried, 483)     |                       |                      |                          |
++-------------------+-----------------------+----------------------+--------------------------+
+| Payments,         | Treasury/post-filing, | Form boxes 890,      | ``l10n_ec_104_payment``  |
+| sustitutivas,     | not accounting        | 897-899, 902-904,    | glue                     |
+| interest/fines    |                       | 999, 880             |                          |
+| (890,             |                       |                      |                          |
+| 897/898/899,      |                       |                      |                          |
+| 902/903/904/999,  |                       |                      |                          |
+| 880)              |                       |                      |                          |
++-------------------+-----------------------+----------------------+--------------------------+
+| Compensations and | Require case files    | Form boxes 603-604,  | Manual boxes with audit  |
+| sector benefits   | and resolutions, user | 607-608, 610-614,    | trail, never derived     |
+| (603, 604,        | assertion             | 622, 624-625         |                          |
+| 607/608, 610-614, |                       |                      |                          |
+| 622, 624/625)     |                       |                      |                          |
++-------------------+-----------------------+----------------------+--------------------------+
+| Merger/absorption | Requires              | Form boxes 623, 492  | Manual box gated on deed |
+| (623, 492)        | mercantile-registry   |                      | date                     |
+|                   | deed, one-off event   |                      |                          |
++-------------------+-----------------------+----------------------+--------------------------+
+| ISD refund for    | Needs customs/FUE     | Form boxes 700-702   | Export document model    |
+| exporters         | data model absent     |                      | (shared gap with ATS)    |
+| (700/701/702)     | from Odoo             |                      |                          |
++-------------------+-----------------------+----------------------+--------------------------+
+| Unpaid            | Sector-specific       | Form box 802         | Manual box for public    |
+| withholdings,     | settlement state      |                      | entities                 |
+| public sector     |                       |                      |                          |
+| (802)             |                       |                      |                          |
++-------------------+-----------------------+----------------------+--------------------------+
+| COVID deferred    | Expired/special       | Form boxes 881-887,  | Only on explicit         |
+| payment           | regimes with own      | 621                  | maintainer decision      |
+| (881-887),        | registries            |                      |                          |
+| presumptive       |                       |                      |                          |
+| gambling (621)    |                       |                      |                          |
++-------------------+-----------------------+----------------------+--------------------------+
+| Tourism variable  | Needs executive       | Form box 203         | Rate table resolved for  |
+| rate (203)        | decree + Tourism      |                      | the reported period      |
+|                   | Ministry cadastre     |                      |                          |
++-------------------+-----------------------+----------------------+--------------------------+
+| RIMPE semestrial  | Period rule           | SRI guide, RIMPE     | Wizard period option, no |
+| filing            | (June/December under  | regime               | new boxes                |
+|                   | code 2011), not extra |                      |                          |
+|                   | boxes                 |                      |                          |
++-------------------+-----------------------+----------------------+--------------------------+
+| Informative       | Informative-only in   | Form boxes 431, 434, | Reported as-is;          |
+| reimbursements    | v1, no own            | 531-532, 535         | apportionment only if    |
+| (434/444/454,     | apportionment         |                      | the SRI requires it      |
+| 535/545/555),     |                       |                      |                          |
+| non-object/exempt |                       |                      |                          |
+| (431/441,         |                       |                      |                          |
+| 531/541, 532/542) |                       |                      |                          |
++-------------------+-----------------------+----------------------+--------------------------+
+| Exterior-trade    | Boxes work through    | November seed run;   | Import/export docs in an |
+| demo coverage     | the chart tags, but   | ``FOREIGN_PURCHASE`` | isolated 104 demo (the   |
+| (exports 407/408, | no demo document      | in                   | ATS seed is frozen since |
+| imports           | exercises them: the   | ``seed_ats_demo.py`` | #105 closed) + tag-level |
+| 503/504/505)      | foreign-supplier seed |                      | tests                    |
+|                   | bill files as         |                      |                          |
+|                   | national (doc 01 +    |                      |                          |
+|                   | purchase tax 74), so  |                      |                          |
+|                   | every exterior box    |                      |                          |
+|                   | reads 0.0 on the      |                      |                          |
+|                   | November seed         |                      |                          |
++-------------------+-----------------------+----------------------+--------------------------+
 
 Reconciliation of box 429 against the ATS ``totalVentas`` header is a
 separate follow-up (``l10n_ec_104_ats_reconcile``), never a condition of
 this module: the ATS derives ``totalVentas`` from its ``ventas`` rows
 while the 104 reads 429 from tags, and wiring them together here would
-couple this PR to the open ATS PR (#105).
+couple this PR to the ATS module (closed PR #105).
 
 Bug Tracker
 ===========
