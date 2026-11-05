@@ -135,6 +135,15 @@ class TestL10nEcReimbursement(TestL10nECEdiCommon):
             with self.assertRaises(ValidationError):
                 Detail.create(values)
 
+    def test_write_null_refusal(self):
+        """Blanking a required leg value refuses; other writes pass."""
+        move = self._l10n_ec_create_in_invoice()
+        leg = self._add_reimbursement(move)
+        with self.assertRaises(ValidationError):
+            leg.write({"supplier_id": False})
+        leg.write({"base_amount": 120.0})
+        self.assertEqual(leg.base_amount, 120.0)
+
     def test_zero_bases_refusal(self):
         """A leg with no base at all refuses, even with taxes on it."""
         move = self._l10n_ec_create_in_invoice()
@@ -256,6 +265,26 @@ class TestL10nEcReimbursement(TestL10nECEdiCommon):
         self._add_reimbursement(move, ice_amount=5.0)
         with self.assertRaisesRegex(UserError, "ICE"):
             self._render_invoice_xml(move)
+
+    def test_iva_without_taxed_base_refuses(self):
+        """IVA with no taxed base derives no rate and refuses emission."""
+        move = self._post_with_support(self._l10n_ec_create_in_invoice())
+        self._add_reimbursement(move, taxed_base=0.0, no_tax_base=50.0, iva_amount=15.0)
+        with self.assertRaises(UserError):
+            self._render_invoice_xml(move)
+
+    def test_reembolso_xml_buckets_06_07(self):
+        """No-tax and exempt buckets render codes 6 and 7 with totals."""
+        move = self._post_with_support(self._l10n_ec_create_in_invoice())
+        self._add_reimbursement(move, no_tax_base=50.0, exempt_base=25.0)
+        xml = self._render_invoice_xml(move)
+        self.assertIn("<codigoPorcentaje>4</codigoPorcentaje>", xml)
+        self.assertIn("<codigoPorcentaje>6</codigoPorcentaje>", xml)
+        self.assertIn("<codigoPorcentaje>7</codigoPorcentaje>", xml)
+        self.assertIn(
+            "<totalBaseImponibleReembolso>175.00</totalBaseImponibleReembolso>", xml
+        )
+        self.assertIn("<totalImpuestoReembolso>15.00</totalImpuestoReembolso>", xml)
 
     # ------------------------------------------------------------------
     # ATS collector

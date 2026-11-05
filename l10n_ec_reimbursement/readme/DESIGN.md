@@ -2,8 +2,9 @@
 
 One emission carries one code. The SRI XSD allows a single
 `codDocReembolso` per info block, so the module refuses a document mixing
-reimbursed codes at write time (`_check_single_doc_code`) and again at
-emission time: the Frappe side enforces the same single-code rule.
+reimbursed codes at write time (`_check_single_doc_code`): persisted legs
+can never mix, so the emission trusts the stored code. The Frappe side
+enforces the same single-code rule.
 
 ## Where the nodes land
 

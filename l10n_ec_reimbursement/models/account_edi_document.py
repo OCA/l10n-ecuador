@@ -65,15 +65,6 @@ class AccountEdiDocument(models.Model):
         if not details:
             return values
         codes = set(details.mapped("doc_code"))
-        if len(codes) != 1:
-            raise UserError(
-                self.env._(
-                    "Reimbursed vouchers on %(move)s mix document codes "
-                    "%(codes)s. One emission carries a single SRI code.",
-                    move=self.move_id.display_name,
-                    codes=", ".join(sorted(codes)),
-                )
-            )
         if any(detail.ice_amount for detail in details):
             raise UserError(
                 self.env._(
