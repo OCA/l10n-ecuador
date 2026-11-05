@@ -18,6 +18,7 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
 
 from odoo.addons.l10n_ec_account_edi.tests.test_common import TestL10nECCommon
+from odoo.addons.l10n_ec_xml_import.models.sri_xml import parse_supplier_xml
 from odoo.addons.l10n_ec_xml_import.wizard.l10n_ec_xml_import import L10nEcXmlImport
 
 CLAVE = ("1234567890" * 5)[:49]
@@ -426,4 +427,144 @@ class TestL10nEcXmlImport(TestL10nECCommon):
         ):
             with self.assertRaisesRegex(UserError, "did not answer"):
                 self._key_wizard().action_import()
+        self.assertEqual(self._bill_count(), 0)
+
+    # -- parser edge cases (direct ValueError) ---------------------------
+
+    def test_parse_refuses_envelope_without_comprobante(self):
+        xml = (
+            "<autorizacion><estado>AUTORIZADO</estado>"
+            "<numeroAutorizacion>123</numeroAutorizacion></autorizacion>"
+        )
+        with self.assertRaisesRegex(ValueError, "no <comprobante>"):
+            parse_supplier_xml(xml)
+
+    def test_parse_refuses_comprobante_without_single_document(self):
+        xml = (
+            "<autorizacion><estado>AUTORIZADO</estado>"
+            "<comprobante></comprobante></autorizacion>"
+        )
+        with self.assertRaisesRegex(ValueError, "no single document"):
+            parse_supplier_xml(xml)
+
+    def test_parse_refuses_empty_xml(self):
+        with self.assertRaisesRegex(ValueError, "empty"):
+            parse_supplier_xml("   ")
+
+    def test_parse_refuses_factura_without_number(self):
+        xml = _factura_xml()
+        xml = xml.replace("<estab>001</estab>", "")
+        xml = xml.replace("<ptoEmi>001</ptoEmi>", "")
+        xml = xml.replace("<secuencial>000000001</secuencial>", "")
+        with self.assertRaisesRegex(ValueError, "no document number"):
+            parse_supplier_xml(xml)
+
+    def test_parse_refuses_factura_without_ruc_tag(self):
+        xml = _factura_xml().replace(f"<ruc>{NEW_RUC}</ruc>", "")
+        with self.assertRaisesRegex(ValueError, "no emisor RUC"):
+            parse_supplier_xml(xml)
+
+    def test_parse_non_numeric_amount_falls_back_to_zero(self):
+        xml = _factura_xml().replace(
+            "<importeTotal>230.00</importeTotal>",
+            "<importeTotal>ABC</importeTotal>",
+        )
+        self.assertEqual(parse_supplier_xml(xml)["total"], 0.0)
+
+    # -- wizard refusals ---------------------------------------------------
+
+    def test_import_refuses_unreadable_file(self):
+        wizard = self.env["l10n.ec.xml.import"].create(
+            {
+                "xml_file": base64.b64encode(b"\xff\xfe\xfd"),
+                "xml_filename": "supplier.xml",
+            }
+        )
+        with self.assertRaisesRegex(UserError, "not a readable XML"):
+            wizard.action_import()
+        self.assertEqual(self._bill_count(), 0)
+
+    def test_import_refuses_malformed_key_without_sri_call(self):
+        wizard = self.env["l10n.ec.xml.import"].new({"access_key": "123"})
+        with (
+            mock.patch.object(
+                L10nEcXmlImport,
+                "_l10n_ec_request_authorization",
+                side_effect=AssertionError("SRI must not be called"),
+            ),
+            self.assertRaisesRegex(UserError, "49 digits"),
+        ):
+            wizard.action_import()
+        self.assertEqual(self._bill_count(), 0)
+
+    def test_fetch_key_refuses_empty_response(self):
+        with (
+            mock.patch.object(
+                L10nEcXmlImport,
+                "_l10n_ec_request_authorization",
+                return_value={},
+            ),
+            mock.patch(
+                "odoo.addons.l10n_ec_xml_import.wizard.l10n_ec_xml_import."
+                "serialize_object",
+                side_effect=lambda result, _as_dict: result,
+            ),
+        ):
+            with self.assertRaisesRegex(UserError, "no authorized document"):
+                self._key_wizard().action_import()
+        self.assertEqual(self._bill_count(), 0)
+
+    def test_fetch_key_refuses_authorized_without_body(self):
+        response = {
+            "autorizaciones": {
+                "autorizacion": {
+                    "estado": "AUTORIZADO",
+                    "numeroAutorizacion": AUTH_NUMBER,
+                    "comprobante": "   ",
+                }
+            }
+        }
+        with (
+            mock.patch.object(
+                L10nEcXmlImport,
+                "_l10n_ec_request_authorization",
+                return_value=response,
+            ),
+            mock.patch(
+                "odoo.addons.l10n_ec_xml_import.wizard.l10n_ec_xml_import."
+                "serialize_object",
+                side_effect=lambda result, _as_dict: result,
+            ),
+        ):
+            with self.assertRaisesRegex(UserError, "no document"):
+                self._key_wizard().action_import()
+        self.assertEqual(self._bill_count(), 0)
+
+    def test_import_refuses_non_usd_company(self):
+        self.company.write({"currency_id": self.env.ref("base.EUR").id})
+        with self.assertRaisesRegex(UserError, "US dollars"):
+            self._import_file(_factura_xml())
+        self.assertEqual(self._bill_count(), 0)
+
+    def test_import_refuses_impossible_date(self):
+        with self.assertRaisesRegex(UserError, "not a real date"):
+            self._import_file(_factura_xml(date="15/13/2026"))
+
+    def test_import_refuses_missing_document_type(self):
+        env_class = type(self.env)
+        real_ref = env_class.ref
+
+        def _fake_ref(inner_self, xml_id, raise_if_not_found=True):
+            if xml_id == "l10n_ec.ec_dt_01":
+                return inner_self["l10n_latam.document.type"].browse()
+            return real_ref(inner_self, xml_id, raise_if_not_found=raise_if_not_found)
+
+        with mock.patch.object(env_class, "ref", _fake_ref):
+            with self.assertRaisesRegex(UserError, "Document type 01"):
+                self._import_file(_factura_xml())
+        self.assertEqual(self._bill_count(), 0)
+
+    def test_import_refuses_supplier_without_name(self):
+        with self.assertRaisesRegex(UserError, "with no name"):
+            self._import_file(_factura_xml(ruc="1790011226999", name=""))
         self.assertEqual(self._bill_count(), 0)
