@@ -1142,80 +1142,77 @@ Row counts are the number of data rows in the source, counted from the
 cells named. They are not entry counts: a later import must re-derive
 them.
 
-+----------+-------------+--------------------------+------+------------------+--------------------+
-| Table    | Title       | Sheet                    | Rows | Cells            | Why not loaded     |
-+==========+=============+==========================+======+==================+====================+
-| ``3.10`` | Conceptos   | ``TABLAS RETENCIONES``   | 291  | ``B1``–``DC291`` | 23 side-by-side    |
-|          | de          |                          |      |                  | date eras of       |
-|          | retención   |                          |      |                  | income-withholding |
-|          | en la       |                          |      |                  | concepts and       |
-|          | fuente de   |                          |      |                  | rates. Genuinely   |
-|          | impuesto a  |                          |      |                  | relational and     |
-|          | la renta    |                          |      |                  | resolved per line, |
-|          | (AIR)       |                          |      |                  | so it needs its    |
-|          |             |                          |      |                  | own ``concept`` /  |
-|          |             |                          |      |                  | ``rate`` models    |
-|          |             |                          |      |                  | rather than a      |
-|          |             |                          |      |                  | table code. That   |
-|          |             |                          |      |                  | is ``ATS-01b``,    |
-|          |             |                          |      |                  | not this task.     |
-+----------+-------------+--------------------------+------+------------------+--------------------+
-| ``6``    | Distrito    | ``TABLAS REFERENCIALES`` | 14   | ``B118:C131``    | Customs district,  |
-|          | aduanero    |                          |      |                  | used by the export |
-|          |             |                          |      |                  | block. Exports are |
-|          |             |                          |      |                  | deferred on a      |
-|          |             |                          |      |                  | data-model gap,    |
-|          |             |                          |      |                  | not a policy one.  |
-+----------+-------------+--------------------------+------+------------------+--------------------+
-| ``7``    | Código      | ``TABLAS REFERENCIALES`` | 44   | ``B136:C179``    | Pre-2012 customs   |
-|          | régimen     |                          |      |                  | regime, same       |
-|          | (hasta      |                          |      |                  | export block.      |
-|          | septiembre  |                          |      |                  |                    |
-|          | 2012)       |                          |      |                  |                    |
-+----------+-------------+--------------------------+------+------------------+--------------------+
-| ``7.1``  | Código      | ``TABLAS REFERENCIALES`` | 9    | ``E136:F145``    | Current customs    |
-|          | régimen     |                          |      |                  | regime, same       |
-|          | (desde      |                          |      |                  | export block.      |
-|          | octubre     |                          |      |                  |                    |
-|          | 2012)       |                          |      |                  |                    |
-+----------+-------------+--------------------------+------+------------------+--------------------+
-| ``8``    | Tarjetas de | ``TABLAS REFERENCIALES`` | 5    | ``B184:C188``    | Card brand, used   |
-|          | crédito     |                          |      |                  | by ``RECAP``.      |
-|          |             |                          |      |                  | ``RECAP`` is a     |
-|          |             |                          |      |                  | Tipo 2 contributor |
-|          |             |                          |      |                  | block.             |
-+----------+-------------+--------------------------+------+------------------+--------------------+
-| ``9``    | Tipos       | ``TABLAS REFERENCIALES`` | 19   | ``B193:F211``    | Trust type, used   |
-|          | fideicomiso |                          |      |                  | by the             |
-|          |             |                          |      |                  | trusts/funds       |
-|          |             |                          |      |                  | block.             |
-+----------+-------------+--------------------------+------+------------------+--------------------+
-| ``10``   | Tipo de     | ``TABLAS REFERENCIALES`` | 3    | ``B216:E218``    | Export /           |
-|          | exportación |                          |      |                  | foreign-income     |
-|          | / ingreso   |                          |      |                  | kind, same export  |
-|          | del         |                          |      |                  | block.             |
-|          | exterior    |                          |      |                  |                    |
-+----------+-------------+--------------------------+------+------------------+--------------------+
-| ``16``   | Países      | ``TABLAS REFERENCIALES`` | 260  | ``B278:G364``    | Three country      |
-|          |             |                          |      |                  | pairs per row      |
-|          |             |                          |      |                  | across 87 rows.    |
-|          |             |                          |      |                  | Export block.      |
-+----------+-------------+--------------------------+------+------------------+--------------------+
-| ``17``   | Paraísos    | ``TABLAS REFERENCIALES`` | 88   | ``B369:H456``    | Tax havens, used   |
-|          | fiscales    |                          |      |                  | by the             |
-|          |             |                          |      |                  | foreign-regime     |
-|          |             |                          |      |                  | block.             |
-+----------+-------------+--------------------------+------+------------------+--------------------+
-| ``18``   | Tipos de    | ``TABLAS REFERENCIALES`` | 39   | ``B461:F499``    | Foreign-income     |
-|          | ingresos    |                          |      |                  | kind, same export  |
-|          | del         |                          |      |                  | block.             |
-|          | exterior    |                          |      |                  |                    |
-+----------+-------------+--------------------------+------+------------------+--------------------+
-| ``19``   | Tipos de    | ``TABLAS REFERENCIALES`` | 3    | ``B504:D506``    | Foreign tax        |
-|          | régimen     |                          |      |                  | regime, same       |
-|          | fiscal del  |                          |      |                  | export block.      |
-|          | exterior    |                          |      |                  |                    |
-+----------+-------------+--------------------------+------+------------------+--------------------+
++---------+-------------+--------------------------+------+---------------+----------------+
+| Table   | Title       | Sheet                    | Rows | Cells         | Why not loaded |
++=========+=============+==========================+======+===============+================+
+| ``6``   | Distrito    | ``TABLAS REFERENCIALES`` | 14   | ``B118:C131`` | Customs        |
+|         | aduanero    |                          |      |               | district, used |
+|         |             |                          |      |               | by the export  |
+|         |             |                          |      |               | block. Exports |
+|         |             |                          |      |               | are deferred   |
+|         |             |                          |      |               | on a           |
+|         |             |                          |      |               | data-model     |
+|         |             |                          |      |               | gap, not a     |
+|         |             |                          |      |               | policy one.    |
++---------+-------------+--------------------------+------+---------------+----------------+
+| ``7``   | Código      | ``TABLAS REFERENCIALES`` | 44   | ``B136:C179`` | Pre-2012       |
+|         | régimen     |                          |      |               | customs        |
+|         | (hasta      |                          |      |               | regime, same   |
+|         | septiembre  |                          |      |               | export block.  |
+|         | 2012)       |                          |      |               |                |
++---------+-------------+--------------------------+------+---------------+----------------+
+| ``7.1`` | Código      | ``TABLAS REFERENCIALES`` | 9    | ``E136:F145`` | Current        |
+|         | régimen     |                          |      |               | customs        |
+|         | (desde      |                          |      |               | regime, same   |
+|         | octubre     |                          |      |               | export block.  |
+|         | 2012)       |                          |      |               |                |
++---------+-------------+--------------------------+------+---------------+----------------+
+| ``8``   | Tarjetas de | ``TABLAS REFERENCIALES`` | 5    | ``B184:C188`` | Card brand,    |
+|         | crédito     |                          |      |               | used by        |
+|         |             |                          |      |               | ``RECAP``.     |
+|         |             |                          |      |               | ``RECAP`` is a |
+|         |             |                          |      |               | Tipo 2         |
+|         |             |                          |      |               | contributor    |
+|         |             |                          |      |               | block.         |
++---------+-------------+--------------------------+------+---------------+----------------+
+| ``9``   | Tipos       | ``TABLAS REFERENCIALES`` | 19   | ``B193:F211`` | Trust type,    |
+|         | fideicomiso |                          |      |               | used by the    |
+|         |             |                          |      |               | trusts/funds   |
+|         |             |                          |      |               | block.         |
++---------+-------------+--------------------------+------+---------------+----------------+
+| ``10``  | Tipo de     | ``TABLAS REFERENCIALES`` | 3    | ``B216:E218`` | Export /       |
+|         | exportación |                          |      |               | foreign-income |
+|         | / ingreso   |                          |      |               | kind, same     |
+|         | del         |                          |      |               | export block.  |
+|         | exterior    |                          |      |               |                |
++---------+-------------+--------------------------+------+---------------+----------------+
+| ``16``  | Países      | ``TABLAS REFERENCIALES`` | 260  | ``B278:G364`` | Three country  |
+|         |             |                          |      |               | pairs per row  |
+|         |             |                          |      |               | across 87      |
+|         |             |                          |      |               | rows. Export   |
+|         |             |                          |      |               | block.         |
++---------+-------------+--------------------------+------+---------------+----------------+
+| ``17``  | Paraísos    | ``TABLAS REFERENCIALES`` | 88   | ``B369:H456`` | Tax havens,    |
+|         | fiscales    |                          |      |               | used by the    |
+|         |             |                          |      |               | foreign-regime |
+|         |             |                          |      |               | block.         |
++---------+-------------+--------------------------+------+---------------+----------------+
+| ``18``  | Tipos de    | ``TABLAS REFERENCIALES`` | 39   | ``B461:F499`` | Foreign-income |
+|         | ingresos    |                          |      |               | kind, same     |
+|         | del         |                          |      |               | export block.  |
+|         | exterior    |                          |      |               |                |
++---------+-------------+--------------------------+------+---------------+----------------+
+| ``19``  | Tipos de    | ``TABLAS REFERENCIALES`` | 3    | ``B504:D506`` | Foreign tax    |
+|         | régimen     |                          |      |               | regime, same   |
+|         | fiscal del  |                          |      |               | export block.  |
+|         | exterior    |                          |      |               |                |
++---------+-------------+--------------------------+------+---------------+----------------+
+
+``Tabla 3.10`` is **not** in that list: it needs date eras per concept
+and per rate, so it is loaded through its own models
+(``l10n.ec.ats.income.withholding.concept`` and ``.rate``) instead of a
+table code, and ``readme/DESIGN.md`` maps every element it feeds. The
+remaining question about its relation to the tax groups is below.
 
 ``Tabla 3.10`` also remains unreconciled against
 ``l10n_ec_base/data/account_tax_group_data.py``: its 414 concepts do not
@@ -1244,6 +1241,38 @@ has to be added from the SRI's published table with its own dates, and
 ``Tabla 12`` is effective-dated precisely so that a rate change is a
 data change. Recorded so the next republication does not have to
 rediscover it.
+
+Where the withholding referential lives
+---------------------------------------
+
+``Tabla 3.10`` (renta concepts and rates) and ``Tabla 11`` (IVA
+retention shares) are loaded here -- in the addon that files the annex
+-- and not in ``l10n_ec_withhold``. The split is deliberate and its cost
+is stated rather than hidden.
+
+- **What each module owns today.** ``l10n_ec_withhold`` owns the *tax*
+  side: an ``account.tax`` carries ``l10n_ec_code_ats``, its group
+  carries ``l10n_ec_type``, and ``l10n_ec_tax_support`` is a timeless
+  ``Selection`` on the move. It owns no catalog model and no temporal
+  primitive: ``l10n.ec.temporal`` is this addon's.
+- **Why the era data is here.** A withholding rate only means something
+  for a reported period. ``Tabla 3.10`` spreads its concepts and rates
+  across date eras, and concept codes carry a different description in a
+  different era, so every read must be resolved against the reported
+  month -- which is this addon's input.
+- **The duplication it creates, which is real.** ``Tabla 5`` exists
+  twice: as the timeless ``l10n_ec_tax_support`` ``Selection`` and as
+  the era-dated catalog here, because ``document_type_codes`` changes by
+  period and a ``Selection`` cannot say that.
+- **The alternative, and its price.** Moving ``3.10``, ``11`` and ``5``
+  into ``l10n_ec_withhold`` is defensible on ownership -- they are
+  withholding catalogues -- but it requires that module to take the
+  temporal primitive and the generic catalog models, and to resolve
+  concepts per period. It does not use that machinery today: it
+  withholds from taxes. And it cannot happen in this change: this addon
+  depends on ``l10n_ec_withhold``, so the move belongs to a separate
+  change against that module, once the migration it is part of is
+  merged.
 
 Open questions
 --------------

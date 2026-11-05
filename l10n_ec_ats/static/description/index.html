@@ -452,36 +452,37 @@ the record it comes from.</p>
 <li><a class="reference internal" href="#out-of-scope-in-v1-with-rationale-and-a-v2-proposal" id="toc-entry-35">Out of scope in v1, with rationale and a v2 proposal</a></li>
 <li><a class="reference internal" href="#referential-tables-that-are-deliberately-not-loaded" id="toc-entry-36">Referential tables that are deliberately not loaded</a></li>
 <li><a class="reference internal" href="#tabla-12-has-no-15-era-so-every-15-line-raises-a-warning" id="toc-entry-37"><tt class="docutils literal">Tabla 12</tt> has no 15% era, so every 15% line raises a warning</a></li>
-<li><a class="reference internal" href="#open-questions" id="toc-entry-38">Open questions</a><ul>
-<li><a class="reference internal" href="#totalventas-what-does-solo-facturacion-fisica-f-qualify" id="toc-entry-39"><tt class="docutils literal">totalVentas</tt>: what does <em>“Solo Facturación Física F”</em> qualify?</a></li>
-<li><a class="reference internal" href="#the-000-establishment-hole-in-l10n-ec-base" id="toc-entry-40">The <tt class="docutils literal">000</tt> establishment hole in <tt class="docutils literal">l10n_ec_base</tt></a></li>
-<li><a class="reference internal" href="#two-account-tax-rows-carry-an-ats-code-that-resolves-to-nothing" id="toc-entry-41">Two <tt class="docutils literal">account.tax</tt> rows carry an ATS code that resolves to nothing</a></li>
-<li><a class="reference internal" href="#the-1900-01-01-sentinel" id="toc-entry-42">The <tt class="docutils literal"><span class="pre">1900-01-01</span></tt> sentinel</a></li>
-<li><a class="reference internal" href="#tabla-4-validity-dates-live-in-prose-footnotes" id="toc-entry-43"><tt class="docutils literal">Tabla 4</tt> validity dates live in prose footnotes</a></li>
-<li><a class="reference internal" href="#tabla-2-rows-that-name-no-transaction-type" id="toc-entry-44"><tt class="docutils literal">Tabla 2</tt> rows that name no transaction type</a></li>
-<li><a class="reference internal" href="#the-sri-contradicts-itself-on-tabla-4-tabla-5" id="toc-entry-45">The SRI contradicts itself on <tt class="docutils literal">Tabla 4</tt> ↔ <tt class="docutils literal">Tabla 5</tt></a></li>
-<li><a class="reference internal" href="#tabla-12-has-no-code-column" id="toc-entry-46"><tt class="docutils literal">Tabla 12</tt> has no code column</a></li>
-<li><a class="reference internal" href="#two-source-spellings-left-verbatim" id="toc-entry-47">Two source spellings left verbatim</a></li>
+<li><a class="reference internal" href="#where-the-withholding-referential-lives" id="toc-entry-38">Where the withholding referential lives</a></li>
+<li><a class="reference internal" href="#open-questions" id="toc-entry-39">Open questions</a><ul>
+<li><a class="reference internal" href="#totalventas-what-does-solo-facturacion-fisica-f-qualify" id="toc-entry-40"><tt class="docutils literal">totalVentas</tt>: what does <em>“Solo Facturación Física F”</em> qualify?</a></li>
+<li><a class="reference internal" href="#the-000-establishment-hole-in-l10n-ec-base" id="toc-entry-41">The <tt class="docutils literal">000</tt> establishment hole in <tt class="docutils literal">l10n_ec_base</tt></a></li>
+<li><a class="reference internal" href="#two-account-tax-rows-carry-an-ats-code-that-resolves-to-nothing" id="toc-entry-42">Two <tt class="docutils literal">account.tax</tt> rows carry an ATS code that resolves to nothing</a></li>
+<li><a class="reference internal" href="#the-1900-01-01-sentinel" id="toc-entry-43">The <tt class="docutils literal"><span class="pre">1900-01-01</span></tt> sentinel</a></li>
+<li><a class="reference internal" href="#tabla-4-validity-dates-live-in-prose-footnotes" id="toc-entry-44"><tt class="docutils literal">Tabla 4</tt> validity dates live in prose footnotes</a></li>
+<li><a class="reference internal" href="#tabla-2-rows-that-name-no-transaction-type" id="toc-entry-45"><tt class="docutils literal">Tabla 2</tt> rows that name no transaction type</a></li>
+<li><a class="reference internal" href="#the-sri-contradicts-itself-on-tabla-4-tabla-5" id="toc-entry-46">The SRI contradicts itself on <tt class="docutils literal">Tabla 4</tt> ↔ <tt class="docutils literal">Tabla 5</tt></a></li>
+<li><a class="reference internal" href="#tabla-12-has-no-code-column" id="toc-entry-47"><tt class="docutils literal">Tabla 12</tt> has no code column</a></li>
+<li><a class="reference internal" href="#two-source-spellings-left-verbatim" id="toc-entry-48">Two source spellings left verbatim</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#documents-voided-through-the-sri-s-online-portal-are-not-implementable-today" id="toc-entry-48">Documents voided through the SRI’s online portal are not implementable today</a></li>
-<li><a class="reference internal" href="#should-cancelled-withholdings-be-in-the-anulados-block" id="toc-entry-49">Should cancelled <strong>withholdings</strong> be in the <tt class="docutils literal">anulados</tt> block?</a></li>
-<li><a class="reference internal" href="#the-journal-key-is-not-on-every-error-of-every-block" id="toc-entry-50">The <tt class="docutils literal">journal</tt> key is not on every error of every block</a></li>
-<li><a class="reference internal" href="#dimm-s-own-summary-builder-crashes-on-a-physical-emission-sale" id="toc-entry-51">DIMM’s own summary builder crashes on a physical-emission sale</a></li>
-<li><a class="reference internal" href="#deferred-work" id="toc-entry-52">Deferred work</a><ul>
-<li><a class="reference internal" href="#effective-dated-taxes-on-account-tax-a-separate-proposal-in-l10n-ec-base" id="toc-entry-53">Effective-dated taxes on <tt class="docutils literal">account.tax</tt> — a separate proposal in <tt class="docutils literal">l10n_ec_base</tt></a></li>
+<li><a class="reference internal" href="#documents-voided-through-the-sri-s-online-portal-are-not-implementable-today" id="toc-entry-49">Documents voided through the SRI’s online portal are not implementable today</a></li>
+<li><a class="reference internal" href="#should-cancelled-withholdings-be-in-the-anulados-block" id="toc-entry-50">Should cancelled <strong>withholdings</strong> be in the <tt class="docutils literal">anulados</tt> block?</a></li>
+<li><a class="reference internal" href="#the-journal-key-is-not-on-every-error-of-every-block" id="toc-entry-51">The <tt class="docutils literal">journal</tt> key is not on every error of every block</a></li>
+<li><a class="reference internal" href="#dimm-s-own-summary-builder-crashes-on-a-physical-emission-sale" id="toc-entry-52">DIMM’s own summary builder crashes on a physical-emission sale</a></li>
+<li><a class="reference internal" href="#deferred-work" id="toc-entry-53">Deferred work</a><ul>
+<li><a class="reference internal" href="#effective-dated-taxes-on-account-tax-a-separate-proposal-in-l10n-ec-base" id="toc-entry-54">Effective-dated taxes on <tt class="docutils literal">account.tax</tt> — a separate proposal in <tt class="docutils literal">l10n_ec_base</tt></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#the-wizard-has-a-form-view-and-a-menu-entry-and-it-reports-warnings" id="toc-entry-54">The wizard has a form view and a menu entry, and it reports warnings</a></li>
-<li><a class="reference internal" href="#validators-validate-ats-and-builder-build-ats-xml-read-the-header-under-one-key" id="toc-entry-55"><tt class="docutils literal">validators.validate_ats</tt> and <tt class="docutils literal">builder.build_ats_xml</tt> read the header under one key</a></li>
-<li><a class="reference internal" href="#a-ventas-row-with-no-client-side-iva-withholding" id="toc-entry-56">A <tt class="docutils literal">ventas</tt> row with no client-side IVA withholding</a></li>
-<li><a class="reference internal" href="#two-tabla-3-10-groupings-the-sri-does-not-state" id="toc-entry-57">Two <tt class="docutils literal">Tabla 3.10</tt> groupings the SRI does not state</a></li>
+<li><a class="reference internal" href="#the-wizard-has-a-form-view-and-a-menu-entry-and-it-reports-warnings" id="toc-entry-55">The wizard has a form view and a menu entry, and it reports warnings</a></li>
+<li><a class="reference internal" href="#validators-validate-ats-and-builder-build-ats-xml-read-the-header-under-one-key" id="toc-entry-56"><tt class="docutils literal">validators.validate_ats</tt> and <tt class="docutils literal">builder.build_ats_xml</tt> read the header under one key</a></li>
+<li><a class="reference internal" href="#a-ventas-row-with-no-client-side-iva-withholding" id="toc-entry-57">A <tt class="docutils literal">ventas</tt> row with no client-side IVA withholding</a></li>
+<li><a class="reference internal" href="#two-tabla-3-10-groupings-the-sri-does-not-state" id="toc-entry-58">Two <tt class="docutils literal">Tabla 3.10</tt> groupings the SRI does not state</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#bug-tracker" id="toc-entry-58">Bug Tracker</a></li>
-<li><a class="reference internal" href="#credits" id="toc-entry-59">Credits</a><ul>
-<li><a class="reference internal" href="#contributors" id="toc-entry-60">Contributors</a></li>
-<li><a class="reference internal" href="#maintainers" id="toc-entry-61">Maintainers</a></li>
+<li><a class="reference internal" href="#bug-tracker" id="toc-entry-59">Bug Tracker</a></li>
+<li><a class="reference internal" href="#credits" id="toc-entry-60">Credits</a><ul>
+<li><a class="reference internal" href="#contributors" id="toc-entry-61">Contributors</a></li>
+<li><a class="reference internal" href="#maintainers" id="toc-entry-62">Maintainers</a></li>
 </ul>
 </li>
 </ul>
@@ -1754,11 +1755,11 @@ them.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="11%" />
-<col width="14%" />
-<col width="28%" />
-<col width="6%" />
+<col width="15%" />
+<col width="31%" />
+<col width="7%" />
+<col width="18%" />
 <col width="19%" />
-<col width="22%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Table</th>
@@ -1770,45 +1771,21 @@ them.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">3.10</tt></td>
-<td>Conceptos
-de
-retención
-en la
-fuente de
-impuesto a
-la renta
-(AIR)</td>
-<td><tt class="docutils literal">TABLAS RETENCIONES</tt></td>
-<td>291</td>
-<td><tt class="docutils literal">B1</tt>–<tt class="docutils literal">DC291</tt></td>
-<td>23 side-by-side
-date eras of
-income-withholding
-concepts and
-rates. Genuinely
-relational and
-resolved per line,
-so it needs its
-own <tt class="docutils literal">concept</tt> /
-<tt class="docutils literal">rate</tt> models
-rather than a
-table code. That
-is <tt class="docutils literal"><span class="pre">ATS-01b</span></tt>,
-not this task.</td>
-</tr>
 <tr><td><tt class="docutils literal">6</tt></td>
 <td>Distrito
 aduanero</td>
 <td><tt class="docutils literal">TABLAS REFERENCIALES</tt></td>
 <td>14</td>
 <td><tt class="docutils literal">B118:C131</tt></td>
-<td>Customs district,
-used by the export
-block. Exports are
-deferred on a
-data-model gap,
-not a policy one.</td>
+<td>Customs
+district, used
+by the export
+block. Exports
+are deferred
+on a
+data-model
+gap, not a
+policy one.</td>
 </tr>
 <tr><td><tt class="docutils literal">7</tt></td>
 <td>Código
@@ -1819,7 +1796,8 @@ septiembre
 <td><tt class="docutils literal">TABLAS REFERENCIALES</tt></td>
 <td>44</td>
 <td><tt class="docutils literal">B136:C179</tt></td>
-<td>Pre-2012 customs
+<td>Pre-2012
+customs
 regime, same
 export block.</td>
 </tr>
@@ -1832,7 +1810,8 @@ octubre
 <td><tt class="docutils literal">TABLAS REFERENCIALES</tt></td>
 <td>9</td>
 <td><tt class="docutils literal">E136:F145</tt></td>
-<td>Current customs
+<td>Current
+customs
 regime, same
 export block.</td>
 </tr>
@@ -1842,10 +1821,12 @@ crédito</td>
 <td><tt class="docutils literal">TABLAS REFERENCIALES</tt></td>
 <td>5</td>
 <td><tt class="docutils literal">B184:C188</tt></td>
-<td>Card brand, used
-by <tt class="docutils literal">RECAP</tt>.
+<td>Card brand,
+used by
+<tt class="docutils literal">RECAP</tt>.
 <tt class="docutils literal">RECAP</tt> is a
-Tipo 2 contributor
+Tipo 2
+contributor
 block.</td>
 </tr>
 <tr><td><tt class="docutils literal">9</tt></td>
@@ -1854,8 +1835,8 @@ fideicomiso</td>
 <td><tt class="docutils literal">TABLAS REFERENCIALES</tt></td>
 <td>19</td>
 <td><tt class="docutils literal">B193:F211</tt></td>
-<td>Trust type, used
-by the
+<td>Trust type,
+used by the
 trusts/funds
 block.</td>
 </tr>
@@ -1870,8 +1851,8 @@ exterior</td>
 <td><tt class="docutils literal">B216:E218</tt></td>
 <td>Export /
 foreign-income
-kind, same export
-block.</td>
+kind, same
+export block.</td>
 </tr>
 <tr><td><tt class="docutils literal">16</tt></td>
 <td>Países</td>
@@ -1880,8 +1861,9 @@ block.</td>
 <td><tt class="docutils literal">B278:G364</tt></td>
 <td>Three country
 pairs per row
-across 87 rows.
-Export block.</td>
+across 87
+rows. Export
+block.</td>
 </tr>
 <tr><td><tt class="docutils literal">17</tt></td>
 <td>Paraísos
@@ -1889,8 +1871,8 @@ fiscales</td>
 <td><tt class="docutils literal">TABLAS REFERENCIALES</tt></td>
 <td>88</td>
 <td><tt class="docutils literal">B369:H456</tt></td>
-<td>Tax havens, used
-by the
+<td>Tax havens,
+used by the
 foreign-regime
 block.</td>
 </tr>
@@ -1903,8 +1885,8 @@ exterior</td>
 <td>39</td>
 <td><tt class="docutils literal">B461:F499</tt></td>
 <td>Foreign-income
-kind, same export
-block.</td>
+kind, same
+export block.</td>
 </tr>
 <tr><td><tt class="docutils literal">19</tt></td>
 <td>Tipos de
@@ -1920,6 +1902,11 @@ export block.</td>
 </tr>
 </tbody>
 </table>
+<p><tt class="docutils literal">Tabla 3.10</tt> is <strong>not</strong> in that list: it needs date eras per concept
+and per rate, so it is loaded through its own models
+(<tt class="docutils literal">l10n.ec.ats.income.withholding.concept</tt> and <tt class="docutils literal">.rate</tt>) instead of a
+table code, and <tt class="docutils literal">readme/DESIGN.md</tt> maps every element it feeds. The
+remaining question about its relation to the tax groups is below.</p>
 <p><tt class="docutils literal">Tabla 3.10</tt> also remains unreconciled against
 <tt class="docutils literal">l10n_ec_base/data/account_tax_group_data.py</tt>: its 414 concepts do not
 reconcile with the 17 tax groups there, and all nine VAT groups carry
@@ -1945,10 +1932,42 @@ has to be added from the SRI’s published table with its own dates, and
 data change. Recorded so the next republication does not have to
 rediscover it.</p>
 </div>
+<div class="section" id="where-the-withholding-referential-lives">
+<h3><a class="toc-backref" href="#toc-entry-38">Where the withholding referential lives</a></h3>
+<p><tt class="docutils literal">Tabla 3.10</tt> (renta concepts and rates) and <tt class="docutils literal">Tabla 11</tt> (IVA
+retention shares) are loaded here – in the addon that files the annex
+– and not in <tt class="docutils literal">l10n_ec_withhold</tt>. The split is deliberate and its cost
+is stated rather than hidden.</p>
+<ul class="simple">
+<li><strong>What each module owns today.</strong> <tt class="docutils literal">l10n_ec_withhold</tt> owns the <em>tax</em>
+side: an <tt class="docutils literal">account.tax</tt> carries <tt class="docutils literal">l10n_ec_code_ats</tt>, its group
+carries <tt class="docutils literal">l10n_ec_type</tt>, and <tt class="docutils literal">l10n_ec_tax_support</tt> is a timeless
+<tt class="docutils literal">Selection</tt> on the move. It owns no catalog model and no temporal
+primitive: <tt class="docutils literal">l10n.ec.temporal</tt> is this addon’s.</li>
+<li><strong>Why the era data is here.</strong> A withholding rate only means something
+for a reported period. <tt class="docutils literal">Tabla 3.10</tt> spreads its concepts and rates
+across date eras, and concept codes carry a different description in a
+different era, so every read must be resolved against the reported
+month – which is this addon’s input.</li>
+<li><strong>The duplication it creates, which is real.</strong> <tt class="docutils literal">Tabla 5</tt> exists
+twice: as the timeless <tt class="docutils literal">l10n_ec_tax_support</tt> <tt class="docutils literal">Selection</tt> and as
+the era-dated catalog here, because <tt class="docutils literal">document_type_codes</tt> changes by
+period and a <tt class="docutils literal">Selection</tt> cannot say that.</li>
+<li><strong>The alternative, and its price.</strong> Moving <tt class="docutils literal">3.10</tt>, <tt class="docutils literal">11</tt> and <tt class="docutils literal">5</tt>
+into <tt class="docutils literal">l10n_ec_withhold</tt> is defensible on ownership – they are
+withholding catalogues – but it requires that module to take the
+temporal primitive and the generic catalog models, and to resolve
+concepts per period. It does not use that machinery today: it
+withholds from taxes. And it cannot happen in this change: this addon
+depends on <tt class="docutils literal">l10n_ec_withhold</tt>, so the move belongs to a separate
+change against that module, once the migration it is part of is
+merged.</li>
+</ul>
+</div>
 <div class="section" id="open-questions">
-<h3><a class="toc-backref" href="#toc-entry-38">Open questions</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-39">Open questions</a></h3>
 <div class="section" id="totalventas-what-does-solo-facturacion-fisica-f-qualify">
-<h4><a class="toc-backref" href="#toc-entry-39"><tt class="docutils literal">totalVentas</tt>: what does <em>“Solo Facturación Física F”</em> qualify?</a></h4>
+<h4><a class="toc-backref" href="#toc-entry-40"><tt class="docutils literal">totalVentas</tt>: what does <em>“Solo Facturación Física F”</em> qualify?</a></h4>
 <p><tt class="docutils literal">ESQUEMA TIPO 1 Y 2</tt> row 10 defines the header’s <tt class="docutils literal">totalVentas</tt> and
 then appends a clause that is explained nowhere in the workbook, the
 ficha técnica, or <tt class="docutils literal">ats.xsd</tt>. Verbatim:</p>
@@ -1994,7 +2013,7 @@ catch it because the suite cannot know the alternative.</p>
 the same clause. It is not a typo in one sheet.</p>
 </div>
 <div class="section" id="the-000-establishment-hole-in-l10n-ec-base">
-<h4><a class="toc-backref" href="#toc-entry-40">The <tt class="docutils literal">000</tt> establishment hole in <tt class="docutils literal">l10n_ec_base</tt></a></h4>
+<h4><a class="toc-backref" href="#toc-entry-41">The <tt class="docutils literal">000</tt> establishment hole in <tt class="docutils literal">l10n_ec_base</tt></a></h4>
 <p><tt class="docutils literal">account.journal._constrains_l10n_ec_entity_emission</tt>
 (<tt class="docutils literal"><span class="pre">l10n_ec_base/models/account_journal.py:14-36</span></tt>) checks only
 <tt class="docutils literal">len(value) &lt; 3</tt> and <tt class="docutils literal">not value.isnumeric()</tt>:</p>
@@ -2032,7 +2051,7 @@ change to merged code and needs its own PR against <tt class="docutils literal">
 self-contained either way, which is what §5.4b asks for.</p>
 </div>
 <div class="section" id="two-account-tax-rows-carry-an-ats-code-that-resolves-to-nothing">
-<h4><a class="toc-backref" href="#toc-entry-41">Two <tt class="docutils literal">account.tax</tt> rows carry an ATS code that resolves to nothing</a></h4>
+<h4><a class="toc-backref" href="#toc-entry-42">Two <tt class="docutils literal">account.tax</tt> rows carry an ATS code that resolves to nothing</a></h4>
 <p><tt class="docutils literal">account.tax.l10n_ec_code_ats</tt> is the source of <tt class="docutils literal">codRetAir</tt> — the
 feature document’s §5.3 corrected the field’s own help text, which
 claims it conforms to <tt class="docutils literal">Tabla 5</tt>; it does not, it holds <tt class="docutils literal">Tabla 3.10</tt>
@@ -2090,7 +2109,7 @@ transposition of <tt class="docutils literal">302</tt>, and the record’s own n
 it is recorded here rather than worked around.</p>
 </div>
 <div class="section" id="the-1900-01-01-sentinel">
-<h4><a class="toc-backref" href="#toc-entry-42">The <tt class="docutils literal"><span class="pre">1900-01-01</span></tt> sentinel</a></h4>
+<h4><a class="toc-backref" href="#toc-entry-43">The <tt class="docutils literal"><span class="pre">1900-01-01</span></tt> sentinel</a></h4>
 <p><tt class="docutils literal">l10n.ec.temporal</tt> makes <tt class="docutils literal">date_start</tt> required. Five in-scope tables
 carry no date in the source at all: the referred transaction types and
 the month codes have no date column, <tt class="docutils literal">Tabla 14</tt> and <tt class="docutils literal">Tabla 15</tt> have
@@ -2105,7 +2124,7 @@ data. A decision to change it belongs in the mixin’s field help, which
 is where a reader looks first.</p>
 </div>
 <div class="section" id="tabla-4-validity-dates-live-in-prose-footnotes">
-<h4><a class="toc-backref" href="#toc-entry-43"><tt class="docutils literal">Tabla 4</tt> validity dates live in prose footnotes</a></h4>
+<h4><a class="toc-backref" href="#toc-entry-44"><tt class="docutils literal">Tabla 4</tt> validity dates live in prose footnotes</a></h4>
 <p>The <tt class="docutils literal">Fecha de vigencia</tt> column is empty for every row, yet rows
 <tt class="docutils literal">B91</tt> and <tt class="docutils literal">B92</tt> state in prose that code <tt class="docutils literal">364</tt> is in force from
 <tt class="docutils literal">01/04/2017</tt> and that code <tt class="docutils literal">375</tt> was in force from <tt class="docutils literal">01/12/2020</tt> to
@@ -2117,7 +2136,7 @@ the SRI publishes the column, the whole table reads as undated. Worth a
 maintainer’s view.</p>
 </div>
 <div class="section" id="tabla-2-rows-that-name-no-transaction-type">
-<h4><a class="toc-backref" href="#toc-entry-44"><tt class="docutils literal">Tabla 2</tt> rows that name no transaction type</a></h4>
+<h4><a class="toc-backref" href="#toc-entry-45"><tt class="docutils literal">Tabla 2</tt> rows that name no transaction type</a></h4>
 <p><tt class="docutils literal">Tabla 2</tt> states, per row, which transaction type of the referred
 tables applies. Six of the seven names it uses appear there verbatim;
 two do not:</p>
@@ -2133,7 +2152,7 @@ does not carry at all.</li>
 reports them: an unresolvable lookup must raise, not invent.</p>
 </div>
 <div class="section" id="the-sri-contradicts-itself-on-tabla-4-tabla-5">
-<h4><a class="toc-backref" href="#toc-entry-45">The SRI contradicts itself on <tt class="docutils literal">Tabla 4</tt> ↔ <tt class="docutils literal">Tabla 5</tt></a></h4>
+<h4><a class="toc-backref" href="#toc-entry-46">The SRI contradicts itself on <tt class="docutils literal">Tabla 4</tt> ↔ <tt class="docutils literal">Tabla 5</tt></a></h4>
 <p><tt class="docutils literal">Tabla 4</tt> column F says document <tt class="docutils literal">375</tt> (liquidación de compra RISE)
 is supported by sustentos <tt class="docutils literal">01</tt> through <tt class="docutils literal">08</tt>. None of <tt class="docutils literal">Tabla 5</tt>’s
 rows <tt class="docutils literal">D97</tt> to <tt class="docutils literal">D104</tt> names <tt class="docutils literal">375</tt> back. Every other pair in the two
@@ -2142,7 +2161,7 @@ and the gap is asserted in the test suite, so a future release that
 closes it changes the assertion rather than passing unnoticed.</p>
 </div>
 <div class="section" id="tabla-12-has-no-code-column">
-<h4><a class="toc-backref" href="#toc-entry-46"><tt class="docutils literal">Tabla 12</tt> has no code column</a></h4>
+<h4><a class="toc-backref" href="#toc-entry-47"><tt class="docutils literal">Tabla 12</tt> has no code column</a></h4>
 <p>The sheet identifies a VAT regime by its percentage only. The entry
 <tt class="docutils literal">code</tt> is therefore that percentage rendered as two digits (<tt class="docutils literal">12</tt>,
 <tt class="docutils literal">14</tt>) and <tt class="docutils literal">percentage</tt> is the source fraction multiplied by 100,
@@ -2150,7 +2169,7 @@ because the ATS field is a whole percent. This is the only table whose
 <tt class="docutils literal">code</tt> repeats across rows.</p>
 </div>
 <div class="section" id="two-source-spellings-left-verbatim">
-<h4><a class="toc-backref" href="#toc-entry-47">Two source spellings left verbatim</a></h4>
+<h4><a class="toc-backref" href="#toc-entry-48">Two source spellings left verbatim</a></h4>
 <p><tt class="docutils literal">Tabla 12</tt>’s title reads <tt class="docutils literal">PROCENTAJE DE IVA</tt> — <tt class="docutils literal">PROCENTAJE</tt>, not
 <tt class="docutils literal">PORCENTAJE</tt>. The <tt class="docutils literal">name</tt> field reproduces it rather than correcting
 it, because a catalog value nobody can trace to a cell is a value nobody
@@ -2162,7 +2181,7 @@ both rows distinct and keeps the duplicate description.</p>
 </div>
 </div>
 <div class="section" id="documents-voided-through-the-sri-s-online-portal-are-not-implementable-today">
-<h3><a class="toc-backref" href="#toc-entry-48">Documents voided through the SRI’s online portal are not implementable today</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-49">Documents voided through the SRI’s online portal are not implementable today</a></h3>
 <p>Ficha técnica §2.5 opens the cancelled block with an exclusion the ATS
 cannot honour:</p>
 <blockquote>
@@ -2203,7 +2222,7 @@ file. Until then the block is <strong>over-inclusive on this one exclusion</stro
 and says so.</p>
 </div>
 <div class="section" id="should-cancelled-withholdings-be-in-the-anulados-block">
-<h3><a class="toc-backref" href="#toc-entry-49">Should cancelled <strong>withholdings</strong> be in the <tt class="docutils literal">anulados</tt> block?</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-50">Should cancelled <strong>withholdings</strong> be in the <tt class="docutils literal">anulados</tt> block?</a></h3>
 <p>Odoo Enterprise’s <tt class="docutils literal">_get_void_moves</tt> collects two populations and adds
 both to the same list:</p>
 <ol class="arabic simple">
@@ -2240,7 +2259,7 @@ and it will need the same decision this block had to make about
 <tt class="docutils literal">tipoComprobante</tt>, plus a source for the triple.</p>
 </div>
 <div class="section" id="the-journal-key-is-not-on-every-error-of-every-block">
-<h3><a class="toc-backref" href="#toc-entry-50">The <tt class="docutils literal">journal</tt> key is not on every error of every block</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-51">The <tt class="docutils literal">journal</tt> key is not on every error of every block</a></h3>
 <p>ATS-08’s docstring on <tt class="docutils literal">collect_ventas_establecimiento_with_errors</tt>
 states:</p>
 <blockquote>
@@ -2265,7 +2284,7 @@ say the contract applies from ATS-08 onwards. Both are fine; having the
 code and the docstring disagree is not.</p>
 </div>
 <div class="section" id="dimm-s-own-summary-builder-crashes-on-a-physical-emission-sale">
-<h3><a class="toc-backref" href="#toc-entry-51">DIMM’s own summary builder crashes on a physical-emission sale</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-52">DIMM’s own summary builder crashes on a physical-emission sale</a></h3>
 <p><tt class="docutils literal">tipoEmision</tt> is resolved from the issuing journal (<tt class="docutils literal">Tabla 20</tt>), so
 a sale issued from a journal that does not use documents files as <tt class="docutils literal">F</tt>
 – physical. That is the truthful value, and the ficha asks for it.</p>
@@ -2290,9 +2309,9 @@ implementer who meets the crash learns in one place that it belongs to
 the SRI’s tool.</p>
 </div>
 <div class="section" id="deferred-work">
-<h3><a class="toc-backref" href="#toc-entry-52">Deferred work</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-53">Deferred work</a></h3>
 <div class="section" id="effective-dated-taxes-on-account-tax-a-separate-proposal-in-l10n-ec-base">
-<h4><a class="toc-backref" href="#toc-entry-53">Effective-dated taxes on <tt class="docutils literal">account.tax</tt> — a separate proposal in <tt class="docutils literal">l10n_ec_base</tt></a></h4>
+<h4><a class="toc-backref" href="#toc-entry-54">Effective-dated taxes on <tt class="docutils literal">account.tax</tt> — a separate proposal in <tt class="docutils literal">l10n_ec_base</tt></a></h4>
 <p>The proposal below is reproduced <strong>verbatim</strong> from the feature
 document’s §5.7.</p>
 <p>The rate-history problem is <strong>wider than ATS</strong>. <tt class="docutils literal">account.tax</tt> has no
@@ -2331,7 +2350,7 @@ up, the catalog side of the work is done.</p>
 </div>
 </div>
 <div class="section" id="the-wizard-has-a-form-view-and-a-menu-entry-and-it-reports-warnings">
-<h3><a class="toc-backref" href="#toc-entry-54">The wizard has a form view and a menu entry, and it reports warnings</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-55">The wizard has a form view and a menu entry, and it reports warnings</a></h3>
 <p>Resolved. <tt class="docutils literal">views/l10n_ec_ats_generate_views.xml</tt> carries the form, the
 action and a menuitem under <tt class="docutils literal">l10n_ec.sri_menu</tt>, the same root
 <tt class="docutils literal">l10n_ec_account_edi</tt> hangs its documents off, so the feature is where
@@ -2357,7 +2376,7 @@ stored field on the transient wizard is the channel that survives to a
 real user in this version.</p>
 </div>
 <div class="section" id="validators-validate-ats-and-builder-build-ats-xml-read-the-header-under-one-key">
-<h3><a class="toc-backref" href="#toc-entry-55"><tt class="docutils literal">validators.validate_ats</tt> and <tt class="docutils literal">builder.build_ats_xml</tt> read the header under one key</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-56"><tt class="docutils literal">validators.validate_ats</tt> and <tt class="docutils literal">builder.build_ats_xml</tt> read the header under one key</a></h3>
 <p>Resolved. The two layers disagreed — the builder from
 <tt class="docutils literal"><span class="pre">payload[&quot;header&quot;]</span></tt>, the validator from <tt class="docutils literal"><span class="pre">payload[&quot;iva&quot;]</span></tt> — and the
 consequences were worse than a collision. The wizard papered over it
@@ -2379,7 +2398,7 @@ element the header is rendered <em>into</em>, <tt class="docutils literal">heade
 mapping sits in a payload. Same word, different thing.</p>
 </div>
 <div class="section" id="a-ventas-row-with-no-client-side-iva-withholding">
-<h3><a class="toc-backref" href="#toc-entry-56">A <tt class="docutils literal">ventas</tt> row with no client-side IVA withholding</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-57">A <tt class="docutils literal">ventas</tt> row with no client-side IVA withholding</a></h3>
 <p>Resolved the other way from what ATS-11 shipped, and it is a behaviour
 change.</p>
 <p><tt class="docutils literal">ESQUEMA</tt> row 24 reads: <em>“Debe ser igual a la baseImpGrav aplicando el
@@ -2405,7 +2424,7 @@ exempting <tt class="docutils literal">0.00</tt> instead of reconciling it again
 comparison is never against a literal.</p>
 </div>
 <div class="section" id="two-tabla-3-10-groupings-the-sri-does-not-state">
-<h3><a class="toc-backref" href="#toc-entry-57">Two <tt class="docutils literal">Tabla 3.10</tt> groupings the SRI does not state</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-58">Two <tt class="docutils literal">Tabla 3.10</tt> groupings the SRI does not state</a></h3>
 <p><tt class="docutils literal">detail_group</tt> is loaded for eight codes from the ficha técnica’s
 prose. Two things about it are worth a maintainer’s eye:</p>
 <ul class="simple">
@@ -2424,7 +2443,7 @@ set, and nothing in the source chooses between them.</li>
 </div>
 </div>
 <div class="section" id="bug-tracker">
-<h2><a class="toc-backref" href="#toc-entry-58">Bug Tracker</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-59">Bug Tracker</a></h2>
 <p>Bugs are tracked on <a class="reference external" href="https://github.com/OCA/l10n-ecuador/issues">GitHub Issues</a>.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
@@ -2432,13 +2451,13 @@ If you spotted it first, help us to smash it by providing a detailed and welcome
 <p>Do not contact contributors directly about support or help with technical issues.</p>
 </div>
 <div class="section" id="credits">
-<h2><a class="toc-backref" href="#toc-entry-59">Credits</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-60">Credits</a></h2>
 <div class="section" id="contributors">
-<h3><a class="toc-backref" href="#toc-entry-60">Contributors</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-61">Contributors</a></h3>
 <p>Christopher Ormaza <a class="reference external" href="mailto:chris.ormaza&#64;gmail.com">chris.ormaza&#64;gmail.com</a></p>
 </div>
 <div class="section" id="maintainers">
-<h3><a class="toc-backref" href="#toc-entry-61">Maintainers</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-62">Maintainers</a></h3>
 <p>This module is maintained by the OCA.</p>
 <a class="reference external image-reference" href="https://odoo-community.org">
 <img alt="Odoo Community Association" src="https://odoo-community.org/logo.png" />
