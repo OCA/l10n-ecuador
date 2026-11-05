@@ -65,6 +65,8 @@ Usage
 
 Importing a month of supplier XMLs:
 
+|Import Supplier XML wizard|
+
 1. Open **Invoicing ‣ SRI ‣ Import Supplier XML**.
 2. Either attach the supplier ``factura`` XML, or type its 49-digit
    access key (``clave de acceso``). When both arrive, the file wins.
@@ -85,6 +87,8 @@ By access key:
    (no certificate), unwraps the authorized ``<comprobante>`` and runs
    the same parser. When the SRI stays silent (recent authorizations
    only, no SLA), upload the file instead.
+
+.. |Import Supplier XML wizard| image:: https://raw.githubusercontent.com/OCA/l10n-ecuador/19.0/l10n_ec_xml_import/static/description/import-supplier-xml.png
 
 Known issues / Roadmap
 ======================

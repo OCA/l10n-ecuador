@@ -1,5 +1,7 @@
 Importing a month of supplier XMLs:
 
+![Import Supplier XML wizard](../static/description/import-supplier-xml.png)
+
 1. Open **Invoicing ‣ SRI ‣ Import Supplier XML**.
 2. Either attach the supplier `factura` XML, or type its 49-digit access
    key (`clave de acceso`). When both arrive, the file wins.
