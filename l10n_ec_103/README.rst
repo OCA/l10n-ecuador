@@ -88,10 +88,14 @@ refusal.
 
 Evidence (November 2026 seed, company 4):
 
+|Form 103 wizard|
+
 Verified on the November 2026 demo seed, company 4: 304=1200.00,
 349=1200.00, 354=120.00, 399=120.00, 499=120.00, 501=120.00. Source: the
 10% 304 purchase tax (304 is the concept base, 354 the withholding at
 1200 x 10% = 120).
+
+.. |Form 103 wizard| image:: https://raw.githubusercontent.com/OCA/l10n-ecuador/19.0/l10n_ec_103/static/description/form-103-wizard.png
 
 Known issues / Roadmap
 ======================

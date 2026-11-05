@@ -24,6 +24,8 @@ same way. Nothing is computed and nothing is assumed on refusal.
 
 Evidence (November 2026 seed, company 4):
 
+![Form 103 wizard](../static/description/form-103-wizard.png)
+
 Verified on the November 2026 demo seed, company 4: 304=1200.00,
 349=1200.00, 354=120.00, 399=120.00, 499=120.00, 501=120.00. Source: the
 10% 304 purchase tax (304 is the concept base, 354 the withholding at
