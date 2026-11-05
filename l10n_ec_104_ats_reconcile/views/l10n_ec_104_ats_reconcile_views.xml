@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="l10n_ec_104_ats_reconcile_view_form" model="ir.ui.view">
+        <field name="name">l10n.ec.104.ats.reconcile.form</field>
+        <field name="model">l10n.ec.104.ats.reconcile</field>
+        <field name="arch" type="xml">
+            <form string="Reconcile 104 vs ATS">
+                <group>
+                    <group>
+                        <field name="company_id" />
+                        <field name="anio" />
+                        <field name="mes" />
+                    </group>
+                    <group string="Checks">
+                        <div class="text-muted">
+                            <p>
+                                Check A compares net with net (ATS
+                                establishment totals vs the 104's 419).
+                                Check B compares gross with gross (ATS
+                                VAT amounts vs the 104's 429 rebuilt
+                                with twice the credit-note tax). A period
+                                the ATS cannot build is refused with its
+                                reasons, never reconciled partially.
+                            </p>
+                        </div>
+                    </group>
+                </group>
+                <field name="result_preview" nolabel="1" readonly="1" />
+                <footer>
+                    <button
+                        name="generate"
+                        type="object"
+                        string="Reconcile"
+                        class="btn-primary"
+                    />
+                    <button string="Discard" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="l10n_ec_104_ats_reconcile_action" model="ir.actions.act_window">
+        <field name="name">104 vs ATS</field>
+        <field name="res_model">l10n.ec.104.ats.reconcile</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="l10n_ec_104_ats_reconcile_view_form" />
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+        id="l10n_ec_104_ats_reconcile_menu"
+        name="104 vs ATS"
+        parent="l10n_ec.sri_menu"
+        action="l10n_ec_104_ats_reconcile_action"
+        sequence="30"
+    />
+</odoo>
