@@ -90,6 +90,8 @@ refusal.
 
 Evidence (November 2026 seed, company 4):
 
+|Form 104 wizard|
+
 Verified on the November 2026 demo seed, company 4. Document counts
 (D8): 111=1, 113=0, 115=5, 117=0, 119=0. Sales: 401=800, 411=800,
 421=120, 429=120. Purchases: 500=2350, 510=2250, 520=337.5. Settlement:
@@ -97,6 +99,8 @@ Verified on the November 2026 demo seed, company 4. Document counts
 VALUE, 50% of 150, D9), 799=75.0, 801=75.0, 620=-253.5, 699=-253.5,
 859=-178.5. Limits: 113/117/119 read 0.0 (no seed docs; ATS seed frozen
 since PR #105 closed); exterior boxes read 0.0 (see ROADMAP).
+
+.. |Form 104 wizard| image:: https://raw.githubusercontent.com/OCA/l10n-ecuador/19.0/l10n_ec_104/static/description/form-104-wizard.png
 
 Known issues / Roadmap
 ======================

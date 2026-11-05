@@ -23,6 +23,8 @@ same way. Nothing is computed and nothing is assumed on refusal.
 
 Evidence (November 2026 seed, company 4):
 
+![Form 104 wizard](../static/description/form-104-wizard.png)
+
 Verified on the November 2026 demo seed, company 4. Document counts (D8):
 111=1, 113=0, 115=5, 117=0, 119=0. Sales: 401=800, 411=800, 421=120,
 429=120. Purchases: 500=2350, 510=2250, 520=337.5. Settlement: 602=217.5,
