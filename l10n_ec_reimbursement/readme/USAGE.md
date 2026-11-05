@@ -10,8 +10,10 @@ document must share a single document code, and every row needs at least
 one base above zero; both are refused with the document and the reason
 named.
 
-Evidence from the suite (`test_l10n_ec_reimbursement.py`): a posted 03
-liquidation with one `01` leg renders
+![Reimbursements tab on a vendor bill](../static/description/reimbursement-tab.png)
+
+Evidence from the suite (`test_l10n_ec_reimbursement.py`), backed by the
+form below: a posted 03 liquidation with one `01` leg renders
 
 ```xml
 <infoLiquidacionCompra>

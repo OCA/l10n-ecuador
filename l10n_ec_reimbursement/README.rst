@@ -67,8 +67,10 @@ one document must share a single document code, and every row needs at
 least one base above zero; both are refused with the document and the
 reason named.
 
-Evidence from the suite (``test_l10n_ec_reimbursement.py``): a posted 03
-liquidation with one ``01`` leg renders
+|Reimbursements tab on a vendor bill|
+
+Evidence from the suite (``test_l10n_ec_reimbursement.py``), backed by
+the form below: a posted 03 liquidation with one ``01`` leg renders
 
 .. code:: xml
 
@@ -112,6 +114,8 @@ own base buckets stay untouched.
 Limits: legs carrying ICE refuse the emission (no tariff-code source in
 v1), and an IVA rate outside the 0/12/14/15 codes refuses it as well
 rather than filing an invented percentage.
+
+.. |Reimbursements tab on a vendor bill| image:: https://raw.githubusercontent.com/OCA/l10n-ecuador/19.0/l10n_ec_reimbursement/static/description/reimbursement-tab.png
 
 Known issues / Roadmap
 ======================
