@@ -13,12 +13,14 @@ envelope unwrapping.
 """
 
 import base64
+from unittest import mock
 
 from odoo.exceptions import UserError
 from odoo.tests import tagged
 
 from odoo.addons.l10n_ec_account_edi.tests.test_edi_common import TestL10nECEdiCommon
 from odoo.addons.l10n_ec_xml_import.models.sri_xml import parse_sri_xml
+from odoo.addons.l10n_ec_xml_import.wizard.l10n_ec_xml_import import L10nEcXmlImport
 
 CLAVE = ("1234567890" * 5)[:49]
 AUTH_NUMBER = ("9876543210" * 5)[:49]
@@ -535,3 +537,64 @@ class TestL10nEcXmlSaleWithhold(TestL10nECEdiCommon):
         )
         with self.assertRaisesRegex(ValueError, "without document number"):
             parse_sri_xml(xml)
+
+    # -- key door (mocked SRI) --------------------------------------------
+
+    def _key_wizard(self, key=CLAVE):
+        return self.env["l10n.ec.xml.import"].create({"access_key": key})
+
+    def test_fetch_retencion_key_reaches_sale_flow(self):
+        invoice = self._make_sale_invoice()
+        response = {
+            "autorizaciones": {
+                "autorizacion": {
+                    "estado": "AUTORIZADO",
+                    "numeroAutorizacion": AUTH_NUMBER,
+                    "comprobante": _retencion_xml(
+                        sustentos=[
+                            {
+                                "doc_code": "01",
+                                "number": self._sale_number(invoice),
+                                "issue_date": "15/08/2026",
+                                "entries": [
+                                    {
+                                        "code": "1",
+                                        "withholding_code": "303",
+                                        "base": 100.0,
+                                        "rate": 10.0,
+                                        "value": 10.0,
+                                    },
+                                    {
+                                        "code": "2",
+                                        "withholding_code": "3",
+                                        "base": 15.0,
+                                        "rate": 100.0,
+                                        "value": 15.0,
+                                    },
+                                ],
+                            }
+                        ],
+                    ),
+                }
+            }
+        }
+        with (
+            mock.patch.object(
+                L10nEcXmlImport,
+                "_l10n_ec_request_authorization",
+                return_value=response,
+            ),
+            mock.patch(
+                "odoo.addons.l10n_ec_xml_import.wizard.l10n_ec_xml_import."
+                "serialize_object",
+                side_effect=lambda result, _as_dict: result,
+            ),
+        ):
+            action = self._key_wizard().action_import()
+        withhold = self.env["account.move"].browse(action["res_id"])
+        self.assertEqual(withhold.l10n_ec_withholding_type, "sale")
+        self.assertEqual(withhold.state, "posted")
+        self.assertEqual(withhold.partner_id, self.partner_ruc)
+        self.assertEqual(withhold.l10n_ec_electronic_authorization, AUTH_NUMBER)
+        self.assertIn(withhold.id, invoice.l10n_ec_withhold_ids.ids)
+        self.assertAlmostEqual(invoice.amount_residual, 90.0, places=2)
