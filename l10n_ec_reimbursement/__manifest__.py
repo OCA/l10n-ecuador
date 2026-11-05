@@ -1,0 +1,20 @@
+{
+    "name": "Ecuadorian Reimbursement Vouchers (SRI)",
+    "summary": "Reimbursed vouchers on purchase documents: EDI block and ATS total",
+    "category": "Account",
+    "countries": ["ec"],
+    "author": "Odoo Community Association (OCA)",
+    "maintainers": ["cormaza"],
+    "website": "https://github.com/OCA/l10n-ecuador",
+    "license": "LGPL-3",
+    "version": "19.0.1.0.0",
+    "depends": ["l10n_ec_account_edi", "l10n_ec_ats"],
+    "data": [
+        "security/ir.model.access.csv",
+        "data/edi_templates/edi_invoice_reimbursement.xml",
+        "data/edi_templates/edi_liquidation_reimbursement.xml",
+        "views/account_move_views.xml",
+    ],
+    "installable": True,
+    "auto_install": False,
+}

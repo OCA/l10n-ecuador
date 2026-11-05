@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<odoo>
+    <template
+        id="ec_edi_invoice_reimbursement"
+        inherit_id="l10n_ec_account_edi.ec_edi_invoice"
+    >
+        <xpath expr="//infoFactura/totalDescuento" position="after">
+            <t t-if="reembolsos">
+                <codDocReembolso t-out="codDocReembolso" />
+                <totalComprobantesReembolso t-out="totalComprobantesReembolso" />
+                <totalBaseImponibleReembolso t-out="totalBaseImponibleReembolso" />
+                <totalImpuestoReembolso t-out="totalImpuestoReembolso" />
+            </t>
+        </xpath>
+        <xpath expr="//detalles" position="after">
+            <reembolsos t-if="reembolsos">
+                <reembolsoDetalle t-as="reembolso" t-foreach="reembolsos">
+                    <tipoIdentificacionProveedorReembolso
+                        t-out="reembolso.get('tipoIdentificacionProveedorReembolso')"
+                    />
+                    <identificacionProveedorReembolso
+                        t-out="reembolso.get('identificacionProveedorReembolso')"
+                    />
+                    <tipoProveedorReembolso
+                        t-out="reembolso.get('tipoProveedorReembolso')"
+                    />
+                    <codDocReembolso t-out="reembolso.get('codDocReembolso')" />
+                    <estabDocReembolso t-out="reembolso.get('estabDocReembolso')" />
+                    <ptoEmiDocReembolso t-out="reembolso.get('ptoEmiDocReembolso')" />
+                    <secuencialDocReembolso
+                        t-out="reembolso.get('secuencialDocReembolso')"
+                    />
+                    <fechaEmisionDocReembolso
+                        t-out="reembolso.get('fechaEmisionDocReembolso')"
+                    />
+                    <numeroautorizacionDocReemb
+                        t-out="reembolso.get('numeroautorizacionDocReemb')"
+                    />
+                    <detalleImpuestos>
+                        <detalleImpuesto
+                            t-as="impuesto"
+                            t-foreach="reembolso.get('impuestos')"
+                        >
+                            <codigo t-out="impuesto.get('codigo')" />
+                            <codigoPorcentaje
+                                t-out="impuesto.get('codigoPorcentaje')"
+                            />
+                            <tarifa t-out="impuesto.get('tarifa')" />
+                            <baseImponibleReembolso
+                                t-out="impuesto.get('baseImponible')"
+                            />
+                            <impuestoReembolso t-out="impuesto.get('valor')" />
+                        </detalleImpuesto>
+                    </detalleImpuestos>
+                </reembolsoDetalle>
+            </reembolsos>
+        </xpath>
+    </template>
+</odoo>
