@@ -195,27 +195,47 @@ Models that inherit the mixin gain `date_start` and `date_end` fields plus:
 
 Grammar is the weakest of the three layers. The strongest evidence available
 without a DIMM installation is the SRI's own validator: this month's
-`AT112026.xml` — five purchase documents, one of them a credit note and one a
-debit note, one carrying ICE — was submitted to the SRI ATS engine and came back
-**accepted**, with the engine's own summary of the period:
+`AT112026.xml` — four purchase invoices, one of them a foreign supplier on a
+passport, a credit note, a debit note, one invoice carrying ICE, and one invoice
+carrying a withholding performed on it — was submitted to the SRI ATS engine and
+came back **accepted**, with the engine's own summary of the period:
 
 | Concept | Registros | BI tarifa 0% | BI tarifa ≠ 0% | BI no objeto | Valor IVA |
 | --- | --- | --- | --- | --- | --- |
-| 01 Factura | 3 | 200.00 | 1500.00 | 300.00 | 225.00 |
+| 01 Factura | 4 | 200.00 | 2100.00 | 300.00 | 315.00 |
 | 04 Nota de crédito | 1 | 0.00 | 100.00 | 0.00 | 15.00 |
 | 05 Nota de débito | 1 | 0.00 | 250.00 | 0.00 | 37.50 |
-| **Total** | **5** | **200.00** | **1650.00** | **300.00** | **247.50** |
+| **Total** | **6** | **200.00** | **2450.00** | **300.00** | **367.50** |
+
+And, in the same summary, the withholdings the module reports — the part that
+makes the row identifiable rather than just a pair of amounts:
+
+| Retención | Concepto | Registros | Base | Retenido |
+| --- | --- | --- | --- | --- |
+| Renta | `304` servicios donde predomina el intelecto | 1 | 1200.00 | **120.00** |
+| IVA | `50%` | — | — | **75.00** |
 
 ![DIMM talón of a generated month](../static/description/ats-dimm-talon.png)
 
-That table is the point of the three layers: those bases are what the collector
-resolved per `Tabla 12`, what the builder wrote in `ats.xsd` order, and what the
-engine read back. The engine is not shipped with this module — it is an
-independent service — so this is evidence about the file, not a feature of the
-addon. `readme/CONFIGURE.md` does not mention it for the same reason: the addon
-does not depend on it.
+Those figures are what the collector resolved (per `Tabla 12`, `Tabla 11` and
+`Tabla 3.10`), what the builder wrote in `ats.xsd` order, and what the engine read
+back: `air/detalleAir` carries `codRetAir 304`, `baseImpAir 1200.00`,
+`porcentajeAir 10.00`, `valRetAir 120.00`; the IVA share lands in `valRetServ50`
+as `75.00`; and the row also carries the five `estabRetencion1`…`fechaEmiRet1`
+elements that point at the withholding document itself.
 
-Note what the same run also proves **negative**: the engine accepts the file
-while the module still reports a non-blocking `compras.monto_iva` warning for
-every 15% line (see `ROADMAP.md`), because the shipped `Tabla 12` ends at the 12%
-era. A pass from the engine is not a verdict on the catalog.
+The engine is not shipped with this module — it is an independent service — so
+this is evidence about the file, not a feature of the addon. `readme/CONFIGURE.md`
+does not mention it for the same reason: the addon does not depend on it.
+
+Two things this run also proves, both about what a pass does **not** mean:
+
+- the engine accepts the file while the module still reports a non-blocking
+  `compras.monto_iva` warning for every 15% line, because the shipped `Tabla 12`
+  ends at the 12% era (see `ROADMAP.md`). A pass from the engine is not a verdict
+  on the catalog;
+- the submission leaves out the `ventas` block, because the engine cannot
+  summarise a physical-emission sale (`tipoEmision = F`) at all: it throws an
+  unhandled `NullPointerException` building the talón (recorded in `ROADMAP.md`).
+  The module keeps emitting `F` — that is what a sale from a journal without
+  documents is — and the defect is reported rather than worked around.

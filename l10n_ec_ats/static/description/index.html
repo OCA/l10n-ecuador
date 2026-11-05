@@ -1476,10 +1476,11 @@ fields plus:</p>
 <h3><a class="toc-backref" href="#toc-entry-32">Evidence: the SRI’s own engine accepts the file</a></h3>
 <p>Grammar is the weakest of the three layers. The strongest evidence
 available without a DIMM installation is the SRI’s own validator: this
-month’s <tt class="docutils literal">AT112026.xml</tt> — five purchase documents, one of them a credit
-note and one a debit note, one carrying ICE — was submitted to the SRI
-ATS engine and came back <strong>accepted</strong>, with the engine’s own summary of
-the period:</p>
+month’s <tt class="docutils literal">AT112026.xml</tt> — four purchase invoices, one of them a foreign
+supplier on a passport, a credit note, a debit note, one invoice
+carrying ICE, and one invoice carrying a withholding performed on it —
+was submitted to the SRI ATS engine and came back <strong>accepted</strong>, with the
+engine’s own summary of the period:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="15%" />
@@ -1504,11 +1505,11 @@ objeto</th>
 <tbody valign="top">
 <tr><td>01
 Factura</td>
-<td>3</td>
+<td>4</td>
 <td>200.00</td>
-<td>1500.00</td>
+<td>2100.00</td>
 <td>300.00</td>
-<td>225.00</td>
+<td>315.00</td>
 </tr>
 <tr><td>04 Nota
 de
@@ -1528,27 +1529,76 @@ de débito</td>
 <td>37.50</td>
 </tr>
 <tr><td><strong>Total</strong></td>
-<td><strong>5</strong></td>
+<td><strong>6</strong></td>
 <td><strong>200.00</strong></td>
-<td><strong>1650.00</strong></td>
+<td><strong>2450.00</strong></td>
 <td><strong>300.00</strong></td>
-<td><strong>247.50</strong></td>
+<td><strong>367.50</strong></td>
+</tr>
+</tbody>
+</table>
+<p>And, in the same summary, the withholdings the module reports — the part
+that makes the row identifiable rather than just a pair of amounts:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="35%" />
+<col width="17%" />
+<col width="14%" />
+<col width="18%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Retención</th>
+<th class="head">Concepto</th>
+<th class="head">Registros</th>
+<th class="head">Base</th>
+<th class="head">Retenido</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>Renta</td>
+<td><tt class="docutils literal">304</tt> servicios
+donde predomina el
+intelecto</td>
+<td>1</td>
+<td>1200.00</td>
+<td><strong>120.00</strong></td>
+</tr>
+<tr><td>IVA</td>
+<td><tt class="docutils literal">50%</tt></td>
+<td>—</td>
+<td>—</td>
+<td><strong>75.00</strong></td>
 </tr>
 </tbody>
 </table>
 <p><img alt="DIMM talón of a generated month" src="https://raw.githubusercontent.com/OCA/l10n-ecuador/19.0/l10n_ec_ats/static/description/ats-dimm-talon.png" /></p>
-<p>That table is the point of the three layers: those bases are what the
-collector resolved per <tt class="docutils literal">Tabla 12</tt>, what the builder wrote in
-<tt class="docutils literal">ats.xsd</tt> order, and what the engine read back. The engine is not
-shipped with this module — it is an independent service — so this is
-evidence about the file, not a feature of the addon.
-<tt class="docutils literal">readme/CONFIGURE.md</tt> does not mention it for the same reason: the
-addon does not depend on it.</p>
-<p>Note what the same run also proves <strong>negative</strong>: the engine accepts the
-file while the module still reports a non-blocking <tt class="docutils literal">compras.monto_iva</tt>
-warning for every 15% line (see <tt class="docutils literal">ROADMAP.md</tt>), because the shipped
-<tt class="docutils literal">Tabla 12</tt> ends at the 12% era. A pass from the engine is not a
-verdict on the catalog.</p>
+<p>Those figures are what the collector resolved (per <tt class="docutils literal">Tabla 12</tt>,
+<tt class="docutils literal">Tabla 11</tt> and <tt class="docutils literal">Tabla 3.10</tt>), what the builder wrote in <tt class="docutils literal">ats.xsd</tt>
+order, and what the engine read back: <tt class="docutils literal">air/detalleAir</tt> carries
+<tt class="docutils literal">codRetAir 304</tt>, <tt class="docutils literal">baseImpAir 1200.00</tt>, <tt class="docutils literal">porcentajeAir 10.00</tt>,
+<tt class="docutils literal">valRetAir 120.00</tt>; the IVA share lands in <tt class="docutils literal">valRetServ50</tt> as
+<tt class="docutils literal">75.00</tt>; and the row also carries the five
+<tt class="docutils literal">estabRetencion1</tt>…<tt class="docutils literal">fechaEmiRet1</tt> elements that point at the
+withholding document itself.</p>
+<p>The engine is not shipped with this module — it is an independent
+service — so this is evidence about the file, not a feature of the
+addon. <tt class="docutils literal">readme/CONFIGURE.md</tt> does not mention it for the same reason:
+the addon does not depend on it.</p>
+<p>Two things this run also proves, both about what a pass does <strong>not</strong>
+mean:</p>
+<ul class="simple">
+<li>the engine accepts the file while the module still reports a
+non-blocking <tt class="docutils literal">compras.monto_iva</tt> warning for every 15% line, because
+the shipped <tt class="docutils literal">Tabla 12</tt> ends at the 12% era (see <tt class="docutils literal">ROADMAP.md</tt>). A
+pass from the engine is not a verdict on the catalog;</li>
+<li>the submission leaves out the <tt class="docutils literal">ventas</tt> block, because the engine
+cannot summarise a physical-emission sale (<tt class="docutils literal">tipoEmision = F</tt>) at
+all: it throws an unhandled <tt class="docutils literal">NullPointerException</tt> building the
+talón (recorded in <tt class="docutils literal">ROADMAP.md</tt>). The module keeps emitting <tt class="docutils literal">F</tt> —
+that is what a sale from a journal without documents is — and the
+defect is reported rather than worked around.</li>
+</ul>
 </div>
 </div>
 <div class="section" id="known-issues-roadmap">
