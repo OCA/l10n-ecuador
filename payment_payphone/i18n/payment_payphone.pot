@@ -1,0 +1,103 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* payment_payphone
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: payment_payphone
+#: model_terms:ir.ui.view,arch_db:payment_payphone.payment_provider_form
+msgid "Access Token"
+msgstr ""
+
+#. module: payment_payphone
+#: model:ir.model.fields,field_description:payment_payphone.field_payment_provider__code
+msgid "Code"
+msgstr ""
+
+#. module: payment_payphone
+#: model:ir.model,name:payment_payphone.model_payment_provider
+msgid "Payment Provider"
+msgstr ""
+
+#. module: payment_payphone
+#: model:ir.model,name:payment_payphone.model_payment_transaction
+msgid "Payment Transaction"
+msgstr ""
+
+#. module: payment_payphone
+#: model:ir.model.fields.selection,name:payment_payphone.selection__payment_provider__code__payphone
+#: model:payment.provider,name:payment_payphone.payment_provider_payphone
+msgid "Payphone"
+msgstr ""
+
+#. module: payment_payphone
+#: model:ir.model.fields,field_description:payment_payphone.field_payment_provider__payphone_access_token
+msgid "Payphone Access Token"
+msgstr ""
+
+#. module: payment_payphone
+#. odoo-python
+#: code:addons/payment_payphone/models/payment_transaction.py:0
+#: code:addons/payment_payphone/tests/test_payment_transaction.py:0
+#, python-format
+msgid "Payphone: No transaction found matching reference %s."
+msgstr ""
+
+#. module: payment_payphone
+#. odoo-python
+#: code:addons/payment_payphone/models/payment_transaction.py:0
+#: code:addons/payment_payphone/tests/test_payment_transaction.py:0
+#, python-format
+msgid "Payphone: Received data with missing reference."
+msgstr ""
+
+#. module: payment_payphone
+#. odoo-python
+#: code:addons/payment_payphone/models/payment_provider.py:0
+#, python-format
+msgid ""
+"Payphone: The communication with the API failed. Payphone gave us the "
+"following information: '%s'"
+msgstr ""
+
+#. module: payment_payphone
+#. odoo-python
+#: code:addons/payment_payphone/models/payment_transaction.py:0
+#, python-format
+msgid "Received data with invalid status: %s"
+msgstr ""
+
+#. module: payment_payphone
+#: model:ir.model.fields,help:payment_payphone.field_payment_provider__code
+msgid "The technical code of this payment provider."
+msgstr ""
+
+#. module: payment_payphone
+#: model_terms:payment.provider,auth_msg:payment_payphone.payment_provider_payphone
+msgid "Your payment has been authorized."
+msgstr ""
+
+#. module: payment_payphone
+#: model_terms:payment.provider,cancel_msg:payment_payphone.payment_provider_payphone
+msgid "Your payment has been cancelled."
+msgstr ""
+
+#. module: payment_payphone
+#: model_terms:payment.provider,pending_msg:payment_payphone.payment_provider_payphone
+msgid ""
+"Your payment has been successfully processed but is waiting for approval."
+msgstr ""
+
+#. module: payment_payphone
+#: model_terms:payment.provider,done_msg:payment_payphone.payment_provider_payphone
+msgid "Your payment has been successfully processed."
+msgstr ""
