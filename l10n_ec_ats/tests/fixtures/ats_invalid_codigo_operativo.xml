@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ats_invalid_codigo_operativo.xml — codigoOperativo is not "IVA".
+
+  Rule exercised: codigoOperativoType, ats.xsd:1476-1481. Its only enumeration
+  facet is value="IVA" at ats.xsd:1478, and length 3 at ats.xsd:1479. "ATS" has
+  the right length but is not in the enumeration, so the document is rejected.
+
+  Element under test: iva/codigoOperativo, ats.xsd:608-610.
+
+  Note the contrast with §3 of the feature doc: ats.xsd declares only eight
+  enumeration facets in the entire schema and none of them is a VAT rate, a
+  withholding concept or a document type. codigoOperativo and TipoIDInformante
+  are the two values the schema really does pin down, and they are the only two
+  literals the ATS v1 builder is allowed to hardcode.
+-->
+<iva>
+    <TipoIDInformante>R</TipoIDInformante>
+    <IdInformante>1791311225001</IdInformante>
+    <razonSocial>COMERCIAL ANDINA SA</razonSocial>
+    <Anio>2024</Anio>
+    <Mes>03</Mes>
+    <codigoOperativo>ATS</codigoOperativo>
+    <compras>
+        <detalleCompras>
+            <codSustento>01</codSustento>
+            <tpIdProv>01</tpIdProv>
+            <idProv>1791311225001</idProv>
+            <tipoComprobante>01</tipoComprobante>
+            <denoProv>PROVEEDOR DEL SUR SA</denoProv>
+            <parteRel>NO</parteRel>
+            <fechaRegistro>15/03/2024</fechaRegistro>
+            <establecimiento>001</establecimiento>
+            <puntoEmision>001</puntoEmision>
+            <secuencial>000000001</secuencial>
+            <fechaEmision>15/03/2024</fechaEmision>
+            <autorizacion>123456789012</autorizacion>
+            <baseNoGraIva>0.00</baseNoGraIva>
+            <baseImponible>100.00</baseImponible>
+            <baseImpGrav>0.00</baseImpGrav>
+            <baseImpExe>0.00</baseImpExe>
+            <montoIce>0.00</montoIce>
+            <montoIva>15.00</montoIva>
+            <valorRetBienes>0.00</valorRetBienes>
+            <valorRetServicios>0.00</valorRetServicios>
+            <valRetServ100>0.00</valRetServ100>
+        </detalleCompras>
+    </compras>
+</iva>

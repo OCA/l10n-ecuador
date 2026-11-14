@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ats_invalid_tipo_id_informante.xml — TipoIDInformante is "C" (consumidor
+  final) instead of "R".
+
+  Rule exercised: the inline anonymous simpleType declared by
+  iva/TipoIDInformante at ats.xsd:587-596, whose single enumeration facet is
+  value="R" at ats.xsd:590. The document is rejected.
+
+  Element under test: iva/TipoIDInformante, ats.xsd:587-596.
+  This is the schema's only statement about the contributor type, so it is what
+  enforces the Tipo 1 restriction structurally rather than by policy.
+
+  Watch out: a decoy named TipoIDInformanteType exists at ats.xsd:1490-1492
+  with an EMPTY restriction (<xsd:restriction base="xsd:string"/>) and therefore
+  no constraint whatsoever. Nothing references it — ivaType uses its own inline
+  type — but reading the schema by name lookup instead of by reference
+  resolution would wrongly conclude that this field is unconstrained.
+-->
+<iva>
+    <TipoIDInformante>C</TipoIDInformante>
+    <IdInformante>1791311225001</IdInformante>
+    <razonSocial>COMERCIAL ANDINA SA</razonSocial>
+    <Anio>2024</Anio>
+    <Mes>03</Mes>
+    <codigoOperativo>IVA</codigoOperativo>
+    <compras>
+        <detalleCompras>
+            <codSustento>01</codSustento>
+            <tpIdProv>01</tpIdProv>
+            <idProv>1791311225001</idProv>
+            <tipoComprobante>01</tipoComprobante>
+            <denoProv>PROVEEDOR DEL SUR SA</denoProv>
+            <parteRel>NO</parteRel>
+            <fechaRegistro>15/03/2024</fechaRegistro>
+            <establecimiento>001</establecimiento>
+            <puntoEmision>001</puntoEmision>
+            <secuencial>000000001</secuencial>
+            <fechaEmision>15/03/2024</fechaEmision>
+            <autorizacion>123456789012</autorizacion>
+            <baseNoGraIva>0.00</baseNoGraIva>
+            <baseImponible>100.00</baseImponible>
+            <baseImpGrav>0.00</baseImpGrav>
+            <baseImpExe>0.00</baseImpExe>
+            <montoIce>0.00</montoIce>
+            <montoIva>15.00</montoIva>
+            <valorRetBienes>0.00</valorRetBienes>
+            <valorRetServicios>0.00</valorRetServicios>
+            <valRetServ100>0.00</valRetServ100>
+        </detalleCompras>
+    </compras>
+</iva>

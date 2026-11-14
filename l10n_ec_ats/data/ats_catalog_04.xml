@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- ====================================================================
+         Source: Catalogo_ATS.xls, sheet "TABLAS REFERENCIALES".
+         Columns: B = Código, C = Tipo de Comprobante, D = Código Secuenciales
+         Transacción, E = Fecha de vigencia (the literal 'vacío' in every row), F =
+         Sustento tributario
+         Rows 49 to 88, one record per row, in source order.
+         Record ids are suffixed with the 1-based position in that order,
+         so ats_catalog_entry_<table>_<n> is row 49 + n - 1.
+         Every value below was read from the cell named above; nothing is
+         interpolated.
+    -->
+    <!--
+      * document_type_codes holds column F, the SRI's own "Sustento
+        tributario" list: the Tabla 5 support types that apply to this
+        document type. It is the other side of the same cross-reference
+        Tabla 5 states in its own column, and the two do not fully
+        agree. The literal 'ninguno' becomes an empty field.
+      * column E reads 'vacío' in every row: the SRI publishes no validity
+        date here, so date_start carries the sentinel, not a real date.
+    -->
+    <!--
+      date_start 1900-01-01 is a SENTINEL, not a validity date. The sheet carries no
+      date for this table (no date column, or the literal 'vacío' in every row) while
+      the l10n.ec.temporal mixin makes date_start required. date_end stays empty so the
+      entry reads as open-ended. See readme/ROADMAP.md for the open question.
+    -->
+    <record id="ats_catalog_table_04" model="l10n.ec.ats.catalog.table">
+        <field name="code">04</field>
+        <field name="name">TIPOS COMPROBANTES AUTORIZADOS</field>
+        <field
+            name="source_reference"
+        >Catalogo_ATS.xls / TABLAS REFERENCIALES / Tabla 4: TIPOS COMPROBANTES AUTORIZADOS (rows 49-88, title B46)</field>
+        <field name="in_scope">1</field>
+        <field name="entry_count">40</field>
+        <field name="load_order">30</field>
+    </record>
+    <record id="ats_catalog_entry_04_1" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">1</field>
+        <field name="description">Factura</field>
+        <field
+            name="document_type_codes"
+        >01, 02, 03, 04, 05, 06, 07, 08, 09, 14, 15, 00</field>
+        <field name="sequence_type_codes">01, 09, 20, 21</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_2" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">2</field>
+        <field name="description">Nota o boleta de venta</field>
+        <field name="document_type_codes">02, 04, 05, 07, 08, 14, 15, 00</field>
+        <field name="sequence_type_codes">01</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_3" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">3</field>
+        <field
+            name="description"
+        >Liquidación de compra de Bienes o Prestación de servicios</field>
+        <field name="document_type_codes">01, 02, 03, 04, 05, 06, 07, 08, 14, 15</field>
+        <field name="sequence_type_codes">02, 03</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_4" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">4</field>
+        <field name="description">Nota de crédito</field>
+        <field
+            name="document_type_codes"
+        >01, 02, 03, 04, 05, 06, 07, 08, 09, 14, 15, 00</field>
+        <field
+            name="sequence_type_codes"
+        >01, 02, 03, 04, 05, 06, 07, 09, 19, 20, 21</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_5" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">5</field>
+        <field name="description">Nota de débito</field>
+        <field
+            name="document_type_codes"
+        >01, 02, 03, 04, 05, 06, 07, 08, 09, 14, 15, 00</field>
+        <field
+            name="sequence_type_codes"
+        >01, 02, 03, 04, 05, 06, 07, 09, 19, 20, 21</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_6" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">6</field>
+        <field name="description">Guías de Remisión</field>
+        <field name="document_type_codes" />
+        <field name="sequence_type_codes" />
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_7" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">7</field>
+        <field name="description">Comprobante de Retención</field>
+        <field name="document_type_codes" />
+        <field name="sequence_type_codes" />
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_8" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">8</field>
+        <field name="description">Boletos o entradas a espectáculos públicos</field>
+        <field name="document_type_codes" />
+        <field name="sequence_type_codes">01</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_9" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">9</field>
+        <field
+            name="description"
+        >Tiquetes o vales emitidos por máquinas registradoras</field>
+        <field name="document_type_codes">02</field>
+        <field name="sequence_type_codes">01, 02, 03</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_10" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">11</field>
+        <field name="description">Pasajes expedidos por empresas de aviación</field>
+        <field name="document_type_codes">01, 02, 05</field>
+        <field name="sequence_type_codes">01</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_11" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">12</field>
+        <field
+            name="description"
+        >Documentos emitidos por instituciones financieras</field>
+        <field name="document_type_codes">01, 02, 11, 15</field>
+        <field name="sequence_type_codes">01, 02, 03</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_12" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">15</field>
+        <field name="description">Comprobante de venta emitido en el Exterior</field>
+        <field name="document_type_codes">02, 04, 05, 07, 15</field>
+        <field name="sequence_type_codes">03, 20, 21</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_13" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">16</field>
+        <field
+            name="description"
+        >Formulario Único de Exportación (FUE) o Declaración Aduanera Única (DAU) o Declaración Andina de Valor (DAV)</field>
+        <field name="document_type_codes" />
+        <field name="sequence_type_codes">09, 20, 21</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_14" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">18</field>
+        <field
+            name="description"
+        >Documentos autorizados utilizados en ventas excepto N/C N/D</field>
+        <field name="document_type_codes" />
+        <field name="sequence_type_codes">04, 05, 06, 07, 19</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_15" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">19</field>
+        <field name="description">Comprobantes de Pago de Cuotas o Aportes</field>
+        <field name="document_type_codes">02, 10, 13, 00</field>
+        <field name="sequence_type_codes">01, 02, 03</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_16" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">20</field>
+        <field
+            name="description"
+        >Documentos por Servicios Administrativos emitidos por Inst. del Estado</field>
+        <field name="document_type_codes">02</field>
+        <field name="sequence_type_codes">01</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_17" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">21</field>
+        <field name="description">Carta de Porte Aéreo</field>
+        <field name="document_type_codes">01, 02, 08</field>
+        <field name="sequence_type_codes">01</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_18" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">22</field>
+        <field name="description">RECAP</field>
+        <field name="document_type_codes" />
+        <field name="sequence_type_codes">10, 11</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_19" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">23</field>
+        <field name="description">Nota de Crédito TC</field>
+        <field name="document_type_codes" />
+        <field name="sequence_type_codes">10, 11</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_20" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">24</field>
+        <field name="description">Nota de Débito TC</field>
+        <field name="document_type_codes" />
+        <field name="sequence_type_codes">10, 11</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_21" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">41</field>
+        <field name="description">Comprobante de venta emitido por reembolso</field>
+        <field name="document_type_codes">01, 02, 03, 04, 05, 06, 07</field>
+        <field
+            name="sequence_type_codes"
+        >01, 02, 03, 04, 05, 06, 07, 09, 19, 20, 21</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_22" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">42</field>
+        <field
+            name="description"
+        >Documento retención presuntiva y retención emitida por propio vendedor o por intermediario</field>
+        <field name="document_type_codes">00, 12</field>
+        <field name="sequence_type_codes">01, 02, 03</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_23" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">43</field>
+        <field
+            name="description"
+        >Liquidación para Explotación y Exploración de Hidrocarburos</field>
+        <field name="document_type_codes">01, 02, 06, 07</field>
+        <field name="sequence_type_codes">01</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_24" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">44</field>
+        <field name="description">Comprobante de Contribuciones y Aportes</field>
+        <field name="document_type_codes" />
+        <field name="sequence_type_codes">04, 05, 06, 19</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_25" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">45</field>
+        <field name="description">Liquidación por reclamos de aseguradoras</field>
+        <field name="document_type_codes">09</field>
+        <field name="sequence_type_codes">01, 03</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_26" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">47</field>
+        <field
+            name="description"
+        >Nota de Crédito por Reembolso Emitida por Intermediario</field>
+        <field name="document_type_codes">01, 02, 03, 04, 06, 07</field>
+        <field name="sequence_type_codes">01, 04, 05, 06, 09, 19, 20, 21</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_27" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">48</field>
+        <field
+            name="description"
+        >Nota de Débito por Reembolso Emitida por Intermediario</field>
+        <field name="document_type_codes">01, 02, 03, 04, 06, 07</field>
+        <field name="sequence_type_codes">01, 04, 05, 06, 09, 19, 20, 21</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_28" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">49</field>
+        <field
+            name="description"
+        >Proveedor Directo de Exportador Bajo Régimen Especial</field>
+        <field name="document_type_codes" />
+        <field name="sequence_type_codes">04</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_29" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">50</field>
+        <field
+            name="description"
+        >A Inst. Estado y Empr. Públicas que percibe ingreso exento de Imp. Renta</field>
+        <field name="document_type_codes" />
+        <field name="sequence_type_codes">04</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_30" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">51</field>
+        <field
+            name="description"
+        >N/C A Inst. Estado y Empr. Públicas que percibe ingreso exento de Imp. Renta</field>
+        <field name="document_type_codes" />
+        <field name="sequence_type_codes">04</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_31" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">52</field>
+        <field
+            name="description"
+        >N/D A Inst. Estado y Empr. Públicas que percibe ingreso exento de Imp. Renta</field>
+        <field name="document_type_codes" />
+        <field name="sequence_type_codes">04</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_32" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">294</field>
+        <field name="description">Liquidación de compra de Bienes Muebles Usados</field>
+        <field name="document_type_codes">01, 02, 03, 04, 05, 06, 07, 08</field>
+        <field name="sequence_type_codes">02, 03</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_33" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">344</field>
+        <field name="description">Liquidación de compra de vehículos usados</field>
+        <field name="document_type_codes">01, 02, 03, 04, 05, 06, 07, 08</field>
+        <field name="sequence_type_codes">02, 03</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_34" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">364</field>
+        <field name="description">Acta Entrega-Recepción PET</field>
+        <field name="document_type_codes">02, 07</field>
+        <field name="sequence_type_codes">01, 02, 03</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_35" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">370</field>
+        <field name="description">Factura operadora transporte / socio</field>
+        <field name="document_type_codes" />
+        <field name="sequence_type_codes">04, 05, 06</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_36" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">371</field>
+        <field name="description">Comprobante socio a operadora de transporte</field>
+        <field name="document_type_codes" />
+        <field name="sequence_type_codes">04, 05, 06</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_37" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">372</field>
+        <field name="description">Nota de  crédito  operadora transporte / socio</field>
+        <field name="document_type_codes" />
+        <field name="sequence_type_codes">04, 05, 06</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_38" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">373</field>
+        <field name="description">Nota de  débito  operadora transporte / socio</field>
+        <field name="document_type_codes" />
+        <field name="sequence_type_codes">04, 05, 06</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_39" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">374</field>
+        <field name="description">Nota de  débito  operadora transporte / socio</field>
+        <field name="document_type_codes" />
+        <field name="sequence_type_codes">04, 05, 06</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+    <record id="ats_catalog_entry_04_40" model="l10n.ec.ats.catalog.entry">
+        <field name="table_id" ref="ats_catalog_table_04" />
+        <field name="code">375</field>
+        <field
+            name="description"
+        >Liquidación de compra RISE de bienes o prestación de servicios</field>
+        <field name="document_type_codes">01, 02, 03, 04, 05, 06, 07, 08</field>
+        <field name="sequence_type_codes">01</field>
+        <field name="date_start">1900-01-01</field>
+    </record>
+</odoo>

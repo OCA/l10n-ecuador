@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ats_builder_all_blocks.xml : the golden document l10n_ec_ats.builder produces
+  for one period holding one purchases row, one aggregated sales row, one
+  establishment and one cancelled-document range.
+
+  This file is the ATS-10 expected-output oracle. It is deliberately not
+  generated from the builder's own spec: it was checked element by element
+  against the content models this module derives from ats.xsd, so a builder that
+  emits the right elements in the wrong order cannot produce a matching file.
+  test_every_block_together_matches_the_golden_document_byte_for_byte compares
+  the bytes, so order is asserted rather than assumed.
+
+  Element order is normative here, not cosmetic:
+
+    ivaType              the three optional header fields (regimenMicroempresa,
+                         numEstabRuc, totalVentas) sit BETWEEN Mes and the
+                         mandatory codigoOperativo. A builder that renders the
+                         mandatory scalars first and appends the optional ones
+                         afterwards emits a sequence violation.
+    detalleComprasType   a strict xsd:sequence of 46 elements. The six Tabla 11
+                         withholding elements are an interleaved run in the
+                         declared order valRetBien10, valRetServ20,
+                         valorRetBienes, valRetServ50, valorRetServicios,
+                         valRetServ100 : not interchangeable, not sortable.
+    detalleVentasType    narrower than compras: no baseImpExe element exists,
+                         montoIce is optional here and mandatory on compras, and
+                         the six-way withholding run collapses into a single
+                         valorRetIva.
+    detalleAnuladosType  the only block that files a range rather than a
+                         document, and the only one whose first element is
+                         tipoComprobante, which is the fourth of a compras row.
+
+  Amounts carry exactly two decimals because monedaType's pattern is
+  [0-9]{1,12}\.[0-9]{2} or [0-9]{1,12}, and 100.5 matches neither alternative.
+
+  Absent optional elements appear as gaps, never as empty elements: tipoProv and
+  denoProv are conditional on a foreign supplier, and montoIce is optional on the
+  ventas row below while it is mandatory on the compras row above.
+
+  Rules relied upon:
+    ivaType              ats.xsd:585-636   strict sequence, optional fields interior
+    detalleComprasType   ats.xsd:704-846   46 elements, fixed order
+    detalleVentasType                       17 elements, no baseImpExe
+    ventaEstType                           3 elements, ventasEstab is
+                         totalVentasType, the only amount type that admits a
+                         leading minus
+    detalleAnuladosType                     6 elements, a sequential range
+    monedaType           ats.xsd:1304-1310  12 integer digits, 2 decimals,
+                         minInclusive 0.0
+    fechaType            ats.xsd:22-23     dd/mm/yyyy, no calendar check
+    razonSocialType      ats.xsd:41-52     [a-zA-Z0-9\s], no whiteSpace facet, so
+                         the builder collapses and trims on its own
+-->
+<iva>
+    <TipoIDInformante>R</TipoIDInformante>
+    <IdInformante>1791311225001</IdInformante>
+    <razonSocial>COMERCIAL ANDINA SA</razonSocial>
+    <Anio>2024</Anio>
+    <Mes>03</Mes>
+    <numEstabRuc>001</numEstabRuc>
+    <totalVentas>100.00</totalVentas>
+    <codigoOperativo>IVA</codigoOperativo>
+    <compras>
+        <detalleCompras>
+            <codSustento>01</codSustento>
+            <tpIdProv>01</tpIdProv>
+            <idProv>1791311225001</idProv>
+            <tipoComprobante>01</tipoComprobante>
+            <parteRel>NO</parteRel>
+            <fechaRegistro>15/03/2024</fechaRegistro>
+            <establecimiento>001</establecimiento>
+            <puntoEmision>001</puntoEmision>
+            <secuencial>000000001</secuencial>
+            <fechaEmision>15/03/2024</fechaEmision>
+            <autorizacion>123456789012</autorizacion>
+            <baseNoGraIva>0.00</baseNoGraIva>
+            <baseImponible>100.00</baseImponible>
+            <baseImpGrav>0.00</baseImpGrav>
+            <baseImpExe>0.00</baseImpExe>
+            <montoIce>0.00</montoIce>
+            <montoIva>15.00</montoIva>
+            <valRetBien10>0.00</valRetBien10>
+            <valRetServ20>0.00</valRetServ20>
+            <valorRetBienes>0.00</valorRetBienes>
+            <valRetServ50>0.00</valRetServ50>
+            <valorRetServicios>0.00</valorRetServicios>
+            <valRetServ100>0.00</valRetServ100>
+        </detalleCompras>
+    </compras>
+    <ventas>
+        <detalleVentas>
+            <tpIdCliente>01</tpIdCliente>
+            <idCliente>1791311225001</idCliente>
+            <tipoComprobante>18</tipoComprobante>
+            <tipoEmision>E</tipoEmision>
+            <numeroComprobantes>1</numeroComprobantes>
+            <baseNoGraIva>0.00</baseNoGraIva>
+            <baseImponible>0.00</baseImponible>
+            <baseImpGrav>100.00</baseImpGrav>
+            <montoIva>12.00</montoIva>
+            <montoIce>0.00</montoIce>
+            <valorRetIva>0.00</valorRetIva>
+            <valorRetRenta>0.00</valorRetRenta>
+        </detalleVentas>
+    </ventas>
+    <ventasEstablecimiento>
+        <ventaEst>
+            <codEstab>001</codEstab>
+            <ventasEstab>100.00</ventasEstab>
+        </ventaEst>
+    </ventasEstablecimiento>
+    <anulados>
+        <detalleAnulados>
+            <tipoComprobante>01</tipoComprobante>
+            <establecimiento>001</establecimiento>
+            <puntoEmision>001</puntoEmision>
+            <secuencialInicio>000000005</secuencialInicio>
+            <secuencialFin>000000005</secuencialFin>
+            <autorizacion>123456789012</autorizacion>
+        </detalleAnulados>
+    </anulados>
+</iva>

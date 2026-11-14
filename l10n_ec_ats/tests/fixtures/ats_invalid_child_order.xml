@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ats_invalid_child_order.xml — detalleCompras emits two mandatory children in
+  the wrong order: secuencial before puntoEmision.
+
+  Rule exercised: detalleComprasType declares an xsd:sequence at ats.xsd:705,
+  and the two elements are declared in the order puntoEmision (ats.xsd:736) then
+  secuencial (ats.xsd:737). An xsd:sequence is normative: children must appear
+  in the declared order regardless of their types, so the document is rejected.
+
+  This is the §5.4 sequence trap and it is the reason the builder cannot build
+  nodes ad hoc. The declared order is not the order a human would write down —
+  puntoEmision/establecimiento/secuencial read like the familiar
+  establishment-point-sequence triple, yet ats.xsd:734-737 declares
+  establecimiento, puntoEmision, secuencial, and the interleaved retention run
+  at ats.xsd:746-762 puts valRetBien10 and valRetServ20 between the base amounts
+  and valorRetBienes. Reading the order off the business form instead of off the
+  schema produces exactly this failure.
+-->
+<iva>
+    <TipoIDInformante>R</TipoIDInformante>
+    <IdInformante>1791311225001</IdInformante>
+    <razonSocial>COMERCIAL ANDINA SA</razonSocial>
+    <Anio>2024</Anio>
+    <Mes>03</Mes>
+    <codigoOperativo>IVA</codigoOperativo>
+    <compras>
+        <detalleCompras>
+            <codSustento>01</codSustento>
+            <tpIdProv>01</tpIdProv>
+            <idProv>1791311225001</idProv>
+            <tipoComprobante>01</tipoComprobante>
+            <denoProv>PROVEEDOR DEL SUR SA</denoProv>
+            <parteRel>NO</parteRel>
+            <fechaRegistro>15/03/2024</fechaRegistro>
+            <establecimiento>001</establecimiento>
+            <secuencial>000000001</secuencial>
+            <puntoEmision>001</puntoEmision>
+            <fechaEmision>15/03/2024</fechaEmision>
+            <autorizacion>123456789012</autorizacion>
+            <baseNoGraIva>0.00</baseNoGraIva>
+            <baseImponible>100.00</baseImponible>
+            <baseImpGrav>0.00</baseImpGrav>
+            <baseImpExe>0.00</baseImpExe>
+            <montoIce>0.00</montoIce>
+            <montoIva>15.00</montoIva>
+            <valorRetBienes>0.00</valorRetBienes>
+            <valorRetServicios>0.00</valorRetServicios>
+            <valRetServ100>0.00</valRetServ100>
+        </detalleCompras>
+    </compras>
+</iva>

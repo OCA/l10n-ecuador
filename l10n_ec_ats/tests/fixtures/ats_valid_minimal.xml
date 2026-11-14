@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ats_valid_minimal.xml — the minimal ATS document the schema accepts.
+
+  Exercises the baseline contract of ivaType (ats.xsd:585-636): the required
+  header TipoIDInformante / IdInformante / razonSocial / Anio / Mes /
+  codigoOperativo, plus one compras/detalleCompras row (ats.xsd:704-846)
+  carrying every element the sequence declares with the default minOccurs=1.
+
+  Rules relied upon:
+    - ivaType        ats.xsd:585-636   strict xsd:sequence, element order normative
+    - TipoIDInformante ats.xsd:587-596 inline enumeration "R"
+    - IdInformante   ats.xsd:597 -> numeroRucType ats.xsd:6-15 ([0-9]{10}001, length 13)
+    - razonSocial    ats.xsd:598 -> razonSocialType ats.xsd:41-52 ([a-zA-Z0-9\s])
+    - Anio/Mes       ats.xsd:599-600
+    - codigoOperativo ats.xsd:608-610 -> codigoOperativoType ats.xsd:1476-1481 (IVA)
+    - detalleComprasType ats.xsd:704-846, all mandatory amount fields on
+      monedaType ats.xsd:1304-1310 ([0-9]{1,12}\.[0-9]{2}|[0-9]{1,12}, minInclusive 0.0)
+-->
+<iva>
+    <TipoIDInformante>R</TipoIDInformante>
+    <IdInformante>1791311225001</IdInformante>
+    <razonSocial>COMERCIAL ANDINA SA</razonSocial>
+    <Anio>2024</Anio>
+    <Mes>03</Mes>
+    <codigoOperativo>IVA</codigoOperativo>
+    <compras>
+        <detalleCompras>
+            <codSustento>01</codSustento>
+            <tpIdProv>01</tpIdProv>
+            <idProv>1791311225001</idProv>
+            <tipoComprobante>01</tipoComprobante>
+            <denoProv>PROVEEDOR DEL SUR SA</denoProv>
+            <parteRel>NO</parteRel>
+            <fechaRegistro>15/03/2024</fechaRegistro>
+            <establecimiento>001</establecimiento>
+            <puntoEmision>001</puntoEmision>
+            <secuencial>000000001</secuencial>
+            <fechaEmision>15/03/2024</fechaEmision>
+            <autorizacion>123456789012</autorizacion>
+            <baseNoGraIva>0.00</baseNoGraIva>
+            <baseImponible>100.00</baseImponible>
+            <baseImpGrav>0.00</baseImpGrav>
+            <baseImpExe>0.00</baseImpExe>
+            <montoIce>0.00</montoIce>
+            <montoIva>15.00</montoIva>
+            <valorRetBienes>0.00</valorRetBienes>
+            <valorRetServicios>0.00</valorRetServicios>
+            <valRetServ100>0.00</valRetServ100>
+        </detalleCompras>
+    </compras>
+</iva>

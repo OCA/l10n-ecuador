@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ats_deprecated_retention_fields.xml — the withheld-retention "2" family is
+  present and the document is still ACCEPTED.
+
+  Rule exercised: detalleComprasType keeps estabRetencion2 (ats.xsd:794),
+  ptoEmiRetencion2 (ats.xsd:801), secRetencion2 (ats.xsd:809),
+  autRetencion2 (ats.xsd:816) and fechaEmiRet2 (ats.xsd:824). Each one is
+  annotated "eliminado se mantiene por compatibilidad" — removed from the norm,
+  retained for compatibility. All five are minOccurs="0", so emitting them is
+  legal and so is omitting them.
+
+  THIS IS WHERE THE SCHEMA IS NOT THE NORM, in the permissive direction: the
+  schema still accepts a family the SRI retired. This fixture exists to pin
+  that acceptance, so that nobody "corrects" ats.xsd by deleting the family.
+  Dropping the elements from an official published artifact would change its
+  bytes and break the sha256 test that proves the shipped copy is the SRI's;
+  changing the schema to make a test pass is exactly the failure mode that pin
+  prevents. The normative answer — emit nothing — lives in the §5.4 trap table,
+  not in the XSD.
+
+  The family is placed exactly where the sequence declares it, between
+  valRetServ100 (ats.xsd:755) and docModificado (ats.xsd:832), with the
+  "1" family omitted; skipping optional particles is legal, reordering them is
+  not.
+-->
+<iva>
+    <TipoIDInformante>R</TipoIDInformante>
+    <IdInformante>1791311225001</IdInformante>
+    <razonSocial>COMERCIAL ANDINA SA</razonSocial>
+    <Anio>2024</Anio>
+    <Mes>03</Mes>
+    <codigoOperativo>IVA</codigoOperativo>
+    <compras>
+        <detalleCompras>
+            <codSustento>01</codSustento>
+            <tpIdProv>01</tpIdProv>
+            <idProv>1791311225001</idProv>
+            <tipoComprobante>01</tipoComprobante>
+            <denoProv>PROVEEDOR DEL SUR SA</denoProv>
+            <parteRel>NO</parteRel>
+            <fechaRegistro>15/03/2024</fechaRegistro>
+            <establecimiento>001</establecimiento>
+            <puntoEmision>001</puntoEmision>
+            <secuencial>000000001</secuencial>
+            <fechaEmision>15/03/2024</fechaEmision>
+            <autorizacion>123456789012</autorizacion>
+            <baseNoGraIva>0.00</baseNoGraIva>
+            <baseImponible>100.00</baseImponible>
+            <baseImpGrav>0.00</baseImpGrav>
+            <baseImpExe>0.00</baseImpExe>
+            <montoIce>0.00</montoIce>
+            <montoIva>15.00</montoIva>
+            <valorRetBienes>0.00</valorRetBienes>
+            <valorRetServicios>0.00</valorRetServicios>
+            <valRetServ100>0.00</valRetServ100>
+            <estabRetencion2>001</estabRetencion2>
+            <ptoEmiRetencion2>001</ptoEmiRetencion2>
+            <secRetencion2>000000001</secRetencion2>
+            <autRetencion2>123456789012</autRetencion2>
+            <fechaEmiRet2>15/03/2024</fechaEmiRet2>
+        </detalleCompras>
+    </compras>
+</iva>
