@@ -23,6 +23,7 @@ addon | version | maintainers | summary
 --- | --- | --- | ---
 [l10n_ec_account_edi](l10n_ec_account_edi/) | 19.0.1.0.0 |  | Electronic data interchange adapted Ecuadorian localization
 [l10n_ec_base](l10n_ec_base/) | 19.0.1.0.0 |  | Ecuadorian Localization
+[l10n_ec_credit_note](l10n_ec_credit_note/) | 19.0.1.0.0 |  | Credit Notes extension for Ecuador
 
 [//]: # (end addons)
 
