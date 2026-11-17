@@ -92,7 +92,6 @@ class HrVersion(models.Model):
     wage_base_legal = fields.Float(
         digits=(16, 2),
         default=lambda self: self._default_wage_base_legal(),
-        required=True,
     )
     p_hipotecario = fields.Float(
         string="Prestamo Hipotecario",
