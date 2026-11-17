@@ -1,4 +1,4 @@
-# © 2016 Cristian Salamea <cristian.salamea@gmail.com>
+# Copyright 2016 Cristian Salamea <cristian.salamea@gmail.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from odoo import api, fields, models
@@ -6,6 +6,7 @@ from odoo import api, fields, models
 
 class HrContractBranch(models.Model):
     _name = "hr.contract.branch"
+    _description = "Rama Laboral"
 
     code = fields.Char("Código", required=True)
     name = fields.Char("Rama", required=True)
@@ -13,6 +14,7 @@ class HrContractBranch(models.Model):
 
 class HrContractCommision(models.Model):
     _name = "hr.contract.commision"
+    _description = "Comisión Laboral"
 
     code = fields.Char("Código", required=True)
     name = fields.Char("Comisión", required=True)
@@ -20,22 +22,13 @@ class HrContractCommision(models.Model):
 
 class HrContractCode(models.Model):
     _name = "hr.contract.code"
+    _description = "Código Laboral"
+    _rec_names_search = ["code", "name"]
 
-    @api.model
-    def name_search(self, name, args=None, operator="ilike", limit=100):
-        args = args or []
-        recs = self.browse()
-        if name:
-            recs = self.search([("code", operator, name)] + args, limit=limit)
-        if not recs:
-            recs = self.search([("name", operator, name)] + args, limit=limit)
-        return recs.name_get()
-
-    def name_get(self):
-        result = []
+    @api.depends("code", "name")
+    def _compute_display_name(self):
         for rec in self:
-            result.append((rec.id, f"{rec.code} {rec.name}"))
-        return result
+            rec.display_name = f"{rec.code} {rec.name}"
 
     code = fields.Char("Código IESS", required=True, index=True)
     name = fields.Char("Cargo", required=True)
@@ -52,9 +45,13 @@ class HrContractCode(models.Model):
             ("E1", "E1"),
             ("E2", "E2"),
         ],
-        "Estructura Ocupacional",
+        string="Estructura Ocupacional",
         required=True,
         default="E1",
     )
-    rama_id = fields.Many2one("hr.contract.branch", "Rama", required=True)
-    commision_id = fields.Many2one("hr.contract.commision", "Comisión", required=True)
+    rama_id = fields.Many2one("hr.contract.branch", string="Rama", required=True)
+    commision_id = fields.Many2one(
+        "hr.contract.commision",
+        string="Comisión",
+        required=True,
+    )

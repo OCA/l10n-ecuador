@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="res_config_settings_view_form_l10n_ec_hr_contract" model="ir.ui.view">
+        <field
+            name="name"
+        >res.config.settings.view.form.inherit.l10n_ec_hr_contract</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="80" />
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app
+                    data-string="Ecuador HR"
+                    string="Ecuador HR"
+                    name="l10n_ec_hr_contract"
+                    groups="hr.group_hr_manager"
+                >
+                    <block title="Parámetros Base" name="l10n_ec_hr_contract_setting">
+                        <setting
+                            id="l10n_ec_hr_base_trial_days_setting"
+                            title="Número de días para período de prueba"
+                        >
+                            <field name="l10n_ec_hr_base_trial_days" required="1" />
+                        </setting>
+                        <setting
+                            id="l10n_ec_hr_wage_base_legal_setting"
+                            title="Salario Básico Unificado Actual"
+                        >
+                            <field name="l10n_ec_hr_wage_base_legal" required="1" />
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

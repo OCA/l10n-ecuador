@@ -1,25 +1,28 @@
-#    Copyright (C) 2013 Michael Telahun Makonnen <mmakonnen@gmail.com>.
-#    Copyright (C) 2016 Cristian Salamea <critian.salamea@gmail.com>
 {
     "name": "Manage Employee Contracts for Ecuador",
-    "version": "19.0.0.1.0",
-    "category": "Generic Modules/Human Resources",
-    "author": "Michael Telahun Makonnen <mmakonnen@gmail.com>, "
-    "Cristian Salamea <cristian.salamea@gmail.com>"
+    "summary": "Contratos de empleados para Ecuador",
+    "version": "19.0.1.0.0",
+    "category": "Human Resources",
+    "author": "Michael Telahun Makonnen, "
+    "Cristian Salamea, "
     "Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/l10n-ecuador",
-    "depends": ["hr", "hr_holidays", "l10n_ec_hr_employee"],
-    "external_dependencies": {
-        "python": ["dateutil"],
-    },
+    "license": "AGPL-3",
+    "depends": [
+        "hr",
+        "hr_holidays",
+        "l10n_ec_hr_employee",
+    ],
     "data": [
         "security/ir.model.access.csv",
         "data/hr_data.xml",
+        "data/ir_cron_data.xml",
         "data/hr.contract.commision.csv",
         "data/hr.contract.branch.csv",
         "data/hr.contract.code.csv",
-        "view/hr_contract_view.xml",
-        "view/hr_base.xml",
-        "view/res_config_view.xml",
+        "views/hr_contract_views.xml",
+        "views/hr_contract_code_views.xml",
+        "views/res_config_settings_views.xml",
     ],
+    "installable": True,
 }

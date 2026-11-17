@@ -1,83 +1,70 @@
-# © 2015 Michael Telahun Makonnen <mmakonnen@gmail.com>
+# Copyright 2015 Michael Telahun Makonnen <mmakonnen@gmail.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
-
-import logging
-import time
-from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
 
 from odoo import api, fields, models
-from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
-
-_l = logging.getLogger(__name__)
-
-
-class ResourceCalendar(models.Model):
-    _inherit = "resource.calendar"
-
-    lunch_from = fields.Float("Salida Almuerzo")
-    lunch_to = fields.Float("Entrada Almuerzo")
-    lunch_max = fields.Integer("Límite para Almuerzo (h)")
-    tolerance_in = fields.Integer("Tolerancia de Retraso en ingreso")
-    exception_ids = fields.One2many(
-        "hr.calendar.exception", "calendar_id", string="Excepciones"
-    )
-
-
-class HrCalendarException(models.Model):
-    _name = "hr.calendar.exception"
-    _order = "date ASC"
-
-    name = fields.Char("Motivo", required=True)
-    date = fields.Date("Fecha que aplica", required=True)
-    hour_from = fields.Float("Trabajar desde")
-    hour_to = fields.Float("Trabajar hasta")
-    state = fields.Selection(
-        [("draft", "Borrador"), ("confirm", "Confirmado")],
-        required=True,
-        string="Estado",
-        readonly=True,
-    )
-    calendar_id = fields.Many2one("resource.calendar", "Calendario")
-
-    def action_confirm(self):
-        self.write({"state": "confirm"})
-        return True
+from odoo.exceptions import UserError
 
 
 class HrVersion(models.Model):
-    _name = "hr.version"
-    _inherit = ["hr.version", "mail.thread"]
+    _inherit = "hr.version"
 
-    def name_get(self):
-        res = []
-        for obj in self:
-            res.append((obj.id, "%s - %s" % (obj.name, obj.employee_id.name)))
-        return res
+    @api.depends("name", "employee_id")
+    def _compute_display_name(self):
+        for version in self:
+            version.display_name = f"{version.name} - {version.employee_id.name or ''}"
 
-    @api.depends("employee_id", "state")
-    def _compute_department(self):
-        # TODO: revisar, debemos asegurar el departmento por contrato
-        states = ["pending_done", "done"]
-        for contract in self:
-            if contract.department_id and contract.state in states:
-                contract.department_id = contract.department_id.id
-            elif contract.employee_id.department_id:
-                contract.department_id = contract.employee_id.department_id.id
+    @api.depends("contract_date_start", "contract_date_end", "trial_date_end", "active")
+    def _compute_state(self):
+        today = fields.Date.context_today(self)
+        trial_limit = today + relativedelta(days=10)
+        contract_limit = today + relativedelta(days=30)
+        for version in self:
+            if not version.active:
+                state = "done"
+            elif not version.contract_date_start:
+                state = "draft"
+            elif version.contract_date_end and version.contract_date_end < today:
+                state = "pending_done"
+            elif (
+                version.contract_date_end
+                and version.contract_date_end <= contract_limit
+            ):
+                state = "contract_ending"
+            elif version.trial_date_end and version.trial_date_end >= today:
+                state = (
+                    "trial_ending" if version.trial_date_end <= trial_limit else "trial"
+                )
+            else:
+                state = "open"
+            version.state = state
 
-    @api.depends("date_start", "date_end")
-    def _compute_days(self):
-        for obj in self:
-            if not obj.date_start:
-                obj.age_days = 0
+    @api.depends("contract_date_start", "contract_date_end")
+    def _compute_age_days(self):
+        today = fields.Date.context_today(self)
+        for version in self:
+            if not version.contract_date_start:
+                version.age_days = 0
                 continue
-            ds = datetime.strptime(obj.date_start, DEFAULT_SERVER_DATE_FORMAT).date()  # noqa
-            de = datetime.now().date()
-            if obj.date_end:
-                de = datetime.strptime(obj.date_end, DEFAULT_SERVER_DATE_FORMAT).date()  # noqa
-            days = de - ds
-            obj.age_days = days.days
+            end = version.contract_date_end or today
+            version.age_days = (end - version.contract_date_start).days
+
+    @api.model
+    def _default_base_trial_days(self):
+        return int(
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("l10n_ec_hr_contract.base_trial_days", 90)
+        )
+
+    @api.model
+    def _default_wage_base_legal(self):
+        return float(
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("l10n_ec_hr_contract.wage_base_legal", 375)
+        )
 
     state = fields.Selection(
         [
@@ -89,245 +76,109 @@ class HrVersion(models.Model):
             ("pending_done", "Pendiente de Cierre"),
             ("done", "Completado"),
         ],
-        "State",
-    )
-    # store this field in the database and trigger a change only if the
-    # contract is in the right state: we don't want future changes to an
-    # employee's department to impact past contracts that have now ended.
-    # Increased priority to override hr_simplify.
-    department_id = fields.Many2one(
-        "hr.department",
-        compute="_compute_department",
-        string="Department",
+        string="Estado",
+        compute="_compute_state",
         store=True,
     )
-    # At contract end this field will hold the job_id, and the
-    # job_id field will be set to null so that modules that
-    # reference job_id don't include deactivated employees.
     end_job_id = fields.Many2one(
         "hr.job",
-        "Job Title",
+        string="Job Title",
         readonly=True,
+        help="Job title held when the contract ended.",
     )
-    # The following are redefined again to make them editable only in
-    # certain states
-    employee_id = fields.Many2one(
-        "hr.employee",
-        "Employee",
-        required=True,
-        readonly=True,
-        states={"draft": [("readonly", False)]},
+    base_trial_days = fields.Integer(
+        default=lambda self: self._default_base_trial_days(),
     )
-    type_id = fields.Many2one(
-        "hr.contract.type",
-        "Contract Type",
-        required=True,
-        readonly=True,
-        states={"draft": [("readonly", False)]},
-    )
-    date_start = fields.Date(
-        "Start Date",
-        required=True,
-        readonly=True,
-        states={"draft": [("readonly", False)]},
-    )
-    wage = fields.Float(
-        "Wage",
+    wage_base_legal = fields.Float(
         digits=(16, 2),
+        default=lambda self: self._default_wage_base_legal(),
         required=True,
-        readonly=False,
-        help="Basic Salary of the employee",
     )
     p_hipotecario = fields.Float(
-        "Prestamo Hipotecario",
+        string="Prestamo Hipotecario",
         digits=(16, 2),
-        required=True,
-        readonly=False,
         help="Valor Prestamo Hipotecario IESS",
     )
     p_quirografario = fields.Float(
-        "Prestamo Quirografario",
+        string="Prestamo Quirografario",
         digits=(16, 2),
-        required=True,
-        readonly=False,
         help="Valor Prestamo Quirografario IESS",
     )
     anticipo_sueldo = fields.Float(
-        "Anticipo Sueldo",
         digits=(16, 2),
-        required=True,
-        readonly=False,
         help="Valor Prestamo Anticipo de sueldo en la empresa",
     )
     otros_descuentos = fields.Float(
-        "Otros Descuentos",
         digits=(16, 2),
-        required=True,
-        readonly=False,
-    )
-    base_trial_days = fields.Integer("Base dias para pruebas")
-    wage_base_legal = fields.Float(
-        "Salario Básico Unificado",
-        required=True,
-        readonly=False,
     )
     age_days = fields.Integer(
-        compute="_compute_days", string="Días de Contrato", readonly=True
+        compute="_compute_age_days",
+        string="Días de Contrato",
     )
-    code_contract_id = fields.Many2one("hr.contract.code", "Código Sectorial")
-    bonus_ids = fields.One2many("hr.contract.bonus", "contract_id", "name")
+    code_contract_id = fields.Many2one(
+        "hr.contract.code",
+        string="Código Sectorial",
+    )
+
+    @api.onchange("contract_date_start", "base_trial_days")
+    def _onchange_trial_days(self):
+        for version in self:
+            if version.contract_date_start and version.base_trial_days:
+                version.trial_date_end = version.contract_date_start + relativedelta(
+                    days=version.base_trial_days
+                )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if "trial_date_end" not in vals:
+                vals.update(self._trial_date_end_vals(vals, self.browse()))
+        return super().create(vals_list)
+
+    def write(self, vals):
+        if len(self) == 1 and "trial_date_end" not in vals:
+            if "contract_date_start" in vals or "base_trial_days" in vals:
+                vals.update(self._trial_date_end_vals(vals, self))
+        return super().write(vals)
 
     @api.model
-    def _needaction_domain_get(self):
-        users_obj = self.env["res.users"]
-        domain = []
-
-        if users_obj.has_group("base.group_hr_manager"):
-            domain = [("state", "in", ["draft", "contract_ending", "trial_ending"])]
-            return domain
-
-        return False
-
-    @api.onchange("trial_date_start")
-    def _onchange_trial_days(self):
-        if not self.trial_date_start:
-            return {}
-        years, month, days = self.trial_date_start.split("-")
-        d = datetime(year=int(years), month=int(month), day=int(days)) + relativedelta(
-            days=self.base_trial_days
+    def _trial_date_end_vals(self, vals, record):
+        start = vals.get(
+            "contract_date_start", record.contract_date_start if record else None
         )
-        trial_end = d.strftime(DEFAULT_SERVER_DATE_FORMAT)
-        self.trial_date_end = trial_end
+        days = vals.get("base_trial_days", record.base_trial_days if record else None)
+        start = fields.Date.to_date(start)
+        if start and days:
+            return {"trial_date_end": start + relativedelta(days=days)}
+        return {}
 
-    #    @api.onchange('job_id')
-    #    def onchange_job(self):
-    #        _l.debug('hr_contract_state: onchange_job()')
-    #        res = False
-    #        if self.state != 'draft':
-    #            self.job_id = res
-    #        return super(hr_contract, self).onchange_job()
-
-    def signal_confirm(self):
-        """Confirm contract and move it into the appropriate state."""
-        for contract in self:
-            if contract.trial_date_start:
-                contract.state_trial()
-            else:
-                contract.state_open()
-            contract.update_job()
-            contract.update_holidays()
-
-    def condition_trial_period(self):
-        return bool(self) and all(contract.trial_date_start for contract in self)
-
-    def signal_ending_contract(self):
-        self.write({"state": "contract_ending"})
+    def action_end_trial(self):
+        self.write({"trial_date_end": fields.Date.context_today(self)})
         return True
 
-    def try_signal_ending_contract(self):
-        d = datetime.now().date() + relativedelta(days=30)
-        contracts = self.search(
-            [
-                ("state", "=", "open"),
-                ("date_end", "<=", d.strftime(DEFAULT_SERVER_DATE_FORMAT)),
-            ]
-        )
-        if not contracts:
-            return
-        contracts.signal_ending_contract()
-
-    def try_signal_contract_completed(self):
-        d = datetime.now().date()
-        contracts = self.search(
-            [
-                ("state", "=", "open"),
-                ("date_end", "<", d.strftime(DEFAULT_SERVER_DATE_FORMAT)),
-            ]
-        )
-        if not contracts:
-            return
-        contracts.state_pending_done()
-
-    def signal_ending_trial(self):
-        self.write({"state": "trial_ending"})
-        return True
-
-    def try_signal_ending_trial(self):
-        d = datetime.now().date() + relativedelta(days=10)
-        contracts = self.search(
-            [
-                ("state", "=", "trial"),
-                ("trial_date_end", "<=", d.strftime(DEFAULT_SERVER_DATE_FORMAT)),
-            ]
-        )
-        if not contracts:
-            return
-        contracts.signal_ending_trial()
-
-    def try_signal_open(self):
-        d = datetime.now().date() + relativedelta(days=-5)
-        contracts = self.search(
-            [
-                ("state", "=", "trial_ending"),
-                ("trial_date_end", "<=", d.strftime(DEFAULT_SERVER_DATE_FORMAT)),
-            ]
-        )
-        if not contracts:
-            return
-        contracts.state_open()
-
-    @api.onchange("date_start")
-    def onchange_start(self):
-        self.trial_date_start = self.date_start
-
-    def update_holidays(self):
-        for obj in self:
-            leaves = self.env["hr.leave"].search(
-                [("employee_id", "=", obj.employee_id.id), ("state", "=", "confirm")]
-            )
-            if leaves:
-                leaves.action_approve()
-        return True
-
-    def update_job(self):
-        # metodo que actualiza el trabajo a ocupado
-        for obj in self:
-            hired = obj.job_id.no_of_hired_employee + 1
-            obj.job_id.write({"state": "open", "no_of_hired_employee": hired})
-            obj.employee_id.write(
-                {"department_id": obj.job_id.department_id.id, "job_id": obj.job_id.id}
+    def action_end_contract(self):
+        for version in self:
+            if not version.contract_date_start:
+                raise UserError(
+                    self.env._("No se puede terminar un contrato sin fecha de inicio.")
+                )
+            version.write(
+                {
+                    "contract_date_end": version.contract_date_end
+                    or fields.Date.context_today(version),
+                    "end_job_id": version.job_id.id,
+                    "job_id": False,
+                    "active": False,
+                }
             )
         return True
 
-    def state_trial(self):
-        self.write({"state": "trial"})
-        return True
-
-    def state_open(self):
-        self.write({"state": "open"})
-        return True
-
-    def state_pending_done(self):
-        self.write({"state": "pending_done"})
-        return True
-
-    def state_done(self):
-        for obj in self:
-            vals = {
-                "state": "done",
-                "date_end": False,
-                "job_id": False,
-                "end_job_id": obj.job_id.id,
-            }
-
-            vals["date_end"] = obj.date_end or time.strftime(DEFAULT_SERVER_DATE_FORMAT)  # noqa
-            obj.write(vals)
-        return True
-
-
-class HrContractBonus(models.Model):
-    _name = "hr.contract.bonus"
-
-    contract_id = fields.Many2one("hr.version", "Contracto")
-    name = fields.Char("Tipo Ingreso", required=True)
-    amount = fields.Float("Valor Bono", digits=(16, 2))
+    @api.model
+    def _cron_update_state(self):
+        versions = self.with_context(active_test=False).search(
+            [("active", "in", [True, False])]
+        )
+        versions.modified(
+            ["contract_date_start", "trial_date_end", "contract_date_end"]
+        )
+        versions.flush_recordset(["state"])

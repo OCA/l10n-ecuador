@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <menuitem
+        id="submenu_hr_contract_codes"
+        name="Códigos Sectoriales"
+        parent="hr.menu_human_resources_configuration"
+    />
+
+    <record id="view_hr_contract_branch_list" model="ir.ui.view">
+        <field name="name">hr.contract.branch.list</field>
+        <field name="model">hr.contract.branch</field>
+        <field name="arch" type="xml">
+            <list string="Rama Sectorial" editable="bottom">
+                <field name="code" />
+                <field name="name" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_contract_branch_search" model="ir.ui.view">
+        <field name="name">hr.contract.branch.search</field>
+        <field name="model">hr.contract.branch</field>
+        <field name="arch" type="xml">
+            <search string="Rama Sectorial">
+                <field name="code" />
+                <field name="name" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_contract_branch" model="ir.actions.act_window">
+        <field name="name">Rama Laboral</field>
+        <field name="res_model">hr.contract.branch</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+        id="submenu_hr_contract_branch"
+        name="Ramas"
+        parent="submenu_hr_contract_codes"
+        action="action_hr_contract_branch"
+    />
+
+    <record id="view_hr_contract_commision_list" model="ir.ui.view">
+        <field name="name">hr.contract.commision.list</field>
+        <field name="model">hr.contract.commision</field>
+        <field name="arch" type="xml">
+            <list string="Comision Sectorial" editable="bottom">
+                <field name="code" />
+                <field name="name" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_contract_commision_search" model="ir.ui.view">
+        <field name="name">hr.contract.commision.search</field>
+        <field name="model">hr.contract.commision</field>
+        <field name="arch" type="xml">
+            <search string="Comision Sectorial">
+                <field name="code" />
+                <field name="name" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_contract_commision" model="ir.actions.act_window">
+        <field name="name">Comisión Laboral</field>
+        <field name="res_model">hr.contract.commision</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+        id="submenu_hr_contract_commision"
+        name="Comisiones"
+        parent="submenu_hr_contract_codes"
+        action="action_hr_contract_commision"
+    />
+
+    <record id="view_hr_contract_code_list" model="ir.ui.view">
+        <field name="name">hr.contract.code.list</field>
+        <field name="model">hr.contract.code</field>
+        <field name="arch" type="xml">
+            <list string="Codigo Sectorial" editable="bottom">
+                <field name="code" />
+                <field name="name" />
+                <field name="code_structure" />
+                <field name="rama_id" />
+                <field name="commision_id" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_contract_code_search" model="ir.ui.view">
+        <field name="name">hr.contract.code.search</field>
+        <field name="model">hr.contract.code</field>
+        <field name="arch" type="xml">
+            <search string="Codigo Sectorial">
+                <field name="code" />
+                <field name="name" />
+                <field name="code_structure" />
+                <field name="rama_id" />
+                <field name="commision_id" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_contract_code" model="ir.actions.act_window">
+        <field name="name">Códigos Laborales</field>
+        <field name="res_model">hr.contract.code</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+        id="submenu_hr_contract_code"
+        name="Códigos Laborales"
+        parent="submenu_hr_contract_codes"
+        action="action_hr_contract_code"
+    />
+</odoo>

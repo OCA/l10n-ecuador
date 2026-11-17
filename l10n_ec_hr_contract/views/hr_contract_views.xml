@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <menuitem
+        id="submenu_hr_contracts"
+        name="Contracts"
+        parent="hr.menu_hr_root"
+        sequence="20"
+        groups="hr.group_hr_user"
+    />
+
+    <menuitem
+        id="menu_hr_contract_ec"
+        action="hr.action_hr_version"
+        parent="submenu_hr_contracts"
+        name="Contracts"
+        sequence="10"
+        groups="hr.group_hr_user"
+    />
+
+    <record id="view_expiring_contracts_list" model="ir.ui.view">
+        <field name="name">hr.version.expiring.list.l10n_ec</field>
+        <field name="model">hr.version</field>
+        <field name="arch" type="xml">
+            <list string="Expiring Contracts">
+                <field name="name" />
+                <field name="employee_id" />
+                <field name="department_id" />
+                <field name="job_id" />
+                <field name="trial_date_end" />
+                <field name="contract_date_end" />
+                <field name="state" />
+            </list>
+        </field>
+    </record>
+
+    <record id="open_expiring_contracts" model="ir.actions.act_window">
+        <field name="name">Ending Trials &amp; Contracts</field>
+        <field name="res_model">hr.version</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_expiring_contracts_list" />
+        <field
+            name="domain"
+        >[('state', 'in', ['contract_ending', 'trial_ending'])]</field>
+        <field name="help" type="html">
+            <p>
+                There are currently no contracts or trial periods that are about to expire.
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_expiring_contracts"
+        action="open_expiring_contracts"
+        parent="submenu_hr_contracts"
+        groups="hr.group_hr_user"
+        sequence="20"
+    />
+
+    <record id="view_draft_contracts_list" model="ir.ui.view">
+        <field name="name">hr.version.draft.list.l10n_ec</field>
+        <field name="model">hr.version</field>
+        <field name="arch" type="xml">
+            <list string="Contracts to be Approved">
+                <field name="name" />
+                <field name="employee_id" />
+                <field name="department_id" />
+                <field name="job_id" />
+                <field name="contract_date_start" />
+                <field name="contract_date_end" />
+                <field name="state" />
+            </list>
+        </field>
+    </record>
+
+    <record id="open_draft_contracts" model="ir.actions.act_window">
+        <field name="name">Contracts to be Approved</field>
+        <field name="res_model">hr.version</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_draft_contracts_list" />
+        <field name="domain">[('state', '=', 'draft')]</field>
+        <field name="help" type="html">
+            <p>
+                There are currently no contracts that need to be approved.
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_draft_contracts"
+        action="open_draft_contracts"
+        parent="submenu_hr_contracts"
+        groups="hr.group_hr_user"
+        sequence="30"
+    />
+
+    <record id="view_contract_form" model="ir.ui.view">
+        <field name="name">hr.version.form.l10n_ec</field>
+        <field name="model">hr.version</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="action_end_trial"
+                        type="object"
+                        string="Trial Successful"
+                        groups="hr.group_hr_manager"
+                        invisible="state not in ('trial', 'trial_ending')"
+                        class="btn-primary"
+                    />
+                    <button
+                        name="action_end_contract"
+                        type="object"
+                        string="End Contract"
+                        confirm="¿Seguro de terminar el contrato?"
+                        groups="hr.group_hr_manager"
+                        invisible="state in ('draft', 'done')"
+                        class="btn-primary"
+                    />
+                    <field name="state" widget="statusbar" />
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name" />
+                        <field name="employee_id" required="True" />
+                        <field name="job_id" required="True" />
+                        <field name="department_id" readonly="True" />
+                        <field name="contract_type_id" required="True" />
+                        <field name="code_contract_id" />
+                    </group>
+                    <group>
+                        <field name="contract_date_start" />
+                        <field name="contract_date_end" />
+                        <field name="trial_date_end" readonly="True" />
+                        <field name="base_trial_days" invisible="True" />
+                        <field name="age_days" readonly="True" />
+                    </group>
+                    <group>
+                        <field name="wage" required="True" />
+                        <field name="wage_base_legal" required="True" />
+                    </group>
+                    <notebook>
+                        <page string="Valores Rol Pagos">
+                            <group>
+                                <group string="Prestamos IESS">
+                                    <field name="p_quirografario" />
+                                    <field name="p_hipotecario" />
+                                </group>
+                                <group string="Anticipo Sueldo">
+                                    <field name="anticipo_sueldo" />
+                                    <field name="otros_descuentos" />
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+</odoo>
