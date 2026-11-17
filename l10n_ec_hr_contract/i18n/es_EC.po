@@ -1,198 +1,542 @@
 # Translation of OpenERP Server.
 # This file contains the translation of the following modules:
-#	* l10n_ec_hr_contract
+# 	* l10n_ec_hr_contract
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenERP Server 7.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-23 00:10+0000\n"
+"POT-Creation-Date: 2026-11-17 12:25+0000\n"
 "PO-Revision-Date: 2016-02-23 00:10+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
 
 #. module: l10n_ec_hr_contract
-#: view:hr.contract:0
-msgid "Trial Successful"
-msgstr "Periodo Prueba Terminado"
+#: model:ir.model.fields.selection,name:l10n_ec_hr_contract.selection__hr_version__state__open
+msgid "Abierto"
+msgstr ""
 
 #. module: l10n_ec_hr_contract
-#: view:hr.contract:0
-msgid "Confirm"
-msgstr "Confirmar"
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_employee__anticipo_sueldo
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_version__anticipo_sueldo
+#: model_terms:ir.ui.view,arch_db:l10n_ec_hr_contract.view_contract_form
+msgid "Anticipo Sueldo"
+msgstr ""
 
 #. module: l10n_ec_hr_contract
-#: model:mail.message.subtype,name:l10n_ec_hr_contract.mt_alert_contract_ending
-msgid "Contract Period Ending"
-msgstr "Contrato por Finalizar"
+#: model:hr.leave.type,name:l10n_ec_hr_contract.holiday_status_enf
+msgid "Ausencias por Enfermedad"
+msgstr ""
 
 #. module: l10n_ec_hr_contract
-#: field:hr.contract,state:0
-msgid "State"
-msgstr "Estado"
+#: model:hr.leave.type,name:l10n_ec_hr_contract.holiday_status_mat
+msgid "Ausencias por Maternidad"
+msgstr ""
 
 #. module: l10n_ec_hr_contract
-#: field:hr.contract,message_follower_ids:0
-msgid "Followers"
-msgstr "Seguidores"
+#: model:ir.model.fields.selection,name:l10n_ec_hr_contract.selection__hr_contract_code__code_structure__b1
+msgid "B1"
+msgstr ""
 
 #. module: l10n_ec_hr_contract
-#: view:hr.contract:0
-msgid "Expiring Contracts"
-msgstr "Contratos por exipirar"
+#: model:ir.model.fields.selection,name:l10n_ec_hr_contract.selection__hr_contract_code__code_structure__b2
+msgid "B2"
+msgstr ""
 
 #. module: l10n_ec_hr_contract
-#: view:hr.contract:0
-msgid "End Contract"
-msgstr "Fin de Contrato"
+#: model:ir.model.fields.selection,name:l10n_ec_hr_contract.selection__hr_contract_code__code_structure__b3
+msgid "B3"
+msgstr ""
 
 #. module: l10n_ec_hr_contract
-#: view:hr.employee:0
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_employee__base_trial_days
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_version__base_trial_days
+msgid "Base Trial Days"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields.selection,name:l10n_ec_hr_contract.selection__hr_version__state__draft
+msgid "Borrador"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields.selection,name:l10n_ec_hr_contract.selection__hr_contract_code__code_structure__c1
+msgid "C1"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields.selection,name:l10n_ec_hr_contract.selection__hr_contract_code__code_structure__c2
+msgid "C2"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields.selection,name:l10n_ec_hr_contract.selection__hr_contract_code__code_structure__c3
+msgid "C3"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_code__name
+msgid "Cargo"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model_terms:ir.ui.view,arch_db:l10n_ec_hr_contract.view_hr_contract_code_list
+#: model_terms:ir.ui.view,arch_db:l10n_ec_hr_contract.view_hr_contract_code_search
+msgid "Codigo Sectorial"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model_terms:ir.ui.view,arch_db:l10n_ec_hr_contract.view_hr_contract_commision_list
+#: model_terms:ir.ui.view,arch_db:l10n_ec_hr_contract.view_hr_contract_commision_search
+msgid "Comision Sectorial"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.ui.menu,name:l10n_ec_hr_contract.submenu_hr_contract_commision
+msgid "Comisiones"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_code__commision_id
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_commision__name
+msgid "Comisión"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.actions.act_window,name:l10n_ec_hr_contract.action_hr_contract_commision
+#: model:ir.model,name:l10n_ec_hr_contract.model_hr_contract_commision
+msgid "Comisión Laboral"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields.selection,name:l10n_ec_hr_contract.selection__hr_version__state__done
+#, fuzzy
+msgid "Completado"
+msgstr "Completado"
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model,name:l10n_ec_hr_contract.model_res_config_settings
+msgid "Config Settings"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.ui.menu,name:l10n_ec_hr_contract.menu_hr_contract_ec
 #: model:ir.ui.menu,name:l10n_ec_hr_contract.submenu_hr_contracts
 msgid "Contracts"
 msgstr "Contratos"
 
 #. module: l10n_ec_hr_contract
-#: selection:hr.contract,state:0
-msgid "Completed"
-msgstr "Completado"
-
-#. module: l10n_ec_hr_contract
-#: model:ir.actions.act_window,help:l10n_ec_hr_contract.open_expiring_contracts
-msgid "<p>\n"
-"                There are currently no contracts or trial periods that are about to expire.\n"
-"              </p>\n"
-"            "
-msgstr "<p>\n"
-"                There are currently no contracts or trial periods that are about to expire.\n"
-"              </p>\n"
-"            "
-
-#. module: l10n_ec_hr_contract
-#: help:hr.contract,message_ids:0
-msgid "Messages and communication history"
-msgstr "Historial de comunicación"
-
-#. module: l10n_ec_hr_contract
-#: field:hr.contract,message_is_follower:0
-msgid "Is a Follower"
-msgstr "Es seguidor"
-
-#. module: l10n_ec_hr_contract
-#: view:hr.contract:0
 #: model:ir.actions.act_window,name:l10n_ec_hr_contract.open_draft_contracts
 #: model:ir.ui.menu,name:l10n_ec_hr_contract.menu_draft_contracts
+#: model_terms:ir.ui.view,arch_db:l10n_ec_hr_contract.view_draft_contracts_list
 msgid "Contracts to be Approved"
 msgstr "Contratos a ser aprobados"
 
 #. module: l10n_ec_hr_contract
-#: model:mail.message.subtype,description:l10n_ec_hr_contract.mt_alert_open
-msgid "Contract is Open"
-msgstr "Contrato está Abierto"
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_branch__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_code__create_uid
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_commision__create_uid
+msgid "Created by"
+msgstr ""
 
 #. module: l10n_ec_hr_contract
-#: model:mail.message.subtype,name:l10n_ec_hr_contract.mt_alert_open
-msgid "Contract Open"
-msgstr "Contract Abierto"
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_branch__create_date
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_code__create_date
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_commision__create_date
+msgid "Created on"
+msgstr ""
 
 #. module: l10n_ec_hr_contract
-#: field:hr.contract,message_ids:0
-msgid "Messages"
-msgstr "Mensajes"
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_branch__code
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_commision__code
+msgid "Código"
+msgstr ""
 
 #. module: l10n_ec_hr_contract
-#: model:ir.actions.act_window,help:l10n_ec_hr_contract.open_draft_contracts
-msgid "<p>\n"
-"                There are currently no contracts that need to be approved.\n"
-"              </p>\n"
-"            "
-msgstr "<p>\n"
-"                There are currently no contracts that need to be approved.\n"
-"              </p>\n"
-"            "
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_code__code
+msgid "Código IESS"
+msgstr ""
 
 #. module: l10n_ec_hr_contract
-#: model:ir.model,name:l10n_ec_hr_contract.model_hr_contract
-msgid "Contract"
-msgstr "Contrato"
+#: model:ir.model,name:l10n_ec_hr_contract.model_hr_contract_code
+msgid "Código Laboral"
+msgstr ""
 
 #. module: l10n_ec_hr_contract
-#: field:hr.contract,message_summary:0
-msgid "Summary"
-msgstr "Resumen"
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_employee__code_contract_id
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_version__code_contract_id
+msgid "Código Sectorial"
+msgstr ""
 
 #. module: l10n_ec_hr_contract
-#: selection:hr.contract,state:0
-msgid "Trial"
-msgstr "Pruebas"
+#: model:ir.actions.act_window,name:l10n_ec_hr_contract.action_hr_contract_code
+#: model:ir.ui.menu,name:l10n_ec_hr_contract.submenu_hr_contract_code
+msgid "Códigos Laborales"
+msgstr ""
 
 #. module: l10n_ec_hr_contract
-#: selection:hr.contract,state:0
-#: model:mail.message.subtype,name:l10n_ec_hr_contract.mt_alert_trial_ending
-msgid "Trial Period Ending"
-msgstr "Terminando periodo de prueba"
+#: model:ir.ui.menu,name:l10n_ec_hr_contract.submenu_hr_contract_codes
+msgid "Códigos Sectoriales"
+msgstr ""
 
 #. module: l10n_ec_hr_contract
-#: field:hr.contract,end_job_id:0
-msgid "Job Title"
-msgstr "Puesto de Trabajo"
+#: model:ir.model.fields.selection,name:l10n_ec_hr_contract.selection__hr_contract_code__code_structure__d1
+msgid "D1"
+msgstr ""
 
 #. module: l10n_ec_hr_contract
-#: constraint:hr.contract:0
-msgid "Error! Contract start-date must be less than contract end-date."
-msgstr "Error! La fecha de inicio del contrato debe ser menor que la fecha de fin del mismo"
+#: model:ir.model.fields.selection,name:l10n_ec_hr_contract.selection__hr_contract_code__code_structure__d2
+msgid "D2"
+msgstr ""
 
 #. module: l10n_ec_hr_contract
-#: help:hr.contract,message_unread:0
-msgid "If checked new messages require your attention."
-msgstr "Alertas para nuevos mensajes."
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_branch__display_name
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_code__display_name
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_commision__display_name
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_version__display_name
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr ""
 
 #. module: l10n_ec_hr_contract
-#: selection:hr.contract,state:0
-msgid "Pending Termination"
-msgstr "En espera de terminar"
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_employee__age_days
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_version__age_days
+#, fuzzy
+msgid "Días de Contrato"
+msgstr "Fin de Contrato"
 
 #. module: l10n_ec_hr_contract
-#: model:mail.message.subtype,description:l10n_ec_hr_contract.mt_alert_contract_ending
-msgid "Contract Period is ending"
-msgstr "Contrato por terminar"
+#: model:ir.model.fields.selection,name:l10n_ec_hr_contract.selection__hr_contract_code__code_structure__e1
+msgid "E1"
+msgstr ""
 
 #. module: l10n_ec_hr_contract
-#: selection:hr.contract,state:0
-msgid "Ending"
-msgstr "Terminando"
+#: model:ir.model.fields.selection,name:l10n_ec_hr_contract.selection__hr_contract_code__code_structure__e2
+msgid "E2"
+msgstr ""
 
 #. module: l10n_ec_hr_contract
-#: field:hr.contract,message_unread:0
-msgid "Unread Messages"
-msgstr "Mensajes no leídos"
+#: model_terms:ir.ui.view,arch_db:l10n_ec_hr_contract.res_config_settings_view_form_l10n_ec_hr_contract
+msgid "Ecuador HR"
+msgstr ""
 
 #. module: l10n_ec_hr_contract
-#: help:hr.contract,message_summary:0
-msgid "Holds the Chatter summary (number of messages, ...). This summary is directly in html format in order to be inserted in kanban views."
-msgstr "Holds the Chatter summary (number of messages, ...). This summary is directly in html format in order to be inserted in kanban views."
+#: model:ir.model,name:l10n_ec_hr_contract.model_hr_version
+#, fuzzy
+msgid "Employee Contract"
+msgstr "Fin de Contrato"
 
 #. module: l10n_ec_hr_contract
-#: model:mail.message.subtype,description:l10n_ec_hr_contract.mt_alert_trial_ending
-msgid "Trial Period is ending"
-msgstr "Periodo de prueba esta terminando"
-
-#. module: l10n_ec_hr_contract
-#: selection:hr.contract,state:0
-msgid "Draft"
-msgstr "Borrador"
-
-#. module: l10n_ec_hr_contract
-#: selection:hr.contract,state:0
-msgid "Open"
-msgstr "Abierto"
+#: model_terms:ir.ui.view,arch_db:l10n_ec_hr_contract.view_contract_form
+msgid "End Contract"
+msgstr "Fin de Contrato"
 
 #. module: l10n_ec_hr_contract
 #: model:ir.actions.act_window,name:l10n_ec_hr_contract.open_expiring_contracts
 #: model:ir.ui.menu,name:l10n_ec_hr_contract.menu_expiring_contracts
 msgid "Ending Trials & Contracts"
 msgstr "Contratos por Terminar"
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_employee__state
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_version__state
+msgid "Estado"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_code__code_structure
+msgid "Estructura Ocupacional"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model_terms:ir.ui.view,arch_db:l10n_ec_hr_contract.view_expiring_contracts_list
+msgid "Expiring Contracts"
+msgstr "Contratos por exipirar"
+
+#. module: l10n_ec_hr_contract
+#: model:hr.leave.type,name:l10n_ec_hr_contract.holiday_status_falta
+msgid "Faltas"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields.selection,name:l10n_ec_hr_contract.selection__hr_version__state__contract_ending
+msgid "Finalizando"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.actions.server,name:l10n_ec_hr_contract.ir_cron_hr_version_update_state_ir_actions_server
+msgid "HR Contract: Update Contract States"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_branch__id
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_code__id
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_commision__id
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_version__id
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_res_config_settings__id
+msgid "ID"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_employee__end_job_id
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_version__end_job_id
+msgid "Job Position at End"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields,help:l10n_ec_hr_contract.field_hr_employee__end_job_id
+#: model:ir.model.fields,help:l10n_ec_hr_contract.field_hr_version__end_job_id
+msgid "Job title held when the contract ended."
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_branch__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_code__write_uid
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_commision__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_branch__write_date
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_code__write_date
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_commision__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#. odoo-python
+#: code:addons/l10n_ec_hr_contract/models/hr_contract.py:0
+msgid "No se puede terminar un contrato sin fecha de inicio."
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_res_config_settings__l10n_ec_hr_base_trial_days
+#: model_terms:ir.ui.view,arch_db:l10n_ec_hr_contract.res_config_settings_view_form_l10n_ec_hr_contract
+msgid "Número de días para período de prueba"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_employee__otros_descuentos
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_version__otros_descuentos
+msgid "Otros Descuentos"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model_terms:ir.ui.view,arch_db:l10n_ec_hr_contract.res_config_settings_view_form_l10n_ec_hr_contract
+msgid "Parámetros Base"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields.selection,name:l10n_ec_hr_contract.selection__hr_version__state__pending_done
+msgid "Pendiente de Cierre"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_employee__p_hipotecario
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_version__p_hipotecario
+msgid "Prestamo Hipotecario"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_employee__p_quirografario
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_version__p_quirografario
+msgid "Prestamo Quirografario"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model_terms:ir.ui.view,arch_db:l10n_ec_hr_contract.view_contract_form
+msgid "Prestamos IESS"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields.selection,name:l10n_ec_hr_contract.selection__hr_version__state__trial
+msgid "Pruebas"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_branch__name
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_contract_code__rama_id
+msgid "Rama"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.actions.act_window,name:l10n_ec_hr_contract.action_hr_contract_branch
+#: model:ir.model,name:l10n_ec_hr_contract.model_hr_contract_branch
+msgid "Rama Laboral"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model_terms:ir.ui.view,arch_db:l10n_ec_hr_contract.view_hr_contract_branch_list
+#: model_terms:ir.ui.view,arch_db:l10n_ec_hr_contract.view_hr_contract_branch_search
+msgid "Rama Sectorial"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.ui.menu,name:l10n_ec_hr_contract.submenu_hr_contract_branch
+msgid "Ramas"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_res_config_settings__l10n_ec_hr_wage_base_legal
+#: model_terms:ir.ui.view,arch_db:l10n_ec_hr_contract.res_config_settings_view_form_l10n_ec_hr_contract
+msgid "Salario Básico Unificado Actual"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields.selection,name:l10n_ec_hr_contract.selection__hr_version__state__trial_ending
+msgid "Terminando Pruebas"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model_terms:ir.actions.act_window,help:l10n_ec_hr_contract.open_expiring_contracts
+#, fuzzy
+msgid ""
+"There are currently no contracts or trial periods that are about to expire."
+msgstr ""
+"<p>\n"
+"                There are currently no contracts or trial periods that are "
+"about to expire.\n"
+"              </p>\n"
+"            "
+
+#. module: l10n_ec_hr_contract
+#: model_terms:ir.actions.act_window,help:l10n_ec_hr_contract.open_draft_contracts
+#, fuzzy
+msgid "There are currently no contracts that need to be approved."
+msgstr ""
+"<p>\n"
+"                There are currently no contracts that need to be approved.\n"
+"              </p>\n"
+"            "
+
+#. module: l10n_ec_hr_contract
+#: model_terms:ir.ui.view,arch_db:l10n_ec_hr_contract.view_contract_form
+msgid "Trial Successful"
+msgstr "Periodo Prueba Terminado"
+
+#. module: l10n_ec_hr_contract
+#: model:hr.leave.type,name:l10n_ec_hr_contract.hr_holidays_legal_ec
+msgid "VACACIONES PRIMER AÑO"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:hr.leave.type,name:l10n_ec_hr_contract.holiday_status_vac
+msgid "Vacaciones de Ley"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields,help:l10n_ec_hr_contract.field_hr_employee__anticipo_sueldo
+#: model:ir.model.fields,help:l10n_ec_hr_contract.field_hr_version__anticipo_sueldo
+msgid "Valor Prestamo Anticipo de sueldo en la empresa"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields,help:l10n_ec_hr_contract.field_hr_employee__p_hipotecario
+#: model:ir.model.fields,help:l10n_ec_hr_contract.field_hr_version__p_hipotecario
+msgid "Valor Prestamo Hipotecario IESS"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields,help:l10n_ec_hr_contract.field_hr_employee__p_quirografario
+#: model:ir.model.fields,help:l10n_ec_hr_contract.field_hr_version__p_quirografario
+msgid "Valor Prestamo Quirografario IESS"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model_terms:ir.ui.view,arch_db:l10n_ec_hr_contract.view_contract_form
+msgid "Valores Rol Pagos"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_employee__wage_base_legal
+#: model:ir.model.fields,field_description:l10n_ec_hr_contract.field_hr_version__wage_base_legal
+msgid "Wage Base Legal"
+msgstr ""
+
+#. module: l10n_ec_hr_contract
+#: model_terms:ir.ui.view,arch_db:l10n_ec_hr_contract.view_contract_form
+msgid "¿Seguro de terminar el contrato?"
+msgstr ""
+
+#~ msgid "Confirm"
+#~ msgstr "Confirmar"
+
+#~ msgid "Contract Period Ending"
+#~ msgstr "Contrato por Finalizar"
+
+#~ msgid "State"
+#~ msgstr "Estado"
+
+#~ msgid "Followers"
+#~ msgstr "Seguidores"
+
+#~ msgid "Messages and communication history"
+#~ msgstr "Historial de comunicación"
+
+#~ msgid "Is a Follower"
+#~ msgstr "Es seguidor"
+
+#~ msgid "Contract is Open"
+#~ msgstr "Contrato está Abierto"
+
+#~ msgid "Contract Open"
+#~ msgstr "Contract Abierto"
+
+#~ msgid "Messages"
+#~ msgstr "Mensajes"
+
+#~ msgid "Contract"
+#~ msgstr "Contrato"
+
+#~ msgid "Summary"
+#~ msgstr "Resumen"
+
+#~ msgid "Trial"
+#~ msgstr "Pruebas"
+
+#~ msgid "Trial Period Ending"
+#~ msgstr "Terminando periodo de prueba"
+
+#~ msgid "Job Title"
+#~ msgstr "Puesto de Trabajo"
+
+#~ msgid "Error! Contract start-date must be less than contract end-date."
+#~ msgstr ""
+#~ "Error! La fecha de inicio del contrato debe ser menor que la fecha de fin "
+#~ "del mismo"
+
+#~ msgid "If checked new messages require your attention."
+#~ msgstr "Alertas para nuevos mensajes."
+
+#~ msgid "Pending Termination"
+#~ msgstr "En espera de terminar"
+
+#~ msgid "Contract Period is ending"
+#~ msgstr "Contrato por terminar"
+
+#~ msgid "Ending"
+#~ msgstr "Terminando"
+
+#~ msgid "Unread Messages"
+#~ msgstr "Mensajes no leídos"
+
+#~ msgid ""
+#~ "Holds the Chatter summary (number of messages, ...). This summary is "
+#~ "directly in html format in order to be inserted in kanban views."
+#~ msgstr ""
+#~ "Holds the Chatter summary (number of messages, ...). This summary is "
+#~ "directly in html format in order to be inserted in kanban views."
+
+#~ msgid "Trial Period is ending"
+#~ msgstr "Periodo de prueba esta terminando"
+
+#~ msgid "Draft"
+#~ msgstr "Borrador"
+
+#~ msgid "Open"
+#~ msgstr "Abierto"
