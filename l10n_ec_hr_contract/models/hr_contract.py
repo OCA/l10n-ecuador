@@ -15,7 +15,13 @@ class HrVersion(models.Model):
         for version in self:
             version.display_name = f"{version.name} - {version.employee_id.name or ''}"
 
-    @api.depends("contract_date_start", "contract_date_end", "trial_date_end", "active")
+    @api.depends(
+        "contract_date_start",
+        "contract_date_end",
+        "trial_date_end",
+        "end_job_id",
+        "active",
+    )
     def _compute_state(self):
         today = fields.Date.context_today(self)
         trial_limit = today + relativedelta(days=10)
@@ -25,6 +31,8 @@ class HrVersion(models.Model):
                 state = "done"
             elif not version.contract_date_start:
                 state = "draft"
+            elif version.end_job_id:
+                state = "done"
             elif version.contract_date_end and version.contract_date_end < today:
                 state = "pending_done"
             elif (
@@ -167,7 +175,6 @@ class HrVersion(models.Model):
                     or fields.Date.context_today(version),
                     "end_job_id": version.job_id.id,
                     "job_id": False,
-                    "active": False,
                 }
             )
         return True

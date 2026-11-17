@@ -101,7 +101,7 @@ class TestHrContract(TransactionCase):
         self.assertEqual(version.contract_date_end, self.today)
         self.assertEqual(version.end_job_id, job)
         self.assertFalse(version.job_id)
-        self.assertFalse(version.active)
+        self.assertTrue(version.active)
         self.assertEqual(version.state, "done")
 
     def test_default_trial_days_from_settings(self):
