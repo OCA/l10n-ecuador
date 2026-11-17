@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_l10n_ec_import_root" name="Imports" sequence="25"
+              web_icon="l10n_ec_import_management,static/description/icon.png"
+              groups="purchase.group_purchase_user,account.group_account_invoice,stock.group_stock_user"/>
+
+    <menuitem id="menu_l10n_ec_import_operations" name="Operations" parent="menu_l10n_ec_import_root" sequence="10"/>
+    <menuitem id="menu_l10n_ec_import_shipment" action="action_l10n_ec_import_shipment"
+              parent="menu_l10n_ec_import_operations" sequence="10"/>
+    <menuitem id="menu_l10n_ec_import" action="action_l10n_ec_import"
+              parent="menu_l10n_ec_import_operations" sequence="20"
+              groups="purchase.group_purchase_user,account.group_account_invoice"/>
+
+    <menuitem id="menu_l10n_ec_import_config" name="Configuration" parent="menu_l10n_ec_import_root" sequence="90"
+              groups="purchase.group_purchase_manager"/>
+    <menuitem id="menu_l10n_ec_import_settings" action="account.action_account_config"
+              parent="menu_l10n_ec_import_config" sequence="1" groups="base.group_system"/>
+    <menuitem id="menu_l10n_ec_import_tariff" action="action_l10n_ec_import_tariff"
+              parent="menu_l10n_ec_import_config" sequence="10"/>
+    <menuitem id="menu_l10n_ec_import_port" action="action_l10n_ec_import_port"
+              parent="menu_l10n_ec_import_config" sequence="20"/>
+    <menuitem id="menu_l10n_ec_import_container_type" action="action_l10n_ec_import_container_type"
+              parent="menu_l10n_ec_import_config" sequence="30"/>
+</odoo>

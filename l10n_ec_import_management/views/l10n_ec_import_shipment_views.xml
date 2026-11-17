@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_l10n_ec_import_shipment_list" model="ir.ui.view">
+        <field name="name">l10n_ec.import.shipment.list</field>
+        <field name="model">l10n_ec.import.shipment</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state == 'cancel'" decoration-info="state == 'in_transit'">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="transport_type"/>
+                <field name="transport_document" optional="show"/>
+                <field name="loading_port_id" optional="show"/>
+                <field name="discharging_port_id" optional="show"/>
+                <field name="etd" optional="hide"/>
+                <field name="eta" optional="show"/>
+                <field name="arrival_date" optional="hide"/>
+                <field name="forwarder_id" optional="hide"/>
+                <field name="customs_agent_id" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="state" widget="badge" decoration-info="state == 'in_transit'"
+                       decoration-warning="state == 'arrived'" decoration-success="state == 'done'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_l10n_ec_import_shipment_form" model="ir.ui.view">
+        <field name="name">l10n_ec.import.shipment.form</field>
+        <field name="model">l10n_ec.import.shipment</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_depart" string="Departed" type="object" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_arrive" string="Arrived" type="object" class="btn-primary"
+                            invisible="state != 'in_transit'"/>
+                    <button name="action_create_import" string="Create Customs Declaration" type="object"
+                            class="btn-primary" invisible="state not in ('arrived', 'done') or import_count"/>
+                    <button name="action_create_import" string="Create Customs Declaration" type="object"
+                            invisible="state not in ('arrived', 'done') or not import_count"/>
+                    <button name="action_done" string="Close" type="object" invisible="state != 'arrived'"/>
+                    <button name="%(action_report_l10n_ec_import_shipment)d" string="Print" type="action"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            invisible="state in ('done', 'cancel')"/>
+                    <button name="action_reset_draft" string="Reset to Draft" type="object"
+                            invisible="state != 'cancel'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,in_transit,arrived,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_pickings" type="object" class="oe_stat_button" icon="fa-truck"
+                                invisible="not picking_count">
+                            <field name="picking_count" widget="statinfo" string="Receipts"/>
+                        </button>
+                        <button name="action_view_imports" type="object" class="oe_stat_button" icon="fa-university"
+                                invisible="not import_count">
+                            <field name="import_count" widget="statinfo" string="Declarations"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Parties">
+                            <field name="partner_id"/>
+                            <field name="purchase_order_ids" widget="many2many_tags"
+                                   domain="[('state', '=', 'purchase'), ('partner_id', 'child_of', partner_id)]"
+                                   context="{'search_default_partner_id': partner_id}"/>
+                            <field name="incoterm_id"/>
+                            <field name="forwarder_id"/>
+                            <field name="carrier_id"/>
+                            <field name="customs_agent_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Transport">
+                            <field name="transport_type"/>
+                            <field name="water_type" invisible="transport_type != 'water'"/>
+                            <field name="land_type" invisible="transport_type != 'land'"/>
+                            <field name="transport_document"/>
+                            <field name="voyage"/>
+                            <field name="loading_port_id"/>
+                            <field name="discharging_port_id"/>
+                        </group>
+                        <group string="Dates">
+                            <field name="etd"/>
+                            <field name="eta"/>
+                            <field name="departure_date"/>
+                            <field name="arrival_date"/>
+                        </group>
+                        <group string="Load">
+                            <field name="container_count" string="Containers"/>
+                            <field name="total_packages"/>
+                            <field name="total_weight"/>
+                            <field name="total_volume"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Containers" name="containers">
+                            <field name="container_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="container_type_id"/>
+                                    <field name="name"/>
+                                    <field name="seal_number"/>
+                                    <field name="packages" sum="Total"/>
+                                    <field name="gross_weight" sum="Total"/>
+                                    <field name="volume" sum="Total"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Tracking" name="tracking">
+                            <field name="event_ids">
+                                <list editable="top">
+                                    <field name="date"/>
+                                    <field name="event_type"/>
+                                    <field name="port_id"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Documents" name="documents">
+                            <field name="document_ids">
+                                <list editable="bottom">
+                                    <field name="document_type"/>
+                                    <field name="name"/>
+                                    <field name="date"/>
+                                    <field name="file_name" column_invisible="1"/>
+                                    <field name="file" filename="file_name" widget="binary"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Customs Declarations" name="imports" invisible="not import_ids">
+                            <field name="import_ids" readonly="1">
+                                <list>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="name"/>
+                                    <field name="dai_number"/>
+                                    <field name="date"/>
+                                    <field name="amount_fob" sum="Total"/>
+                                    <field name="amount_cif" sum="Total"/>
+                                    <field name="amount_tributes" sum="Total"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="note"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_l10n_ec_import_shipment_search" model="ir.ui.view">
+        <field name="name">l10n_ec.import.shipment.search</field>
+        <field name="model">l10n_ec.import.shipment</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="transport_document"/>
+                <field name="partner_id"/>
+                <field name="purchase_order_ids"/>
+                <field name="container_ids" string="Container No." filter_domain="[('container_ids.name', 'ilike', self)]"/>
+                <filter name="in_progress" string="In Progress" domain="[('state', 'in', ('draft', 'in_transit', 'arrived'))]"/>
+                <filter name="in_transit" string="In Transit" domain="[('state', '=', 'in_transit')]"/>
+                <filter name="arrived" string="Arrived" domain="[('state', '=', 'arrived')]"/>
+                <separator/>
+                <filter name="eta" string="ETA" date="eta"/>
+                <group>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_partner" string="Supplier" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_transport" string="Transport" context="{'group_by': 'transport_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_l10n_ec_import_shipment" model="ir.actions.act_window">
+        <field name="name">Shipments</field>
+        <field name="res_model">l10n_ec.import.shipment</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_in_progress': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create an import shipment</p>
+            <p>Link the purchase orders, containers and transport documents, track the shipment and
+                create the customs declaration when the goods are received.</p>
+        </field>
+    </record>
+</odoo>

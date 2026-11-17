@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="product_import_advalorem" model="product.product">
+        <field name="name">Ad Valorem (importación)</field>
+        <field name="default_code">EC-IMP-ADV</field>
+        <field name="type">service</field>
+        <field name="landed_cost_ok" eval="True"/>
+        <field name="split_method_landed_cost">by_current_cost_price</field>
+        <field name="sale_ok" eval="False"/>
+        <field name="purchase_ok" eval="True"/>
+    </record>
+    <record id="product_import_fodinfa" model="product.product">
+        <field name="name">FODINFA (importación)</field>
+        <field name="default_code">EC-IMP-FOD</field>
+        <field name="type">service</field>
+        <field name="landed_cost_ok" eval="True"/>
+        <field name="split_method_landed_cost">by_current_cost_price</field>
+        <field name="sale_ok" eval="False"/>
+        <field name="purchase_ok" eval="True"/>
+    </record>
+    <record id="product_import_ice" model="product.product">
+        <field name="name">ICE (importación)</field>
+        <field name="default_code">EC-IMP-ICE</field>
+        <field name="type">service</field>
+        <field name="landed_cost_ok" eval="True"/>
+        <field name="split_method_landed_cost">by_current_cost_price</field>
+        <field name="sale_ok" eval="False"/>
+        <field name="purchase_ok" eval="True"/>
+    </record>
+    <record id="product_import_freight" model="product.product">
+        <field name="name">Flete internacional (importación)</field>
+        <field name="default_code">EC-IMP-FLE</field>
+        <field name="type">service</field>
+        <field name="landed_cost_ok" eval="True"/>
+        <field name="split_method_landed_cost">by_current_cost_price</field>
+        <field name="sale_ok" eval="False"/>
+        <field name="purchase_ok" eval="True"/>
+    </record>
+    <record id="product_import_insurance" model="product.product">
+        <field name="name">Seguro internacional (importación)</field>
+        <field name="default_code">EC-IMP-SEG</field>
+        <field name="type">service</field>
+        <field name="landed_cost_ok" eval="True"/>
+        <field name="split_method_landed_cost">by_current_cost_price</field>
+        <field name="sale_ok" eval="False"/>
+        <field name="purchase_ok" eval="True"/>
+    </record>
+    <record id="product_import_other" model="product.product">
+        <field name="name">Otros gastos de importación</field>
+        <field name="default_code">EC-IMP-OTR</field>
+        <field name="type">service</field>
+        <field name="landed_cost_ok" eval="True"/>
+        <field name="split_method_landed_cost">by_current_cost_price</field>
+        <field name="sale_ok" eval="False"/>
+        <field name="purchase_ok" eval="True"/>
+    </record>
+</odoo>
