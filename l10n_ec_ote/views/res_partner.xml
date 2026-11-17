@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="res_partner_parish_form_view" model="ir.ui.view">
+        <field name="name">l10n_ec.view.partner.form</field>
+        <field name="model">res.partner</field>
+        <field name="priority" eval="100" />
+        <field name="inherit_id" ref="base.view_partner_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='street2']" position="after">
+                <field name="l10n_ec_parish_id" placeholder="Parish" />
+            </xpath>
+        </field>
+    </record>
+</odoo>
