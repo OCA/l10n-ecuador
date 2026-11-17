@@ -1,0 +1,6 @@
+- El Hadji Dem \<elhadji.dem@savoirfairelinux.com\>
+- Sandy Carter \<sandy.carter@savoirfairelinux.com\>
+- Fekete Mihai \<feketemihai@gmail.com\>
+- David Dufresne \<david.dufresne@savoirfairelinux.com\>
+- Adrien Peiffer (ACSONE) \<adrien.peiffer@acsone.eu\>
+- Leonardo Gomez \<gomezgleonardo@riseup.net\> (migration to 19.0)

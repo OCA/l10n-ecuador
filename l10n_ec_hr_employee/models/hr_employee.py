@@ -1,6 +1,3 @@
-# © 2014 Savoir-faire Linux
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
-
 from odoo import api, fields, models
 
 UPDATE_PARTNER_FIELDS = {
@@ -19,15 +16,14 @@ class HrEmployee(models.Model):
         clean_name = (name or "").split(None, 1)
         if not clean_name:
             return False, False
-        return (
-            (clean_name[0], clean_name[1])
-            if len(clean_name) > 1
-            else (clean_name[0], False)
-        )
+        if len(clean_name) > 1:
+            return clean_name[0], clean_name[1]
+        return clean_name[0], False
 
     def _auto_init(self):
-        super()._auto_init()
+        res = super()._auto_init()
         self._update_employee_names()
+        return res
 
     @api.model
     def _update_employee_names(self):
@@ -55,13 +51,11 @@ class HrEmployee(models.Model):
         return " " if self.env.context.get("module") else False
 
     firstname = fields.Char(
-        string="Firstname",
-        default=_firstname_default,
+        default=lambda self: self._firstname_default(),
     )
     lastname = fields.Char(
-        string="Lastname",
         required=True,
-        default=_firstname_default,
+        default=lambda self: self._firstname_default(),
     )
     identification_id = fields.Char(size=10)
 
