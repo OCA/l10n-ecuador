@@ -1,0 +1,3 @@
+- Michael Telahun Makonnen \<mmakonnen@gmail.com\>
+- Cristian Salamea \<cristian.salamea@gmail.com\>
+- Leonardo Gomez \<gomezgleonardo@riseup.net\> (migration to 19.0)

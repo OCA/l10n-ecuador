@@ -1,0 +1,1 @@
+This module manages the employment contracts of Ecuadorian employees on top of the Odoo 19 employee versions (hr.version): contract states derived from dates, trial periods, IESS loan fields and the sector codes (branch, commission and labor code) required by the Ecuadorian payroll.
