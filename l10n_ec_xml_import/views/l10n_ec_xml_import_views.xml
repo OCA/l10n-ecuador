@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="l10n_ec_xml_import_view_form" model="ir.ui.view">
+        <field name="name">l10n.ec.xml.import.form</field>
+        <field name="model">l10n.ec.xml.import</field>
+        <field name="arch" type="xml">
+            <form string="Import SRI XML">
+                <group>
+                    <group>
+                        <field name="company_id" />
+                        <field name="journal_id" />
+                        <field name="expense_account_id" />
+                    </group>
+                    <group string="Source (the file wins when both arrive)">
+                        <field name="xml_file" filename="xml_filename" accept=".xml" />
+                        <field name="xml_filename" invisible="1" />
+                        <field name="access_key" />
+                    </group>
+                </group>
+                <div class="text-muted">
+                    <p>
+                        Attach the supplier factura (01) or customer retencion
+                        (07) XML, or type its 49-digit access key. Either way
+                        the same parser runs: facturas land one draft vendor
+                        bill (supplier by RUC, lines with the purchase tax of
+                        each exact VAT rate), retenciones post one sale
+                        voucher through the manual sale-withhold wizard (every
+                        sustento matched to one of OUR posted sale invoices by
+                        number and customer RUC). Post the bill only after
+                        reviewing taxes and sustento.
+                    </p>
+                </div>
+                <footer>
+                    <button
+                        name="action_import"
+                        type="object"
+                        string="Import"
+                        class="btn-primary"
+                    />
+                    <button string="Discard" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="l10n_ec_xml_import_action" model="ir.actions.act_window">
+        <field name="name">Import SRI XML</field>
+        <field name="res_model">l10n.ec.xml.import</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="l10n_ec_xml_import_view_form" />
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+        id="l10n_ec_xml_import_menu"
+        name="Import SRI XML"
+        parent="l10n_ec.sri_menu"
+        action="l10n_ec_xml_import_action"
+        sequence="30"
+    />
+</odoo>

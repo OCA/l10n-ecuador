@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="category_imported_supplier" model="res.partner.category">
+        <field name="name">Imported Suppliers</field>
+    </record>
+</odoo>
