@@ -84,3 +84,33 @@ class TestHrContract(TransactionCase):
         )
         self.version.action_end_trial()
         self.assertEqual(self.version.trial_date_end, self.today)
+
+    def test_end_contract_closes_version(self):
+        employee = self.env["hr.employee"].create(
+            {"firstname": "Ana", "lastname": "Perez"}
+        )
+        version = employee.version_id
+        job = self.env["hr.job"].create({"name": "Operario"})
+        version.write(
+            {
+                "contract_date_start": self.today - timedelta(days=30),
+                "job_id": job.id,
+            }
+        )
+        version.action_end_contract()
+        self.assertEqual(version.contract_date_end, self.today)
+        self.assertEqual(version.end_job_id, job)
+        self.assertFalse(version.job_id)
+        self.assertFalse(version.active)
+        self.assertEqual(version.state, "done")
+
+    def test_default_trial_days_from_settings(self):
+        self.env["ir.config_parameter"].sudo().set_param(
+            "l10n_ec_hr_contract.base_trial_days", "60"
+        )
+        self.assertEqual(self.env["hr.version"]._default_base_trial_days(), 60)
+
+    def test_views_load(self):
+        views = self.env["hr.version"].get_views([(False, "form"), (False, "list")])
+        self.assertIn("form", views["views"])
+        self.assertIn("list", views["views"])
