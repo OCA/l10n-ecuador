@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <record id="view_human_resources_configuration_ec" model="ir.ui.view">
+      <field name="name">hr settings ecuador</field>
+      <field name="model">hr.config.settings</field>
+      <field name="arch" type="xml">
+	  <form>
+              <header>
+                  <button string="Aplicar" type="object" name="execute" class="btn-primary"/>
+                  <button string="Cancelar" type="object" name="cancel" class="btn-secondary"/>
+              </header>
+              <group string="Parametros Base">
+                  <field name="default_base_trial_days" required="1"/>
+	          <field name="default_wage_base_legal" required="1"/>
+              </group>
+	</form>
+      </field>
+    </record>
+
+    <record id="action_hr_base_config" model="ir.actions.act_window">
+        <field name="name">Configurar Talento Humano</field>
+        <field name="res_model">hr.config.settings</field>
+        <field name="view_mode">form</field>
+    </record>
+
+    <menuitem id="menu_hr_base_config" name="Configuración"
+              parent="hr.menu_human_resources_configuration" sequence="0" action="action_hr_base_config" groups="base.group_no_one"/>
+
+  </data>
+</openerp>
