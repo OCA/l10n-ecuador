@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_l10n_ec_import" model="ir.sequence">
+        <field name="name">Ecuador Customs Declaration</field>
+        <field name="code">l10n_ec.import</field>
+        <field name="prefix">IMP/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+    <record id="seq_l10n_ec_import_shipment" model="ir.sequence">
+        <field name="name">Ecuador Import Shipment</field>
+        <field name="code">l10n_ec.import.shipment</field>
+        <field name="prefix">EMB/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

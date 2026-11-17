@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_l10n_ec_import" model="ir.actions.report">
+        <field name="name">Import Calculation</field>
+        <field name="model">l10n_ec.import</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">l10n_ec_import_management.report_l10n_ec_import</field>
+        <field name="print_report_name">'Import - %s' % object.name</field>
+        <field name="binding_model_id" ref="model_l10n_ec_import"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record>
+
+    <template id="report_l10n_ec_import_document">
+        <t t-call="web.external_layout">
+            <t t-set="cur" t-value="o.currency_id"/>
+            <div class="page">
+                <h3>Customs Declaration <span t-field="o.name"/></h3>
+                <div class="row mb-3">
+                    <div class="col-4"><strong>DAI:</strong> <span t-field="o.dai_number"/></div>
+                    <div class="col-4"><strong>Date:</strong> <span t-field="o.date"/></div>
+                    <div class="col-4"><strong>FODINFA / IVA:</strong>
+                        <span t-out="o.fodinfa_rate"/>% / <span t-out="o.vat_rate"/>%</div>
+                </div>
+                <div class="row mb-3" t-if="o.shipment_id or o.customs_agent_id">
+                    <div class="col-4" t-if="o.shipment_id"><strong>Shipment:</strong> <span t-field="o.shipment_id"/>
+                        <t t-if="o.shipment_id.transport_document">(<span t-field="o.shipment_id.transport_document"/>)</t></div>
+                    <div class="col-4" t-if="o.customs_agent_id"><strong>Customs Broker:</strong> <span t-field="o.customs_agent_id"/></div>
+                    <div class="col-4" t-if="o.clearance_channel"><strong>Channel:</strong> <span t-field="o.clearance_channel"/></div>
+                </div>
+                <h5>Products</h5>
+                <table class="table table-sm o_main_table">
+                    <thead>
+                        <tr>
+                            <th>Product</th><th>Tariff</th><th class="text-end">Qty</th>
+                            <th class="text-end">FOB</th><th class="text-end">Freight</th>
+                            <th class="text-end">Insurance</th><th class="text-end">CIF</th>
+                            <th class="text-end">Ad Val.</th><th class="text-end">FODINFA</th>
+                            <th class="text-end">ICE</th><th class="text-end">IVA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="o.line_ids" t-as="line">
+                            <td><span t-field="line.product_id"/></td>
+                            <td><span t-field="line.tariff_id.code"/></td>
+                            <td class="text-end"><span t-field="line.quantity"/></td>
+                            <td class="text-end"><span t-field="line.fob_amount"/></td>
+                            <td class="text-end"><span t-field="line.freight_amount"/></td>
+                            <td class="text-end"><span t-field="line.insurance_amount"/></td>
+                            <td class="text-end"><span t-field="line.cif_amount"/></td>
+                            <td class="text-end"><span t-field="line.advalorem_amount"/></td>
+                            <td class="text-end"><span t-field="line.fodinfa_amount"/></td>
+                            <td class="text-end"><span t-field="line.ice_tribute_amount"/></td>
+                            <td class="text-end"><span t-field="line.vat_amount"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h5>Tributes</h5>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Product</th><th>Tribute</th><th class="text-end">Base</th>
+                            <th class="text-end">Rate %</th><th class="text-end">Computed</th>
+                            <th>Relief / Reason</th><th class="text-end">Payable</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="o.tribute_ids" t-as="t">
+                            <td><span t-field="t.product_id"/></td>
+                            <td><span t-field="t.tribute_type"/></td>
+                            <td class="text-end"><span t-field="t.base_amount"/></td>
+                            <td class="text-end"><span t-out="'%.4f' % t.rate"/></td>
+                            <td class="text-end"><span t-field="t.computed_amount"/></td>
+                            <td><t t-if="t.relief_type != 'none'"><span t-field="t.relief_type"/>
+                                (<span t-out="t.relief_value"/>) - <span t-field="t.relief_reason"/></t></td>
+                            <td class="text-end"><span t-field="t.amount"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="row justify-content-end">
+                    <div class="col-5">
+                        <table class="table table-sm">
+                            <tr><td>FOB</td><td class="text-end"><span t-field="o.amount_fob"/></td></tr>
+                            <tr><td>CIF</td><td class="text-end"><span t-field="o.amount_cif"/></td></tr>
+                            <tr><td>Ad Valorem</td><td class="text-end"><span t-field="o.amount_advalorem"/></td></tr>
+                            <tr><td>FODINFA</td><td class="text-end"><span t-field="o.amount_fodinfa"/></td></tr>
+                            <tr><td>ICE</td><td class="text-end"><span t-field="o.amount_ice"/></td></tr>
+                            <tr><td>IVA</td><td class="text-end"><span t-field="o.amount_vat"/></td></tr>
+                            <tr class="fw-bold"><td>Payable tributes</td>
+                                <td class="text-end"><span t-field="o.amount_tributes"/></td></tr>
+                        </table>
+                    </div>
+                </div>
+                <p class="text-muted small">Calculation tool, not customs advice. Compare with the customs liquidation.</p>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_l10n_ec_import">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="l10n_ec_import_management.report_l10n_ec_import_document" t-lang="o.env.user.lang"/>
+            </t>
+        </t>
+    </template>
+</odoo>

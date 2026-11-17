@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_l10n_ec_import_shipment" model="ir.actions.report">
+        <field name="name">Shipment</field>
+        <field name="model">l10n_ec.import.shipment</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">l10n_ec_import_management.report_l10n_ec_import_shipment</field>
+        <field name="print_report_name">'Shipment - %s' % object.name</field>
+        <field name="binding_model_id" ref="model_l10n_ec_import_shipment"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_l10n_ec_import_shipment_document">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <h3>Shipment <span t-field="o.name"/> <small class="text-muted">(<span t-field="o.state"/>)</small></h3>
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <div><strong>Supplier:</strong> <span t-field="o.partner_id"/></div>
+                        <div t-if="o.purchase_order_ids"><strong>Purchase Orders:</strong>
+                            <span t-out="', '.join(o.purchase_order_ids.mapped('name'))"/></div>
+                        <div t-if="o.incoterm_id"><strong>Incoterm:</strong> <span t-field="o.incoterm_id.code"/></div>
+                        <div t-if="o.forwarder_id"><strong>Forwarder:</strong> <span t-field="o.forwarder_id"/></div>
+                        <div t-if="o.carrier_id"><strong>Carrier:</strong> <span t-field="o.carrier_id"/></div>
+                        <div t-if="o.customs_agent_id"><strong>Customs Broker:</strong> <span t-field="o.customs_agent_id"/></div>
+                    </div>
+                    <div class="col-6">
+                        <div><strong>Transport:</strong> <span t-field="o.transport_type"/>
+                            <t t-if="o.water_type"> - <span t-field="o.water_type"/></t>
+                            <t t-if="o.land_type"> - <span t-field="o.land_type"/></t></div>
+                        <div t-if="o.transport_document"><strong>BL / AWB:</strong> <span t-field="o.transport_document"/></div>
+                        <div t-if="o.voyage"><strong>Voyage:</strong> <span t-field="o.voyage"/></div>
+                        <div><strong>From:</strong> <span t-field="o.loading_port_id"/>
+                            <strong>To:</strong> <span t-field="o.discharging_port_id"/></div>
+                        <div><strong>ETD / ETA:</strong> <span t-field="o.etd"/> / <span t-field="o.eta"/></div>
+                        <div t-if="o.arrival_date"><strong>Arrival:</strong> <span t-field="o.arrival_date"/></div>
+                    </div>
+                </div>
+
+                <t t-if="o.container_ids">
+                    <h5>Containers</h5>
+                    <table class="table table-sm o_main_table">
+                        <thead><tr>
+                            <th>Type</th><th>Container No.</th><th>Seal</th>
+                            <th class="text-end">Packages</th><th class="text-end">Weight (kg)</th>
+                            <th class="text-end">Volume (m³)</th>
+                        </tr></thead>
+                        <tbody>
+                            <tr t-foreach="o.container_ids" t-as="c">
+                                <td><span t-field="c.container_type_id"/></td>
+                                <td><span t-field="c.name"/></td>
+                                <td><span t-field="c.seal_number"/></td>
+                                <td class="text-end"><span t-field="c.packages"/></td>
+                                <td class="text-end"><span t-field="c.gross_weight"/></td>
+                                <td class="text-end"><span t-field="c.volume"/></td>
+                            </tr>
+                            <tr class="fw-bold">
+                                <td colspan="3">Total</td>
+                                <td class="text-end"><span t-field="o.total_packages"/></td>
+                                <td class="text-end"><span t-field="o.total_weight"/></td>
+                                <td class="text-end"><span t-field="o.total_volume"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </t>
+
+                <t t-if="o.event_ids">
+                    <h5>Tracking</h5>
+                    <table class="table table-sm">
+                        <thead><tr><th>Date</th><th>Event</th><th>Location</th><th>Note</th></tr></thead>
+                        <tbody>
+                            <tr t-foreach="o.event_ids" t-as="e">
+                                <td><span t-field="e.date"/></td>
+                                <td><span t-field="e.event_type"/></td>
+                                <td><span t-field="e.port_id"/></td>
+                                <td><span t-field="e.note"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </t>
+
+                <t t-if="o.document_ids">
+                    <h5>Documents</h5>
+                    <table class="table table-sm">
+                        <thead><tr><th>Type</th><th>Number</th><th>Date</th></tr></thead>
+                        <tbody>
+                            <tr t-foreach="o.document_ids" t-as="d">
+                                <td><span t-field="d.document_type"/></td>
+                                <td><span t-field="d.name"/></td>
+                                <td><span t-field="d.date"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_l10n_ec_import_shipment">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="l10n_ec_import_management.report_l10n_ec_import_shipment_document" t-lang="o.env.user.lang"/>
+            </t>
+        </t>
+    </template>
+</odoo>

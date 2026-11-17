@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_l10n_ec_import_container_type_list" model="ir.ui.view">
+        <field name="name">l10n_ec.import.container.type.list</field>
+        <field name="model">l10n_ec.import.container.type</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="teu"/>
+                <field name="max_weight"/>
+                <field name="volume"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_l10n_ec_import_container_type" model="ir.actions.act_window">
+        <field name="name">Container Types</field>
+        <field name="res_model">l10n_ec.import.container.type</field>
+        <field name="view_mode">list</field>
+        <field name="context">{'active_test': False}</field>
+    </record>
+</odoo>

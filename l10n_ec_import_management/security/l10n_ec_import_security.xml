@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="rule_l10n_ec_import_tariff_company" model="ir.rule">
+        <field name="name">l10n_ec_import_tariff: multi-company</field>
+        <field name="model_id" ref="model_l10n_ec_import_tariff"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_l10n_ec_import_port_company" model="ir.rule">
+        <field name="name">l10n_ec_import_port: multi-company</field>
+        <field name="model_id" ref="model_l10n_ec_import_port"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_l10n_ec_import_shipment_company" model="ir.rule">
+        <field name="name">l10n_ec_import_shipment: multi-company</field>
+        <field name="model_id" ref="model_l10n_ec_import_shipment"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_l10n_ec_import_shipment_container_company" model="ir.rule">
+        <field name="name">l10n_ec_import_shipment_container: multi-company</field>
+        <field name="model_id" ref="model_l10n_ec_import_shipment_container"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_l10n_ec_import_shipment_event_company" model="ir.rule">
+        <field name="name">l10n_ec_import_shipment_event: multi-company</field>
+        <field name="model_id" ref="model_l10n_ec_import_shipment_event"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_l10n_ec_import_document_company" model="ir.rule">
+        <field name="name">l10n_ec_import_document: multi-company</field>
+        <field name="model_id" ref="model_l10n_ec_import_document"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_l10n_ec_import_company" model="ir.rule">
+        <field name="name">l10n_ec_import: multi-company</field>
+        <field name="model_id" ref="model_l10n_ec_import"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_l10n_ec_import_line_company" model="ir.rule">
+        <field name="name">l10n_ec_import_line: multi-company</field>
+        <field name="model_id" ref="model_l10n_ec_import_line"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_l10n_ec_import_tribute_company" model="ir.rule">
+        <field name="name">l10n_ec_import_tribute: multi-company</field>
+        <field name="model_id" ref="model_l10n_ec_import_tribute"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_l10n_ec_import_cost_company" model="ir.rule">
+        <field name="name">l10n_ec_import_cost: multi-company</field>
+        <field name="model_id" ref="model_l10n_ec_import_cost"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_l10n_ec_import_revision_company" model="ir.rule">
+        <field name="name">l10n_ec_import_revision: multi-company</field>
+        <field name="model_id" ref="model_l10n_ec_import_revision"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_l10n_ec_import_list" model="ir.ui.view">
+        <field name="name">l10n_ec.import.list</field>
+        <field name="model">l10n_ec.import</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state == 'cancel'" decoration-info="state == 'draft'">
+                <field name="name"/>
+                <field name="dai_number"/>
+                <field name="date"/>
+                <field name="shipment_id" optional="show"/>
+                <field name="customs_agent_id" optional="hide"/>
+                <field name="clearance_channel" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="amount_fob" sum="Total"/>
+                <field name="amount_cif" sum="Total"/>
+                <field name="amount_advalorem" optional="hide" sum="Total"/>
+                <field name="amount_fodinfa" optional="hide" sum="Total"/>
+                <field name="amount_vat" optional="hide" sum="Total"/>
+                <field name="amount_tributes" sum="Total"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'published'" decoration-info="state == 'calculated'"/>
+                <button name="action_view_vendor_bills" type="object" icon="fa-file-text-o"
+                        title="Vendor Bills" invisible="not vendor_bill_count"/>
+                <field name="vendor_bill_count" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_l10n_ec_import_form" model="ir.ui.view">
+        <field name="name">l10n_ec.import.form</field>
+        <field name="model">l10n_ec.import</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_load_receipts" string="Load Receipts" type="object"
+                            class="btn-primary" invisible="state != 'draft' or line_ids"/>
+                    <button name="action_load_receipts" string="Reload Receipts" type="object"
+                            invisible="state not in ('draft', 'calculated') or not line_ids"/>
+                    <button name="action_calculate" string="Calculate" type="object"
+                            class="btn-primary" invisible="state not in ('draft', 'calculated')"/>
+                    <button name="action_publish" string="Publish" type="object"
+                            class="btn-primary" invisible="state != 'calculated'"/>
+                    <button name="action_create_landed_cost" string="Create Landed Cost" type="object"
+                            class="btn-primary" invisible="state != 'published' or landed_cost_id"/>
+                    <button name="action_create_customs_bill" string="Create Customs Bill" type="object"
+                            class="btn-primary" invisible="state != 'published' or customs_bill_id"/>
+                    <button name="%(action_report_l10n_ec_import)d" string="Print" type="action"
+                            invisible="state == 'draft'"/>
+                    <button name="action_export_xlsx" string="Excel" type="object" invisible="state == 'draft'"/>
+                    <button name="action_reset_draft" string="Reset to Draft" type="object"
+                            invisible="state not in ('published', 'cancel')"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            invisible="state == 'cancel'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,calculated,published"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_shipment" type="object" class="oe_stat_button" icon="fa-ship"
+                                invisible="not shipment_id">
+                            <span>Shipment</span>
+                        </button>
+                        <button name="action_view_pickings" type="object" class="oe_stat_button" icon="fa-truck"
+                                invisible="not picking_ids">
+                            <span>Receipts</span>
+                        </button>
+                        <button name="action_view_vendor_bills" type="object" class="oe_stat_button"
+                                icon="fa-file-text-o" invisible="not vendor_bill_count">
+                            <field name="vendor_bill_count" widget="statinfo" string="Vendor Bills"/>
+                        </button>
+                        <button name="action_view_landed_cost" type="object" class="oe_stat_button"
+                                icon="fa-plus-square" invisible="not landed_cost_id">
+                            <span>Landed Cost</span>
+                        </button>
+                        <button name="action_view_customs_bill" type="object" class="oe_stat_button"
+                                icon="fa-university" invisible="not customs_bill_id">
+                            <span>Customs Bill</span>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="dai_number" readonly="state not in ('draft', 'calculated')"/>
+                            <field name="date" readonly="state not in ('draft', 'calculated')"/>
+                            <field name="arrival_date" readonly="state not in ('draft', 'calculated')"/>
+                            <field name="shipment_id" readonly="state not in ('draft', 'calculated')"/>
+                            <field name="customs_agent_id" readonly="state == 'cancel'"/>
+                            <field name="customs_partner_id" readonly="state == 'cancel'"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="line_ids"/>
+                        </group>
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="freight_amount" readonly="state not in ('draft', 'calculated')"/>
+                            <field name="insurance_amount" readonly="state not in ('draft', 'calculated')"/>
+                            <field name="add_freight_to_stock" readonly="state not in ('draft', 'calculated')"/>
+                            <field name="add_insurance_to_stock" readonly="state not in ('draft', 'calculated')"/>
+                            <field name="fodinfa_rate"/>
+                            <field name="vat_rate"/>
+                        </group>
+                    </group>
+                    <field name="picking_ids" widget="many2many_tags"
+                           readonly="state not in ('draft', 'calculated')"
+                           placeholder="Completed receipts of this declaration..."/>
+                    <notebook>
+                        <page string="Products" name="products">
+                            <field name="line_ids" readonly="state not in ('draft', 'calculated')">
+                                <list editable="bottom" create="0" delete="0">
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="product_id"/>
+                                    <field name="tariff_id"/>
+                                    <field name="quantity"/>
+                                    <field name="uom_id" string="Unit" optional="show"/>
+                                    <field name="weight" optional="hide"/>
+                                    <field name="volume" optional="hide"/>
+                                    <field name="fob_amount" sum="FOB"/>
+                                    <field name="freight_amount" sum="Freight" optional="show"/>
+                                    <field name="insurance_amount" sum="Insurance" optional="show"/>
+                                    <field name="cif_amount" sum="CIF"/>
+                                    <field name="ice_amount" sum="ICE declared"/>
+                                    <field name="advalorem_amount" sum="Ad Valorem"/>
+                                    <field name="fodinfa_amount" sum="FODINFA"/>
+                                    <field name="vat_amount" sum="IVA"/>
+                                    <field name="tributes_amount" sum="Tributes"/>
+                                    <field name="unit_landed_cost" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Tributes" name="tributes">
+                            <field name="tribute_ids" readonly="state not in ('draft', 'calculated')">
+                                <list editable="bottom" create="0" delete="0"
+                                      decoration-warning="relief_type != 'none' and not relief_reason">
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="product_id"/>
+                                    <field name="tribute_type"/>
+                                    <field name="base_amount"/>
+                                    <field name="rate"/>
+                                    <field name="computed_amount" sum="Computed"/>
+                                    <field name="relief_type"/>
+                                    <field name="relief_value" invisible="relief_type == 'none'"/>
+                                    <field name="relief_reason" invisible="relief_type == 'none'"
+                                           required="relief_type != 'none'"/>
+                                    <field name="relief_amount" sum="Relief" optional="hide"/>
+                                    <field name="amount" sum="Payable"/>
+                                </list>
+                            </field>
+                            <p class="text-muted">
+                                After changing a relief, click <b>Calculate</b> again so IVA uses the new base.
+                            </p>
+                        </page>
+                        <page string="Import Costs" name="costs">
+                            <field name="cost_line_ids" readonly="state not in ('draft', 'calculated')">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="company_currency_id" column_invisible="1"/>
+                                    <field name="cost_type"/>
+                                    <field name="partner_id"/>
+                                    <field name="name"/>
+                                    <field name="vendor_bill_id" optional="show"/>
+                                    <field name="currency_id" groups="base.group_multi_currency"/>
+                                    <field name="amount"/>
+                                    <field name="amount_company" sum="Total"/>
+                                    <field name="add_to_stock" invisible="cost_type != 'other'"/>
+                                </list>
+                            </field>
+                            <p class="text-muted">
+                                Freight and insurance feed the CIF value. Other costs never enter the tribute base,
+                                but can be added to the stock value through the landed cost.
+                            </p>
+                        </page>
+                        <page string="Customs" name="customs">
+                            <group>
+                                <group>
+                                    <field name="regime_code"/>
+                                    <field name="clearance_channel"/>
+                                </group>
+                                <group>
+                                    <field name="release_date"/>
+                                </group>
+                            </group>
+                            <field name="revision_ids">
+                                <list editable="bottom" decoration-muted="resolved">
+                                    <field name="date"/>
+                                    <field name="reason"/>
+                                    <field name="user_id" widget="many2one_avatar_user"/>
+                                    <field name="resolved"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="note"/>
+                        </page>
+                    </notebook>
+                    <group class="oe_subtotal_footer">
+                        <field name="amount_fob"/>
+                        <field name="amount_cif"/>
+                        <field name="amount_advalorem"/>
+                        <field name="amount_fodinfa"/>
+                        <field name="amount_ice"/>
+                        <field name="amount_vat"/>
+                        <field name="amount_tributes" class="oe_subtotal_footer_separator"/>
+                        <field name="amount_other_costs" invisible="not amount_other_costs"/>
+                    </group>
+                    <field name="landed_cost_id" invisible="1"/>
+                    <field name="customs_bill_id" invisible="1"/>
+                    <div class="text-muted small">
+                        This is a calculation tool, not customs advice. Always compare with the customs liquidation.
+                    </div>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_l10n_ec_import_search" model="ir.ui.view">
+        <field name="name">l10n_ec.import.search</field>
+        <field name="model">l10n_ec.import</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="dai_number"/>
+                <field name="shipment_id"/>
+                <field name="customs_agent_id"/>
+                <field name="picking_ids"/>
+                <filter name="draft" string="Draft" domain="[('state', 'in', ('draft', 'calculated'))]"/>
+                <filter name="published" string="Published" domain="[('state', '=', 'published')]"/>
+                <separator/>
+                <filter name="date" string="Date" date="date"/>
+                <group>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_shipment" string="Shipment" context="{'group_by': 'shipment_id'}"/>
+                    <filter name="group_date" string="Date" context="{'group_by': 'date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_l10n_ec_import" model="ir.actions.act_window">
+        <field name="name">Customs Declarations</field>
+        <field name="res_model">l10n_ec.import</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create an import declaration</p>
+            <p>Group completed receipts, add freight, insurance and the DAI number, then calculate the tributes.</p>
+        </field>
+    </record>
+</odoo>

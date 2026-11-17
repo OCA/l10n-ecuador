@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_l10n_ec_import" model="ir.ui.view">
+        <field name="name">res.config.settings.form.l10n_ec.import</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <block name="default_taxes_setting_container" position="after">
+                <block title="Ecuador Imports" name="l10n_ec_import_setting_container">
+                    <setting string="Import Tribute Rates" company_dependent="1"
+                             help="Rates used when calculating an import. Published imports keep their own rates.">
+                        <div class="row mt8">
+                            <label for="l10n_ec_import_fodinfa_rate" class="col-lg-5 o_light_label"/>
+                            <field name="l10n_ec_import_fodinfa_rate"/>
+                        </div>
+                        <div class="row">
+                            <label for="l10n_ec_import_vat_rate" class="col-lg-5 o_light_label"/>
+                            <field name="l10n_ec_import_vat_rate"/>
+                        </div>
+                    </setting>
+                    <setting string="Customs Bill" company_dependent="1"
+                             help="Partner, journal and IVA account used for the customs bill.">
+                        <div class="row mt8">
+                            <label for="l10n_ec_customs_partner_id" class="col-lg-5 o_light_label"/>
+                            <field name="l10n_ec_customs_partner_id"/>
+                        </div>
+                        <div class="row">
+                            <label for="l10n_ec_import_journal_id" class="col-lg-5 o_light_label"/>
+                            <field name="l10n_ec_import_journal_id"/>
+                        </div>
+                        <div class="row">
+                            <label for="l10n_ec_import_vat_account_id" class="col-lg-5 o_light_label"/>
+                            <field name="l10n_ec_import_vat_account_id"/>
+                        </div>
+                    </setting>
+                </block>
+            </block>
+        </field>
+    </record>
+</odoo>

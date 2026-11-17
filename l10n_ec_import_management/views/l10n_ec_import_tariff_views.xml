@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_l10n_ec_import_tariff_list" model="ir.ui.view">
+        <field name="name">l10n_ec.import.tariff.list</field>
+        <field name="model">l10n_ec.import.tariff</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_l10n_ec_import_tariff_form" model="ir.ui.view">
+        <field name="name">l10n_ec.import.tariff.form</field>
+        <field name="model">l10n_ec.import.tariff</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group>
+                            <field name="code" placeholder="e.g. 8471.30.00.00"/>
+                            <field name="name"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                    <separator string="Ad Valorem components (mixed tariff = several lines)"/>
+                    <field name="rule_ids">
+                        <list editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="rule_type"/>
+                            <field name="rate" invisible="rule_type != 'percent'"/>
+                            <field name="amount" invisible="rule_type == 'percent'"/>
+                            <field name="block_size" invisible="rule_type != 'per_block'"/>
+                            <field name="block_basis" invisible="rule_type != 'per_block'"/>
+                        </list>
+                    </field>
+                    <field name="note" placeholder="Notes (source of the SENAE rate, validity...)"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_l10n_ec_import_tariff_search" model="ir.ui.view">
+        <field name="name">l10n_ec.import.tariff.search</field>
+        <field name="model">l10n_ec.import.tariff</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="code"/>
+                <field name="name"/>
+                <filter name="inactive" string="Archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_l10n_ec_import_tariff" model="ir.actions.act_window">
+        <field name="name">Tariff Subheadings</field>
+        <field name="res_model">l10n_ec.import.tariff</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create a tariff subheading</p>
+            <p>Enter the SENAE rates of each subheading. No rates are shipped with this module.</p>
+        </field>
+    </record>
+</odoo>
