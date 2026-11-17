@@ -1,0 +1,62 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* hr_employee_firstname
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-17 12:25+0000\n"
+"PO-Revision-Date: 2015-04-24 10:20+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_ec_hr_employee
+#: model_terms:ir.ui.view,arch_db:l10n_ec_hr_employee.view_employee_form
+msgid "Apellidos"
+msgstr ""
+
+#. module: l10n_ec_hr_employee
+#: model:ir.model.fields,field_description:l10n_ec_hr_employee.field_hr_employee__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: l10n_ec_hr_employee
+#: model:ir.model,name:l10n_ec_hr_employee.model_hr_employee
+msgid "Employee"
+msgstr "Employé"
+
+#. module: l10n_ec_hr_employee
+#: model:ir.model.fields,field_description:l10n_ec_hr_employee.field_hr_employee__firstname
+msgid "Firstname"
+msgstr "Prénom"
+
+#. module: l10n_ec_hr_employee
+#: model:ir.model.fields,field_description:l10n_ec_hr_employee.field_hr_employee__id
+msgid "ID"
+msgstr ""
+
+#. module: l10n_ec_hr_employee
+#: model:ir.model.fields,field_description:l10n_ec_hr_employee.field_hr_employee__identification_id
+msgid "Identification"
+msgstr ""
+
+#. module: l10n_ec_hr_employee
+#: model:ir.ui.menu,name:l10n_ec_hr_employee.menu_hr_job
+msgid "Job Positions"
+msgstr ""
+
+#. module: l10n_ec_hr_employee
+#: model:ir.model.fields,field_description:l10n_ec_hr_employee.field_hr_employee__lastname
+msgid "Lastname"
+msgstr "Nom"
+
+#. module: l10n_ec_hr_employee
+#: model_terms:ir.ui.view,arch_db:l10n_ec_hr_employee.view_employee_form
+msgid "Nombres"
+msgstr ""
