@@ -82,7 +82,7 @@ class HrVersion(models.Model):
     )
     end_job_id = fields.Many2one(
         "hr.job",
-        string="Job Title",
+        string="Job Position at End",
         readonly=True,
         help="Job title held when the contract ended.",
     )
